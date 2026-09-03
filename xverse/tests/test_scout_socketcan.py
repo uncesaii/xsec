@@ -114,16 +114,16 @@ def _metadata(interface: str = "can0") -> ScoutSessionMetadata:
         ),
         redaction=RedactionRecord(
             status="not-required",
-            policy="0verse.default-export/v1",
+            policy="xverse.default-export/v1",
             contains_sensitive_values=False,
             entries=(),
         ),
         interface=interface,
         source="fake SocketCAN receiver",
-        collector="0verse-tests",
+        collector="xverse-tests",
         authorization_basis="synthetic-fixture",
         started_at="2026-07-31T10:00:00Z",
-        tool_name="0verse-firmware-scout",
+        tool_name="xverse-firmware-scout",
         tool_version="0.0.1+test",
     )
 
@@ -222,7 +222,7 @@ def test_capture_imports_optional_dependency_only_at_invocation(
     monkeypatch.setattr(socketcan.importlib, "import_module", missing_can)
     session = _session(tmp_path, "missing")
 
-    with pytest.raises(RuntimeError, match=r"install 0verse\[scout\]"):
+    with pytest.raises(RuntimeError, match=r"install xverse\[scout\]"):
         capture_socketcan(session, interface="can0", max_events=1, receive_timeout_s=0)
     assert imports == ["can"]
     assert session.event_count == 0
@@ -510,7 +510,7 @@ def test_capture_propagates_unexpected_receiver_exception_after_shutdown(
     ),
 )
 def test_capture_real_authorized_socketcan(tmp_path: Path) -> None:
-    pytest.importorskip("can", reason="requires optional 0verse[scout] dependency")
+    pytest.importorskip("can", reason="requires optional xverse[scout] dependency")
     interface = _SOCKETCAN_INTERFACE
     session = ScoutEvidenceSession(
         tmp_path / "hardware-capture",
@@ -518,7 +518,7 @@ def test_capture_real_authorized_socketcan(tmp_path: Path) -> None:
             _metadata(interface),
             acquisition_id="socketcan-hardware-acceptance",
             source="authorized receive-only SocketCAN acceptance test",
-            collector="0verse-socketcan-hardware-test",
+            collector="xverse-socketcan-hardware-test",
             authorization_basis="written-authorization",
         ),
     )

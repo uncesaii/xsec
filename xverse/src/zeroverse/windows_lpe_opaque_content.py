@@ -14,7 +14,7 @@ import stat
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 
-SCHEMA_VERSION = "0verse.windows-lpe-opaque-content/v1"
+SCHEMA_VERSION = "xverse.windows-lpe-opaque-content/v1"
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _PORTABLE_PATH = re.compile(
     r"^(?:[A-Za-z0-9][A-Za-z0-9._-]*/)*[A-Za-z0-9][A-Za-z0-9._-]*$"

@@ -399,7 +399,7 @@ def test_service_claims_are_non_authorizing_and_authorization_shape_is_closed() 
 def test_loader_rejects_duplicate_json_keys(tmp_path: Path) -> None:
     duplicate = tmp_path / "duplicate.json"
     duplicate.write_text(
-        '{"schema_version":"0verse.device-profile/v1","profile_id":"first","profile_id":"second"}',
+        '{"schema_version":"xverse.device-profile/v1","profile_id":"first","profile_id":"second"}',
         encoding="utf-8",
     )
     with pytest.raises(ValueError, match="duplicate JSON key: profile_id"):

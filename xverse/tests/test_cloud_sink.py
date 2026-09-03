@@ -1,4 +1,4 @@
-"""Engine-side cloud sink — the ``0verse scan --cloud`` lane.
+"""Engine-side cloud sink — the ``xverse scan --cloud`` lane.
 
 Covers the OversePoV -> CloudSinkFinding mapper (PoV-is-truth: confirmed honors
 severity + 0.92 confidence; unconfirmed is forced to info + 0.1; confidence
@@ -48,7 +48,7 @@ def test_confirmed_honors_severity_and_default_confidence() -> None:
     assert cf["severity"] == "high"          # honored only because confirmed
     assert cf["status"] == "confirmed"
     assert cf["confidence"] == 0.92
-    assert cf["templateId"] == "0verse-binary:CWE-78"
+    assert cf["templateId"] == "xverse-binary:CWE-78"
     assert cf["category"] == "CWE-78"
 
 
@@ -198,7 +198,7 @@ def _scan_result() -> ScanResult:
         dedup_bucket="", explanation="possible overflow",
     )
     return ScanResult(
-        contract_version="1.0", tool={"name": "0verse", "version": "0.0.1"},
+        contract_version="1.0", tool={"name": "xverse", "version": "0.0.1"},
         binary="/bin/vuln", format="ELF", arch="x86-64", backend="ghidra",
         triage="ELF x86-64", stages_run=["ingest", "analyze", "dynamic"],
         findings=[confirmed, hypo], note="static-only on this host",

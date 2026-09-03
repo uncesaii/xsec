@@ -1,6 +1,6 @@
 """#39 — directed fuzzing toward seed-flagged sinks (ATLANTIS UniAFL model).
 
-0verse's AFL++ lane is pure coverage-guided: it fuzzes for blind new coverage and
+xverse's AFL++ lane is pure coverage-guided: it fuzzes for blind new coverage and
 throws away the one signal the rest of the engine already produces — *which* call
 site is the suspected bug. The slice (`analyze.Finding.sink_addr`), the bug-class
 lenses (`bugclasses`), and the 90 seed-archetypes (`seedbugs.SeedBugClass.matches`)
@@ -8,7 +8,7 @@ all name a sink; this module turns that into steering.
 
 **Why UniAFL, not AFLGo/BULLSEYE.** The canonical directed greybox fuzzers bake a
 compile-time BB→target *distance* into the binary (an LLVM pass) — impossible on
-0verse's stripped targets. ATLANTIS's UniAFL avoids custom instrumentation: it
+xverse's stripped targets. ATLANTIS's UniAFL avoids custom instrumentation: it
 *scores corpus seeds by how many key addresses near the sink they execute* and
 selects with a deliberately mixed **25 % pure-random / 25 % among seeds touching
 ≥1 key address / 50 % score-weighted** policy (paper §6.3) to steer without

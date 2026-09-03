@@ -35,7 +35,7 @@ def _source_and_harness(tmp_path: Path, body: str) -> tuple[Path, Path, str]:
             "-C",
             str(source),
             "-c",
-            "user.name=0verse Test",
+            "user.name=xverse Test",
             "-c",
             "user.email=test@invalid",
             "commit",
@@ -71,7 +71,7 @@ def _run_helper(
     )
     bootstrap_marker.chmod(0o640)
     header = {
-        "protocol": "0verse.browser-replay/v1",
+        "protocol": "xverse.browser-replay/v1",
         "marker": marker,
         "target_sha256": _sha256(harness),
         "input_sha256": hashlib.sha256(payload).hexdigest(),

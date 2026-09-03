@@ -7,7 +7,7 @@ registered via binfmt_misc):
 
     python benchmarks/m3_arm64_proof.py
 
-It proves 0verse covers ARM64 *dynamically*, not just in disassembly, on
+It proves xverse covers ARM64 *dynamically*, not just in disassembly, on
 benchmarks/parse_arm.c — a freestanding (no-libc) AArch64 ELF with a gated
 stack-buffer overflow behind a 4-byte ``ARM!`` magic:
 

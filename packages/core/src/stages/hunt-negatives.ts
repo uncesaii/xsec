@@ -12,7 +12,7 @@
  * matches one closely enough, attaches that prior reason as CONTEXT to the
  * skeptic's prompt.
  *
- * Mirrors 0verse's `oracle.suspected_known()` discipline (labels, never
+ * Mirrors xverse's `oracle.suspected_known()` discipline (labels, never
  * auto-dismisses): a match is a NOTE the skeptic reads, not a rejection. The
  * skeptic call still runs, still decides, and can still confirm a finding
  * that matches a known-negative shape if a new distinguishing fact overrides

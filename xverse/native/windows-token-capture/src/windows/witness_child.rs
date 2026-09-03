@@ -67,7 +67,7 @@ const SECURITY_DESCRIPTOR_REVISION: u32 = 1;
 const MAX_WITNESS_IMAGE_BYTES: u64 = 64 * 1024 * 1024;
 const COPY_BUFFER_BYTES: usize = 64 * 1024;
 const MAX_PATH_U16: usize = 32_768;
-const CHILD_PIPE_PREFIX: &str = r"\\.\pipe\0verse.windows-token-witness-child.v1.";
+const CHILD_PIPE_PREFIX: &str = r"\\.\pipe\xverse.windows-token-witness-child.v1.";
 const CHILD_MODE: &str = "--trusted-witness-child";
 const TERMINATION_EXIT_CODE: u32 = 0x0c01_0001;
 const CHILD_TEARDOWN_TIMEOUT_MS: u32 = 10_000;
@@ -290,7 +290,7 @@ impl TrustedImage {
             return Err("trusted witness source path must be absolute".to_owned());
         }
 
-        let directory = program_data()?.join(format!("0verse-witness-{}", random_hex::<16>()?));
+        let directory = program_data()?.join(format!("xverse-witness-{}", random_hex::<16>()?));
         let directory_sddl = format!("O:SYG:SYD:P(A;OICI;FA;;;SY)(A;OICI;GRGX;;;{exact_user_sid})");
         let descriptor = security_descriptor(&directory_sddl)?;
         let attributes = security_attributes(&descriptor);

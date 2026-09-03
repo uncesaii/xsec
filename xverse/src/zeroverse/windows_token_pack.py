@@ -1,7 +1,7 @@
 """Stateless verification of a complete Windows token-evidence pack.
 
 The verifier rehashes a digest-addressed closure, verifies the outer pack
-signature and every nested 0verse signature, and independently derives the
+signature and every nested xverse signature, and independently derives the
 target/control result. It deliberately does not consume replay state or issue
 an acceptance, novelty, claim-eligibility, or disclosure decision.
 """
@@ -63,8 +63,8 @@ LPAC_PACK_SIGNATURE_NAMESPACE = "xsec-windows-token-evidence-pack-v2"
 LPAC_LAUNCH_PACK_SIGNATURE_NAMESPACE = "xsec-windows-token-evidence-pack-v3"
 PACK_MANIFEST_MEDIA_TYPE = "application/vnd.xsec.windows-token-evidence-pack+json"
 PACK_SIGNATURE_MEDIA_TYPE = "application/vnd.openssh.signature"
-VERIFICATION_SCHEMA_VERSION = "0verse.windows-token-pack-verification/v3"
-BUILD_SCHEMA_VERSION = "0verse.windows-token-pack-build/v1"
+VERIFICATION_SCHEMA_VERSION = "xverse.windows-token-pack-verification/v3"
+BUILD_SCHEMA_VERSION = "xverse.windows-token-pack-build/v1"
 
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _OCI_DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
@@ -413,7 +413,7 @@ def build_windows_token_pack(
         for role, path in policy_source_paths.items()
     }
     campaign, campaign_sha256 = load_windows_token_campaign(campaign_path)
-    with tempfile.TemporaryDirectory(prefix="0verse-token-pack-builder-policy-") as root:
+    with tempfile.TemporaryDirectory(prefix="xverse-token-pack-builder-policy-") as root:
         staged_policies = {
             role: _stage_blob(Path(root), role, data) for role, data in policy_bytes.items()
         }
@@ -869,7 +869,7 @@ def verify_windows_token_pack(
     # Verify against the exact policy bytes that were hashed above. Reopening the
     # caller path here would permit a policy swap between the digest check and
     # ssh-keygen verification.
-    with tempfile.TemporaryDirectory(prefix="0verse-pack-policy-") as policy_temp:
+    with tempfile.TemporaryDirectory(prefix="xverse-pack-policy-") as policy_temp:
         staged_pack_policy = _stage_blob(Path(policy_temp), "allowed-signers", pack_policy_bytes)
         verify_ssh_signature(
             manifest_bytes,
@@ -891,7 +891,7 @@ def verify_windows_token_pack(
     refs = _named_manifest_refs(manifest)
     policies = manifest["signerPolicies"]
     assert isinstance(policies, dict)
-    with tempfile.TemporaryDirectory(prefix="0verse-token-pack-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="xverse-token-pack-") as temporary:
         staging = Path(temporary)
         paths: dict[str, Path] = {}
         for name, ref in refs.items():
@@ -1107,7 +1107,7 @@ def verify_windows_token_pack(
         if launch_models:
             transcript_ids = [row.launch_transcript_sha256 for row in launch_models]
             launch_transcript_commitment = hashlib.sha256(
-                b"0verse-windows-lpac-launch-transcripts-v2\0"
+                b"xverse-windows-lpac-launch-transcripts-v2\0"
                 + b"\0".join(value.encode("ascii") for value in transcript_ids)
             ).hexdigest()
         elif embedded_launch_rows:
@@ -1123,7 +1123,7 @@ def verify_windows_token_pack(
             ):
                 raise ValueError("token pack reuses LPAC launch provenance")
             launch_transcript_commitment = hashlib.sha256(
-                b"0verse-windows-lpac-launch-transcripts-v1\0"
+                b"xverse-windows-lpac-launch-transcripts-v1\0"
                 + b"\0".join(value.encode("ascii") for value in transcript_ids)
             ).hexdigest()
         else:
@@ -1185,7 +1185,7 @@ def verify_windows_token_pack(
         acceptance_accepted_by=acceptance.accepted_by,
         capture_signer_identity=acceptance.capture_signer,
         worker_acceptance_replay_identity_sha256=hashlib.sha256(
-            b"0verse-windows-token-acceptance-once-v1\0"
+            b"xverse-windows-token-acceptance-once-v1\0"
             + acceptance.nonce.encode("ascii")
             + b"\0"
             + acceptance_sha.encode("ascii")
@@ -1193,26 +1193,26 @@ def verify_windows_token_pack(
         ordered_capture_sha256=derived.capture_sha256,
         ordered_process_identity_sha256=tuple(
             hashlib.sha256(
-                b"0verse-windows-token-process-v1\0" + capture.process_instance_id.encode("ascii")
+                b"xverse-windows-token-process-v1\0" + capture.process_instance_id.encode("ascii")
             ).hexdigest()
             for capture in capture_models
         ),
         clean_target_no_transitions=observation.clean_target_no_transitions,
         ambiguous_targets=observation.ambiguous_targets,
         run_id_commitment_sha256=_domain_commitment(
-            b"0verse-windows-token-run-id-v1\0", cast(str, manifest["runId"])
+            b"xverse-windows-token-run-id-v1\0", cast(str, manifest["runId"])
         ),
         job_nonce_commitment_sha256=_domain_commitment(
-            b"0verse-windows-token-job-nonce-v1\0", cast(str, manifest["jobNonce"])
+            b"xverse-windows-token-job-nonce-v1\0", cast(str, manifest["jobNonce"])
         ),
         execution_grant_nonce_commitment_sha256=_domain_commitment(
-            b"0verse-windows-token-grant-nonce-v1\0", grant.nonce
+            b"xverse-windows-token-grant-nonce-v1\0", grant.nonce
         ),
         worker_acceptance_nonce_commitment_sha256=_domain_commitment(
-            b"0verse-windows-token-acceptance-nonce-v1\0", acceptance.nonce
+            b"xverse-windows-token-acceptance-nonce-v1\0", acceptance.nonce
         ),
         ordered_capture_nonce_commitment_sha256=tuple(
-            _domain_commitment(b"0verse-windows-token-capture-nonce-v1\0", capture.capture_nonce)
+            _domain_commitment(b"xverse-windows-token-capture-nonce-v1\0", capture.capture_nonce)
             for capture in capture_models
         ),
         scope_authorized_by=scope.authorized_by,
@@ -1567,7 +1567,7 @@ def _validate_manifest_policy_context(
     runtime = manifest["zeroverseRuntime"]
     assert isinstance(runtime, dict)
     if runtime["digest"] not in cast(list[str], policy["allowedZeroverseOciDigests"]):
-        raise ValueError("token pack 0verse runtime digest is not allowlisted")
+        raise ValueError("token pack xverse runtime digest is not allowlisted")
     signer_policies = manifest["signerPolicies"]
     assert isinstance(signer_policies, dict)
     role_bindings = {

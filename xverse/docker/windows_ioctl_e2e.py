@@ -167,21 +167,21 @@ def main() -> None:
         policy.write_text(f"operator@example.test {public_key}\n", encoding="utf-8")
 
         vulnerable = _rank_fixture(
-            Path("/opt/0verse-fixtures/windows_ioctl_wdm.c"),
+            Path("/opt/xverse-fixtures/windows_ioctl_wdm.c"),
             "owned-wdm-image-e2e-vulnerable-01",
             root / "vulnerable",
             key,
             policy,
         )
         guarded = _rank_fixture(
-            Path("/opt/0verse-fixtures/windows_ioctl_wdm_patched.c"),
+            Path("/opt/xverse-fixtures/windows_ioctl_wdm_patched.c"),
             "owned-wdm-image-e2e-guarded-01",
             root / "guarded",
             key,
             policy,
         )
         fixed = _rank_fixture(
-            Path("/opt/0verse-fixtures/windows_ioctl_wdm_fixed.c"),
+            Path("/opt/xverse-fixtures/windows_ioctl_wdm_fixed.c"),
             "owned-wdm-image-e2e-fixed-01",
             root / "fixed",
             key,
@@ -202,7 +202,7 @@ def main() -> None:
         evidence = candidate["ssa_evidence"]
         rich_field = export["facts"]["dispatches"][0]["fields"][0]
         if (
-            receipt["schema_version"] != "0verse.ghidra-analysis-receipt/v3"
+            receipt["schema_version"] != "xverse.ghidra-analysis-receipt/v3"
             or [ref["opcode"] for ref in rich_field["taint_path"]] != ["LOAD", "INT_ZEXT", "CALL"]
             or rich_field["safety_proofs"] != []
             or candidate["score"] != 100

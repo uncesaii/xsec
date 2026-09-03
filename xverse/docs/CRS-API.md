@@ -1,8 +1,8 @@
-# 0verse CRS-API / SARIF adapter (M7 #47)
+# xverse CRS-API / SARIF adapter (M7 #47)
 
-> The pipe that runs 0verse on a **real external scoreboard** — the public
+> The pipe that runs xverse on a **real external scoreboard** — the public
 > AIxCyberChallenge `example-crs-architecture` OSS-Fuzz corpus — instead of only
-> 0verse's own self-benchmarks, and the load-bearing **foxguard → 0verse** seam
+> xverse's own self-benchmarks, and the load-bearing **foxguard → xverse** seam
 > ("a source scanner broadcasts a SARIF location; the binary engine proves it with
 > a PoV"). Implemented in `src/zeroverse/crs_api.py`.
 
@@ -16,11 +16,11 @@ Every routine is original, guided by the public AIxCC CRS-API spec.
    (`full` | `delta`, `project_name`, `focus`, `source[]` = `repo` / `fuzz-tooling`
    / `diff`, `deadline`). `delta` mode surfaces the diff's changed files as priority
    target hints (`delta_files`).
-2. **Run 0verse** — drive `zeroverse.pipeline.run` on the task's fuzz-target and
+2. **Run xverse** — drive `zeroverse.pipeline.run` on the task's fuzz-target and
    project the result into the versioned `api.ScanResult`.
 3. **Emit CRS-API results** — `POVSubmission` records (base64 `testcase`,
    `fuzzer_name`, `sanitizer`, `architecture=x86_64`, `engine=libfuzzer`) and a
-   `SarifMatcher` that confirms whether a 0verse finding matches a broker SARIF.
+   `SarifMatcher` that confirms whether a xverse finding matches a broker SARIF.
 
 ## The SARIF matcher
 
@@ -38,14 +38,14 @@ OR matches_stripped_function                                  # after dropping O
 - `matches_function` / `matches_stripped_function` — exact / `OSS_FUZZ_`-stripped
 
 `SarifMatcher.match(sarif, frames)` returns the first frame↔location match, or
-`None` (reject). 0verse frames come from `parse_frame` over the oracle's recovered
+`None` (reject). xverse frames come from `parse_frame` over the oracle's recovered
 backtrace; SARIF locations from `extract_sarif_infos` over `runs[].results[]`.
 
 ## Conservative assessment = PoV-is-truth
 
-`assess_broadcast` calls a SARIF **`correct` only when a confirmed 0verse PoV's
+`assess_broadcast` calls a SARIF **`correct` only when a confirmed xverse PoV's
 backtrace matches it** (ATLANTIS's conservative-assessment policy, which is just
-PoV-is-truth restated). `incorrect` here means "0verse did not independently
+PoV-is-truth restated). `incorrect` here means "xverse did not independently
 confirm it with a PoV" — **not** a strong refutation; the honest framing is in the
 assessment `note`. A matched-but-unconfirmed SARIF is never asserted as correct.
 

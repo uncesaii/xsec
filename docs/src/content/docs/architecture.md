@@ -90,7 +90,7 @@ contract.
 | Agentic hunt | Best-of-N records, judge, skeptic/prover, native novelty result | Connected |
 | Linux kernel reproducer | Fresh-boot N-of-K signature gate with dmesg binding | Connected |
 | Linux external boot matrix import | Versioned vulnerable/patched manifest, unique boot markers, clean-control gate, hashed logs | Connected; explicitly external provenance |
-| Windows Hyper-V evidence import | Build/campaign/worker-bound 0verse receipt, clean controls, repeated crash signature, retained dumps | Connected for crash reproduction; LPE disclosure fail-closed until token attestation |
+| Windows Hyper-V evidence import | Build/campaign/worker-bound xverse receipt, clean controls, repeated crash signature, retained dumps | Connected for crash reproduction; LPE disclosure fail-closed until token attestation |
 | Mobile static intake | Typed candidates + scoped downstream handoff; no passive promotion | Connected |
 | XNU IOKit | Selector discovery, reachability hints, deterministic programs; panic promotion off | Partial, fail-closed |
 | Unified web/AI/source/package/on-chain pipeline | Native findings wrapped without rerunning the pipeline | Connected |

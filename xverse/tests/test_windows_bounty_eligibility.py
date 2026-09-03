@@ -86,7 +86,7 @@ def test_classification_rejects_unofficial_or_inexact_scope_evidence(
 
 def _local_evidence_payload(verification, **changes: object) -> dict[str, object]:
     raw: dict[str, object] = {
-        "schema_version": "0verse.windows-local-attack-scenario-evidence/v2",
+        "schema_version": "xverse.windows-local-attack-scenario-evidence/v2",
         "pack_id": verification.pack_id,
         "scope_manifest_sha256": verification.scope_manifest_sha256,
         "build_lab_ex": verification.build_lab_ex,

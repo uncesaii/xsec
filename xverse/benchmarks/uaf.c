@@ -1,5 +1,5 @@
 /* CWE-416: use-after-free. A heap buffer is freed, then used again on an
- * attacker-triggered path. SILENT under the stock allocator; 0verse confirms
+ * attacker-triggered path. SILENT under the stock allocator; xverse confirms
  * via the quarantine guard allocator (poison-on-free + mprotect) where the
  * dangling read/write faults (SIGSEGV) while a benign control stays clean.
  * Input: first byte 'X' triggers the UAF. */

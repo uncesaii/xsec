@@ -17,11 +17,11 @@ use windows_sys::Win32::System::Services::{
     SetServiceStatus, StartServiceCtrlDispatcherW,
 };
 
-const E2E_SERVICE_NAME: &str = "0verseWindowsStoreE2E";
-const CLEANUP_SERVICE_NAME: &str = "0verseWindowsStoreCleanup";
+const E2E_SERVICE_NAME: &str = "xverseWindowsStoreE2E";
+const CLEANUP_SERVICE_NAME: &str = "xverseWindowsStoreCleanup";
 const FAILURE_CODE: u32 = 1;
-const E2E_DIAGNOSTIC: &str = "0verse-windows-store-e2e-error.txt";
-const CLEANUP_DIAGNOSTIC: &str = "0verse-windows-store-cleanup-error.txt";
+const E2E_DIAGNOSTIC: &str = "xverse-windows-store-e2e-error.txt";
+const CLEANUP_DIAGNOSTIC: &str = "xverse-windows-store-cleanup-error.txt";
 
 fn wide_null(value: &str) -> Vec<u16> {
     value.encode_utf16().chain(Some(0)).collect()

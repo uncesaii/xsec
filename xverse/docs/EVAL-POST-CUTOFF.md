@@ -1,6 +1,6 @@
-# 0verse post-training-cutoff CVE evaluation — discovery, not memorization (#49)
+# xverse post-training-cutoff CVE evaluation — discovery, not memorization (#49)
 
-> **The discovery-vs-memorization proof.** Every other 0verse benchmark uses bugs
+> **The discovery-vs-memorization proof.** Every other xverse benchmark uses bugs
 > the model could, in principle, have seen during training. A find on those cannot
 > distinguish *discovery* from *recall*. This corpus is built **only** from real
 > `CVE-2026-*` memory-safety bugs **published after current frontier models' training
@@ -134,7 +134,7 @@ Raw scored results: `benchmarks/cve2026/results-codex-ghidra.json`,
 
 * **Faithful extracts, not full builds.** Each item models the real function, its
   real source→sink path and the real fix, but is a standalone reproducer — not the
-  shipping OpenJPEG/libheif/FFmpeg/libtiff binary. It measures whether 0verse finds
+  shipping OpenJPEG/libheif/FFmpeg/libtiff binary. It measures whether xverse finds
   *the bug's pattern in post-cutoff code*, not end-to-end whole-library triage.
   libheif's function is originally C++ (`pixelimage.cc`); it is extracted as C.
 * **Function names predate the cutoff; the bugs do not.** See "What discovery claims".

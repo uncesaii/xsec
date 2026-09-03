@@ -129,20 +129,20 @@ relevant, authenticate upstream extraction signatures, or establish that any
 candidate is vulnerable. Those exact retained bytes and receipts must be
 verified before constructing the promotion input.
 
-### Evaluator-private 0verse IOCTL observations
+### Evaluator-private xverse IOCTL observations
 
 `windows-ioctl-benchmark-observation` is the benchmark-only consumer boundary
-for 0verse Windows IOCTL static evidence. The parser requires the evaluator's
+for xverse Windows IOCTL static evidence. The parser requires the evaluator's
 actual paired-corpus manifest, opaque agent projection, private resolver, and
 an independently provisioned resolver digest. The caller must also supply the
-exact 0verse digests and site/candidate counts authenticated by upstream
+exact xverse digests and site/candidate counts authenticated by upstream
 artifact verifiers; self-declared observation commitments are rejected. It
 then binds one opaque handle
 to the exact corpus, inventory, projection, resolver, driver, analysis export,
 analysis receipt, complete site universe, rank result, signed rank receipt, and
 private aggregate evaluation commitments.
 
-The observation retains complete contiguous candidate ranks in 0verse's
+The observation retains complete contiguous candidate ranks in xverse's
 deterministic score/content-ID order, requires the site-universe, rank-result,
 and evaluation site counts to agree, and derives recall and suppression Wilson
 intervals from evaluator-only aggregate counts. Timing and cost are retained as
@@ -178,9 +178,9 @@ digest only commits private bytes at the evaluator boundary.
 Proof limit: successful parsing establishes internal commitment consistency
 for one static benchmark observation against caller-supplied trusted inputs.
 The trusted inputs are the already-validated paired corpus/projection/resolver,
-the independently pinned resolver digest, upstream-verified 0verse artifact
+the independently pinned resolver digest, upstream-verified xverse artifact
 digests and counts, and evaluator-owned threshold/baseline policy. This parser
-does not authenticate signatures or artifacts itself; upstream 0verse verifiers
+does not authenticate signatures or artifacts itself; upstream xverse verifiers
 must do that before constructing the context. This seam does not establish
 reachability, a vulnerability, impact, novelty, bounty eligibility, execution
 authority, disclosure readiness, or exploitability.
@@ -188,13 +188,13 @@ authority, disclosure readiness, or exploitability.
 ### Evaluator-private Foxguard IOCTL baseline
 
 `windows-ioctl-foxguard-baseline` turns a retained Foxguard v0.12 native JSON
-report into a fair static baseline over the same complete 0verse site universe.
+report into a fair static baseline over the same complete xverse site universe.
 It is a parser and projection contract, not a scanner runner. The caller must
 provide two independent verifier outputs as trusted context:
 
 - the exact Foxguard executable, rules, configuration, argv, scanned-input,
   report, and stdout commitments; and
-- a signature-verified 0verse location projection bound to the driver,
+- a signature-verified xverse location projection bound to the driver,
   analysis export and receipt, signed site-universe manifest, universe digest,
   and complete site count.
 

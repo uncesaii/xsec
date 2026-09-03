@@ -47,7 +47,7 @@ describe("loadKernelArchetypes", () => {
     expect(loadKernelArchetypes()).toBe(loadKernelArchetypes());
   });
 
-  it("route counts match the ported 0verse registry (11 static / 15 verify / 8 not-binary-detectable)", () => {
+  it("route counts match the ported xverse registry (11 static / 15 verify / 8 not-binary-detectable)", () => {
     const archetypes = loadKernelArchetypes();
     const counts = { "kernel-static": 0, "kernel-verify": 0, "not-binary-detectable": 0 };
     for (const a of archetypes) counts[a.route]++;

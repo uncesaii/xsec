@@ -62,7 +62,7 @@ if ([string]$signature.Status -ne 'Valid') {
 }
 $cv = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion'
 $receipt = [ordered]@{
-    schema_version = '0verse.windows-authenticity-observation/v1'
+    schema_version = 'xverse.windows-authenticity-observation/v1'
     producer = 'zeroverse.windows-authenticity/powershell-v1'
     artifact = [ordered]@{
         path = $afterItem.Name

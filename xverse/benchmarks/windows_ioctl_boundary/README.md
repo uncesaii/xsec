@@ -6,5 +6,5 @@ or real vulnerability. The result explicitly sets `capability_measure=false` and
 records zero IOCTL attempts.
 
 ```bash
-0verse windows-ioctl-plan benchmarks/windows_ioctl_boundary/campaign.json
+xverse windows-ioctl-plan benchmarks/windows_ioctl_boundary/campaign.json
 ```

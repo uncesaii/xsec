@@ -28,8 +28,8 @@ _MAX_LEDGER_BYTES = 32 * 1024 * 1024
 _MAX_TREE_ENTRIES = 100_000
 _MAX_TREE_DEPTH = 128
 _DIGEST_PREFIX = "sha256:"
-_ORACLE_NAMESPACE = "0verse-0research-oracle-result-v1"
-_DEFAULT_ORACLE_ALLOWED_SIGNERS = Path("/etc/0verse/0research-oracle-result.allowed_signers")
+_ORACLE_NAMESPACE = "xverse-0research-oracle-result-v1"
+_DEFAULT_ORACLE_ALLOWED_SIGNERS = Path("/etc/xverse/0research-oracle-result.allowed_signers")
 _PROJECTION_KEYS = frozenset(
     {
         "schemaVersion",
@@ -117,7 +117,7 @@ class FeedbackImportReceipt:
     def to_dict(self) -> dict[str, Any]:
         body = {
             "schemaVersion": 1,
-            "contract": "0verse-learning-write-receipt-v1",
+            "contract": "xverse-learning-write-receipt-v1",
             "projectionDigest": self.projection_digest,
             "bundleDigest": self.bundle_digest,
             "outputTreeDigest": self.output_tree_digest,
@@ -343,8 +343,8 @@ def _load_json(data: bytes, label: str) -> Any:
 
 def _projection(data: bytes) -> dict[str, Any]:
     raw = _exact_object(_load_json(data, "projection"), _PROJECTION_KEYS, "projection")
-    if raw["schemaVersion"] != 1 or raw["kind"] != "0verse-feedback-projection":
-        raise ValueError("unsupported 0verse feedback projection")
+    if raw["schemaVersion"] != 1 or raw["kind"] != "xverse-feedback-projection":
+        raise ValueError("unsupported xverse feedback projection")
     if not isinstance(raw["runKey"], str) or not re.fullmatch(
         r"0research-[0-9a-f]{64}", raw["runKey"]
     ):
@@ -452,8 +452,8 @@ def _reject_base64_keys(value: Any, location: str = "bundle record") -> None:
 
 def _bundle(data: bytes, *, allow_synthetic: bool = False) -> list[dict[str, Any]]:
     raw = _exact_object(_load_json(data, "bundle"), _BUNDLE_KEYS, "bundle")
-    if raw["schemaVersion"] != 1 or raw["contract"] != "0verse-learning-bundle-v1":
-        raise ValueError("unsupported 0verse learning bundle")
+    if raw["schemaVersion"] != 1 or raw["contract"] != "xverse-learning-bundle-v1":
+        raise ValueError("unsupported xverse learning bundle")
     records = raw["records"]
     if not isinstance(records, list) or not records:
         raise ValueError("bundle.records must be a non-empty array")
@@ -507,7 +507,7 @@ def _event_record(
     expected_pov = f"sha256:{pov.get('sha256', '')}" if pov.get("sha256") else _sha256(b"")
     if (
         receipt["schemaVersion"] != 1
-        or receipt["contract"] != "0verse-oracle-result-receipt-v1"
+        or receipt["contract"] != "xverse-oracle-result-receipt-v1"
         or receipt["sourceRecordDigest"] != expected_source
         or receipt["verdict"] != retained["verdict"]
         or receipt["oracle"] != retained["oracle"]

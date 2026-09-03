@@ -25,7 +25,7 @@ from zeroverse.windows_scope import (
     load_scope,
 )
 
-_ROOT = Path(tempfile.mkdtemp(prefix="0verse-authorization-tests-"))
+_ROOT = Path(tempfile.mkdtemp(prefix="xverse-authorization-tests-"))
 atexit.register(shutil.rmtree, _ROOT, ignore_errors=True)
 _KEY = _ROOT / "operator-key"
 _POLICY = _ROOT / "allowed-signers"
@@ -89,7 +89,7 @@ def authorized_scope(raw: dict[str, object]) -> WindowsScope:
 def write_signed_scope(raw: dict[str, object], path: Path) -> str:
     now = datetime.now(UTC)
     payload: dict[str, Any] = json.loads(json.dumps(raw))
-    payload["schema_version"] = "0verse.windows-scope/v2"
+    payload["schema_version"] = "xverse.windows-scope/v2"
     payload.setdefault("latest_build_number", "")
     payload.setdefault("latest_build_source_url", "")
     payload["authorized_by"] = _IDENTITY
@@ -117,7 +117,7 @@ def authorized_grant(raw: dict[str, object]) -> HyperVExecutionGrant:
 
 def write_signed_grant(raw: dict[str, object], path: Path) -> str:
     payload: dict[str, object] = json.loads(json.dumps(raw))
-    payload["schema_version"] = "0verse.hyperv-execution-grant/v2"
+    payload["schema_version"] = "xverse.hyperv-execution-grant/v2"
     payload.pop("signature_ssh", None)
     signed = _sign(payload, GRANT_AUTHORIZATION_NAMESPACE)
     path.write_text(json.dumps(signed), encoding="utf-8")

@@ -105,7 +105,7 @@ impl ProtectedStore {
         )?;
         validate_shape(&program_data, true, 0, 0)?;
 
-        root.push("0verse");
+        root.push("xverse");
         let company_root = open_existing(
             &root,
             GENERIC_READ | READ_CONTROL,
@@ -402,7 +402,7 @@ fn ci_entries(path: &Path) -> Result<Vec<String>, String> {
 }
 
 #[cfg(feature = "ci-system-test")]
-const DEVICE_CI_CONTROL: &str = "0verse-windows-device-store-e2e-control";
+const DEVICE_CI_CONTROL: &str = "xverse-windows-device-store-e2e-control";
 #[cfg(feature = "ci-system-test")]
 const DEVICE_ROOT: &str = "windows-device-open-broker";
 #[cfg(feature = "ci-system-test")]
@@ -414,7 +414,7 @@ const DEVICE_LOCK: &str = "ledger.lock";
 #[cfg(feature = "ci-system-test")]
 const DEVICE_CI_SENTINEL: &str = "owned-by-device-store-ci";
 #[cfg(feature = "ci-system-test")]
-const DEVICE_CI_SENTINEL_SCHEMA: &str = "0verse.windows-device-store-ci-owner/v2";
+const DEVICE_CI_SENTINEL_SCHEMA: &str = "xverse.windows-device-store-ci-owner/v2";
 #[cfg(feature = "ci-system-test")]
 const DEVICE_CI_PHASE_ONE: &str = "phase-one.complete";
 #[cfg(feature = "ci-system-test")]
@@ -469,7 +469,7 @@ impl DeviceOpenCiOwner {
         let program_data = ci_program_data_path()?;
         let owner = Self {
             control: program_data.join(DEVICE_CI_CONTROL),
-            root: program_data.join("0verse").join(DEVICE_ROOT),
+            root: program_data.join("xverse").join(DEVICE_ROOT),
         };
         if ci_path_exists(&owner.control) {
             owner.require_root_binding()?;

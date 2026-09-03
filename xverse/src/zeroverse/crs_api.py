@@ -1,8 +1,8 @@
 """M7 #47 — AIxCC CRS-API / SARIF adapter (gap G6).
 
-The concrete pipe that lets 0verse run on a **real external scoreboard** — the
+The concrete pipe that lets xverse run on a **real external scoreboard** — the
 public AIxCyberChallenge ``example-crs-architecture`` OSS-Fuzz corpus — instead of
-only its own self-benchmarks, and the load-bearing **foxguard → 0verse** seam ("a
+only its own self-benchmarks, and the load-bearing **foxguard → xverse** seam ("a
 source scanner broadcasts a SARIF location, the binary engine proves it with a
 PoV").
 
@@ -13,14 +13,14 @@ Independent implementation — no AIxCC finalist code is vendored or ported.
   1. **Task ingestion** — parse the task server's ``Task`` / ``TaskDetail`` shape
      (``full`` | ``delta``, ``project_name``, ``focus``, ``source[]`` =
      repo / fuzz-tooling / diff, ``deadline``). Delta mode surfaces the diff's
-     changed files as priority target hints (the diff-scoped hunting 0verse wants).
-  2. **Run 0verse** — drive the pipeline on the task's harness / fuzz-target and
+     changed files as priority target hints (the diff-scoped hunting xverse wants).
+  2. **Run xverse** — drive the pipeline on the task's harness / fuzz-target and
      project the result into the versioned ``api.ScanResult``.
   3. **Emit CRS-API results** — ``POVSubmission`` records (base64 ``testcase`` +
      ``fuzzer_name`` + ``sanitizer``), and a ``SarifMatcher`` that confirms whether
-     a 0verse finding matches a broker-supplied SARIF report. The assessment is
+     a xverse finding matches a broker-supplied SARIF report. The assessment is
      **conservative (ATLANTIS policy = PoV-is-truth restated)**: a SARIF is called
-     ``correct`` ONLY when a confirmed 0verse PoV's backtrace matches it.
+     ``correct`` ONLY when a confirmed xverse PoV's backtrace matches it.
 
 What is *fixture-proven* here vs *live-corpus-pending* is documented precisely in
 ``docs/CRS-API.md``: the schema adapters, the matcher, and the PoV emit are fully
@@ -265,7 +265,7 @@ OSS_FUZZ_PREFIX = "OSS_FUZZ_"
 
 @dataclass
 class Frame:
-    """One backtrace frame recovered by 0verse's oracle, parsed into the fields the
+    """One backtrace frame recovered by xverse's oracle, parsed into the fields the
     matcher compares against a SARIF location."""
 
     function: str = ""
@@ -320,7 +320,7 @@ _FRAME_PATTERNS = (
 
 def parse_frame(text: str) -> Frame:
     """Parse a normalized backtrace frame string into a :class:`Frame`. Tolerant of
-    the several shapes 0verse's oracle / a symbolized backtrace emit; a frame with
+    the several shapes xverse's oracle / a symbolized backtrace emit; a frame with
     only a function name still yields a usable (function-only) frame."""
     s = text.strip()
     for pat in _FRAME_PATTERNS:
@@ -407,7 +407,7 @@ def match_frame(frame: Frame, info: SarifInfo) -> SarifMatch | None:
 
 
 class SarifMatcher:
-    """Matches a broadcast SARIF report against a set of 0verse crash frames.
+    """Matches a broadcast SARIF report against a set of xverse crash frames.
     Returns the first frame ↔ location match (first-match semantics)."""
 
     def match(
@@ -426,10 +426,10 @@ class SarifMatcher:
 
 @dataclass
 class SarifAssessment:
-    """0verse's verdict on a broadcast SARIF. ``assessment`` is ``correct`` ONLY
+    """xverse's verdict on a broadcast SARIF. ``assessment`` is ``correct`` ONLY
     when a *confirmed PoV*'s backtrace matched the SARIF location — the ATLANTIS
     conservative policy (emit "correct" only with PoV evidence). Otherwise
-    ``incorrect`` here means "0verse did not independently confirm it with a PoV",
+    ``incorrect`` here means "xverse did not independently confirm it with a PoV",
     NOT a strong refutation — the honest framing is in ``note``."""
 
     sarif_id: str
@@ -473,13 +473,13 @@ def assess_broadcast(
     pov_backed: bool,
     matcher: SarifMatcher | None = None,
 ) -> SarifAssessment:
-    """Assess one broadcast SARIF against 0verse's confirmed crash frames."""
+    """Assess one broadcast SARIF against xverse's confirmed crash frames."""
     matcher = matcher or SarifMatcher()
     hit = matcher.match(detail.sarif, frames)
     matched = hit is not None
     correct = matched and pov_backed
     if correct:
-        note = "0verse confirmed a PoV whose backtrace matches the broadcast SARIF."
+        note = "xverse confirmed a PoV whose backtrace matches the broadcast SARIF."
     elif matched and not pov_backed:
         note = "SARIF location matched a finding, but no reproducing PoV — not asserted."
     else:
@@ -495,7 +495,7 @@ def assess_broadcast(
     )
 
 
-# --- driving 0verse on a task ----------------------------------------------
+# --- driving xverse on a task ----------------------------------------------
 
 @dataclass
 class ResolvedTask:
@@ -649,12 +649,12 @@ def run_task(
     scan_opts: api.ScanOptions | None = None,
     runner: Callable[..., RunResult] | None = None,
 ) -> CRSRunResult:
-    """Run 0verse on a resolved task and emit the CRS-API result.
+    """Run xverse on a resolved task and emit the CRS-API result.
 
     ``runner`` is the pipeline entrypoint (defaults to ``zeroverse.pipeline.run``);
     it is injectable so a caller (or a test) can supply a pre-built ``RunResult``
     without the heavy decompile toolchain. ``broadcast`` (optional) is the SARIF the
-    broker sent; each detail scoped to this task is assessed against 0verse's
+    broker sent; each detail scoped to this task is assessed against xverse's
     confirmed PoV frames.
     """
     run_fn = runner

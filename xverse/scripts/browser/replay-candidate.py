@@ -28,7 +28,7 @@ import threading
 from pathlib import Path
 from typing import Any
 
-PROTOCOL_VERSION = "0verse.browser-replay/v1"
+PROTOCOL_VERSION = "xverse.browser-replay/v1"
 MAX_HEADER_BYTES = 64 * 1024
 MAX_INPUT_BYTES = 64 * 1024 * 1024
 MAX_OUTPUT_BYTES = 1024 * 1024
@@ -271,7 +271,7 @@ def main() -> int:
         if before_hash != target_hash:
             raise ValueError("remote browser harness SHA-256 mismatch")
 
-        run_dir = Path(tempfile.mkdtemp(prefix="0verse-browser-replay-", dir="/tmp"))
+        run_dir = Path(tempfile.mkdtemp(prefix="xverse-browser-replay-", dir="/tmp"))
         run_dir.chmod(0o700)
         input_path = run_dir / "input"
         _write_input(input_path, input_hash)

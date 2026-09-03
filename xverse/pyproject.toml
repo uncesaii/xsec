@@ -1,5 +1,5 @@
 [project]
-name = "0verse"
+name = "xverse"
 version = "0.0.1"
 description = "Automated reverse engineering for vulnerability discovery in compiled programs."
 readme = "README.md"
@@ -12,7 +12,7 @@ classifiers = [
     "Topic :: Security",
     "Programming Language :: Python :: 3",
 ]
-# Core install is dependency-free so `0verse triage` works everywhere.
+# Core install is dependency-free so `xverse triage` works everywhere.
 dependencies = []
 
 [project.optional-dependencies]
@@ -51,7 +51,7 @@ scout = ["python-can>=4.5"]
 dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11", "jsonschema[format]>=4.23"]
 
 [project.scripts]
-"0verse" = "zeroverse.cli:main"
+"xverse" = "zeroverse.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/uncesaii/xverse"

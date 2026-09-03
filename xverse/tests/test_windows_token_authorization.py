@@ -42,7 +42,7 @@ def _independent_authority(tmp_path: Path, stem: str, identity: str) -> tuple[Pa
 
 def _campaign() -> dict[str, object]:
     return {
-        "schema_version": "0verse.windows-token-campaign/v1",
+        "schema_version": "xverse.windows-token-campaign/v1",
         "campaign_id": "issuer-lpe-001",
         "worker": "canary-worker-issuer",
         "starting_context": "standard-user",
@@ -56,7 +56,7 @@ def _campaign() -> dict[str, object]:
 
 def _scope(now: datetime) -> dict[str, object]:
     return {
-        "schema_version": "0verse.windows-scope/v2",
+        "schema_version": "xverse.windows-scope/v2",
         "campaign_id": "issuer-lpe-001",
         "program": "windows-canary",
         "scope_url": "https://www.microsoft.com/en-us/msrc/bounty-windows-insider-preview",
@@ -91,7 +91,7 @@ def _scope(now: datetime) -> dict[str, object]:
 
 def _grant(campaign_sha: str, scope_sha: str, now: datetime) -> dict[str, object]:
     return {
-        "schema_version": "0verse.windows-token-execution-grant/v1",
+        "schema_version": "xverse.windows-token-execution-grant/v1",
         "campaign_sha256": campaign_sha,
         "scope_manifest_sha256": scope_sha,
         "campaign_id": "issuer-lpe-001",
@@ -113,7 +113,7 @@ def _acceptance(
     now: datetime,
 ) -> dict[str, object]:
     return {
-        "schema_version": "0verse.windows-token-worker-acceptance/v2",
+        "schema_version": "xverse.windows-token-worker-acceptance/v2",
         "campaign_sha256": campaign_sha,
         "scope_manifest_sha256": scope_sha,
         "execution_grant_sha256": grant_sha,

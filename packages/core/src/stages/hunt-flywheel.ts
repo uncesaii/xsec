@@ -1,7 +1,7 @@
 /**
  * Hunt memory flywheel — a preseeded 5-layer cognitive memory that PRIMES
- * xsec's kernel hunt (`runHuntScan`). Ports 0verse's PoV-dataset flywheel
- * (bench:`/root/0verse/src/zeroverse/flywheel.py`, "#43 (M7 Bet B)") into
+ * xsec's kernel hunt (`runHuntScan`). Ports xverse's PoV-dataset flywheel
+ * (bench:`/root/xverse/src/zeroverse/flywheel.py`, "#43 (M7 Bet B)") into
  * xsec, reusing what's already here instead of re-inventing it:
  *
  *   - PRINCIPLE / SEMANTIC / PROCEDURAL are preseeded from the 34-entry kernel
@@ -13,9 +13,9 @@
  *     — past finder findings + their skeptic verdicts, and cross-site links
  *     when the same bug class recurred across candidates.
  *
- * Like 0verse's registry, the store ships FULL at construction, never empty:
+ * Like xverse's registry, the store ships FULL at construction, never empty:
  * an earlier "consolidate an empty store at run time" design extracts nothing
- * (0verse's own lesson, kept verbatim in the module header there).
+ * (xverse's own lesson, kept verbatim in the module header there).
  *
  * Three operations, all opt-in (`XSEC_HUNT_FLYWHEEL=1`, default OFF):
  *
@@ -49,7 +49,7 @@ import type { LensCandidate } from "./lens-synthesis/types.js";
 
 // ── Opt-in gate ──────────────────────────────────────────────────────────────
 
-/** Default OFF — mirrors 0verse's `ZEROVERSE_FLYWHEEL=1` / `archetypeSweepEnabled()`'s discipline. */
+/** Default OFF — mirrors xverse's `ZEROVERSE_FLYWHEEL=1` / `archetypeSweepEnabled()`'s discipline. */
 export function huntFlywheelEnabled(): boolean {
   return !["", "0", "false", "no"].includes((process.env["XSEC_HUNT_FLYWHEEL"] ?? "").toLowerCase());
 }
@@ -599,8 +599,8 @@ function rankToLocate(findings: Finding[], scores: Map<string, number>, priming:
 }
 
 /**
- * Controlled primed-vs-cold proof — the TS mirror of 0verse's
- * `prove_priming()` (bench:`/root/0verse/src/zeroverse/flywheel.py`). Seeds
+ * Controlled primed-vs-cold proof — the TS mirror of xverse's
+ * `prove_priming()` (bench:`/root/xverse/src/zeroverse/flywheel.py`). Seeds
  * memory with ONE confirmed nf_tables deferred-free UAF record (the
  * `kernel/NF-01` archetype's exact shape), then measures how many judge-rank
  * positions are needed to reach a MATCHING finding on a SIMILAR site (buried

@@ -251,7 +251,7 @@ def _closure(
         row["candidate_content_id"] for row in cast(list[dict[str, Any]], result["candidates"])
     ]
     ordered_digest = hashlib.sha256(
-        b"0verse-windows-ioctl-ordered-candidate-content-ids-v1\0"
+        b"xverse-windows-ioctl-ordered-candidate-content-ids-v1\0"
         + json.dumps(content_ids, separators=(",", ":")).encode()
     ).hexdigest()
     receipt_key, receipt_policy, receipt_identity = _authority(
@@ -352,7 +352,7 @@ def test_byo_v3_bindings_flow_from_verified_inventory_through_v2_evaluation(
         label_allowed_signers=label_policy,
     )
     assert ranked["schema_version"] == RESULT_VERSION_V3
-    assert evaluated["schema_version"] == "0verse.windows-ioctl-real-evaluation/v2"
+    assert evaluated["schema_version"] == "xverse.windows-ioctl-real-evaluation/v2"
     assert evaluated["byo_inventory_sha256"] == ranked["byo_inventory_sha256"]
     assert evaluated["byo_item_commitment_sha256"] == ranked["byo_item_commitment_sha256"]
     assert evaluated["private_bundle_verified"] is False

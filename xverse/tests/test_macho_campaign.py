@@ -31,10 +31,10 @@ INPUT_SHA = hashlib.sha256(b"input").hexdigest()
 TARGET_UUID = "11111111-2222-3333-4444-555555555555"
 CONTROL_UUID = "AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE"
 KERNEL_UUID = "12345678-ABCD-EF01-2345-6789ABCDEF01"
-AUTH_KEY = hashlib.sha256(b"/etc/0verse/macho-authorization.allowed_signers").hexdigest()
-ACCEPT_KEY = hashlib.sha256(b"/etc/0verse/macho-worker-acceptance.allowed_signers").hexdigest()
-TARGET_KEY = hashlib.sha256(b"/etc/0verse/macho-target-observation.allowed_signers").hexdigest()
-CONTROL_KEY = hashlib.sha256(b"/etc/0verse/macho-control-observation.allowed_signers").hexdigest()
+AUTH_KEY = hashlib.sha256(b"/etc/xverse/macho-authorization.allowed_signers").hexdigest()
+ACCEPT_KEY = hashlib.sha256(b"/etc/xverse/macho-worker-acceptance.allowed_signers").hexdigest()
+TARGET_KEY = hashlib.sha256(b"/etc/xverse/macho-target-observation.allowed_signers").hexdigest()
+CONTROL_KEY = hashlib.sha256(b"/etc/xverse/macho-control-observation.allowed_signers").hexdigest()
 
 
 @pytest.fixture(autouse=True)
@@ -696,10 +696,10 @@ def test_signatures_use_four_separate_roles_and_namespaces(
     receipt_path = write_receipt(tmp_path, campaign_sha, acceptance_sha)
     load_receipt(receipt_path, campaign, campaign_sha, accepted, acceptance_sha)
     assert [(item["identity"], item["namespace"]) for item in observed] == [
-        ("fixture-macho-scope-authority", "0verse-macho-authorization-v1"),
-        ("fixture-darwin-worker-authority", "0verse-macho-worker-acceptance-v1"),
-        ("fixture-target-observation-authority", "0verse-macho-target-observation-v1"),
-        ("fixture-control-observation-authority", "0verse-macho-control-observation-v1"),
+        ("fixture-macho-scope-authority", "xverse-macho-authorization-v1"),
+        ("fixture-darwin-worker-authority", "xverse-macho-worker-acceptance-v1"),
+        ("fixture-target-observation-authority", "xverse-macho-target-observation-v1"),
+        ("fixture-control-observation-authority", "xverse-macho-control-observation-v1"),
     ]
     assert all(item["ssh_keygen"] == Path("/usr/bin/ssh-keygen") for item in observed)
     assert all(item["inherit_environment"] is False for item in observed)

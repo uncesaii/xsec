@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://xsec.ai/schemas/xverse/scout-event-v1.schema.json",
-  "title": "0verse Firmware Scout event v1",
+  "title": "xverse Firmware Scout event v1",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -19,7 +19,7 @@
     "detail"
   ],
   "properties": {
-    "schema_version": {"const": "0verse.scout-event/v1"},
+    "schema_version": {"const": "xverse.scout-event/v1"},
     "sequence": {"type": "integer", "minimum": 0},
     "timestamp_ns": {"type": "integer", "minimum": 0},
     "kind": {

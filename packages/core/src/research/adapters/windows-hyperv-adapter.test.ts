@@ -114,7 +114,7 @@ function setup(status: "REPRODUCED" | "NOT_REPRODUCED" = "REPRODUCED"): {
   }
   const drillPath = join(root, "recovery-drill.json");
   writeFileSync(drillPath, JSON.stringify({
-    schema_version: "0verse.hyperv-recovery-drill/v1",
+    schema_version: "xverse.hyperv-recovery-drill/v1",
     ...common,
     worker_machine_id: "worker-guid",
     guest_machine_id: "guest-id",
@@ -136,7 +136,7 @@ function setup(status: "REPRODUCED" | "NOT_REPRODUCED" = "REPRODUCED"): {
     debugger_smoke_confirmed: true,
   }));
   const acceptance: Record<string, unknown> = {
-    schema_version: "0verse.hyperv-worker-acceptance/v1",
+    schema_version: "xverse.hyperv-worker-acceptance/v1",
     ...common,
     recovery_drill_path: basename(drillPath),
     recovery_drill_sha256: sha256(drillPath),
@@ -156,14 +156,14 @@ function setup(status: "REPRODUCED" | "NOT_REPRODUCED" = "REPRODUCED"): {
   )));
   execFileSync("ssh-keygen", [
     "-q", "-Y", "sign", "-f", signerKey, "-n",
-    "0verse-hyperv-worker-acceptance", materialPath,
+    "xverse-hyperv-worker-acceptance", materialPath,
   ]);
   acceptance.signature_ssh = readFileSync(join(root, "acceptance-material.json.sig"), "utf8");
   const acceptancePath = join(root, "worker-acceptance.json");
   writeFileSync(acceptancePath, JSON.stringify(acceptance));
   const receiptPath = join(root, "receipt.json");
   writeFileSync(receiptPath, JSON.stringify({
-    schema_version: "0verse.hyperv-evidence/v1",
+    schema_version: "xverse.hyperv-evidence/v1",
     manifest_sha256: campaignHash,
     scope_manifest_sha256: scopeHash,
     campaign_id: "vmswitch-oid-001",
@@ -188,7 +188,7 @@ function setup(status: "REPRODUCED" | "NOT_REPRODUCED" = "REPRODUCED"): {
     id: "vmswitch-oid",
     templateId: "windows-hyperv",
     title: "vmswitch OID memory corruption",
-    description: "candidate imported from an authorized 0verse campaign",
+    description: "candidate imported from an authorized xverse campaign",
     severity: "high",
     category: "memory-corruption",
     status: "verified",
@@ -404,7 +404,7 @@ describe("WindowsHyperVImportAdapter", () => {
   it("fails closed on schema and campaign identity drift", async () => {
     const { target, root, receiptPath } = setup();
     const receipt = JSON.parse(readFileSync(receiptPath, "utf8")) as Record<string, unknown>;
-    receipt.schema_version = "0verse.hyperv-evidence/v2";
+    receipt.schema_version = "xverse.hyperv-evidence/v2";
     receipt.campaign_id = "other-campaign";
     writeFileSync(receiptPath, JSON.stringify(receipt));
     const result = await runResearch(new WindowsHyperVImportAdapter(), target, {

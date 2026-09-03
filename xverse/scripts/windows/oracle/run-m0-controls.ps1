@@ -102,7 +102,7 @@ function Stop-Kd {
 
 function Wait-KdLog([string]$Marker, [int]$Minutes = 15) {
   # Anchor to a full line: the kd command echo itself contains the marker string
-  # (bu iqvw64e+... ".echo 0VERSE-WITNESS-OPERANDS; ..."), which false-positive
+  # (bu iqvw64e+... ".echo xverse-WITNESS-OPERANDS; ..."), which false-positive
   # matched on the first run. The real .echo output is a bare marker line.
   $pattern = '(?m)^\s*' + [regex]::Escape($Marker) + '\s*$'
   $deadline = (Get-Date).AddMinutes($Minutes)
@@ -118,8 +118,8 @@ function Get-KdHitCounts {
     Get-Content $script:KdLog -Raw -ErrorAction SilentlyContinue
   } else { '' }
   [pscustomobject]@{
-    operands = ([regex]::Matches($text, '(?m)^\s*0VERSE-WITNESS-OPERANDS\s*$')).Count
-    readback = ([regex]::Matches($text, '(?m)^\s*0VERSE-WITNESS-READBACK\s*$')).Count
+    operands = ([regex]::Matches($text, '(?m)^\s*xverse-WITNESS-OPERANDS\s*$')).Count
+    readback = ([regex]::Matches($text, '(?m)^\s*xverse-WITNESS-READBACK\s*$')).Count
   }
 }
 
@@ -148,11 +148,11 @@ function Run-WitnessArm {
   # avoids the nested-quote parse failure that killed the inline sxe callback.
   # Plain bp module+RVA evaluates immediately once the module is loaded.
   @'
-.echo 0VERSE-DRIVER-LOADED
-bp /1 iqvw64e+0x29c0 ".echo 0VERSE-SINK-BYTES; db iqvw64e+0x2a14 L6; gc"
-bu iqvw64e+0x2a14 ".echo 0VERSE-WITNESS-OPERANDS; r rcx,rdx; gc"
-bu iqvw64e+0x2a1a ".echo 0VERSE-WITNESS-READBACK; dq /p 0x1000 L8; dq rax L8; gc"
-.echo 0VERSE-WITNESS-BPS-BOUND
+.echo xverse-DRIVER-LOADED
+bp /1 iqvw64e+0x29c0 ".echo xverse-SINK-BYTES; db iqvw64e+0x2a14 L6; gc"
+bu iqvw64e+0x2a14 ".echo xverse-WITNESS-OPERANDS; r rcx,rdx; gc"
+bu iqvw64e+0x2a1a ".echo xverse-WITNESS-READBACK; dq /p 0x1000 L8; dq rax L8; gc"
+.echo xverse-WITNESS-BPS-BOUND
 bl
 g
 '@ | Set-Content $bpCmds -Encoding ascii
@@ -163,7 +163,7 @@ g
   @"
 .symopt+0x40
 $sxeLine
-.echo 0VERSE-KD-ARMED
+.echo xverse-KD-ARMED
 g
 "@ | Set-Content $kdCmds -Encoding ascii
 
@@ -173,7 +173,7 @@ g
   Log "waiting for guest (PS Direct)..."
   if (-not (Wait-GuestDirect)) { throw "guest did not answer PS Direct" }
   Log "waiting for kd to arm breakpoints..."
-  $armed = Wait-KdLog -Marker '0VERSE-KD-ARMED' -Minutes 15
+  $armed = Wait-KdLog -Marker 'xverse-KD-ARMED' -Minutes 15
   Log "kd armed: $armed"
   if (-not $armed) { throw "kd did not attach/arm during boot" }
 
@@ -191,7 +191,7 @@ g
   if ($facts.driver_sha256 -ne $WitnessDriverSha256.ToLowerInvariant()) {
     throw "iqvw64e hash differs from the RVA-bound witness binary: $($facts.driver_sha256)"
   }
-  $bpsBound = Wait-KdLog -Marker '0VERSE-WITNESS-BPS-BOUND' -Minutes 2
+  $bpsBound = Wait-KdLog -Marker 'xverse-WITNESS-BPS-BOUND' -Minutes 2
   if (-not $bpsBound) { throw "kd did not bind the iqvw64e sink breakpoints after module load" }
 
   # Control A1: bogus command 99 — sub-dispatcher default, no primitive, no bp.
@@ -206,10 +206,10 @@ g
   $c2 = Invoke-Guest { param($h) & C:\oracle\ioctl_trigger.exe '\\.\Nal' 0x80862007 "hex:$h" 64 2>&1 | Out-String } -ArgList $hexLen0
   Log "control A2 (cmd=57 len=0): $($c2.Trim())"
   $c2Hits = Assert-NoKdHits -Phase 'control A2'
-  $sinkBytes = Wait-KdLog -Marker '0VERSE-SINK-BYTES' -Minutes 2
+  $sinkBytes = Wait-KdLog -Marker 'xverse-SINK-BYTES' -Minutes 2
   if (-not $sinkBytes) { throw "iqvw64e dispatch did not reach the runtime byte-binding probe" }
   $bindLog = Get-Content $script:KdLog -Raw
-  if ($bindLog -notmatch '(?im)^\s*0VERSE-SINK-BYTES\s*\r?\n[0-9a-f`]+\s+ff 15 16 37 00 00(?:\s|-)') {
+  if ($bindLog -notmatch '(?im)^\s*xverse-SINK-BYTES\s*\r?\n[0-9a-f`]+\s+ff 15 16 37 00 00(?:\s|-)') {
     throw "loaded iqvw64e sink bytes do not match the expected call instruction"
   }
 
@@ -223,13 +223,13 @@ g
 
   # Fail loud if the drive itself was malformed (first attempt ran an empty
   # buffer through this path and recorded a null result).
-  $wJson = ($w.Trim() -replace '^0VERSE-TRIGGER-JSON:', '') | ConvertFrom-Json
+  $wJson = ($w.Trim() -replace '^xverse-TRIGGER-JSON:', '') | ConvertFrom-Json
   if ($wJson.in_len -ne 56) { throw "witness drive malformed: in_len=$($wJson.in_len), expected 56 :: $($w.Trim())" }
   if (-not $wJson.call_ok) { throw "witness IOCTL failed: win32_error=$($wJson.win32_error) :: $($w.Trim())" }
 
   Start-Sleep -Seconds 10
-  $hitOperands = Wait-KdLog -Marker '0VERSE-WITNESS-OPERANDS' -Minutes 2
-  $hitReadback = Wait-KdLog -Marker '0VERSE-WITNESS-READBACK' -Minutes 2
+  $hitOperands = Wait-KdLog -Marker 'xverse-WITNESS-OPERANDS' -Minutes 2
+  $hitReadback = Wait-KdLog -Marker 'xverse-WITNESS-READBACK' -Minutes 2
   Log "bp operands hit: $hitOperands; bp readback hit: $hitReadback"
 
   # count hits with the same anchored full-line match (command echo excluded):
@@ -374,7 +374,7 @@ try {
   if ($Arm -eq 'witness' -or $Arm -eq 'all') { Run-WitnessArm }
   if ($Arm -eq 'crash' -or $Arm -eq 'all') { Run-CrashArm }
   Log "M0 controls complete. Evidence: $Evidence"
-  Write-Host "0VERSE-M0-EVIDENCE-DIR:$Evidence"
+  Write-Host "xverse-M0-EVIDENCE-DIR:$Evidence"
 } finally {
   Stop-Kd
 }

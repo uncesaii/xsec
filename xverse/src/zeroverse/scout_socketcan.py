@@ -62,7 +62,7 @@ def _load_can() -> _CanModule:
     except ModuleNotFoundError as exc:
         if exc.name == "can":
             raise RuntimeError(
-                "SocketCAN capture requires the optional Scout dependency; install 0verse[scout]"
+                "SocketCAN capture requires the optional Scout dependency; install xverse[scout]"
             ) from exc
         raise
 

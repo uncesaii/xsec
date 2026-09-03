@@ -31,9 +31,9 @@ from .windows_variant import (
     _write_new_file_at,
 )
 
-RAW_VERSION = "0verse.windows-ioctl-surface-inventory-facts/v1"
-EXPORT_VERSION = "0verse.windows-ioctl-surface-inventory/v1"
-RECEIPT_VERSION = "0verse.windows-ioctl-surface-inventory-receipt/v1"
+RAW_VERSION = "xverse.windows-ioctl-surface-inventory-facts/v1"
+EXPORT_VERSION = "xverse.windows-ioctl-surface-inventory/v1"
+RECEIPT_VERSION = "xverse.windows-ioctl-surface-inventory-receipt/v1"
 PRODUCER = "zeroverse.windows-ioctl-surface-inventory/v1"
 EXTRACTOR_PROFILE = PRODUCER
 _CONFIG = {
@@ -49,7 +49,7 @@ _CONFIG = {
 EXTRACTOR_CONFIG_SHA256 = hashlib.sha256(
     json.dumps(_CONFIG, sort_keys=True, separators=(",", ":")).encode()
 ).hexdigest()
-_CACHE_DOMAIN = b"0verse-windows-ioctl-surface-inventory-cache-v2\0"
+_CACHE_DOMAIN = b"xverse-windows-ioctl-surface-inventory-cache-v2\0"
 _SHA256 = re.compile(r"[0-9a-f]{64}")
 _RVA = re.compile(r"0x[0-9a-f]+")
 _DRIVER_BASENAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}\.sys", re.I)

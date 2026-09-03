@@ -110,7 +110,7 @@ class TargetContext:
     must build the container from format knowledge + the decompiled sink alone
     (issue #52 anti-cheat). All fields are plain strings inferred from the binary
     (harness name, ``strings``, Ghidra decompilation) — the same signals a real
-    0verse run has before it has ever reproduced the bug."""
+    xverse run has before it has ever reproduced the bug."""
 
     file_format: str
     """Human-readable description of the container format (see ``infer_format``)."""

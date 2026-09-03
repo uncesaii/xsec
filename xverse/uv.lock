@@ -15,7 +15,7 @@ resolution-markers = [
 overrides = [{ name = "pillow", specifier = ">=12.3.0" }]
 
 [[package]]
-name = "0verse"
+name = "xverse"
 version = "0.0.1"
 source = { editable = "." }
 

@@ -1,5 +1,5 @@
 """Stage — the **patch-predicate oracle**: a confirm-gate that generalizes
-0verse's confirmation BEYOND memory-safety, to the logic / integer / state bugs a
+xverse's confirmation BEYOND memory-safety, to the logic / integer / state bugs a
 sanitizer cannot see.
 
 The spine's PoV oracle proves a bug by *observing a crash* (a signal, or an ASan
@@ -240,7 +240,7 @@ def _binding_digest(
         "vuln_source_sha256": hashlib.sha256(vuln_source.encode()).hexdigest(),
     }
     encoded = json.dumps(material, sort_keys=True, separators=(",", ":")).encode()
-    return hashlib.sha256(b"0verse-patch-predicate-binding-v1\0" + encoded).hexdigest()
+    return hashlib.sha256(b"xverse-patch-predicate-binding-v1\0" + encoded).hexdigest()
 
 # --- LLM contract (a subset of zeroverse.agent.LLM) ------------------------
 
@@ -476,7 +476,7 @@ class PredicateSandboxRequest:
     container, VM, or remote worker; isolate inferior output from GDB/MI; disable
     network access; cap each output stream while reading it (before allocation or
     transport); and terminate the complete process tree on timeout. No host-process
-    implementation is provided by 0verse.
+    implementation is provided by xverse.
     """
 
     binary: str

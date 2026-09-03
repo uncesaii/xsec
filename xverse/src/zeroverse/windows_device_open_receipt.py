@@ -19,8 +19,8 @@ from pathlib import Path
 
 from .ssh_authorization import canonical_signed_material, verify_ssh_signature
 
-SCHEMA_VERSION = "0verse.windows-device-open-boundary-receipt/v2"
-SIGNATURE_NAMESPACE = "0verse-windows-device-open-boundary-receipt-v2"
+SCHEMA_VERSION = "xverse.windows-device-open-boundary-receipt/v2"
+SIGNATURE_NAMESPACE = "xverse-windows-device-open-boundary-receipt-v2"
 OBSERVATION_KIND = "natural-standard-user-device-open"
 EVIDENCE_CLASS = "candidate-capability-only"
 PRODUCER_AUTHORITY = "system-held-device-open-broker"
@@ -34,7 +34,7 @@ FILE_SHARE_READ_WRITE = 0x00000003
 OPEN_EXISTING = 3
 FILE_ATTRIBUTE_NORMAL = 0x00000080
 DEFAULT_ALLOWED_SIGNERS = Path(
-    "/etc/0verse/windows-device-open-boundary.allowed_signers"
+    "/etc/xverse/windows-device-open-boundary.allowed_signers"
 )
 
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -480,13 +480,13 @@ def derive_burn_only_replay_identities(
     receipt.require_signature()
     return (
         hashlib.sha256(
-            b"0verse-windows-device-open-receipt-once-v1\0"
+            b"xverse-windows-device-open-receipt-once-v1\0"
             + receipt.worker_machine_id.encode("ascii")
             + b"\0"
             + receipt.receipt_nonce.encode("ascii")
         ).hexdigest(),
         hashlib.sha256(
-            b"0verse-windows-device-open-boundary-once-v1\0"
+            b"xverse-windows-device-open-boundary-once-v1\0"
             + receipt.worker_machine_id.encode("ascii")
             + b"\0"
             + receipt.boot_id.encode("ascii")
@@ -494,7 +494,7 @@ def derive_burn_only_replay_identities(
             + receipt.interface_path_sha256.encode("ascii")
         ).hexdigest(),
         hashlib.sha256(
-            b"0verse-windows-device-open-transcript-once-v1\0"
+            b"xverse-windows-device-open-transcript-once-v1\0"
             + receipt.observation_transcript_sha256.encode("ascii")
         ).hexdigest(),
     )

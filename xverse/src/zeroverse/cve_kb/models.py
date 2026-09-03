@@ -7,7 +7,7 @@ Two families of records:
   normalizes onto this one shape so downstream matching is source-agnostic.
 * :class:`FindingFingerprint` — the *cross-profile* descriptor of one of OUR
   findings (a stripped-driver primitive, an ELF sink bug, an npm-package bug),
-  reduced to the fields a novelty/dedup lookup keys on. Every 0verse profile
+  reduced to the fields a novelty/dedup lookup keys on. Every xverse profile
   builds one of these; none of them share the binary-native ``analyze.Finding``.
 
 The design deliberately keeps closed-source drivers first-class: a driver CVE
@@ -23,7 +23,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-SCHEMA = "0verse.cve-kb/v1"
+SCHEMA = "xverse.cve-kb/v1"
 
 # --- verdicts (shared with windows_novelty's vocabulary, deliberately) -------
 KNOWN_CVE = "KNOWN-CVE"

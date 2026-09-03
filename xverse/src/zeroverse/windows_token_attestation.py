@@ -16,7 +16,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
-SCHEMA_VERSION = "0verse.windows-token-capture/v1"
+SCHEMA_VERSION = "xverse.windows-token-capture/v1"
 _SHA256 = re.compile(r"^[a-f0-9]{64}$")
 _NONCE = re.compile(r"^[A-Za-z0-9_-]{32,128}$")
 _TOKEN_ID = re.compile(r"^[A-Za-z0-9_-]{16,128}$")

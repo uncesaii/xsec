@@ -87,16 +87,16 @@ def _metadata(*, acquisition_id: str = "virtual-scout-001") -> ScoutSessionMetad
         ),
         redaction=RedactionRecord(
             status="not-required",
-            policy="0verse.default-export/v1",
+            policy="xverse.default-export/v1",
             contains_sensitive_values=False,
             entries=(),
         ),
         interface="virtual-can0",
         source="deterministic in-memory virtual ECU",
-        collector="0verse-tests",
+        collector="xverse-tests",
         authorization_basis="synthetic-fixture",
         started_at="2026-07-18T10:00:00Z",
-        tool_name="0verse-firmware-scout",
+        tool_name="xverse-firmware-scout",
         tool_version="0.0.1+test",
         parameters=(TransportParameter(name="bitrate", value="500000", basis="configured"),),
         notes="No hardware or live transport was used.",
@@ -221,13 +221,13 @@ def test_session_log_binds_tool_formats_counts_and_transport(tmp_path: Path) -> 
     assert raw == (
         json.dumps(session_log, sort_keys=True, separators=(",", ":")) + "\n"
     ).encode("ascii")
-    assert session_log["schema_version"] == "0verse.scout-session-log/v1"
+    assert session_log["schema_version"] == "xverse.scout-session-log/v1"
     assert session_log["formats"] == {
-        "capture": "0verse.scout-capture/v1",
+        "capture": "xverse.scout-capture/v1",
         "event": SCOUT_EVENT_VERSION,
     }
     assert session_log["tool"] == {
-        "name": "0verse-firmware-scout",
+        "name": "xverse-firmware-scout",
         "version": "0.0.1+test",
     }
     assert session_log["event_counts"] == {
@@ -523,7 +523,7 @@ def test_sensitive_identifiers_require_an_honest_redaction_record() -> None:
             ),
             redaction=RedactionRecord(
                 status="not-required",
-                policy="0verse.default-export/v1",
+                policy="xverse.default-export/v1",
                 contains_sensitive_values=False,
                 entries=(),
             ),

@@ -34,23 +34,23 @@ def _fixture_metadata() -> ScoutSessionMetadata:
         acquisition_id="scout-standard-fixture-v1",
         device=DeviceIdentity(
             category="ecu",
-            manufacturer="0verse",
+            manufacturer="xverse",
             model="Virtual CAN fixture",
             hardware_revision="v1",
             identifiers=(),
         ),
         redaction=RedactionRecord(
             status="not-required",
-            policy="0verse.default-export/v1",
+            policy="xverse.default-export/v1",
             contains_sensitive_values=False,
             entries=(),
         ),
         interface="virtual-can0",
         source="deterministic in-memory virtual ECU",
-        collector="0verse",
+        collector="xverse",
         authorization_basis="synthetic-fixture",
         started_at=_FIXTURE_STARTED_AT,
-        tool_name="0verse-firmware-scout",
+        tool_name="xverse-firmware-scout",
         tool_version=__version__,
         notes="Fixture-only capture; no physical CAN interface or transmission was used.",
     )
@@ -176,7 +176,7 @@ def render_report(taxonomy: dict[str, object], output_format: str) -> str:
         ("Inferences", taxonomy["inferences"]),
         ("Unknowns", taxonomy["unknowns"]),
     )
-    rendered = ["# 0verse Scout report"]
+    rendered = ["# xverse Scout report"]
     for title, section in sections:
         rendered.extend(("", f"## {title}", "", "```json"))
         rendered.append(json.dumps(section, indent=2, sort_keys=True))

@@ -20,11 +20,11 @@ from pathlib import Path
 from .ssh_authorization import canonical_signed_material, verify_ssh_signature
 from .windows_token_pack import WindowsTokenPackVerification
 
-CLASSIFICATION_SCHEMA_VERSION = "0verse.windows-bounty-classification/v2"
-LOCAL_EVIDENCE_SCHEMA_VERSION = "0verse.windows-local-attack-scenario-evidence/v2"
-LOCAL_EVIDENCE_SIGNATURE_NAMESPACE = "0verse-windows-local-attack-scenario-evidence"
+CLASSIFICATION_SCHEMA_VERSION = "xverse.windows-bounty-classification/v2"
+LOCAL_EVIDENCE_SCHEMA_VERSION = "xverse.windows-local-attack-scenario-evidence/v2"
+LOCAL_EVIDENCE_SIGNATURE_NAMESPACE = "xverse-windows-local-attack-scenario-evidence"
 DEFAULT_LOCAL_EVIDENCE_ALLOWED_SIGNERS = Path(
-    "/etc/0verse/windows-local-scenario-evidence.allowed_signers"
+    "/etc/xverse/windows-local-scenario-evidence.allowed_signers"
 )
 
 OFFICIAL_SCOPE_URL = (

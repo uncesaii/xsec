@@ -27,21 +27,21 @@ from .windows_ioctl_rank import (
 from .windows_ioctl_site_identity import ioctl_site_id, site_universe_sha256
 from .windows_variant import _load_artifact
 
-CAMPAIGN_VERSION = "0verse.windows-ioctl-real-static-campaign/v1"
-CAMPAIGN_VERSION_V2 = "0verse.windows-ioctl-real-static-campaign/v2"
-ADMISSION_VERSION = "0verse.windows-ioctl-analysis-admission/v1"
-ADMISSION_VERSION_V2 = "0verse.windows-ioctl-analysis-admission/v2"
-ADMISSION_VERSION_V3 = "0verse.windows-ioctl-analysis-admission/v3"
-EXPORT_VERSION = "0verse.windows-ioctl-real-ssa-export/v1"
-EXPORT_VERSION_V2 = "0verse.windows-ioctl-real-ssa-export/v2"
-EXPORT_VERSION_V3 = "0verse.windows-ioctl-real-ssa-export/v3"
-RESULT_VERSION = "0verse.windows-ioctl-real-static-candidates/v1"
-RESULT_VERSION_V2 = "0verse.windows-ioctl-real-static-candidates/v2"
-RESULT_VERSION_V3 = "0verse.windows-ioctl-real-static-candidates/v3"
-SIGNATURE_NAMESPACE = "0verse-windows-ioctl-analysis-admission-v1"
-SIGNATURE_NAMESPACE_V2 = "0verse-windows-ioctl-analysis-admission-v2"
-SIGNATURE_NAMESPACE_V3 = "0verse-windows-ioctl-analysis-admission-v3"
-DEFAULT_ALLOWED_SIGNERS = Path("/etc/0verse/windows-ioctl-analysis-admission.allowed_signers")
+CAMPAIGN_VERSION = "xverse.windows-ioctl-real-static-campaign/v1"
+CAMPAIGN_VERSION_V2 = "xverse.windows-ioctl-real-static-campaign/v2"
+ADMISSION_VERSION = "xverse.windows-ioctl-analysis-admission/v1"
+ADMISSION_VERSION_V2 = "xverse.windows-ioctl-analysis-admission/v2"
+ADMISSION_VERSION_V3 = "xverse.windows-ioctl-analysis-admission/v3"
+EXPORT_VERSION = "xverse.windows-ioctl-real-ssa-export/v1"
+EXPORT_VERSION_V2 = "xverse.windows-ioctl-real-ssa-export/v2"
+EXPORT_VERSION_V3 = "xverse.windows-ioctl-real-ssa-export/v3"
+RESULT_VERSION = "xverse.windows-ioctl-real-static-candidates/v1"
+RESULT_VERSION_V2 = "xverse.windows-ioctl-real-static-candidates/v2"
+RESULT_VERSION_V3 = "xverse.windows-ioctl-real-static-candidates/v3"
+SIGNATURE_NAMESPACE = "xverse-windows-ioctl-analysis-admission-v1"
+SIGNATURE_NAMESPACE_V2 = "xverse-windows-ioctl-analysis-admission-v2"
+SIGNATURE_NAMESPACE_V3 = "xverse-windows-ioctl-analysis-admission-v3"
+DEFAULT_ALLOWED_SIGNERS = Path("/etc/xverse/windows-ioctl-analysis-admission.allowed_signers")
 RANK_PROOF_LIMIT = (
     "Signed static High-P-Code candidate evidence only; no device call, "
     "reachability, vulnerability, impact, novelty, claim, bounty eligibility, "
@@ -238,7 +238,7 @@ def rank_windows_ioctl_real_static(
         max_candidates=max_candidates,
     )
     analysis_run_id = hashlib.sha256(
-        b"0verse-windows-ioctl-real-analysis-run-v1\0" + admission_sha256.encode("ascii")
+        b"xverse-windows-ioctl-real-analysis-run-v1\0" + admission_sha256.encode("ascii")
     ).hexdigest()
     result: dict[str, Any] = {
         "schema_version": admission_meta["rank_contract"],
@@ -647,13 +647,13 @@ def _rank_dispatches(
                 separators=(",", ":"),
             ).encode()
             content_id = hashlib.sha256(
-                b"0verse-windows-ioctl-real-content-v1\0" + identity
+                b"xverse-windows-ioctl-real-content-v1\0" + identity
             ).hexdigest()
             if content_id in seen_content:
                 raise ValueError("duplicate real SSA field evidence")
             seen_content.add(content_id)
             candidate_id = hashlib.sha256(
-                b"0verse-windows-ioctl-real-candidate-v1\0"
+                b"xverse-windows-ioctl-real-candidate-v1\0"
                 + admission_sha256.encode("ascii")
                 + b"\0"
                 + content_id.encode("ascii")
@@ -739,7 +739,7 @@ def _strict_policy(path: Path, identity: str) -> tuple[str, str]:
     except ValueError as exc:
         raise ValueError("analysis admission policy key is malformed") from exc
     authority_commitment = hashlib.sha256(
-        b"0verse-ssh-authority-key-v1\0ssh-ed25519\0" + key
+        b"xverse-ssh-authority-key-v1\0ssh-ed25519\0" + key
     ).hexdigest()
     return hashlib.sha256(data).hexdigest(), authority_commitment
 

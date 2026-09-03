@@ -1,6 +1,6 @@
-# 0verse real-LLM evaluation
+# xverse real-LLM evaluation
 
-> **Honest, measured, reproducible.** This is the end-to-end evaluation of 0verse
+> **Honest, measured, reproducible.** This is the end-to-end evaluation of xverse
 > driven by a **real frontier model** (not `MockLLM`) over a labeled corpus. No
 > cherry-picking: misses, false positives, and the places the model does *not*
 > help are reported alongside the wins. Re-run it with
@@ -136,7 +136,7 @@ function-specific harness rather than the generic one.
 
 ```bash
 ssh bench
-cd /root/0verse && . .venv/bin/activate && export GHIDRA_INSTALL_DIR=/opt/ghidra
+cd /root/xverse && . .venv/bin/activate && export GHIDRA_INSTALL_DIR=/opt/ghidra
 python benchmarks/llm_eval.py --out benchmarks/llm_eval_results.json
 ```
 

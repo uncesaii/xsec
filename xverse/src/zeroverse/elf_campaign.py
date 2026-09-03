@@ -21,19 +21,19 @@ from pathlib import Path, PurePosixPath
 from .ssh_authority_commitment import ssh_authority_key_commitment
 from .ssh_authorization import canonical_signed_material, verify_ssh_signature
 
-CAMPAIGN_SCHEMA_VERSION = "0verse.elf-campaign/v1"
-ACCEPTANCE_SCHEMA_VERSION = "0verse.elf-worker-acceptance/v1"
-RECEIPT_SCHEMA_VERSION = "0verse.elf-campaign-receipt/v1"
+CAMPAIGN_SCHEMA_VERSION = "xverse.elf-campaign/v1"
+ACCEPTANCE_SCHEMA_VERSION = "xverse.elf-worker-acceptance/v1"
+RECEIPT_SCHEMA_VERSION = "xverse.elf-campaign-receipt/v1"
 
-AUTHORIZATION_SIGNATURE_NAMESPACE = "0verse-elf-authorization-v1"
-ACCEPTANCE_SIGNATURE_NAMESPACE = "0verse-elf-worker-acceptance-v1"
-TARGET_RECEIPT_SIGNATURE_NAMESPACE = "0verse-elf-target-observation-v1"
-CONTROL_RECEIPT_SIGNATURE_NAMESPACE = "0verse-elf-control-observation-v1"
-DEFAULT_AUTHORIZATION_ALLOWED_SIGNERS = Path("/etc/0verse/elf-authorization.allowed_signers")
-DEFAULT_ACCEPTANCE_ALLOWED_SIGNERS = Path("/etc/0verse/elf-worker-acceptance.allowed_signers")
-DEFAULT_TARGET_RECEIPT_ALLOWED_SIGNERS = Path("/etc/0verse/elf-target-observation.allowed_signers")
+AUTHORIZATION_SIGNATURE_NAMESPACE = "xverse-elf-authorization-v1"
+ACCEPTANCE_SIGNATURE_NAMESPACE = "xverse-elf-worker-acceptance-v1"
+TARGET_RECEIPT_SIGNATURE_NAMESPACE = "xverse-elf-target-observation-v1"
+CONTROL_RECEIPT_SIGNATURE_NAMESPACE = "xverse-elf-control-observation-v1"
+DEFAULT_AUTHORIZATION_ALLOWED_SIGNERS = Path("/etc/xverse/elf-authorization.allowed_signers")
+DEFAULT_ACCEPTANCE_ALLOWED_SIGNERS = Path("/etc/xverse/elf-worker-acceptance.allowed_signers")
+DEFAULT_TARGET_RECEIPT_ALLOWED_SIGNERS = Path("/etc/xverse/elf-target-observation.allowed_signers")
 DEFAULT_CONTROL_RECEIPT_ALLOWED_SIGNERS = Path(
-    "/etc/0verse/elf-control-observation.allowed_signers"
+    "/etc/xverse/elf-control-observation.allowed_signers"
 )
 
 EXECUTION_MODES = frozenset({"native", "qemu-user"})

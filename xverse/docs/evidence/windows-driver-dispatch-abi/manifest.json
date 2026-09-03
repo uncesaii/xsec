@@ -1,5 +1,5 @@
 {
-  "schema_version": "0verse.windows-driver-dispatch-abi-authority/v1",
+  "schema_version": "xverse.windows-driver-dispatch-abi-authority/v1",
   "source": {
     "commit": "758b904a9035ee00c0bea6a2ed34a78202bcf8ce",
     "path": "nc-wdm-driver_dispatch.md",

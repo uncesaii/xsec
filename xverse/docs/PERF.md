@@ -1,6 +1,6 @@
 # Performance: the optional Rust/PyO3 fast-path (#31)
 
-0verse's CPU-bound stages (ingest/triage, the bug-class lens scan, NDJSON
+xverse's CPU-bound stages (ingest/triage, the bug-class lens scan, NDJSON
 emission) are pure-Python and work everywhere with zero native dependencies. #31
 adds an **optional** Rust extension (`zeroverse._native`) that accelerates the one
 stage where Rust measurably wins, and an **algorithmic** fix to the lens scan that
@@ -117,7 +117,7 @@ parity risk for ~150 ms. Not worth it — left as pure Python.
 
 ## End-to-end honesty
 
-These stages are CPU-bound microbenchmarks. In a **real** 0verse run the
+These stages are CPU-bound microbenchmarks. In a **real** xverse run the
 wall-time is dominated by Ghidra decompilation and angr symbolic execution
 (seconds to minutes per binary), against which a ~100 ms ingest saving and a
 ~3 s → 0.6 s lens saving are real but small in the total. The lens prefilter is

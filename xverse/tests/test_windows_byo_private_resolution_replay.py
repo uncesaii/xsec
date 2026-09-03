@@ -293,9 +293,9 @@ def test_public_boundary_has_no_policy_root_uid_helper_or_identity_override() ->
 
 def test_fixed_root_uses_physical_darwin_path_and_linux_var_path() -> None:
     expected = (
-        Path("/private/var/lib/0verse/windows-byo-private-resolution-replay")
+        Path("/private/var/lib/xverse/windows-byo-private-resolution-replay")
         if sys.platform == "darwin"
-        else Path("/var/lib/0verse/windows-byo-private-resolution-replay")
+        else Path("/var/lib/xverse/windows-byo-private-resolution-replay")
     )
     assert expected == replay_module.DEFAULT_REPLAY_ROOT
 

@@ -57,7 +57,7 @@ def test_native_noop_fixture_matches_python_contract_and_rejects_replay() -> Non
     assert completed.returncode == 0, completed.stderr
 
     raw = json.loads(completed.stdout)
-    assert raw["schema_version"] == "0verse.windows-token-snapshot-pair-fixture/v1"
+    assert raw["schema_version"] == "xverse.windows-token-snapshot-pair-fixture/v1"
     assert raw["operation_id"] == OPERATION
     assert raw["run_nonce"] == run_nonce
     assert raw["thread_id_before"] == raw["thread_id_after"]

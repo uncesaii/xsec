@@ -8,7 +8,7 @@
  * For a project whose pitch is evidence-first honesty, docs claiming
  * capabilities we do not have is the worst possible bug class.
  *
- * This test parses every backticked `packages/...` and `0verse/...` source path
+ * This test parses every backticked `packages/...` and `xverse/...` source path
  * out of the docs and asserts it resolves on disk. Documenting something
  * unbuilt is still fine — describe it in prose, or mark it planned, but do not
  * hand the reader a file path that goes nowhere.
@@ -53,7 +53,7 @@ test("every code path referenced in the docs exists on disk", () => {
     join(ROOT, "README.md"),
   ].filter((f) => existsSync(f));
 
-  const pattern = /`((?:packages|0verse)\/[A-Za-z0-9_./-]+\.(?:ts|tsx|py|json|mjs))`/g;
+  const pattern = /`((?:packages|xverse)\/[A-Za-z0-9_./-]+\.(?:ts|tsx|py|json|mjs))`/g;
   const broken = [];
 
   for (const file of docFiles) {

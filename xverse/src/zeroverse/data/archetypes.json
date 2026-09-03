@@ -1,5 +1,5 @@
 {
-  "schema": "0verse.archetypes/v1",
+  "schema": "xverse.archetypes/v1",
   "provenance": "Consolidated from three validated XSEC seed-research catalogs (kernel/userland/firmware, 2023-2025 CVE-grounded). GENERALIZED PATTERNS ONLY — no specific exploit code. The kernel 'weaponization_note' field is intentionally excluded. 'grounding' lists public CVE/advisory identifiers as witnesses, not the pattern itself. See docs/SEEDS.md.",
   "counts": {
     "total": 90,
@@ -13,7 +13,7 @@
       "cwe": "CWE-416",
       "subsystem": "net/netfilter (nf_tables)",
       "pattern": "A set element / set backend (pipapo, rbtree, hash) is unlinked in one phase and freed by a deferred path (GC worker, call_rcu, transaction commit/abort) while another path still holds or re-walks the reference. Split unlink-vs-reclaim phases, GC-on-insert, or duplicate-element-pending-GC create a window where the freed element is reused.",
-      "detection_signature": "In a stripped nf_tables-related .ko the imported-symbol relocations survive insmod resolution: look for call_rcu / kfree_rcu / queue_delayed_work / nft_* set-ops callbacks alongside kfree of an object that is also reachable from an rcu/list walk. Decompiled shape: object unlinked from a list, then freed in a *different* function/workqueue callback than the one that still iterates it. Maps to 0verse lens L8 (deferred-free-uaf) + L12 (list-unlink). HARD in pure binary: requires cross-callback lifetime reasoning; emit as hypothesis, not a finding.",
+      "detection_signature": "In a stripped nf_tables-related .ko the imported-symbol relocations survive insmod resolution: look for call_rcu / kfree_rcu / queue_delayed_work / nft_* set-ops callbacks alongside kfree of an object that is also reachable from an rcu/list walk. Decompiled shape: object unlinked from a list, then freed in a *different* function/workqueue callback than the one that still iterates it. Maps to xverse lens L8 (deferred-free-uaf) + L12 (list-unlink). HARD in pure binary: requires cross-callback lifetime reasoning; emit as hypothesis, not a finding.",
       "grounding": [
         "CVE-2024-26808",
         "CVE-2023-3390",
@@ -481,7 +481,7 @@
       "cwe": "CWE-862 / CWE-280",
       "subsystem": "drivers/* , net, fs, platform/sysfs",
       "pattern": "A privileged ioctl/sysfs-store/debugfs/write handler (firmware load, register poke, DMA setup, mode switch) lacks a capable(CAP_SYS_ADMIN)/ns_capable/perm check, so an unprivileged user reaches a powerful primitive directly.",
-      "detection_signature": "STRONG and high-value: in the .ko, the PRESENCE of a powerful sink (writel/iowrite, dma_alloc, request_firmware, copy_*_user to phys) on a path that has NO relocation to capable / ns_capable / capable_wrt_inode is the signal. Maps to L4 (missing-cap-gate). HIGH detectability: 0verse can diff `paths-to-sink` against `paths-through-capable`. Absence-of-a-call is exactly what survives stripping (the capable import would be there if used).",
+      "detection_signature": "STRONG and high-value: in the .ko, the PRESENCE of a powerful sink (writel/iowrite, dma_alloc, request_firmware, copy_*_user to phys) on a path that has NO relocation to capable / ns_capable / capable_wrt_inode is the signal. Maps to L4 (missing-cap-gate). HIGH detectability: xverse can diff `paths-to-sink` against `paths-through-capable`. Absence-of-a-call is exactly what survives stripping (the capable import would be there if used).",
       "grounding": [
         "numerous vendor driver missing-permission CVEs",
         "debugfs/sysfs world-writable register pokes",
@@ -585,7 +585,7 @@
       "cwe": "CWE-787 / CWE-416",
       "subsystem": "ipc (msg, shm, sem)",
       "pattern": "An IPC object (msg_msg segment list, shm) is mis-sized or freed early. Note dual role: msg_msg is BOTH a recurring bug location AND the universal heap-spray/reclaim object used to exploit other UAFs.",
-      "detection_signature": "Relocations to kmalloc/kfree in ipc paths; msg_msg segment loop with a user-controlled msgsz feeding alloc. Maps to L2/L5. MEDIUM. (For 0verse, the higher value is recognizing msg_msg as the EXPLOIT PRIMITIVE that confirms many other UAFs in the verify lane.)",
+      "detection_signature": "Relocations to kmalloc/kfree in ipc paths; msg_msg segment loop with a user-controlled msgsz feeding alloc. Maps to L2/L5. MEDIUM. (For xverse, the higher value is recognizing msg_msg as the EXPLOIT PRIMITIVE that confirms many other UAFs in the verify lane.)",
       "grounding": [
         "msg_msg OOB CVEs",
         "msg_msg as exploitation primitive across most UAF writeups"
@@ -659,7 +659,7 @@
       "cwe": "CWE-787/CWE-122",
       "lens": "overflow",
       "pattern": "A control variable decides whether a SHORT canonical value (e.g. a resolved address, a truncated name) or the LONG raw input is copied into a fixed buffer. A logic/state bug leaves the flag wrong on a slow/partial path, so the long input is memcpy'd into the buffer sized for the short one.",
-      "detection_signature": "Sink import: memcpy/strcpy into a fixed/stack buffer. Decompiled shape: two assignments to the copy-source under different branches of a boolean that is itself set far away (across a state-machine step / I/O resumption). Slice: dataflow where memcpy.src can be either a bounded constant or an unbounded input depending on a flag whose definition does not dominate the use. SHARPENING (overflow lens): flag 'phi-source' memcpys where one incoming source is length-bounded and another is not, and the selecting predicate is set across a callback/resume boundary (harder for pure static tools — 0verse can just fuzz the state machine to flip it).",
+      "detection_signature": "Sink import: memcpy/strcpy into a fixed/stack buffer. Decompiled shape: two assignments to the copy-source under different branches of a boolean that is itself set far away (across a state-machine step / I/O resumption). Slice: dataflow where memcpy.src can be either a bounded constant or an unbounded input depending on a flag whose definition does not dominate the use. SHARPENING (overflow lens): flag 'phi-source' memcpys where one incoming source is length-bounded and another is not, and the selecting predicate is set across a callback/resume boundary (harder for pure static tools — xverse can just fuzz the state machine to flip it).",
       "grounding": [
         "CVE-2023-38545 (curl SOCKS5 long-hostname heap overflow via wrong local-resolve flag)"
       ],
@@ -1044,7 +1044,7 @@
       "cwe": "CWE-416/CWE-911",
       "lens": "uaf",
       "pattern": "An object's refcount is decremented too many times (double unref, unref on an error path that already unref'd), the object is freed while another holder still references it, then that holder uses it. Common in parser/object models and GLib/GObject-style code.",
-      "detection_signature": "Sink: use of an object after its refcount reaches 0 / its destructor ran. Decompiled shape: paired incref/decref helpers; a path with more decrefs than increfs followed by a use. Slice: harder statically; 0verse's edge is to fuzz the lifecycle and catch the use post-free dynamically. SHARPENING (uaf lens): treat resolvable unref/release/put helpers (that call free when count hits 0) as conditional frees; add them to the free-set so the dynamic UAF check covers refcounted objects, not just raw free().",
+      "detection_signature": "Sink: use of an object after its refcount reaches 0 / its destructor ran. Decompiled shape: paired incref/decref helpers; a path with more decrefs than increfs followed by a use. Slice: harder statically; xverse's edge is to fuzz the lifecycle and catch the use post-free dynamically. SHARPENING (uaf lens): treat resolvable unref/release/put helpers (that call free when count hits 0) as conditional frees; add them to the free-set so the dynamic UAF check covers refcounted objects, not just raw free().",
       "grounding": [
         "CVE-2023-0286 (OpenSSL GENERAL_NAME type confusion / lifecycle)",
         "CVE-2024-37407 (libarchive)",
@@ -1125,7 +1125,7 @@
         "CVE-2023-36664 (Ghostscript %pipe% / | -> command exec)",
         "CVE-2022-... router/daemon system(sprintf) class (generalized)"
       ],
-      "confirmable": "Direct behavioral oracle (process-exec instrumentation) + CASR-style detection of an unexpected child process. Trigger: input containing ';id' or '`id`' or '$(...)'; observe the injected command run (e.g. a sentinel file/marker). HIGHLY confirmable — 0verse can ptrace/seccomp-trap execve of an unexpected program. NOT a memory oracle; needs an exec-trap oracle.",
+      "confirmable": "Direct behavioral oracle (process-exec instrumentation) + CASR-style detection of an unexpected child process. Trigger: input containing ';id' or '`id`' or '$(...)'; observe the injected command run (e.g. a sentinel file/marker). HIGHLY confirmable — xverse can ptrace/seccomp-trap execve of an unexpected program. NOT a memory oracle; needs an exec-trap oracle.",
       "fp_trap": "Data passed via execve with an explicit argv vector (no shell) and no metacharacter interpretation; or strict allowlist/escaping (e.g. only [A-Za-z0-9_]). Suppress when the exec is shell-less argv AND the data cannot become a separate argv element, or when a sanitizer/allowlist dominates.",
       "domain": "userland",
       "uid": "userland/CI-01",

@@ -190,7 +190,7 @@ def test_v1_5_fields_do_not_shift_pre_v1_5_positional_arguments() -> None:
 
     result = api.ScanResult(
         "1.4",
-        {"name": "0verse", "version": "legacy"},
+        {"name": "xverse", "version": "legacy"},
         "/bin/target",
         "ELF",
         "x86-64",

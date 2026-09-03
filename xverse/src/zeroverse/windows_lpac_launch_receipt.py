@@ -20,10 +20,10 @@ from .ssh_authorization import canonical_signed_material, verify_ssh_signature
 from .windows_app_container import valid_package_app_container_sid
 from .windows_token_runner import ELIGIBLE_WINDOWS_SANDBOXES
 
-SCHEMA_VERSION = "0verse.windows-lpac-launch-receipt/v2"
-SIGNATURE_NAMESPACE = "0verse-windows-lpac-launch-receipt-v2"
+SCHEMA_VERSION = "xverse.windows-lpac-launch-receipt/v2"
+SIGNATURE_NAMESPACE = "xverse-windows-lpac-launch-receipt-v2"
 LAUNCH_METHOD = "service-held-process-information"
-DEFAULT_ALLOWED_SIGNERS = Path("/etc/0verse/windows-lpac-launch.allowed_signers")
+DEFAULT_ALLOWED_SIGNERS = Path("/etc/xverse/windows-lpac-launch.allowed_signers")
 
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _NONCE = re.compile(r"^[A-Za-z0-9_-]{32,128}$")
@@ -131,7 +131,7 @@ def derive_process_locator_identity(
     ):
         raise ValueError("Windows LPAC launch process locator facts are invalid")
     return hashlib.sha256(
-        b"0verse-windows-lpac-launch-process-locator-v2\0"
+        b"xverse-windows-lpac-launch-process-locator-v2\0"
         + worker_machine_id.encode("ascii")
         + b"\0"
         + process_id.to_bytes(4, "little")
@@ -151,7 +151,7 @@ def derive_process_instance_id(
     ):
         raise ValueError("Windows LPAC launch process instance facts are invalid")
     digest = hashlib.sha256(
-        b"0verse-windows-lpac-launch-process-instance-v2\0"
+        b"xverse-windows-lpac-launch-process-instance-v2\0"
         + worker_machine_id.encode("ascii")
         + b"\0"
         + process_id.to_bytes(4, "little")
@@ -377,17 +377,17 @@ def derive_burn_only_replay_identities(
     receipt.require_signature()
     return (
         hashlib.sha256(
-            b"0verse-windows-lpac-launch-receipt-once-v2\0"
+            b"xverse-windows-lpac-launch-receipt-once-v2\0"
             + receipt.worker_machine_id.encode("ascii")
             + b"\0"
             + receipt.receipt_nonce.encode("ascii")
         ).hexdigest(),
         hashlib.sha256(
-            b"0verse-windows-lpac-launch-process-once-v2\0"
+            b"xverse-windows-lpac-launch-process-once-v2\0"
             + receipt.process_locator_identity_sha256.encode("ascii")
         ).hexdigest(),
         hashlib.sha256(
-            b"0verse-windows-lpac-launch-transcript-once-v2\0"
+            b"xverse-windows-lpac-launch-transcript-once-v2\0"
             + receipt.launch_transcript_sha256.encode("ascii")
         ).hexdigest(),
     )

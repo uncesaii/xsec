@@ -1,5 +1,5 @@
 {
-  "schema_version": "0verse.windows-scope/v1",
+  "schema_version": "xverse.windows-scope/v1",
   "campaign_id": "contract-fixture-hyperv-001",
   "program": "hyperv-insider",
   "scope_url": "https://example.invalid/sanitized-contract-fixture",

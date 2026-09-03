@@ -14,7 +14,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import ClassVar, Generic, Literal, TypeVar, cast
 
-DEVICE_PROFILE_VERSION = "0verse.device-profile/v1"
+DEVICE_PROFILE_VERSION = "xverse.device-profile/v1"
 NO_SUBFUNCTION = "none"
 
 KnowledgeState = Literal["unknown", "declared", "observed", "inferred"]

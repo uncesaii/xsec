@@ -29,7 +29,7 @@ describe("binary command", () => {
       [],
       {
         isUvAvailable: () => false,
-        locateOverseDir: () => "/repo/0verse",
+        locateOverseDir: () => "/repo/xverse",
       },
     );
 
@@ -41,7 +41,7 @@ describe("binary command", () => {
     expect(guidance).toContain("uv sync --frozen");
   });
 
-  it("fails with guidance and a non-zero code when the 0verse dir is missing", () => {
+  it("fails with guidance and a non-zero code when the xverse dir is missing", () => {
     const resolution = resolveBinaryRun(
       "./target",
       { mode: "triage" },
@@ -55,7 +55,7 @@ describe("binary command", () => {
     expect(resolution.ok).toBe(false);
     expect(resolution.exitCode).toBeGreaterThan(0);
     const guidance = (resolution.guidance ?? []).join("\n");
-    expect(guidance).toContain("0verse/ engine checkout");
+    expect(guidance).toContain("xverse/ engine checkout");
   });
 
   it("resolves the engine dir and argv when the toolchain is present", () => {
@@ -65,13 +65,13 @@ describe("binary command", () => {
       ["--extra"],
       {
         isUvAvailable: () => true,
-        locateOverseDir: () => "/repo/0verse",
+        locateOverseDir: () => "/repo/xverse",
       },
     );
 
     expect(resolution.ok).toBe(true);
     expect(resolution.exitCode).toBe(0);
-    expect(resolution.overseDir).toBe("/repo/0verse");
+    expect(resolution.overseDir).toBe("/repo/xverse");
     expect(resolution.argv).toEqual([
       "scan",
       "./target",
@@ -87,7 +87,7 @@ describe("binary command", () => {
     expect(() =>
       resolveBinaryRun("./target", { mode: "bogus" }, [], {
         isUvAvailable: () => true,
-        locateOverseDir: () => "/repo/0verse",
+        locateOverseDir: () => "/repo/xverse",
       }),
     ).toThrow(/invalid --mode/);
   });

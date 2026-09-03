@@ -10,7 +10,7 @@ import type {
   TargetResearchAdapter,
 } from "../target-research-adapter.js";
 
-const RESULT_SCHEMA = "0verse.windows-variant/v1";
+const RESULT_SCHEMA = "xverse.windows-variant/v1";
 const PROOF_LIMIT = "Static lexical guard-delta evidence only. This result cannot establish a crash, security impact, exploitability, novelty, or bounty eligibility.";
 const SHA256 = /^[a-f0-9]{64}$/;
 const ADDRESS = /^(?:|0x[0-9a-f]+)$/;
@@ -393,11 +393,11 @@ export class WindowsVariantResearchAdapter
         timeoutMs,
       }, ctx.signal);
       if (execution.timedOut || execution.signal !== null || execution.exitCode !== 0) {
-        throw new Error(`0verse ranker did not exit cleanly (${execution.stderr ?? "no detail"})`);
+        throw new Error(`xverse ranker did not exit cleanly (${execution.stderr ?? "no detail"})`);
       }
       const stdout = Buffer.from(execution.stdout);
       if (stdout.length === 0 || stdout.length > MAX_RESULT_BYTES) {
-        throw new Error("0verse ranker output is empty or exceeds the size limit");
+        throw new Error("xverse ranker output is empty or exceeds the size limit");
       }
       const parsed = parseResult(JSON.parse(stdout.toString("utf8")) as unknown, target.config);
       const resultSha256 = createHash("sha256").update(stdout).digest("hex");
@@ -453,7 +453,7 @@ export class WindowsVariantResearchAdapter
       evidence: [{
         stage: "reachability",
         status: "inconclusive",
-        summary: "0verse reachability annotations are retained as candidate context, not verified reachability",
+        summary: "xverse reachability annotations are retained as candidate context, not verified reachability",
       }],
     };
   }

@@ -367,7 +367,7 @@ export { collectScopeFiles, countScopeFilesUpTo } from "./source-files.js";
 // Hunt best-of-N LLM judge (disambiguates multi-attempt findings before the skeptic gate).
 export { judgeHuntCandidatesWithLlm, heuristicCandidateScore } from "./stages/hunt-judge.js";
 export type { HuntCandidateJudge, HuntCandidateScore } from "./stages/hunt-judge.js";
-// Hunt memory flywheel (XSEC_HUNT_FLYWHEEL=1, ported from 0verse's
+// Hunt memory flywheel (XSEC_HUNT_FLYWHEEL=1, ported from xverse's
 // flywheel.py): a preseeded 5-layer memory that PRIMES the best-of-N judge
 // ordering + attempt-budget cost-router — it never confirms; see
 // hunt-flywheel.ts's header for the invariant.
@@ -457,7 +457,7 @@ export type {
   CrossFamilyStatus,
 } from "./stages/hunt-cross-family.js";
 export type { RefuteDecorrelation } from "./stages/hunt-scan.js";
-// Kernel archetype catalog (multi-archetype hunt seeding; ported from 0verse's
+// Kernel archetype catalog (multi-archetype hunt seeding; ported from xverse's
 // 90-archetype registry, kernel-domain subset). Data + brief mapping are always
 // inert/available; `planArchetypeSweep` is env-gated (XSEC_ARCHETYPE_SWEEP=1).
 export {

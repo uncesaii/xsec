@@ -18,7 +18,7 @@
     "observedAt": "2026-07-18T00:00:00.000Z",
     "outcome": "confirmed",
     "principal": "0research-zeroverse-evidence@test",
-    "project": "0verse",
+    "project": "xverse",
     "schemaVersion": 1,
     "signatureSsh": "-----BEGIN SSH SIGNATURE-----\nfixture-only-cross-language-contract\n-----END SSH SIGNATURE-----\n",
     "sourceArtifactDigest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
@@ -27,7 +27,7 @@
     "verificationReceiptDigest": "sha256:cc5014e258317d35881c023ffa612452d1873bb02f2b1d308d6566faab3be2f5"
   },
   "admissionDigest": "sha256:fabf4f9b3f03a0c33d29ecd5c03cde801b24ec2e3e399898c785e43d25c37432",
-  "contract": "0verse-0brain-admission-golden-v1",
+  "contract": "xverse-0brain-admission-golden-v1",
   "schemaVersion": 1,
   "signatureNamespace": "0research-evidence-admission-v1:zeroverse_scientific_event",
   "signedMaterialDigest": "sha256:61e88e7b0ad00848f9dce066bced3e62fec52b01ffa9f42160f225c29e5f0e59"

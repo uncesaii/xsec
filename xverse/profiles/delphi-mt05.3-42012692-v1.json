@@ -1,5 +1,5 @@
 {
-  "schema_version": "0verse.device-profile/v1",
+  "schema_version": "xverse.device-profile/v1",
   "profile_id": "delphi.mt05.3.42012692",
   "identity": {
     "category": {

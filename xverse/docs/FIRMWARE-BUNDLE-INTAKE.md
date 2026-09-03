@@ -22,7 +22,7 @@ acquisition/
 ```
 
 Artifact directories and names are not otherwise prescribed. Every artifact
-used by 0verse must be declared by a canonical bundle-relative POSIX path in
+used by xverse must be declared by a canonical bundle-relative POSIX path in
 `acquisition.json`. Undeclared support files are ignored rather than entering an
 analysis lane implicitly.
 

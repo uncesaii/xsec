@@ -394,7 +394,7 @@ def test_native_last_mile_specs_include_non_harnessable_priority() -> None:
     assert "aaa_parse" in [spec.func for spec in specs]
 
 
-# jhead-shaped regression for 0verse#224 sub-gap (a): the name-token heuristic
+# jhead-shaped regression for xverse#224 sub-gap (a): the name-token heuristic
 # alone harnessed the *utility* functions (``ParseCmdDate`` — a "parse" NAME —
 # and ``ErrFatal``) over the real attacker-reachable EXIF parser.
 JHEAD_DECOMP = {

@@ -91,7 +91,7 @@ const SE_GROUP_ENABLED: u32 = 0x4;
 const SE_GROUP_USE_FOR_DENY_ONLY: u32 = 0x10;
 const SECURITY_DESCRIPTOR_REVISION: u32 = 1;
 const SECURITY_MAX_SID_SIZE: usize = 68;
-const NONCE_LEDGER_DOMAIN: &[u8] = b"0verse-windows-run-nonce-ledger-v1\0";
+const NONCE_LEDGER_DOMAIN: &[u8] = b"xverse-windows-run-nonce-ledger-v1\0";
 
 type Result<T> = std::result::Result<T, String>;
 
@@ -865,7 +865,7 @@ fn reject_reparse_point(path: &Path) -> Result<()> {
 
 fn ledger_root(current_user_sid: &str) -> Result<PathBuf> {
     let mut path = known_program_data()?;
-    for component in ["0verse", "windows-token-capture", "nonces"] {
+    for component in ["xverse", "windows-token-capture", "nonces"] {
         path.push(component);
         match fs::create_dir(&path) {
             Ok(()) => {}

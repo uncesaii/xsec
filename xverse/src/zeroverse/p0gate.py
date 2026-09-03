@@ -1,6 +1,6 @@
 """P0 gate — reproducible known-CVE evaluation contract for stripped x86-64 Linux ELFs.
 
-This module implements the evaluation contract for the 0verse P0 gate
+This module implements the evaluation contract for the xverse P0 gate
 benchmark (known-CVE reproducibility on stripped binaries via a local dynamic
 oracle). The contract enforces:
 
@@ -12,7 +12,7 @@ oracle). The contract enforces:
   confirmed.
 - **Honest outcome taxonomy**: reach / confirmed / refuted / inconclusive,
   plus an explicit false-positive count.
-- **Reproducible environment capture**: binary digest, 0verse tool digest,
+- **Reproducible environment capture**: binary digest, xverse tool digest,
   and enough platform metadata (OS, arch, Python version) to replicate.
 
 Schema versioning follows the same MAJOR.MINOR policy as groundtruth.py:
@@ -350,7 +350,7 @@ class BinaryDigest:
 
 @dataclass
 class ToolDigest:
-    """0verse tool version and configuration."""
+    """xverse tool version and configuration."""
     version: str                        # zeroverse.__version__
     schema_version: str = P0GATE_SCHEMA_VERSION
 

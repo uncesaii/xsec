@@ -24,14 +24,14 @@ from .windows_ioctl_ghidra_export import (
 )
 from .windows_variant import Artifact, _artifact_record, _load_artifact
 
-CAMPAIGN_VERSION = "0verse.windows-discovery-campaign/v1"
-PAIR_INPUT_VERSION = "0verse.windows-driver-local-pair-input/v1"
+CAMPAIGN_VERSION = "xverse.windows-discovery-campaign/v1"
+PAIR_INPUT_VERSION = "xverse.windows-driver-local-pair-input/v1"
 PAIR_INPUT_PRODUCER = "zeroverse.windows-driver-pair-intake/v1"
-PAIR_INPUT_VERSION_V2 = "0verse.windows-driver-local-pair-input/v2"
+PAIR_INPUT_VERSION_V2 = "xverse.windows-driver-local-pair-input/v2"
 PAIR_INPUT_PRODUCER_V2 = "zeroverse.windows-driver-pair-intake/v2"
-PAIR_INPUT_VERSION_V3 = "0verse.windows-driver-local-pair-input/v3"
+PAIR_INPUT_VERSION_V3 = "xverse.windows-driver-local-pair-input/v3"
 PAIR_INPUT_PRODUCER_V3 = "zeroverse.windows-driver-pair-intake/v3"
-RESULT_VERSION = "0verse.windows-discovery-result/v1"
+RESULT_VERSION = "xverse.windows-discovery-result/v1"
 _MAX_MANIFEST_BYTES = 2 * 1024 * 1024
 _SHA256 = re.compile(r"[0-9a-f]{64}")
 _PROOFS = {"input-field-readable", "source-copy-span", "destination-copy-span"}
@@ -166,9 +166,9 @@ def _campaign_from_input(
         "binary_sha256s": [value["binary_sha256"] for value in snapshots],
     }
     pair_domain = {
-        PAIR_INPUT_VERSION: b"0verse-windows-driver-discovery-pair-v1\0",
-        PAIR_INPUT_VERSION_V2: b"0verse-windows-driver-discovery-pair-v2\0",
-        PAIR_INPUT_VERSION_V3: b"0verse-windows-driver-discovery-pair-v3\0",
+        PAIR_INPUT_VERSION: b"xverse-windows-driver-discovery-pair-v1\0",
+        PAIR_INPUT_VERSION_V2: b"xverse-windows-driver-discovery-pair-v2\0",
+        PAIR_INPUT_VERSION_V3: b"xverse-windows-driver-discovery-pair-v3\0",
     }[pair_version]
     expected = hashlib.sha256(pair_domain + _canonical(material)).hexdigest()
     if pair_id != expected:
@@ -474,7 +474,7 @@ def _validated_sites(artifact: Artifact, label: str) -> dict[str, dict[str, Any]
         )
         for ordinal, site in enumerate(values):
             site_id = hashlib.sha256(
-                b"0verse-windows-discovery-semantic-site-v1\0"
+                b"xverse-windows-discovery-semantic-site-v1\0"
                 + _canonical({"key": key, "occurrence": ordinal})
             ).hexdigest()
             site["site_id"], site["ordinal"] = site_id, ordinal
@@ -542,10 +542,10 @@ def _discover_sites(
             "removed_semantic_proofs": removed,
         }
         content_id = hashlib.sha256(
-            b"0verse-windows-discovery-content-v2\0" + _canonical(evidence)
+            b"xverse-windows-discovery-content-v2\0" + _canonical(evidence)
         ).hexdigest()
         candidate_id = hashlib.sha256(
-            b"0verse-windows-discovery-candidate-v2\0"
+            b"xverse-windows-discovery-candidate-v2\0"
             + b"\0".join(
                 value.encode("ascii")
                 for value in (

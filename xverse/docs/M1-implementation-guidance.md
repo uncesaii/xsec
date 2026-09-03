@@ -1,4 +1,4 @@
-# 0verse M1 Vertical-Slice — Engineering Guidance
+# xverse M1 Vertical-Slice — Engineering Guidance
 
 PoV-is-the-unit-of-truth. The whole doc optimizes for one outcome: a deterministic crashing input, replayed natively, on a real binary. Everything that doesn't serve that is M2.
 

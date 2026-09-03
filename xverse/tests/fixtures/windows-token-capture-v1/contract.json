@@ -22,7 +22,7 @@
   },
   "fixture": true,
   "run_nonce": "control_run_nonce_000000000000001",
-  "schema_version": "0verse.windows-token-capture/v1",
+  "schema_version": "xverse.windows-token-capture/v1",
   "scope_manifest_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
   "start_token": {
     "admin_group": "absent",

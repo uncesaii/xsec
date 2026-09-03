@@ -8,9 +8,9 @@
 
 //! Private storage primitives for the future `LocalSystem` broker.
 //!
-//! An installer must provision `%ProgramData%\0verse\windows-token-broker`,
+//! An installer must provision `%ProgramData%\xverse\windows-token-broker`,
 //! its fixed policy/key leaves, and `ledger.lock` with the exact protected
-//! SYSTEM-only descriptors checked below. The shared `%ProgramData%\0verse`
+//! SYSTEM-only descriptors checked below. The shared `%ProgramData%\xverse`
 //! parent is shape-validated but is not a broker trust root. Serving never
 //! creates or repairs trust roots. The runtime order remains authority/live verification, bound
 //! key loading, durable reservation, fixed adapter execution, canonical
@@ -37,14 +37,14 @@ pub(crate) enum CiAuthorizationFixture {
     Device,
 }
 
-const RESERVATION_SCHEMA: &str = "0verse.windows-token-reservation/v2";
-const RECORD_SCHEMA: &str = "0verse.windows-token-reservation-record/v2";
-const COMPLETION_SCHEMA: &str = "0verse.windows-token-completion-record/v2";
-const SLOT_DOMAIN: &[u8] = b"0verse-windows-token-reservation-slot-v2\0";
-const RUN_DOMAIN: &[u8] = b"0verse-windows-token-reservation-run-v1\0";
-const LEGACY_RESERVATION_SCHEMA: &str = "0verse.windows-token-reservation/v1";
-const LEGACY_RECORD_SCHEMA: &str = "0verse.windows-token-reservation-record/v1";
-const LEGACY_SLOT_DOMAIN: &[u8] = b"0verse-windows-token-reservation-slot-v1\0";
+const RESERVATION_SCHEMA: &str = "xverse.windows-token-reservation/v2";
+const RECORD_SCHEMA: &str = "xverse.windows-token-reservation-record/v2";
+const COMPLETION_SCHEMA: &str = "xverse.windows-token-completion-record/v2";
+const SLOT_DOMAIN: &[u8] = b"xverse-windows-token-reservation-slot-v2\0";
+const RUN_DOMAIN: &[u8] = b"xverse-windows-token-reservation-run-v1\0";
+const LEGACY_RESERVATION_SCHEMA: &str = "xverse.windows-token-reservation/v1";
+const LEGACY_RECORD_SCHEMA: &str = "xverse.windows-token-reservation-record/v1";
+const LEGACY_SLOT_DOMAIN: &[u8] = b"xverse-windows-token-reservation-slot-v1\0";
 const COMPLETION_MAX_BYTES: usize = 512 * 1024;
 
 #[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq, Serialize)]
@@ -794,15 +794,15 @@ mod windows_store {
     const PRIVATE_KEY_MAX_BYTES: u64 = 64 * 1024;
 
     #[cfg(feature = "ci-system-test")]
-    const CI_CONTROL_DIRECTORY: &str = "0verse-windows-store-e2e-control";
+    const CI_CONTROL_DIRECTORY: &str = "xverse-windows-store-e2e-control";
     #[cfg(feature = "ci-system-test")]
     const CI_SENTINEL: &str = "owned-by-ci-system-test";
     #[cfg(feature = "ci-system-test")]
     const CI_SENTINEL_COMPANY_CREATED: &[u8] =
-        b"0verse.windows-store-ci-owner/v1\ncompany_created=1\n";
+        b"xverse.windows-store-ci-owner/v1\ncompany_created=1\n";
     #[cfg(feature = "ci-system-test")]
     const CI_SENTINEL_COMPANY_PREEXISTED: &[u8] =
-        b"0verse.windows-store-ci-owner/v1\ncompany_created=0\n";
+        b"xverse.windows-store-ci-owner/v1\ncompany_created=0\n";
     #[cfg(feature = "ci-system-test")]
     const CI_PHASE_ONE: &str = "phase-one.complete";
     #[cfg(feature = "ci-system-test")]
@@ -908,7 +908,7 @@ mod windows_store {
             )?;
             validate_shape(&program_data, true, 0, 0)?;
 
-            root.push("0verse");
+            root.push("xverse");
             let company_root = open_existing(
                 &root,
                 GENERIC_READ | READ_CONTROL,
@@ -1871,8 +1871,8 @@ mod windows_store {
         let program_data = known_program_data()?;
         Ok((
             program_data.join(CI_CONTROL_DIRECTORY),
-            program_data.join("0verse"),
-            program_data.join("0verse").join("windows-token-broker"),
+            program_data.join("xverse"),
+            program_data.join("xverse").join("windows-token-broker"),
         ))
     }
 

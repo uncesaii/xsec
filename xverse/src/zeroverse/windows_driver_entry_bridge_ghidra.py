@@ -182,7 +182,7 @@ def acquire_entry_bridge_high_pcode(
             if profile_version == "v3":
                 wrapper_facts["return_channel"] = return_channel
             return {
-                "schema_version": f"0verse.windows-driver-entry-bridge-facts/{profile_version}",
+                "schema_version": f"xverse.windows-driver-entry-bridge-facts/{profile_version}",
                 "driver_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(),
                 "pdb_sha256": hashlib.sha256(pdb.read_bytes()).hexdigest(),
                 "pdb_identity": (

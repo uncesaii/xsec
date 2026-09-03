@@ -306,7 +306,7 @@ def test_fingerprint_excludes_exact_source_rvas_but_artifact_retains_them() -> N
     assert first["ops"] != second["ops"]
 
 
-@pytest.mark.parametrize("version", [None, "0verse.windows-afd-handler-cfg-ssa-raw/v4", "wrong"])
+@pytest.mark.parametrize("version", [None, "xverse.windows-afd-handler-cfg-ssa-raw/v4", "wrong"])
 def test_raw_schema_version_is_required_exactly(version: str | None) -> None:
     raw = _raw()
     if version is None:

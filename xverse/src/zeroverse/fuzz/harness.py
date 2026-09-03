@@ -361,7 +361,7 @@ class Harness:
     repair_history: list[str] = field(default_factory=list)
 
 
-_TEMPLATE = """/* 0verse auto-synthesized fuzz harness for `{func}` (#16).
+_TEMPLATE = """/* xverse auto-synthesized fuzz harness for `{func}` (#16).
  * Drives the Ghidra-recovered target from stdin. Compiled with afl-clang-fast it
  * runs in persistent mode (__AFL_LOOP); with gcc it is a plain stdin driver for
  * QEMU-mode fuzzing, reach-validation, and native replay. */
@@ -440,7 +440,7 @@ def template_harness(spec: HarnessSpec) -> str:
 # a function pointer. The harness then links only ``-ldl`` and the reach probe /
 # fuzzer drive the real, un-recompiled target code.
 
-_DLSYM_TEMPLATE = """/* 0verse auto-synthesized fuzz harness for `{func}` (#16, binary-only).
+_DLSYM_TEMPLATE = """/* xverse auto-synthesized fuzz harness for `{func}` (#16, binary-only).
  * The target lives in a shared object with NO source or object files. It is
  * resolved at RUNTIME and the harness links only -ldl:
  *   - EXPORTED symbol  -> dlopen()+dlsym()

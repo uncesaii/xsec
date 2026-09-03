@@ -3,7 +3,7 @@
 
     python benchmarks/macho_proof.py
 
-Proves 0verse ingests + slices a Mach-O target and that pointing it at an IOKit
+Proves xverse ingests + slices a Mach-O target and that pointing it at an IOKit
 user client primes the seeded bug class — while being honest that full *dynamic*
 AFL++ fuzzing of an arm64 Mach-O needs a macOS/XNU host or emulator (it does NOT
 fake a crash on Linux).
@@ -77,7 +77,7 @@ def part_b_iokit_foldin() -> int:
     if not primed:
         print("  FAIL: no IOKit hypotheses surfaced")
         return 1
-    print("  OK: pointing 0verse at the kext primed the IOKit dispatch hypothesis")
+    print("  OK: pointing xverse at the kext primed the IOKit dispatch hypothesis")
     return 0
 
 

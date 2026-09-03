@@ -1,4 +1,4 @@
-# 0verse negative-results log
+# xverse negative-results log
 
 > The auditable honesty record. PoV-is-truth cuts both ways: a run that confirms
 > *nothing* is still a result, and recording it is what keeps the project honest.
@@ -7,7 +7,7 @@
 > record per negative run — see "Machine log" below).
 >
 > A finding without a reproducing PoV is a *hypothesis*, not a win. Everything in
-> this file is a place where 0verse honestly does **not** confirm a bug, by design
+> this file is a place where xverse honestly does **not** confirm a bug, by design
 > or by current limitation.
 
 ## Linux 6.12.94 KMSAN raw corpus: reclaim/block false signal
@@ -64,8 +64,8 @@ the standing negative-results baseline:
 
 From `docs/BENCHMARKS.md` (60 s budget, 2026-06-28):
 
-- **`ungated` target: 0verse ties — and baseline AFL++ was marginally *faster*
-  (0.5 s vs 0.8 s).** On a target with no structural gate, 0verse's
+- **`ungated` target: xverse ties — and baseline AFL++ was marginally *faster*
+  (0.5 s vs 0.8 s).** On a target with no structural gate, xverse's
   dictionary/CMPLOG machinery is pure overhead and adds no value over plain AFL++.
   Reported as a tie inside the noise floor — not spun as a win.
 - **Harness synthesis has no plain-AFL++ baseline.** The comparison holds the
@@ -782,7 +782,7 @@ captured too, not just findings. Each record carries the classified `reason`:
 | `unconfirmed-hypotheses` | leads surfaced, none reproduced a PoV |
 
 ```sh
-ZEROVERSE_NEGATIVE_LOG=negatives.ndjson  0verse scan ./target --format ndjson
+ZEROVERSE_NEGATIVE_LOG=negatives.ndjson  xverse scan ./target --format ndjson
 ```
 
 The log is append-only and operator-local (git-ignored). This file is its

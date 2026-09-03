@@ -1,6 +1,6 @@
 """Stage 9 — the patch loop (M7 #45/#46): the AIxCC "second half".
 
-0verse's spine stops at a confirmed PoV (``pov.reproduced == True``). This stage
+xverse's spine stops at a confirmed PoV (``pov.reproduced == True``). This stage
 adds the scored half AIxCC measured — *propose a fix that closes the PoV without
 breaking functionality* — and keeps PoV-is-truth's sibling discipline: a patch is
 ``verified`` ONLY when the confirmed PoV no longer reproduces against the patched
@@ -13,7 +13,7 @@ Three layers, ordered by maturity (docs/… patching-design §4):
   * **B0 — located fix RECOMMENDATION** (always-on, zero-dep, deterministic): the
     sink symbol + ``sink_addr`` + function + decompiled-C snippet + a
     bug-class→fix-template. A *recommendation*, never a verified patch.
-  * **Mode A — source patch** (opt-in ``PatchContext``): RCA from data 0verse
+  * **Mode A — source patch** (opt-in ``PatchContext``): RCA from data xverse
     already has → an LLM unified diff (the provider-neutral ``LLM`` protocol +
     ``MockLLM``) → rebuild → ``verify_patch`` → reflect. It is an independent
     implementation of public methodology, capped at three iterations.
@@ -162,7 +162,7 @@ def recommend(
 
 @dataclass
 class PatchContext:
-    """Opt-in source context (the xcloud / AIxCC source-CP setting). 0verse is
+    """Opt-in source context (the xcloud / AIxCC source-CP setting). xverse is
     binary-first, so source mode is never assumed — only attempted when supplied."""
 
     source_root: str                  # repo / source dir (copied to a scratch build)
@@ -273,7 +273,7 @@ def _apply_diff(
     repo) then ``patch -p1``. Returns ``(ok, log)``."""
     if not diff.strip():
         return (False, "empty diff")
-    pf = root / ".0verse-patch.diff"
+    pf = root / ".xverse-patch.diff"
     body = diff if diff.endswith("\n") else diff + "\n"
     try:
         pf.write_text(body)
@@ -394,7 +394,7 @@ def generate_source_patch(
 
     # Baseline: build the UNPATCHED source once as the regression reference binary.
     orig_target: str | None = None
-    base = Path(tempfile.mkdtemp(prefix="0verse-patch-orig-"))
+    base = Path(tempfile.mkdtemp(prefix="xverse-patch-orig-"))
     try:
         _copytree(root, base)
         ok, baseline_log = _build(
@@ -444,7 +444,7 @@ def generate_source_patch(
                     "no diff produced; emit a unified diff that bounds the copy"
                 )
                 continue
-            work = Path(tempfile.mkdtemp(prefix="0verse-patch-"))
+            work = Path(tempfile.mkdtemp(prefix="xverse-patch-"))
             try:
                 _copytree(root, work)
                 applied, alog = _apply_diff(work, diff, budget=budget)
@@ -527,7 +527,7 @@ def _resolve_test_cmd(ctx: PatchContext, work: Path) -> list[str] | None:
 
 
 def _persist(target: Path, *, output_dir: Path | None = None) -> str:
-    root = output_dir or Path(os.environ.get("ZEROVERSE_OUT", "0verse-out"))
+    root = output_dir or Path(os.environ.get("ZEROVERSE_OUT", "xverse-out"))
     cache = root / "patches"
     try:
         cache.mkdir(parents=True, exist_ok=True)
@@ -708,7 +708,7 @@ def immediate_clamp(
         return None
     clamp = max(1, dest_bound - 1)
     data[file_off + 1:file_off + 5] = clamp.to_bytes(4, "little")
-    out = Path(tempfile.mkdtemp(prefix="0verse-binpatch-")) / (Path(binary).name + ".patched")
+    out = Path(tempfile.mkdtemp(prefix="xverse-binpatch-")) / (Path(binary).name + ".patched")
     out.write_bytes(bytes(data))
     out.chmod(0o755)
     return str(out)

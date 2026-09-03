@@ -85,7 +85,7 @@ class ProgramMeta:
     address_taken: list[str] = field(default_factory=list)
     ptr_tables: list[dict[str, Any]] = field(default_factory=list)
     processor: str = ""           # Ghidra processor, e.g. "AARCH64" / "x86" / "ARM"
-    arch: str = ""                # canonical 0verse arch tag (abi.normalize_arch)
+    arch: str = ""                # canonical xverse arch tag (abi.normalize_arch)
     bits: int = 0
     image_base: int = 0           # Ghidra load base — subtract from a function's addr
                                   # to get its load-base-relative (runtime dlopen) offset
@@ -224,7 +224,7 @@ class GhidraAdapter:
     ) -> GhidraAdapter:
         """Decompile `binary` with Ghidra (via PyGhidra) and build the adapter from
         the HighFunction **P-Code SSA**. Requires the Ghidra toolchain — run inside
-        the 0verse Docker image. Def-use is encoded directly into instruction
+        the xverse Docker image. Def-use is encoded directly into instruction
         operands (Varnode.getDef), so the abstract IL carries SSA flow without a
         separate defs map.
 
@@ -235,11 +235,11 @@ class GhidraAdapter:
         home = ghidra_home or os.environ.get("GHIDRA_INSTALL_DIR") or os.environ.get("GHIDRA_HOME")
         if not home:
             raise RuntimeError(
-                "GHIDRA_HOME/GHIDRA_INSTALL_DIR not set (use the 0verse Docker image)"
+                "GHIDRA_HOME/GHIDRA_INSTALL_DIR not set (use the xverse Docker image)"
             )
         identity = _ghidra_cache_identity(binary, home, timeout)
         key = sha256_bytes(canonical_json_bytes(identity))
-        cdir = Path(cache_dir or os.environ.get("ZEROVERSE_CACHE", ".0verse-cache"))
+        cdir = Path(cache_dir or os.environ.get("ZEROVERSE_CACHE", ".xverse-cache"))
         store = AtomicObjectStore(cdir, namespace="ghidra")
         cache_enabled = not os.environ.get("ZEROVERSE_NO_CACHE")
         if cache_enabled:

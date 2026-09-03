@@ -28,8 +28,8 @@ function importVerdict(): string {
   writeFileSync(path, JSON.stringify({
     verdictSchema: "xsec.windows-hyperv-import-verdict/v1",
     executionOrigin: "external",
-    producer: "0verse",
-    schemaVersion: "0verse.hyperv-evidence/v1",
+    producer: "xverse",
+    schemaVersion: "xverse.hyperv-evidence/v1",
     campaignId: "windows-contract-v1",
     buildLabEx: "28020.1.amd64fre.rs_prerelease",
     signature: "bugcheck-133:fixture",

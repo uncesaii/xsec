@@ -31,7 +31,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Protocol
 
-NOVELTY_SCHEMA = "0verse.windows-driver-novelty/v1"
+NOVELTY_SCHEMA = "xverse.windows-driver-novelty/v1"
 
 # Verdicts. Note the deliberate absence of any "NOVEL" verdict.
 KNOWN_CVE = "KNOWN-CVE"

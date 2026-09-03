@@ -15,7 +15,7 @@ from typing import Literal
 
 from .windows_token_pack import WindowsTokenPackVerification
 
-SCHEMA_VERSION = "0verse.windows-lpe-paired-observation/v1"
+SCHEMA_VERSION = "xverse.windows-lpe-paired-observation/v1"
 
 ObservationStatus = Literal[
     "SUBJECT_ONLY_TRANSITION",
@@ -113,10 +113,10 @@ def derive_windows_lpe_paired_observation(
         ensure_ascii=False,
     ).encode("utf-8")
     commitment = hashlib.sha256(
-        b"0verse-windows-lpe-paired-observation-v1\0" + canonical_material
+        b"xverse-windows-lpe-paired-observation-v1\0" + canonical_material
     ).hexdigest()
     pair_replay = hashlib.sha256(
-        b"0verse-windows-lpe-paired-observation-replay-v1\0" + commitment.encode("ascii")
+        b"xverse-windows-lpe-paired-observation-replay-v1\0" + commitment.encode("ascii")
     ).hexdigest()
     replay = (
         pair_replay,

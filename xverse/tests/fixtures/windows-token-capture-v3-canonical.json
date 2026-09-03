@@ -1,5 +1,5 @@
 {
-  "schema_version": "0verse.windows-token-capture/v3",
+  "schema_version": "xverse.windows-token-capture/v3",
   "campaign_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "scope_manifest_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
   "execution_grant_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",

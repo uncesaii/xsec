@@ -69,7 +69,7 @@ def _rewrite_servicing(path: Path, raw: dict[str, object], signing_key: Path) ->
         sign_ssh_material(
             path.read_bytes(),
             signing_key=signing_key,
-            namespace="0verse-windows-servicing-receipt-v1",
+            namespace="xverse-windows-servicing-receipt-v1",
             label="test servicing receipt",
         ),
         encoding="utf-8",
@@ -190,7 +190,7 @@ def _paired_fixture(tmp_path: Path):
 def test_derives_nonclaim_paired_closure_and_service_replay_verdict(tmp_path: Path) -> None:
     closure = derive_windows_lpe_paired_closure(*_paired_fixture(tmp_path))
     raw = closure.to_dict()
-    assert raw["schema_version"] == "0verse.windows-lpe-paired-closure/v2"
+    assert raw["schema_version"] == "xverse.windows-lpe-paired-closure/v2"
     assert raw["status"] == "PAIRED_DIFFERENTIAL_OBSERVED"
     assert raw["candidate"]["target_confirmations"] == 2
     assert raw["fixed"]["target_confirmations"] == 0
@@ -597,7 +597,7 @@ def test_top_level_reverifies_real_signed_nested_files_and_rejects_mutation(
     experiment_key, experiment_policy = _authority(tmp_path, experiment_identity)
     experiment_path = tmp_path / "experiment.json"
     experiment = {
-        "schema_version": "0verse.windows-lpe-experiment/v1",
+        "schema_version": "xverse.windows-lpe-experiment/v1",
         "pair_plan_sha256": plan.plan_sha256,
         "component": plan.component,
         "candidate": {"role": "candidate", "artifact_sha256": plan.candidate_sha256},
@@ -720,7 +720,7 @@ def test_top_level_reverifies_real_signed_nested_files_and_rejects_mutation(
                 opaque_paths.add(receipt_path.parent / str(reference["path"]))
     retained = {path: path.read_bytes() for path in opaque_paths}
     opaque_manifest = {
-        "schema_version": "0verse.windows-lpe-opaque-content/v1",
+        "schema_version": "xverse.windows-lpe-opaque-content/v1",
         "files": [
             {
                 "path": path.relative_to(plan_path.parent).as_posix(),

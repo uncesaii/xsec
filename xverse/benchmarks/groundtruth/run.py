@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Ground-truth eval runner — the credibility instrument (M6 eval harness).
 
-Builds each labeled corpus binary, runs the **full 0verse pipeline** over it
+Builds each labeled corpus binary, runs the **full xverse pipeline** over it
 (``zeroverse.api.scan``), and scores the findings against KNOWN ground truth with
 the typed, unit-tested scorer in ``zeroverse.groundtruth``: **recall** (did it
 surface the known bug at the right function/sink?), **FP rate** (confirmed
@@ -108,7 +108,7 @@ def run_item(
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="0verse ground-truth eval")
+    ap = argparse.ArgumentParser(description="xverse ground-truth eval")
     ap.add_argument("--manifest", default=str(HERE / "manifest.json"))
     ap.add_argument("--out", default=str(HERE / "results.json"))
     ap.add_argument("--only", nargs="*", help="subset of item ids to run")

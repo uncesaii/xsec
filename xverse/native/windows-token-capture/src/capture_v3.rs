@@ -13,8 +13,8 @@ use zeroize::Zeroizing;
 
 use crate::{SnapshotPhase, derive_token_id};
 
-pub const CAPTURE_SCHEMA_VERSION: &str = "0verse.windows-token-capture/v3";
-pub const CAPTURE_SIGNATURE_NAMESPACE: &str = "0verse-windows-token-capture";
+pub const CAPTURE_SCHEMA_VERSION: &str = "xverse.windows-token-capture/v3";
+pub const CAPTURE_SIGNATURE_NAMESPACE: &str = "xverse-windows-token-capture";
 const MAX_CAPTURE_BYTES: usize = 1024 * 1024;
 const MAX_CAPTURE_SECONDS: i64 = 60 * 60;
 const MAX_EVIDENCE_AGE_SECONDS: i64 = 24 * 60 * 60;

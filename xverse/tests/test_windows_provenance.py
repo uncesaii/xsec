@@ -80,7 +80,7 @@ def test_download_is_content_addressed_and_reverifiable(tmp_path: Path) -> None:
     assert result.artifact_size_bytes == len(body)
     assert result.kind == "msu"
     assert opener.request is not None
-    assert opener.request.headers["User-agent"] == "0verse-windows-provenance/1"
+    assert opener.request.headers["User-agent"] == "xverse-windows-provenance/1"
     assert verify_official_download_receipt(result.bundle_path) == result
 
     raw = json.loads((result.bundle_path / "receipt.json").read_text(encoding="utf-8"))

@@ -38,8 +38,8 @@ from .windows_variant import (
     _write_new_file_at,
 )
 
-EXPORT_VERSION = "0verse.windows-afd-hypotheses/v1"
-RECEIPT_VERSION = "0verse.windows-afd-hypotheses-receipt/v1"
+EXPORT_VERSION = "xverse.windows-afd-hypotheses/v1"
+RECEIPT_VERSION = "xverse.windows-afd-hypotheses-receipt/v1"
 PRODUCER = "zeroverse.windows-afd-hypotheses/v1"
 _EXPECTED_ROWS = 74
 _EXPECTED_CLASSES = 33
@@ -140,7 +140,7 @@ def compile_windows_afd_hypotheses(
             "side_b_target_rva": rva_b,
         }
         hypothesis_id = hashlib.sha256(
-            b"0verse-windows-afd-handler-hypothesis-v1\0" + _canonical(material)
+            b"xverse-windows-afd-handler-hypothesis-v1\0" + _canonical(material)
         ).hexdigest()
         hypotheses.append(
             {
@@ -613,7 +613,7 @@ def _validate(raw: object) -> dict[str, object]:
         _hex(row["side_b_target_rva"], "side B target")
         hypothesis_id = _sha(row["hypothesis_id"], "hypothesis_id")
         expected_id = hashlib.sha256(
-            b"0verse-windows-afd-handler-hypothesis-v1\0"
+            b"xverse-windows-afd-handler-hypothesis-v1\0"
             + _canonical(
                 {
                     "side_a_selector_sha256": sides["side_a"]["selector_sha256"],

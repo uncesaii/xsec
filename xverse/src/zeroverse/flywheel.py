@@ -8,7 +8,7 @@ empty store that "consolidates" at run time. An earlier empty-store-and-consolid
 attempt here came back inconclusive precisely because consolidation on an empty
 store extracts nothing.
 
-0verse already owns the preseed and the episodic feed:
+xverse already owns the preseed and the episodic feed:
 
   * **the 90-archetype registry** (``seedcatalog`` / ``data/archetypes.json``) —
     the concepts / patterns / anti-patterns / principles, CVE-grounded; and
@@ -908,7 +908,7 @@ class ProofReport:
 
     def as_text(self) -> str:
         return (
-            "0verse flywheel — primed-vs-cold proof (real numbers)\n"
+            "xverse flywheel — primed-vs-cold proof (real numbers)\n"
             f"  recall discrimination: similar top={self.similar_recall_top:.3f} "
             f"vs control top={self.control_recall_top:.3f}\n"
             f"  SIMILAR target  : rank-to-locate cold=#{self.similar_cold_rank} "
@@ -936,8 +936,8 @@ def _confirmed_pov_record() -> dataset.DatasetRecord:
         features=feats, bug_class="CWE-78 OS command injection", source="getenv",
         sink="doSystem", function="apply_cfg", offset="0x401320", verdict="confirmed",
         oracle="canary-marker", capability="command-exec", dedup_bucket="aa11",
-        pov_path="0verse-out/pov_router_a.py",
-        repro_cmd="python3 0verse-out/pov_router_a.py",
+        pov_path="xverse-out/pov_router_a.py",
+        repro_cmd="python3 xverse-out/pov_router_a.py",
         explanation="tainted env reaches doSystem(); token marker proves exec", synthetic=True,
     )
 

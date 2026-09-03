@@ -114,7 +114,7 @@ def _write_signed_bundle(tmp_path: Path, **receipt_updates: object) -> tuple[Pat
         (tmp_path / filename).write_bytes(content)
         recovery_hashes[field_name] = hashlib.sha256(content).hexdigest()
     drill = {
-        "schema_version": "0verse.hyperv-recovery-drill/v1", **common,
+        "schema_version": "xverse.hyperv-recovery-drill/v1", **common,
         "worker_machine_id": "worker-machine-guid", "guest_machine_id": "guest-machine-id",
         "worker_ssh_host_key_sha256": "4" * 64, "guest_ssh_host_key_sha256": "5" * 64,
         "recovery_nonce": "recovery-drill-00000000000000000001",
@@ -131,7 +131,7 @@ def _write_signed_bundle(tmp_path: Path, **receipt_updates: object) -> tuple[Pat
     drill_path = tmp_path / "recovery-drill.json"
     drill_path.write_text(json.dumps(drill, sort_keys=True), encoding="utf-8")
     receipt: dict[str, object] = {
-        "schema_version": "0verse.hyperv-worker-acceptance/v1", **common,
+        "schema_version": "xverse.hyperv-worker-acceptance/v1", **common,
         "recovery_drill_path": drill_path.name,
         "recovery_drill_sha256": hashlib.sha256(drill_path.read_bytes()).hexdigest(),
         "execution_grant_sha256": "9" * 64,

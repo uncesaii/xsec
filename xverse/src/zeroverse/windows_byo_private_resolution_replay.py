@@ -16,9 +16,9 @@ from .windows_byo_private_resolution_authorization import (
 )
 
 DEFAULT_REPLAY_ROOT = Path(
-    "/private/var/lib/0verse/windows-byo-private-resolution-replay"
+    "/private/var/lib/xverse/windows-byo-private-resolution-replay"
     if sys.platform == "darwin"
-    else "/var/lib/0verse/windows-byo-private-resolution-replay"
+    else "/var/lib/xverse/windows-byo-private-resolution-replay"
 )
 REPLAY_ROOT = DEFAULT_REPLAY_ROOT
 TUPLE_DIRECTORY = "tuples"

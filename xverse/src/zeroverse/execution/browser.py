@@ -23,11 +23,11 @@ from .contract import (
     sha256_file,
 )
 
-REPLAY_PROTOCOL_VERSION = "0verse.browser-replay/v1"
+REPLAY_PROTOCOL_VERSION = "xverse.browser-replay/v1"
 DEFAULT_REMOTE_HELPER = PurePosixPath(
-    "/srv/0verse/0verse/scripts/browser/replay-candidate.py"
+    "/srv/xverse/xverse/scripts/browser/replay-candidate.py"
 )
-DEFAULT_BOOTSTRAP_MARKER = PurePosixPath("/srv/0verse/.browser-worker")
+DEFAULT_BOOTSTRAP_MARKER = PurePosixPath("/srv/xverse/.browser-worker")
 EXPECTED_WORKER_HOSTNAME = "browser"
 EXPECTED_WORKER_USER = "browser"
 EXPECTED_WORKER_GROUP = "browser"

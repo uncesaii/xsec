@@ -26,7 +26,7 @@ SANDBOX_PROCESS_SHA256 = "2" * 64
 
 def _lpac_campaign() -> dict[str, object]:
     return {
-        "schema_version": "0verse.windows-token-campaign/v2",
+        "schema_version": "xverse.windows-token-campaign/v2",
         "starting_context": "eligible-sandbox",
         "eligible_sandbox": SANDBOX,
         "launch_app_container_executable_sha256": LAUNCHER_SHA256,
@@ -51,7 +51,7 @@ def _lpac_capture(
     run_nonce = f"lpac_run_nonce_{tag * 32}"
     raw.update(
         {
-            "schema_version": "0verse.windows-token-capture/v4",
+            "schema_version": "xverse.windows-token-capture/v4",
             "case": case,
             "trial": trial,
             "run_nonce": run_nonce,
@@ -95,7 +95,7 @@ def _lpac_capture(
             }
         )
     provenance: dict[str, object] = {
-        "schema_version": "0verse.windows-lpac-launch-provenance/v1",
+        "schema_version": "xverse.windows-lpac-launch-provenance/v1",
         "eligible_sandbox": SANDBOX,
         "launch_app_container_executable_sha256": LAUNCHER_SHA256,
         "sandbox_process_executable_sha256": SANDBOX_PROCESS_SHA256,
@@ -134,7 +134,7 @@ def _lpac_capture(
 
 def test_eligible_sandbox_requires_additive_campaign_v2(tmp_path: Path) -> None:
     raw = {
-        "schema_version": "0verse.windows-token-campaign/v1",
+        "schema_version": "xverse.windows-token-campaign/v1",
         "campaign_id": "canary-lpe-001",
         "worker": "canary-worker-1",
         "starting_context": "eligible-sandbox",

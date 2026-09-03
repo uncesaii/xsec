@@ -1,6 +1,6 @@
 """Ground-truth evaluation scoring + corpus manifest (M6 eval harness).
 
-The credibility instrument: it measures whether 0verse actually surfaces *real,
+The credibility instrument: it measures whether xverse actually surfaces *real,
 known* bugs (**recall**) without crying wolf on clean code (**FP rate**), on a
 corpus of bugs it was **not** seeded on (**held-out**). This module is the
 *typed, unit-tested* half — the manifest loader + the scorer math — kept in
@@ -17,13 +17,13 @@ PoV-is-truth carries through: a ``confirmed`` finding is one the oracle reproduc
 (``ScanFinding.confirmed``); a finding that stayed a hypothesis is never silently
 upgraded to a confirmed hit. So:
 
-  * **recall (confirmed)** — fraction of vulnerable items where 0verse produced a
+  * **recall (confirmed)** — fraction of vulnerable items where xverse produced a
     *reproducing PoV* at the right function/sink;
   * **recall (located)** — fraction where it at least *surfaced* the bug (PoV or
     honest hypothesis) at the right function/sink;
   * **confirmed-PoV rate** — of the located true bugs, the fraction that reached a
     reproducing PoV rather than staying a hypothesis;
-  * **FP rate (confirmed)** — fraction of *clean / fixed* items where 0verse
+  * **FP rate (confirmed)** — fraction of *clean / fixed* items where xverse
     produced a confirmed PoV (the serious false alarm; PoV-is-truth should keep
     this near zero);
   * **FP rate (hypothesis)** — fraction of clean items with hypothesis-level noise;
@@ -32,7 +32,7 @@ upgraded to a confirmed hit. So:
     confirmations count against it).
 
 Held-out discipline (``in_seed_set``): every corpus item carries an explicit flag
-asserting whether its bug *instance* was used to derive/tune any 0verse detector.
+asserting whether its bug *instance* was used to derive/tune any xverse detector.
 ``heldout_summary`` reports it so a "find" can be read as **generalization**, not
 memorization.
 """
@@ -93,7 +93,7 @@ class CorpusItem:
     cwe: str                     # e.g. "CWE-416" (or "" for a clean look-alike)
     cve: str                     # provenance: real CVE id, or "" if not a CVE
     provenance: str              # human-readable source + fix-commit / origin
-    in_seed_set: bool            # held-out: was this bug instance used to build 0verse?
+    in_seed_set: bool            # held-out: was this bug instance used to build xverse?
     source: str = ""             # .c file (relative to the corpus dir) to compile
     build_flags: str = ""        # extra gcc flags
     pair_id: str = ""            # links a vulnerable/fixed pair (same upstream bug)
@@ -395,7 +395,7 @@ def aggregate(items: list[CorpusItem], scores: list[ItemScore]) -> EvalMetrics:
 @dataclass
 class HeldoutSummary:
     """Held-out discipline report: how much of the corpus is disjoint from any
-    0verse seed/archetype source."""
+    xverse seed/archetype source."""
 
     total: int
     held_out: int                # in_seed_set == False
@@ -451,7 +451,7 @@ def format_report(
         f"{metrics.confirmed_tp_findings + metrics.confirmed_fp_findings}) |",
         "",
         f"_Held-out: {heldout.held_out}/{heldout.total} items disjoint from any "
-        f"0verse seed/archetype source"
+        f"xverse seed/archetype source"
         + ("" if heldout.fully_held_out else f"; seeded: {', '.join(heldout.seeded_ids)}")
         + "._",
         "",

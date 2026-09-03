@@ -58,7 +58,7 @@ def _fixture(root: Path) -> tuple[Path, Path, dict[str, object]]:
         key=lambda value: value["item_commitment_sha256"],
     )
     raw: dict[str, object] = {
-        "schema_version": "0verse.windows-byo-corpus-inventory/v1",
+        "schema_version": "xverse.windows-byo-corpus-inventory/v1",
         "producer": "zeroverse.windows-byo-corpus-curation/v1",
         "inventory_id": f"inventory-{_digest('inventory')}",
         "inventory_nonce": "inventory-nonce-00000000000000000001",
@@ -150,7 +150,7 @@ def test_verifies_signature_only_inventory_and_cli(
 
     assert main(["windows-byo-corpus-verify", str(path)]) == 0
     cli_output = json.loads(capsys.readouterr().out)
-    assert cli_output["schema_version"] == "0verse.windows-byo-corpus-inventory/v1"
+    assert cli_output["schema_version"] == "xverse.windows-byo-corpus-inventory/v1"
     assert cli_output["proof_limit"] == BYO_CORPUS_PROOF_LIMIT
 
 

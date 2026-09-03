@@ -54,15 +54,15 @@ from .windows_ioctl_real_rank import (
     rank_windows_ioctl_real_static,
 )
 
-PUBLISHER_CONFIG = Path("/etc/0verse/windows-ioctl-rank-result-publisher.json")
-PUBLISHER_SIGNING_KEY = Path("/etc/0verse/windows-ioctl-rank-result.key")
+PUBLISHER_CONFIG = Path("/etc/xverse/windows-ioctl-rank-result-publisher.json")
+PUBLISHER_SIGNING_KEY = Path("/etc/xverse/windows-ioctl-rank-result.key")
 PUBLISHER_SSH_KEYGEN = Path("/usr/bin/ssh-keygen")
 PUBLISHER_ALLOWED_SIGNERS = DEFAULT_RANK_RECEIPT_ALLOWED_SIGNERS
 PUBLISHER_LABEL_ALLOWED_SIGNERS = LABEL_ALLOWED_SIGNERS
-PUBLISHER_SPOOL_ROOT = Path("/var/lib/0verse/windows-ioctl-rank-results")
+PUBLISHER_SPOOL_ROOT = Path("/var/lib/xverse/windows-ioctl-rank-results")
 PUBLISHER_REPLAY_DIRECTORY = ".replays"
-PUBLISHER_PRINCIPAL = "windows-ioctl-rank-result@0verse"
-PUBLISHER_CONFIG_VERSION = "0verse.windows-ioctl-rank-result-publisher-config/v1"
+PUBLISHER_PRINCIPAL = "windows-ioctl-rank-result@xverse"
+PUBLISHER_CONFIG_VERSION = "xverse.windows-ioctl-rank-result-publisher-config/v1"
 PUBLISHER_SERVICE_UID = 0
 PUBLISHER_RANK_TIMEOUT_SECONDS = 600.0
 
@@ -294,7 +294,7 @@ def _build_receipt(
     version = result["schema_version"]
     content_ids = [row["candidate_content_id"] for row in result["candidates"]]
     ordered_digest = hashlib.sha256(
-        b"0verse-windows-ioctl-ordered-candidate-content-ids-v1\0"
+        b"xverse-windows-ioctl-ordered-candidate-content-ids-v1\0"
         + json.dumps(content_ids, separators=(",", ":")).encode()
     ).hexdigest()
     receipt: dict[str, object] = {
@@ -606,7 +606,7 @@ def _ranker_executable_sha256() -> str:
         for name, path in paths.items()
     }
     return hashlib.sha256(
-        b"0verse-windows-ioctl-ranker-executable-manifest-v1\0"
+        b"xverse-windows-ioctl-ranker-executable-manifest-v1\0"
         + json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
 
@@ -875,7 +875,7 @@ def _policy_identity_and_commitment(data: bytes, label: str) -> tuple[str, str]:
     if not key:
         raise ValueError(f"{label} contains an empty authority key")
     commitment = hashlib.sha256(
-        b"0verse-ssh-authority-key-v1\0ssh-ed25519\0" + key
+        b"xverse-ssh-authority-key-v1\0ssh-ed25519\0" + key
     ).hexdigest()
     return parts[0], commitment
 

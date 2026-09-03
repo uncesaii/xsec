@@ -1,5 +1,5 @@
 {
-  "schema_version": "0verse.windows-ioctl-boundary/v1",
+  "schema_version": "xverse.windows-ioctl-boundary/v1",
   "campaign_id": "fixture-driver-buffer-geometry",
   "synthetic_fixture": true,
   "scope_manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
@@ -18,7 +18,7 @@
     "device_type": 33591
   },
   "boundary": {
-    "schema_version": "0verse.windows-boundary-observation/fixture-v1",
+    "schema_version": "xverse.windows-boundary-observation/fixture-v1",
     "receipt_sha256": "7777777777777777777777777777777777777777777777777777777777777777",
     "worker_machine_id": "2222222222222222222222222222222222222222222222222222222222222222",
     "build_lab_ex": "synthetic.26100.amd64fre.fixture",

@@ -21,10 +21,10 @@ from .ssh_authorization import canonical_signed_material, verify_ssh_signature
 from .windows_app_container import valid_package_app_container_sid
 from .windows_token_runner import ELIGIBLE_WINDOWS_SANDBOXES
 
-SCHEMA_VERSION = "0verse.windows-lpac-process-broker-receipt/v1"
-SIGNATURE_NAMESPACE = "0verse-windows-lpac-process-broker-receipt-v1"
+SCHEMA_VERSION = "xverse.windows-lpac-process-broker-receipt/v1"
+SIGNATURE_NAMESPACE = "xverse-windows-lpac-process-broker-receipt-v1"
 OBSERVATION_LOCUS = "process-primary"
-DEFAULT_ALLOWED_SIGNERS = Path("/etc/0verse/windows-lpac-broker.allowed_signers")
+DEFAULT_ALLOWED_SIGNERS = Path("/etc/xverse/windows-lpac-broker.allowed_signers")
 
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _HEX64 = re.compile(r"^[0-9a-f]{16}$")
@@ -195,7 +195,7 @@ def derive_process_identity(
         app_container_sid,
     )
     return hashlib.sha256(
-        b"0verse-windows-lpac-process-identity-v1\0"
+        b"xverse-windows-lpac-process-identity-v1\0"
         + b"\0".join(value.encode("utf-8") for value in fields)
     ).hexdigest()
 
@@ -208,7 +208,7 @@ def derive_token_profile_sha256(snapshot: object) -> str:
     canonical = json.dumps(
         dict(value), sort_keys=True, separators=(",", ":"), ensure_ascii=False
     ).encode("utf-8")
-    return hashlib.sha256(b"0verse-windows-lpac-token-profile-v1\0" + canonical).hexdigest()
+    return hashlib.sha256(b"xverse-windows-lpac-token-profile-v1\0" + canonical).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -480,17 +480,17 @@ def derive_burn_only_replay_identities(
     receipt.require_signature()
     return (
         hashlib.sha256(
-            b"0verse-windows-lpac-broker-receipt-once-v1\0"
+            b"xverse-windows-lpac-broker-receipt-once-v1\0"
             + receipt.worker_machine_id.encode("utf-8")
             + b"\0"
             + receipt.receipt_nonce.encode("ascii")
         ).hexdigest(),
         hashlib.sha256(
-            b"0verse-windows-lpac-broker-process-once-v1\0"
+            b"xverse-windows-lpac-broker-process-once-v1\0"
             + receipt.process_identity_sha256.encode("ascii")
         ).hexdigest(),
         hashlib.sha256(
-            b"0verse-windows-lpac-broker-transcript-once-v1\0"
+            b"xverse-windows-lpac-broker-transcript-once-v1\0"
             + receipt.measurement_transcript_sha256.encode("ascii")
         ).hexdigest(),
     )

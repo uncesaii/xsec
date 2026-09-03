@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://xsec.ai/schemas/xverse/elf-campaign-receipt-v1.schema.json",
-  "title": "0verse Linux ELF campaign receipt v1",
+  "title": "xverse Linux ELF campaign receipt v1",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -25,7 +25,7 @@
     "auto_disclosure"
   ],
   "properties": {
-    "schema_version": {"const": "0verse.elf-campaign-receipt/v1"},
+    "schema_version": {"const": "xverse.elf-campaign-receipt/v1"},
     "campaign_id": {"$ref": "#/$defs/identifier"},
     "campaign_sha256": {"$ref": "#/$defs/sha256"},
     "worker_acceptance_sha256": {"$ref": "#/$defs/sha256"},

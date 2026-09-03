@@ -1,5 +1,5 @@
 {
-  "schema_version": "0verse.driver-ioctl-map/v1",
+  "schema_version": "xverse.driver-ioctl-map/v1",
   "driver": "iqvw64e.sys",
   "sha256": "4429f32db1cc70567919d7d47b844a91cf1329a6cd116f582305f3b7b60cd60b",
   "source": "static decompile (r2 6.1.6) of the CAS artifact, M0 oracle bring-up; r2 virtual addresses include the PE image base 0x10000 and are normalized below to module-relative RVAs",

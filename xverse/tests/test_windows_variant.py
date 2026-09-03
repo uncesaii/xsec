@@ -41,7 +41,7 @@ def _artifact(root: Path, stem: str, functions: dict[str, str]) -> dict[str, str
     receipt.write_text(
         json.dumps(
             {
-                "schema_version": "0verse.ghidra-analysis-receipt/v1",
+                "schema_version": "xverse.ghidra-analysis-receipt/v1",
                 "producer": "zeroverse.windows-analysis/fixture-v1",
                 "binary_path": binary.name,
                 "binary_sha256": _sha(binary),
@@ -118,7 +118,7 @@ def _campaign(tmp_path: Path) -> Path:
     manifest.write_text(
         json.dumps(
             {
-                "schema_version": "0verse.windows-variant-campaign/v1",
+                "schema_version": "xverse.windows-variant-campaign/v1",
                 "seed": {
                     "vulnerable": vulnerable,
                     "fixed": fixed,
@@ -151,7 +151,7 @@ def _labels(tmp_path: Path, manifest: Path) -> Path:
     labels.write_text(
         json.dumps(
             {
-                "schema_version": "0verse.windows-variant-labels/v1",
+                "schema_version": "xverse.windows-variant-labels/v1",
                 "campaign_sha256": ranked["campaign_sha256"],
                 "current_binary_sha256": current["binary_sha256"],
                 "current_export_sha256": current["ghidra_export_sha256"],
@@ -174,7 +174,7 @@ def _labels(tmp_path: Path, manifest: Path) -> Path:
 
 def test_rank_transfers_guard_and_suppresses_patched_control(tmp_path: Path) -> None:
     result = rank_windows_variants(_campaign(tmp_path))
-    assert result["schema_version"] == "0verse.windows-variant/v1"
+    assert result["schema_version"] == "xverse.windows-variant/v1"
     assert result["weaponization"] is False
     assert result["automatic_disclosure"] is False
     assert result["seed"]["guard_delta"] == ["bounds"]
@@ -288,7 +288,7 @@ def test_artifact_symlinks_are_rejected(tmp_path: Path) -> None:
 def test_eval_measures_recall_controls_and_static_promotion_gate(tmp_path: Path) -> None:
     manifest = _campaign(tmp_path)
     report = evaluate_windows_variants(manifest, _labels(tmp_path, manifest))
-    assert report["schema_version"] == "0verse.windows-variant-eval/v1"
+    assert report["schema_version"] == "xverse.windows-variant-eval/v1"
     assert report["recall_at_cutoff"] == 1.0
     assert report["patched_control_suppression"] == 1.0
     assert report["unsupported_at_cutoff"] == 3
@@ -448,7 +448,7 @@ def test_real_producer_bundle_flows_into_ranker(
     manifest.write_text(
         json.dumps(
             {
-                "schema_version": "0verse.windows-variant-campaign/v1",
+                "schema_version": "xverse.windows-variant-campaign/v1",
                 "seed": {
                     "vulnerable": artifacts["vulnerable"],
                     "fixed": artifacts["fixed"],
@@ -547,7 +547,7 @@ def _link_follow_campaign(tmp_path: Path) -> Path:
     manifest.write_text(
         json.dumps(
             {
-                "schema_version": "0verse.windows-variant-campaign/v1",
+                "schema_version": "xverse.windows-variant-campaign/v1",
                 "seed": {
                     "vulnerable": vulnerable,
                     "fixed": fixed,
@@ -566,7 +566,7 @@ def _link_follow_campaign(tmp_path: Path) -> Path:
 
 def test_link_following_lens_transfers_reparse_guard(tmp_path: Path) -> None:
     result = rank_windows_variants(_link_follow_campaign(tmp_path))
-    assert result["schema_version"] == "0verse.windows-variant/v1"
+    assert result["schema_version"] == "xverse.windows-variant/v1"
     assert result["weaponization"] is False
     assert result["automatic_disclosure"] is False
     assert result["seed"]["guard_delta"] == ["reparse-check"]
@@ -739,7 +739,7 @@ def test_committed_linkfollow_contract_passes_eval() -> None:
     assert result["weaponization"] is False
     assert result["automatic_disclosure"] is False
     report = evaluate_windows_variants(manifest, _LINKFOLLOW_FIXTURE / "labels.json")
-    assert report["schema_version"] == "0verse.windows-variant-eval/v1"
+    assert report["schema_version"] == "xverse.windows-variant-eval/v1"
     assert report["recall_at_cutoff"] == 1.0
     assert report["patched_control_suppression"] == 1.0
     assert report["unsupported_at_cutoff"] == 2

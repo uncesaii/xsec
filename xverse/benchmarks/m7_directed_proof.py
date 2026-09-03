@@ -11,7 +11,7 @@ Target: ``benchmarks/deep_chain.c`` — a heap overflow behind THREE stacked gat
 CMPLOG cannot invert). Three lanes on the identical harness:
 
   * **baseline**  — plain AFL++ (no CMPLOG, no dictionary): stuck at gate 1.
-  * **coverage**  — current 0verse (CMPLOG + slice-mined dictionary): cracks the
+  * **coverage**  — current xverse (CMPLOG + slice-mined dictionary): cracks the
     atomic gates but TIMES OUT on the rotate checksum.
   * **directed**  — coverage + the #39/#40/#41 directed machinery: on a distance
     plateau the #41 DistanceDriller concolic-solves the checksum (angr), re-seeds

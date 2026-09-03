@@ -42,11 +42,11 @@ from .windows_variant import (
     _write_new_file_at,
 )
 
-RAW_VERSION = "0verse.windows-afd-selector-facts/v1"
-EXPORT_VERSION = "0verse.windows-afd-selector/v1"
-RECEIPT_VERSION = "0verse.windows-afd-selector-receipt/v1"
+RAW_VERSION = "xverse.windows-afd-selector-facts/v1"
+EXPORT_VERSION = "xverse.windows-afd-selector/v1"
+RECEIPT_VERSION = "xverse.windows-afd-selector-receipt/v1"
 PRODUCER = "zeroverse.windows-afd-selector/v1"
-ABI_MANIFEST_VERSION = "0verse.windows-driver-dispatch-abi-authority/v1"
+ABI_MANIFEST_VERSION = "xverse.windows-driver-dispatch-abi-authority/v1"
 ABI_SOURCE_URL = (
     "https://raw.githubusercontent.com/MicrosoftDocs/windows-driver-docs-ddi/"
     "758b904a9035ee00c0bea6a2ed34a78202bcf8ce/"
@@ -1072,7 +1072,7 @@ def _snapshot_registration_bundle(source_fd: int, destination_fd: int) -> None:
         "registration receipt",
     )
     if (
-        receipt.get("schema_version") != "0verse.windows-driver-registration-receipt/v1"
+        receipt.get("schema_version") != "xverse.windows-driver-registration-receipt/v1"
         or receipt.get("registration_path") != "registration.json"
         or receipt.get("wdm_projection_path") != "wdm-projection.json"
         or receipt.get("entry_bridge_bundle") != "entry-bridge"

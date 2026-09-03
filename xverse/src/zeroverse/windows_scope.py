@@ -11,11 +11,11 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from urllib.parse import urlparse
 
-SCHEMA_VERSION = "0verse.windows-scope/v1"
-SIGNED_SCOPE_SCHEMA_VERSION = "0verse.windows-scope/v2"
-AUTHORIZATION_NAMESPACE = "0verse-windows-scope-authorization"
+SCHEMA_VERSION = "xverse.windows-scope/v1"
+SIGNED_SCOPE_SCHEMA_VERSION = "xverse.windows-scope/v2"
+AUTHORIZATION_NAMESPACE = "xverse-windows-scope-authorization"
 DEFAULT_AUTHORIZATION_ALLOWED_SIGNERS = Path(
-    "/etc/0verse/windows-authorization.allowed_signers"
+    "/etc/xverse/windows-authorization.allowed_signers"
 )
 PROGRAMS = frozenset({"windows-canary", "hyperv-insider", "hyperv-server"})
 CANARY_SUCCESSOR_CHANNELS = frozenset(

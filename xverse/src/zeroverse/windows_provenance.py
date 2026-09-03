@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import IO, Protocol
 from urllib.parse import urlsplit
 
-DOWNLOAD_SCHEMA = "0verse.windows-official-download/v1"
+DOWNLOAD_SCHEMA = "xverse.windows-official-download/v1"
 DOWNLOAD_PRODUCER = "zeroverse.windows-official-download/v1"
 DOWNLOAD_PROOF_LIMIT = (
     "Acquisition evidence only; signature, catalog membership, KB identity, "
@@ -121,7 +121,7 @@ def download_official_artifact(
     published: Path | None = None
     request = urllib.request.Request(
         source_url,
-        headers={"User-Agent": "0verse-windows-provenance/1"},
+        headers={"User-Agent": "xverse-windows-provenance/1"},
     )
     try:
         if opener is None:

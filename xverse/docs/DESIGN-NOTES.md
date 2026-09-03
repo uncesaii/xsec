@@ -22,7 +22,7 @@
 
 The single biggest lesson from the AIxCC winner: **there is no "LLM decides everything" loop.** A coded scheduler owns *what runs when*; the LLM is dispatched for bounded subtasks (driver synthesis, seed/payload scripts, sink triage, last-mile exploit reasoning). Atlantis's own conclusion: *"comprehensive vulnerability discovery requires solid engineering fundamentals before adding LLM."*
 
-→ 0verse's `pipeline.py` stays a deterministic scheduler. `agent.py` is a worker invoked at specific stages. We resist making the agent the top-level controller.
+→ xverse's `pipeline.py` stays a deterministic scheduler. `agent.py` is a worker invoked at specific stages. We resist making the agent the top-level controller.
 
 ## Decision 2 — Traditional fuzzing is the backbone; LLM is a selective multiplier
 

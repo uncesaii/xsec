@@ -7,15 +7,15 @@
  * actually produced a 0-day for us (the TIPC incomplete-fix hunt), but it is
  * seeded by hand, one fix at a time.
  *
- * This module ports the kernel-relevant slice of 0verse's 90-archetype,
- * CVE-grounded bug-pattern registry (`bench:/root/0verse/src/zeroverse/
+ * This module ports the kernel-relevant slice of xverse's 90-archetype,
+ * CVE-grounded bug-pattern registry (`bench:/root/xverse/src/zeroverse/
  * seedcatalog.py` + `data/archetypes.json`) into xsec as a standing LIBRARY
  * of kernel bug-class archetypes (`data/kernel-archetypes.json`, 34 entries).
  * Instead of one hand-picked seed, a hunt can now draw a `HuntBrief` from ANY
  * archetype in the library — or sweep several at once — so one invocation
  * covers many bug classes over the same reachable surface.
  *
- * Two responsibilities, split like 0verse's `seedcatalog.py` (inert data) vs.
+ * Two responsibilities, split like xverse's `seedcatalog.py` (inert data) vs.
  * `bugclasses.py` (the executing lenses):
  *
  *   - `loadKernelArchetypes` / `filterArchetypes` / `archetypeToHuntBrief` are
@@ -23,16 +23,16 @@
  *     mapping, exactly like `seedcatalog.load_archetypes()`.
  *   - `planArchetypeSweep` actually touches the filesystem (greps the source
  *     tree) and is gated by `archetypeSweepEnabled()` /
- *     `XSEC_ARCHETYPE_SWEEP=1` (default OFF), mirroring 0verse's
+ *     `XSEC_ARCHETYPE_SWEEP=1` (default OFF), mirroring xverse's
  *     `ZEROVERSE_FLYWHEEL` opt-in discipline for anything that runs.
  *
- * IMPORTANT DIFFERENCE FROM 0VERSE: 0verse's `route` field
+ * IMPORTANT DIFFERENCE FROM 0VERSE: xverse's `route` field
  * (`kernel-static` / `kernel-verify` / `not-binary-detectable`) classifies
  * detectability on a STRIPPED BINARY with no source. xsec's kernel hunt runs
  * against the actual kernel SOURCE TREE (a git checkout), so the grep-ability
- * of an archetype here is NOT gated by its 0verse `route` — a `kernel-verify`
+ * of an archetype here is NOT gated by its xverse `route` — a `kernel-verify`
  * archetype (e.g. a UAF/race) can still have a perfectly grep-able source
- * shape (the symbols named in its `detectionSignature`), even though 0verse
+ * shape (the symbols named in its `detectionSignature`), even though xverse
  * could only treat it as a hypothesis on a binary. What the `route` DOES still
  * tell us: whether a confirmed source-level hit needs the kernel-verify lane
  * (build+boot+KASAN) to go from "candidate" to "proven", or whether the
@@ -54,7 +54,7 @@ import type { HuntBrief, HuntCandidate } from "./hunt-scan.js";
 // ── Data shape ───────────────────────────────────────────────────────────────
 
 /**
- * 0verse's kernel-domain route vocabulary (binary-detectability
+ * xverse's kernel-domain route vocabulary (binary-detectability
  * classification; see file header), extended with `"source-static"` for the
  * Chromium pack: unlike the kernel/FreeBSD packs (which distinguish a
  * grep-able static shape from one that needs a build+boot+KASAN prover),
@@ -65,7 +65,7 @@ import type { HuntBrief, HuntCandidate } from "./hunt-scan.js";
  */
 export type ArchetypeRoute = "kernel-static" | "kernel-verify" | "not-binary-detectable" | "source-static";
 
-/** One CVE-grounded kernel bug-class archetype, ported from 0verse's registry. */
+/** One CVE-grounded kernel bug-class archetype, ported from xverse's registry. */
 export interface KernelArchetype {
   /** e.g. "kernel/NF-01" — stable across ports. */
   uid: string;
@@ -81,9 +81,9 @@ export interface KernelArchetype {
   detectionSignature: string;
   /** Public CVE/advisory witnesses this archetype is grounded in. */
   grounding: string[];
-  /** 0verse's free-text confirmability caveat (kept verbatim — it is the honest limit). */
+  /** xverse's free-text confirmability caveat (kept verbatim — it is the honest limit). */
   confirmableNote: string;
-  /** The 0verse engine lens/seed id that implements this archetype, or null (unmapped). */
+  /** The xverse engine lens/seed id that implements this archetype, or null (unmapped). */
   engineLens: string | null;
   route: ArchetypeRoute;
 }
@@ -234,7 +234,7 @@ export function needsKernelVerify(a: KernelArchetype): boolean {
 }
 
 /**
- * True when 0verse could only ever surface this as a hypothesis on a bare
+ * True when xverse could only ever surface this as a hypothesis on a bare
  * binary (`kernel-verify` or `not-binary-detectable`) — mirrors
  * `seedcatalog.Archetype.hypothesis_only`. Does NOT mean "don't bother" on
  * source: see the file header. It means a source-level hit here still needs a
@@ -407,7 +407,7 @@ export function generateArchetypeCandidates(
 
 // ── The sweep planner (the only part that touches the filesystem) ──────────
 
-/** Opt-in gate. Default OFF — mirrors 0verse's `ZEROVERSE_FLYWHEEL=1` discipline. */
+/** Opt-in gate. Default OFF — mirrors xverse's `ZEROVERSE_FLYWHEEL=1` discipline. */
 export function archetypeSweepEnabled(): boolean {
   return !["", "0", "false", "no"].includes((process.env["XSEC_ARCHETYPE_SWEEP"] ?? "").toLowerCase());
 }

@@ -168,7 +168,7 @@ def plan_lifecycle_campaign(
         if _matches(relation, tokens, symbols)
     )
     return LifecycleCampaignPlan(
-        schema_version="0verse.kernel-lifecycle/v1",
+        schema_version="xverse.kernel-lifecycle/v1",
         patch_sha256=digest,
         candidates=candidates,
     )

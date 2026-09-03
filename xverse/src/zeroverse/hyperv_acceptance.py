@@ -22,11 +22,11 @@ from .windows_scope import WindowsScope
 if TYPE_CHECKING:
     from .hyperv_transport import HyperVControlPlane
 
-SCHEMA_VERSION = "0verse.hyperv-worker-acceptance/v1"
-DRILL_SCHEMA_VERSION = "0verse.hyperv-recovery-drill/v1"
-DEFAULT_ALLOWED_SIGNERS = Path("/etc/0verse/hyperv-acceptance.allowed_signers")
+SCHEMA_VERSION = "xverse.hyperv-worker-acceptance/v1"
+DRILL_SCHEMA_VERSION = "xverse.hyperv-recovery-drill/v1"
+DEFAULT_ALLOWED_SIGNERS = Path("/etc/xverse/hyperv-acceptance.allowed_signers")
 SIGNING_KEY_ENV = "ZEROVERSE_HYPERV_ACCEPTANCE_SIGNING_KEY"
-SIGNATURE_NAMESPACE = "0verse-hyperv-worker-acceptance"
+SIGNATURE_NAMESPACE = "xverse-hyperv-worker-acceptance"
 RECOVERY_ARTIFACTS = {
     "benign_dump_sha256": "recovery-benign.dmp",
     "benign_dump_analysis_sha256": "recovery-benign-cdb.txt",

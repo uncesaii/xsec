@@ -128,7 +128,7 @@ def _pair_fixture(root: Path) -> tuple[Path, Path, Path]:
     recipe.write_text("# deterministic offline servicing recipe\n", encoding="utf-8")
     tool.write_bytes(b"pinned-dism-tool-fixture")
     plan: dict[str, object] = {
-        "schema_version": "0verse.windows-pair-plan/v1",
+        "schema_version": "xverse.windows-pair-plan/v1",
         "producer": "zeroverse.windows-pair-plan/v1",
         "declared_context": {
             "cve_id": "CVE-2026-12345",
@@ -180,7 +180,7 @@ def _sign(receipt: Path) -> None:
             "-f",
             str(authorization_key()),
             "-n",
-            "0verse-windows-servicing-receipt-v1",
+            "xverse-windows-servicing-receipt-v1",
             str(receipt),
         ],
         check=True,
@@ -216,7 +216,7 @@ def _fixture(
     stdout.write_bytes(b"The operation completed successfully.\r\n")
     stderr.write_bytes(b"")
     raw: dict[str, object] = {
-        "schema_version": "0verse.windows-servicing-receipt/v1",
+        "schema_version": "xverse.windows-servicing-receipt/v1",
         "producer": "zeroverse.windows-servicing-worker/v1",
         "receipt_signer_identity": _signer_identity(),
         "pair_plan": {"sha256": plan.plan_sha256},

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://xsec.ai/schemas/xverse/acquisition-manifest-v1.schema.json",
-  "title": "0verse firmware acquisition manifest v1",
+  "title": "xverse firmware acquisition manifest v1",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -16,7 +16,7 @@
     "redaction"
   ],
   "properties": {
-    "schema_version": {"const": "0verse.acquisition-manifest/v1"},
+    "schema_version": {"const": "xverse.acquisition-manifest/v1"},
     "acquisition_id": {"$ref": "#/$defs/identifier"},
     "created_at": {"$ref": "#/$defs/timestamp"},
     "device": {"$ref": "#/$defs/deviceIdentity"},

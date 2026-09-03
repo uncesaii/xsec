@@ -78,7 +78,7 @@ def manifest(acceptance_sha256: str, **updates: object) -> dict[str, object]:
             "execution_mode": "native",
             "oracles": ["asan", "casr"],
             "kind": "owned-lab",
-            "reference": "urn:0verse:test-owned-lab",
+            "reference": "urn:xverse:test-owned-lab",
             "statement": "test-owned artifacts and worker",
             "checked_at": _iso(timedelta(days=-1)),
             "expires_at": _iso(timedelta(days=2)),
@@ -182,7 +182,7 @@ def test_load_campaign_binds_fresh_authorization_and_worker_acceptance(
 @pytest.mark.parametrize(
     ("updates", "message"),
     [
-        ({"schema_version": "0verse.elf-campaign/v0"}, "unsupported"),
+        ({"schema_version": "xverse.elf-campaign/v0"}, "unsupported"),
         ({"execution_mode": "wine"}, "execution mode"),
         ({"oracles": ["imaginary-oracle"]}, "unsupported ELF oracle"),
         (
@@ -247,8 +247,8 @@ def test_authorization_acceptance_roles_and_namespaces_are_separate(
     path = write_bundle(tmp_path)
     load_campaign(path, now=NOW)
     assert observed == [
-        ("elf-scope-authority", "0verse-elf-authorization-v1"),
-        ("elf-worker-authority", "0verse-elf-worker-acceptance-v1"),
+        ("elf-scope-authority", "xverse-elf-authorization-v1"),
+        ("elf-worker-authority", "xverse-elf-worker-acceptance-v1"),
     ]
 
     acceptance_path = tmp_path / "worker-acceptance.json"
@@ -357,8 +357,8 @@ def test_receipt_observation_signatures_are_role_separated(
     monkeypatch.setattr("zeroverse.elf_campaign.verify_ssh_signature", verify)
     load_receipt(receipt_path, campaign, campaign_sha, accepted, acceptance_sha)
     assert observed == [
-        ("target-observation-authority", "0verse-elf-target-observation-v1"),
-        ("control-observation-authority", "0verse-elf-control-observation-v1"),
+        ("target-observation-authority", "xverse-elf-target-observation-v1"),
+        ("control-observation-authority", "xverse-elf-control-observation-v1"),
     ]
 
 

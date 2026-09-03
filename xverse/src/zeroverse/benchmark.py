@@ -1,6 +1,6 @@
 """Benchmark result model + parsing/aggregation (M6 #33).
 
-The honest-comparison harness (``benchmarks/fuzzbench/compare.py``) runs 0verse's
+The honest-comparison harness (``benchmarks/fuzzbench/compare.py``) runs xverse's
 harness-synth + seed/dictionary/CMPLOG + oracle lane against a **baseline AFL++**
 lane (the same synthesized harness, but default AFL++: no CMPLOG, no mined
 dictionary, no structured seeds) on the same targets, and emits one NDJSON
@@ -23,7 +23,7 @@ from typing import Any
 # Bump MINOR for additive fields, MAJOR for removals/renames.
 BENCHMARK_SCHEMA_VERSION = "1.0"
 
-LANES = ("0verse", "baseline")
+LANES = ("xverse", "baseline")
 
 
 @dataclass
@@ -32,9 +32,9 @@ class BenchTrial:
 
     schema_version: str
     target: str
-    lane: str                          # "0verse" | "baseline"
+    lane: str                          # "xverse" | "baseline"
     crash_found: bool
-    confirmed_pov: bool                # crash_found AND oracle-confirmed (0verse lane)
+    confirmed_pov: bool                # crash_found AND oracle-confirmed (xverse lane)
     time_to_crash_s: float | None      # wall-clock to first crash, or None if none
     budget_s: int
     execs: int
@@ -91,12 +91,12 @@ def parse_results(text: str) -> list[BenchTrial]:
 
 @dataclass
 class Comparison:
-    """0verse vs baseline on one target, with an honest winner."""
+    """xverse vs baseline on one target, with an honest winner."""
 
     target: str
     zeroverse: BenchTrial | None
     baseline: BenchTrial | None
-    winner: str                        # "0verse" | "baseline" | "tie" | "neither"
+    winner: str                        # "xverse" | "baseline" | "tie" | "neither"
     margin_s: float | None             # baseline_ttc - zeroverse_ttc when both crashed
 
     @property
@@ -105,7 +105,7 @@ class Comparison:
 
 
 # A target where both lanes crash within a hair of each other is an honest tie,
-# not a 0verse win — don't claim a win inside the measurement noise floor.
+# not a xverse win — don't claim a win inside the measurement noise floor.
 TIE_EPSILON_S = 2.0
 
 
@@ -115,7 +115,7 @@ def _winner(zv: BenchTrial | None, bl: BenchTrial | None) -> tuple[str, float | 
     if not zc and not bc:
         return "neither", None
     if zc and not bc:
-        return "0verse", None
+        return "xverse", None
     if bc and not zc:
         return "baseline", None
     # both crashed — compare time-to-first-crash
@@ -125,7 +125,7 @@ def _winner(zv: BenchTrial | None, bl: BenchTrial | None) -> tuple[str, float | 
     margin = round(bt - zt, 2)
     if abs(margin) <= TIE_EPSILON_S:
         return "tie", margin
-    return ("0verse" if zt < bt else "baseline"), margin
+    return ("xverse" if zt < bt else "baseline"), margin
 
 
 def _winner_detail(zv: BenchTrial | None, bl: BenchTrial | None, winner: str) -> str:
@@ -137,7 +137,7 @@ def _winner_detail(zv: BenchTrial | None, bl: BenchTrial | None, winner: str) ->
         ttc = "?" if t.time_to_crash_s is None else f"{t.time_to_crash_s:.1f}s"
         return f"crash@{ttc}"
 
-    return f"0verse={fmt(zv)} baseline={fmt(bl)} → {winner}"
+    return f"xverse={fmt(zv)} baseline={fmt(bl)} → {winner}"
 
 
 def summarize(trials: list[BenchTrial]) -> list[Comparison]:
@@ -149,7 +149,7 @@ def summarize(trials: list[BenchTrial]) -> list[Comparison]:
     comps: list[Comparison] = []
     for target in sorted(by_target):
         lanes = by_target[target]
-        zv = lanes.get("0verse")
+        zv = lanes.get("xverse")
         bl = lanes.get("baseline")
         winner, margin = _winner(zv, bl)
         comps.append(Comparison(target=target, zeroverse=zv, baseline=bl,
@@ -159,7 +159,7 @@ def summarize(trials: list[BenchTrial]) -> list[Comparison]:
 
 def tally(comps: list[Comparison]) -> dict[str, int]:
     """Count outcomes across targets — the honest scoreboard."""
-    out = {"0verse": 0, "baseline": 0, "tie": 0, "neither": 0}
+    out = {"xverse": 0, "baseline": 0, "tie": 0, "neither": 0}
     for c in comps:
         out[c.winner] = out.get(c.winner, 0) + 1
     return out
@@ -168,7 +168,7 @@ def tally(comps: list[Comparison]) -> dict[str, int]:
 def format_table(comps: list[Comparison]) -> str:
     """Render a markdown comparison table — drop-in for ``docs/BENCHMARKS.md``."""
     rows = [
-        "| target | 0verse TTE | baseline TTE | winner | margin |",
+        "| target | xverse TTE | baseline TTE | winner | margin |",
         "|--------|-----------|--------------|--------|--------|",
     ]
     for c in comps:
@@ -187,7 +187,7 @@ def format_table(comps: list[Comparison]) -> str:
     score = tally(comps)
     rows.append("")
     rows.append(
-        f"_Scoreboard: 0verse {score['0verse']} · baseline {score['baseline']} · "
+        f"_Scoreboard: xverse {score['xverse']} · baseline {score['baseline']} · "
         f"tie {score['tie']} · neither {score['neither']} (n={len(comps)})._"
     )
     return "\n".join(rows)

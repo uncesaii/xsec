@@ -53,15 +53,15 @@ function setup(): {
   const root = mkdtempSync(join(tmpdir(), "xsec-windows-variant-"));
   roots.push(root);
   const manifest = join(root, "campaign.json");
-  writeFileSync(manifest, '{"schema_version":"0verse.windows-variant-campaign/v1"}\n');
+  writeFileSync(manifest, '{"schema_version":"xverse.windows-variant-campaign/v1"}\n');
   const campaignSha256 = createHash("sha256").update(
-    '{"schema_version":"0verse.windows-variant-campaign/v1"}\n',
+    '{"schema_version":"xverse.windows-variant-campaign/v1"}\n',
   ).digest("hex");
   const vulnerable = artifact("1");
   const fixed = artifact("4");
   const current = artifact("7");
   const result: Record<string, unknown> = {
-    schema_version: "0verse.windows-variant/v1",
+    schema_version: "xverse.windows-variant/v1",
     campaign_sha256: campaignSha256,
     seed: {
       function: "SeedDispatch",
@@ -180,7 +180,7 @@ describe("WindowsVariantResearchAdapter", () => {
   });
 
   it.each([
-    ["schema", (value: Record<string, unknown>) => { value.schema_version = "0verse.windows-variant/v2"; }],
+    ["schema", (value: Record<string, unknown>) => { value.schema_version = "xverse.windows-variant/v2"; }],
     ["candidate flag", (value: Record<string, unknown>) => { value.all_results_are_candidates = false; }],
     ["weaponization", (value: Record<string, unknown>) => { value.weaponization = true; }],
     ["disclosure", (value: Record<string, unknown>) => { value.automatic_disclosure = true; }],
@@ -259,7 +259,7 @@ describe("WindowsVariantResearchAdapter", () => {
 
     const linked = setup();
     const real = join(linked.root, "real.json");
-    writeFileSync(real, '{"schema_version":"0verse.windows-variant-campaign/v1"}\n');
+    writeFileSync(real, '{"schema_version":"xverse.windows-variant-campaign/v1"}\n');
     rmSync(linked.target.location);
     symlinkSync(real, linked.target.location);
     const linkedRunner = vi.fn(async () => execution(linked.result));

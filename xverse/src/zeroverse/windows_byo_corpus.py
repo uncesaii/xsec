@@ -17,11 +17,11 @@ from typing import Any
 from .ssh_authority_commitment import ssh_authority_key_commitment
 from .ssh_authorization import verify_ssh_signature
 
-BYO_CORPUS_SCHEMA = "0verse.windows-byo-corpus-inventory/v1"
+BYO_CORPUS_SCHEMA = "xverse.windows-byo-corpus-inventory/v1"
 BYO_CORPUS_PRODUCER = "zeroverse.windows-byo-corpus-curation/v1"
-BYO_CORPUS_SIGNATURE_NAMESPACE = "0verse-windows-byo-corpus-inventory-v1"
+BYO_CORPUS_SIGNATURE_NAMESPACE = "xverse-windows-byo-corpus-inventory-v1"
 BYO_CORPUS_COMMITMENT_SCHEME = "hmac-sha256-private-256-bit-key/v1"
-DEFAULT_ALLOWED_SIGNERS = Path("/etc/0verse/windows-byo-corpus.allowed_signers")
+DEFAULT_ALLOWED_SIGNERS = Path("/etc/xverse/windows-byo-corpus.allowed_signers")
 BYO_CORPUS_CLAIMS = [
     "inventory-signature-and-curator-authority-bound",
     "declared-hmac-item-and-private-bundle-commitments-bound",
@@ -195,7 +195,7 @@ def verify_windows_byo_corpus_manifest(
     policy_sha256 = hashlib.sha256(policy_bytes).hexdigest()
     if _sha256(authority["allowed_signers_sha256"], "allowed_signers_sha256") != policy_sha256:
         raise ValueError("BYO corpus production policy SHA-256 mismatch")
-    with tempfile.TemporaryDirectory(prefix="0verse-byo-corpus-signers-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="xverse-byo-corpus-signers-") as temporary:
         snapshot = Path(temporary) / "allowed_signers"
         snapshot.write_bytes(policy_bytes)
         key_commitment = ssh_authority_key_commitment(snapshot)

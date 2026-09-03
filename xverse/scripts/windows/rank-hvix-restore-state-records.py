@@ -3,7 +3,7 @@
 
 This is a static triage aid, not a vulnerability detector. It parses a
 caller-supplied pointer table from a PE32+ image, resolves each descriptor and
-handler, and correlates the handlers with an existing 0verse/Ghidra cache.
+handler, and correlates the handlers with an existing xverse/Ghidra cache.
 The target binary is never executed.
 """
 

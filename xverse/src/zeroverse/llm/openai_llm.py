@@ -3,7 +3,7 @@ Chat Completions API, including a self-hosted router/proxy.
 
 Point it at your gateway with ``OPENAI_BASE_URL`` (+ ``OPENAI_API_KEY``); pick the
 model with ``ZEROVERSE_LLM_MODEL``. Implements the provider-neutral ``LLM``
-interface, so the rest of 0verse doesn't change. Install with the ``llm`` extra.
+interface, so the rest of xverse doesn't change. Install with the ``llm`` extra.
 """
 
 from __future__ import annotations

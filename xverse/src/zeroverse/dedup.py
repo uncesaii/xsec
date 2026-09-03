@@ -8,7 +8,7 @@ backtraces differ in the *tail* (a couple of extra inlined frames, a reordered
 helper) but share the crashing prefix. Both PoVs then surface as separate findings,
 inflating the fleet/fuzz output and polluting the labeled-PoV dataset moat.
 
-This module implements tiered crash dedup on 0verse's normalized crash frames,
+This module implements tiered crash dedup on xverse's normalized crash frames,
 guided by published ClusterFuzz crash-bucketing methodology.
 Two crashes are the *same bug* by a tiered key, cheapest test first:
 

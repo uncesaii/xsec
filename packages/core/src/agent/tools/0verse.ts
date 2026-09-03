@@ -1,10 +1,10 @@
 /**
- * `analyze_binary` agent tool — an opt-in bridge to **0verse**, the
+ * `analyze_binary` agent tool — an opt-in bridge to **xverse**, the
  * binary-native / no-source CRS. The registry exposes it only when
  * `XSEC_FEATURE_ZEROVERSE=1`; ToolExecutor confines it to the local source
  * scope and launches it with a minimal credential-free environment.
  *
- * It runs one bounded `0verse scan <binary> --format ndjson` invocation through
+ * It runs one bounded `xverse scan <binary> --format ndjson` invocation through
  * a dedicated launcher allowlist. The web-scanner allowlist is never widened,
  * and this is not the full fuzzing sub-loop.
  *
@@ -14,7 +14,7 @@
  *   - **PoV-is-truth**: only ndjson findings with `confirmed:true` remain
  *     confirmed. Every other line is a ranked hypothesis and must not be
  *     promoted by this bridge.
- *   - The parser accepts only the supported major version of the 0verse ndjson
+ *   - The parser accepts only the supported major version of the xverse ndjson
  *     contract before returning a successful tool result.
  */
 
@@ -29,9 +29,9 @@ import { spawn, type ChildProcess, type SpawnOptions } from "node:child_process"
 // ── Bounds ──────────────────────────────────────────────────────────────────
 
 /** The one binary this module will ever exec — a DEDICATED allowlist. */
-export const ZEROVERSE_BINARY = "0verse";
+export const ZEROVERSE_BINARY = "xverse";
 
-/** MAJOR of the 0verse ndjson contract this parser understands. */
+/** MAJOR of the xverse ndjson contract this parser understands. */
 export const ZEROVERSE_SUPPORTED_CONTRACT_MAJOR = "1";
 
 /** Max length of the `binary_path` argument (defense against giant blobs). */
@@ -64,7 +64,7 @@ const BACKEND_ENUM = ["auto", "ghidra", "rizin", "angr"] as const;
 export const ZEROVERSE_TOOL_DEFINITION: ToolDefinition = {
   name: "analyze_binary",
   description:
-    "Run 0verse (the binary-native, no-source analyzer) on a compiled artifact " +
+    "Run xverse (the binary-native, no-source analyzer) on a compiled artifact " +
     "to hunt memory-safety bugs and emit a reproducing PoV. Returns CONFIRMED " +
     "findings (a real reproducing PoV is attached) and ranked HYPOTHESES " +
     "(static/LLM leads with NO PoV — never treat these as verified). Use this " +
@@ -170,7 +170,7 @@ export function validateOverseArgs(raw: unknown):
 // ── Parsed ndjson shapes ─────────────────────────────────────────────────────
 
 /**
- * One flat finding line from the 0verse ndjson contract (0verse
+ * One flat finding line from the xverse ndjson contract (xverse
  * `api.ScanFinding.to_dict()`). Field names match the wire contract 1:1 so a
  * confirmed finding lines up with `OversePoV` on the cloud-contracts side.
  */
@@ -223,7 +223,7 @@ export interface OverseParsedResult {
   confirmed: OverseScanFinding[];
   /** confirmed:false — ranked leads; NEVER promoted to verified. */
   hypotheses: OverseScanFinding[];
-  /** Honest degrade reason surfaced by 0verse (static-only host, no-backend…). */
+  /** Honest degrade reason surfaced by xverse (static-only host, no-backend…). */
   note: string;
   /** Last slice of raw output for eyeballing on a parse miss. */
   rawTail: string;
@@ -272,7 +272,7 @@ function coerceFinding(obj: Record<string, unknown>): OverseScanFinding {
 }
 
 /**
- * Parse the 0verse `scan --format ndjson` stream. Mirrors `parseNucleiOutput`:
+ * Parse the xverse `scan --format ndjson` stream. Mirrors `parseNucleiOutput`:
  * one JSON object per line, tolerant of banner/partial lines. The FIRST valid
  * `{"_meta": {...}}` line carries the contract version; every other object line
  * is a finding. PoV-is-truth split: `confirmed:true` -> confirmed, else
@@ -337,7 +337,7 @@ export function parseOverseNdjson(raw: string): OverseParsedResult {
 // ── Dedicated launcher (NOT the web-scanner allowlist) ───────────────────────
 
 /**
- * Spawn `0verse` and ONLY `0verse`. The command passed to `spawn` is a string
+ * Spawn `xverse` and ONLY `xverse`. The command passed to `spawn` is a string
  * LITERAL (never a variable), so there is no dynamic-command sink and a `bin`
  * outside the single allowed value returns null (fail-closed). `shell:false`
  * means `argv` is never re-parsed by a shell — each element is a verbatim
@@ -359,12 +359,12 @@ export function launchOverseBinary(
     detached: true,
     shell: false,
   };
-  return spawn("0verse", argv, spawnOpts);
+  return spawn("xverse", argv, spawnOpts);
 }
 
 /**
- * Run `0verse` under the shared wallclock supervisor (`superviseChild`). Refuses
- * fail-closed for any `bin` other than `0verse`, then reuses the exact
+ * Run `xverse` under the shared wallclock supervisor (`superviseChild`). Refuses
+ * fail-closed for any `bin` other than `xverse`, then reuses the exact
  * timeout/partial-output/SIGKILL-grace machinery the scanner wrappers use.
  */
 export async function runOverseProcess(
@@ -380,7 +380,7 @@ export async function runOverseProcess(
   if (bin !== ZEROVERSE_BINARY) {
     return {
       kind: "error",
-      message: `refusing to spawn non-allowlisted binary '${bin}' (0verse launcher)`,
+      message: `refusing to spawn non-allowlisted binary '${bin}' (xverse launcher)`,
       durationMs: Date.now() - startedAt,
     };
   }
@@ -397,7 +397,7 @@ export async function runOverseProcess(
   if (!child) {
     return {
       kind: "error",
-      message: `refusing to spawn non-allowlisted binary '${bin}' (0verse launcher)`,
+      message: `refusing to spawn non-allowlisted binary '${bin}' (xverse launcher)`,
       durationMs: Date.now() - startedAt,
     };
   }
@@ -407,7 +407,7 @@ export async function runOverseProcess(
 // ── Executor ─────────────────────────────────────────────────────────────────
 
 /**
- * Build the argv for `0verse scan`. Pure + injection-safe: every element is a
+ * Build the argv for `xverse scan`. Pure + injection-safe: every element is a
  * typed, validated value (path already length-bounded; bug_class/backend are
  * closed enums), never a free-form flag string.
  */
@@ -424,7 +424,7 @@ export function buildOverseScanArgv(args: OverseArgs): string[] {
   ];
 }
 
-/** Subprocess runner seam so tests can stub the 0verse invocation. */
+/** Subprocess runner seam so tests can stub the xverse invocation. */
 export type OverseProcessRunner = (
   bin: string,
   argv: string[],
@@ -460,7 +460,7 @@ export interface OverseToolOutput {
 }
 
 /**
- * Execute a validated `analyze_binary` call: spawn `0verse scan <binary>
+ * Execute a validated `analyze_binary` call: spawn `xverse scan <binary>
  * --format ndjson`, parse the stream, and return a structured `ToolResult`.
  * PoV-is-truth is enforced by the parser (confirmed vs hypotheses); this
  * function never promotes a hypothesis.
@@ -487,8 +487,8 @@ export async function executeOverseScan(
       success: false,
       output: null,
       error:
-        `0verse failed to run: ${outcome.message}. ` +
-        `Is the '0verse' CLI installed on this host?`,
+        `xverse failed to run: ${outcome.message}. ` +
+        `Is the 'xverse' CLI installed on this host?`,
     };
   }
 
@@ -501,12 +501,12 @@ export async function executeOverseScan(
   if (parsed.note) notes.push(parsed.note);
   if (timedOut) {
     notes.push(
-      "0verse hit the wall-clock ceiling; results are PARTIAL (only findings emitted before the deadline).",
+      "xverse hit the wall-clock ceiling; results are PARTIAL (only findings emitted before the deadline).",
     );
   }
   if (!parsed.compatible) {
     notes.push(
-      `0verse contract_version '${parsed.contractVersion}' has an unsupported MAJOR ` +
+      `xverse contract_version '${parsed.contractVersion}' has an unsupported MAJOR ` +
         `(this tool understands ${ZEROVERSE_SUPPORTED_CONTRACT_MAJOR}.x); treat findings as UNTRUSTED.`,
     );
   }
@@ -517,7 +517,7 @@ export async function executeOverseScan(
     parsed.hypotheses.length === 0
   ) {
     notes.push(
-      "0verse produced no parseable ndjson (no _meta header, no findings). " +
+      "xverse produced no parseable ndjson (no _meta header, no findings). " +
         `exitCode=${exitCode}. Raw tail: ${parsed.rawTail}`,
     );
   }

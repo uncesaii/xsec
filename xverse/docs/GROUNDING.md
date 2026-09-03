@@ -1,11 +1,11 @@
 # Structural grounding
 
-0verse can optionally check the structural premises behind an LLM severity
+xverse can optionally check the structural premises behind an LLM severity
 rating against the call graph already recovered from the binary. Enable the G1
 gate with:
 
 ```sh
-ZEROVERSE_GROUND=1 0verse target.bin
+ZEROVERSE_GROUND=1 xverse target.bin
 ```
 
 The gate is disabled when the variable is unset, empty, `0`, `false`, or `no`.

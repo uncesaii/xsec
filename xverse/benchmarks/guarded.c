@@ -1,4 +1,4 @@
-/* 0verse benchmark — a *guarded* sink, to prove the angr concolic stage (#5).
+/* xverse benchmark — a *guarded* sink, to prove the angr concolic stage (#5).
  *
  * Two callers of the same vulnerable sink `vuln()`:
  *   - reachable_path: vuln fires only behind a magic-value gate  -> SAT, angr

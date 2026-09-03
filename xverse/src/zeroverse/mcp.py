@@ -1,6 +1,6 @@
 """GhidraMCP-style MCP bridge (M5 #29, ``integration:mcp``).
 
-A stdio MCP server that exposes the 0verse engine as tools an external agent
+A stdio MCP server that exposes the xverse engine as tools an external agent
 (Claude Desktop, Cursor, …) can call:
 
     scan_binary(path, backend?)   run the pipeline on a binary -> run summary
@@ -30,7 +30,7 @@ from . import __version__
 from .api import CONTRACT_VERSION, ScanOptions, ScanResult, format_result, scan
 
 PROTOCOL_VERSION = "2024-11-05"
-SERVER_INFO = {"name": "0verse", "version": __version__}
+SERVER_INFO = {"name": "xverse", "version": __version__}
 
 # --- tool schema (MCP `tools/list` payload) --------------------------------
 
@@ -38,7 +38,7 @@ TOOLS: list[dict[str, Any]] = [
     {
         "name": "scan_binary",
         "description": (
-            "Run the 0verse discovery pipeline on a binary (ELF/PE/Mach-O) and "
+            "Run the xverse discovery pipeline on a binary (ELF/PE/Mach-O) and "
             "return a run summary. Confirmed findings carry a reproducing PoV "
             "(PoV-is-truth). Caches the result for list_findings/get_pov/get_report."
         ),
@@ -240,7 +240,7 @@ def handle_rpc(engine: Engine, request: dict[str, Any]) -> dict[str, Any] | None
             "protocolVersion": PROTOCOL_VERSION,
             "capabilities": {"tools": {}},
             "serverInfo": SERVER_INFO,
-            "instructions": f"0verse engine, result contract v{CONTRACT_VERSION}",
+            "instructions": f"xverse engine, result contract v{CONTRACT_VERSION}",
         })
     if method in ("notifications/initialized", "initialized"):
         return None
@@ -297,7 +297,7 @@ def _serve_sdk() -> bool:
         return False
 
     engine = Engine()
-    server: Any = Server("0verse")
+    server: Any = Server("xverse")
 
     @server.list_tools()  # type: ignore[untyped-decorator]
     async def _list_tools() -> list[Any]:

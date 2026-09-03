@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Honest end-to-end evaluation of 0verse with a REAL model (not MockLLM).
+"""Honest end-to-end evaluation of xverse with a REAL model (not MockLLM).
 
 Runs the FULL pipeline over a labeled corpus twice per target — once with the
 deterministic ``MockLLM`` (the static-lenses-only baseline) and once with the live

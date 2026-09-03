@@ -1,6 +1,6 @@
 /* CWE-190: integer overflow in a size computation truncates to an undersized
  * allocation, which a full-length copy then overflows. SILENT under the stock
- * allocator; 0verse confirms via the differential-allocator + page-granular
+ * allocator; xverse confirms via the differential-allocator + page-granular
  * quarantine guard (clean under stock, faults under the guard). The size
  * arithmetic `count * elem` feeding malloc/memcpy is the static lens signal.
  * Input: [u16 count][u16 elem] header on stdin, then the body. */

@@ -16,9 +16,9 @@ from .ssh_authorization import verify_ssh_signature
 from .windows_lpe_opaque_content import WindowsLpeOpaqueContent
 from .windows_pair_plan import VerifiedWindowsPairPlan, verify_windows_pair_plan
 
-SERVICING_RECEIPT_SCHEMA = "0verse.windows-servicing-receipt/v1"
+SERVICING_RECEIPT_SCHEMA = "xverse.windows-servicing-receipt/v1"
 SERVICING_RECEIPT_PRODUCER = "zeroverse.windows-servicing-worker/v1"
-SERVICING_RECEIPT_SIGNATURE_NAMESPACE = "0verse-windows-servicing-receipt-v1"
+SERVICING_RECEIPT_SIGNATURE_NAMESPACE = "xverse-windows-servicing-receipt-v1"
 SERVICING_RECEIPT_CLAIMS = [
     "pair-plan-role-and-input-identities-bound",
     "plan-recipe-and-tool-identities-bound",
@@ -158,7 +158,7 @@ def verify_windows_servicing_receipt_against_plan(
     allowed_signers_bytes = _read_once(
         allowed_signers, "allowed signers", 1024 * 1024
     )
-    with tempfile.TemporaryDirectory(prefix="0verse-servicing-signers-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="xverse-servicing-signers-") as temporary:
         policy_snapshot = Path(temporary) / "allowed_signers"
         policy_snapshot.write_bytes(allowed_signers_bytes)
         signer_authority_commitment = ssh_authority_key_commitment(policy_snapshot)

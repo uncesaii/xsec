@@ -5,7 +5,7 @@ handful of bugs. **Magma** (github.com/HexHive/magma) is the at-scale version: r
 upstream libraries (libpng/libxml2/libtiff/lua/sqlite3/...) carrying real, catalogued
 bugs, each toggled by `MAGMA_ENABLE_FIXES` and guarded by a ground-truth `MAGMA_BUG`
 canary. We build a target `-O0` with **fatal canaries** (`isan=1`), run the full
-0verse pipeline (`zeroverse.api.scan`) over the driver binary, and score the findings
+xverse pipeline (`zeroverse.api.scan`) over the driver binary, and score the findings
 against Magma's KNOWN bug locations.
 
 This module is the *typed, unit-tested* half — the catalogue loader + the scorer math
@@ -14,7 +14,7 @@ separate from the (Docker-driving, Ghidra-heavy) runner in `benchmarks/magma/run
 
 Honest by construction, PoV-is-truth, ASSUME-FP:
 
-  * a Magma bug-site is **reached** when 0verse surfaces *any* finding (PoV or
+  * a Magma bug-site is **reached** when xverse surfaces *any* finding (PoV or
     hypothesis) at the bug's function — slice/lens coverage, not a confirmation;
   * a bug-site is **confirmed** only when the **oracle reproduced a PoV** at that
     function (a fatal-canary abort or a sanitizer crash) — never an LLM's say-so;

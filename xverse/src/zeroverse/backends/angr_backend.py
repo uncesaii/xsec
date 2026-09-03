@@ -25,7 +25,7 @@ from ..abi import normalize_arch
 from .cdecomp import build_il
 from .contract import ProgramAdapter, ProgramMeta
 
-# angr/CLE arch name -> 0verse canonical arch.
+# angr/CLE arch name -> xverse canonical arch.
 _ARCH_MAP = {
     "X86": "x86", "AMD64": "x86-64", "ARMEL": "ARM", "ARMHF": "ARM",
     "AARCH64": "AArch64", "MIPS32": "MIPS", "MIPS64": "MIPS", "PPC32": "PowerPC",

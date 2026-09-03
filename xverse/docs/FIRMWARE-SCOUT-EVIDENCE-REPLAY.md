@@ -61,7 +61,7 @@ filesystem owner.
 
 Each line of `logs/transactions.jsonl` is canonical JSON conforming to
 [`scout-event-v1.schema.json`](../schemas/scout-event-v1.schema.json). V1 is a
-closed contract with the discriminator `0verse.scout-event/v1`.
+closed contract with the discriminator `xverse.scout-event/v1`.
 
 | Kind | Meaning | Raw capture record |
 |---|---|---:|

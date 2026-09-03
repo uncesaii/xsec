@@ -1,5 +1,5 @@
 {
-  "schema": "0verse.windows-driver-novelty-tally/v1",
+  "schema": "xverse.windows-driver-novelty-tally/v1",
   "generated": "2026-07-20",
   "gate": "zeroverse.windows_novelty.assess_novelty",
   "principle": "Hash-absence from a blocklist is a blocklist-EVASION signal, not a novelty signal. This tally is the novelty gate's verdict over recorded public-record searches. NO-PUBLIC-RECORD-FOUND is a novelty CANDIDATE, never a novelty claim (absence of evidence is not evidence of absence).",

@@ -1,11 +1,11 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/0verse-mark-white.png">
-    <img src="assets/0verse-mark-ink.png" alt="0verse" width="88">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/xverse-mark-white.png">
+    <img src="assets/xverse-mark-ink.png" alt="xverse" width="88">
   </picture>
 </p>
 
-<h1 align="center">0verse</h1>
+<h1 align="center">xverse</h1>
 
 <p align="center">
   <strong>Evidence-first binary analysis. It produces proof-of-vulnerability artifacts from compiled programs, and confirms a finding only when a reproducing oracle agrees.</strong>
@@ -20,15 +20,15 @@
 
 ---
 
-> **Research-stage.** 0verse proves bugs in binaries — it is built to *produce
+> **Research-stage.** xverse proves bugs in binaries — it is built to *produce
 > evidence* (a reproducing crash), not to run autonomously at fleet scale yet.
 > Read the capabilities below as research maturity unless stated otherwise, and
 > the honest misses in [Honest limitations](#honest-limitations). Apache-2.0,
-> shipped in this repo under `0verse/`.
+> shipped in this repo under `xverse/`.
 
 ## What it is
 
-`0verse` is a **binary-native Cyber Reasoning System** for compiled programs with
+`xverse` is a **binary-native Cyber Reasoning System** for compiled programs with
 no source. It runs a **find → prove → patch → verify** loop:
 
 - **finds** memory-safety and logic bug *hypotheses* via static slicing, bug-class
@@ -41,8 +41,8 @@ no source. It runs a **find → prove → patch → verify** loop:
 
 It's the binary counterpart to a source scanner: when you have source, use SAST
 ([foxguard](https://github.com/uncesaii)); when all you have is a compiled
-artifact, use `0verse`. DARPA AIxCC scored on **source-available** programs;
-0verse targets the harder **binary-only** setting — no sanitizers, no
+artifact, use `xverse`. DARPA AIxCC scored on **source-available** programs;
+xverse targets the harder **binary-only** setting — no sanitizers, no
 ground-truth types, no symbols.
 
 **The one rule — PoV-is-truth.** A finding without a reproducing input + crash
@@ -61,36 +61,36 @@ checkout or build the image locally.
 ```bash
 # Day-one triage from a locked checkout — format / arch / mitigations, no deps.
 uv sync --frozen
-uv run --frozen 0verse triage ./target
+uv run --frozen xverse triage ./target
 
 # Full pipeline (decompile → slice → reason → prove → PoV) with a mock LLM.
-uv run --frozen 0verse run ./target --bug-class memory-safety
+uv run --frozen xverse run ./target --bug-class memory-safety
 
 # Drive it with a real model on the triage funnel + harness synthesis.
-uv run --frozen 0verse run ./target --llm codex     # ChatGPT-OAuth, ~/.codex/auth.json
-uv run --frozen 0verse run ./target --llm claude    # ANTHROPIC_API_KEY
-uv run --frozen 0verse run ./target --model glm-4.6  # Z_AI_API_KEY
+uv run --frozen xverse run ./target --llm codex     # ChatGPT-OAuth, ~/.codex/auth.json
+uv run --frozen xverse run ./target --llm claude    # ANTHROPIC_API_KEY
+uv run --frozen xverse run ./target --model glm-4.6  # Z_AI_API_KEY
 
 # Emit the versioned machine contract for a platform/agent to ingest.
-uv run --frozen 0verse scan ./target --format ndjson [--backend rizin]
+uv run --frozen xverse scan ./target --format ndjson [--backend rizin]
 
 # Sweep a fleet from one known seed; confirmations still require a PoV per target.
-uv run --frozen 0verse fleet --seed-archetype cmdi --fleet ./vendor-bins
+uv run --frozen xverse fleet --seed-archetype cmdi --fleet ./vendor-bins
 ```
 
 For the full toolchain (Ghidra/angr/AFL++), build the image locally:
 
 ```bash
-docker build --platform linux/amd64 -t 0verse:local .
-docker run --rm -v "$PWD:/work" 0verse:local run /work/target
+docker build --platform linux/amd64 -t xverse:local .
+docker run --rm -v "$PWD:/work" xverse:local run /work/target
 ```
 
 Dynamic execution of a target is **opt-in and fail-closed** — never a silent host
 subprocess. It's disabled unless you choose an executor:
 
 ```bash
-ZEROVERSE_EXECUTOR=local 0verse run ./target   # run natively on this host (explicit trust)
-ZEROVERSE_EXECUTOR=msb   0verse run ./target   # run inside a microsandbox microVM (recommended)
+ZEROVERSE_EXECUTOR=local xverse run ./target   # run natively on this host (explicit trust)
+ZEROVERSE_EXECUTOR=msb   xverse run ./target   # run inside a microsandbox microVM (recommended)
 ```
 
 Embed it, or expose it to an agent over MCP:
@@ -123,7 +123,7 @@ claims.
 | **Decompiler backends** | **Ghidra** (default, free) · **rizin** (no-JVM fallback) · **angr** (pure-Python) — `ZEROVERSE_BACKEND=auto\|ghidra\|rizin\|angr` |
 | **Isolated execution** | microsandbox (libkrun/KVM microVM) over ssh, opt-in & fail-closed: `ZEROVERSE_EXECUTOR=local\|msb` (unset = disabled) · `ZEROVERSE_MSB_HOST` (default `fuzzer`) · `ZEROVERSE_MSB_IMAGE` (digest-pinned Ubuntu 24.04) · `ZEROVERSE_MSB_SANDBOX` (per-lane names) |
 | **LLM providers** | Anthropic Claude · ChatGPT-OAuth **Codex** (no API key) · GLM (z-ai) · any OpenAI-compatible gateway · deterministic **MockLLM** (the CI regression floor, never a capability lane) |
-| **Integration** | embeddable `zeroverse.api.scan()` · `0verse` CLI · **MCP** stdio bridge · **versioned machine contract** (JSON/NDJSON/SARIF) · CRS-API / SARIF adapter |
+| **Integration** | embeddable `zeroverse.api.scan()` · `xverse` CLI · **MCP** stdio bridge · **versioned machine contract** (JSON/NDJSON/SARIF) · CRS-API / SARIF adapter |
 
 Opt-in lanes stay flag-gated even though they're merged and tested:
 `ZEROVERSE_DIRECTED=1` (sink-scored fuzzing), `ZEROVERSE_PATCH=1` (patch + verify),
@@ -142,9 +142,9 @@ libxml2, libtiff, lua, libsndfile …) carrying catalogued CVE-class bugs guarde
 by fatal canaries.
 
 **Speed vs. baseline AFL++ (real Magma, same canaries, 300 s/lane, 1 trial).**
-0verse-CMPLOG wins **3 of 4** targets and loses the ungated control honestly:
+xverse-CMPLOG wins **3 of 4** targets and loses the ungated control honestly:
 
-| Target | 0verse | baseline AFL++ | |
+| Target | xverse | baseline AFL++ | |
 |---|---|---|---|
 | `libxml2` | **17 s** | 191 s | ~11× |
 | `libsndfile` | **14 s** | never (>300 s) | — |
@@ -199,7 +199,7 @@ ingest → decompile → lift → slice → foxguard pre-pass → seed-prime →
   optionally steered toward the suspected sinks.
 
 Each stage is a module behind a typed interface, so backends swap cleanly and
-stages run standalone (`0verse triage` is just stage 1). Full design:
+stages run standalone (`xverse triage` is just stage 1). Full design:
 [ARCHITECTURE.md](ARCHITECTURE.md) · [docs/DESIGN-NOTES.md](docs/DESIGN-NOTES.md).
 
 ## Honest limitations

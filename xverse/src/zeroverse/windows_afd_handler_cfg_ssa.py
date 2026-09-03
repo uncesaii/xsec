@@ -9,7 +9,7 @@ from typing import Any, cast
 from . import windows_afd_handler_cfg_ssa_ghidra as ghidra_cfg
 from . import windows_afd_handler_semantics as native_semantics
 
-EXPORT_VERSION = "0verse.windows-afd-handler-cfg-ssa/v1"
+EXPORT_VERSION = "xverse.windows-afd-handler-cfg-ssa/v1"
 ACQUISITION_VERSION = ghidra_cfg.SIDE_SCHEMA_VERSION
 PRODUCER = "zeroverse.windows-afd-handler-cfg-ssa/v1"
 EXPECTED_FUNCTIONS_PER_SIDE = 33
@@ -128,7 +128,7 @@ def compile_windows_afd_handler_cfg_ssa(
             == right["image_address_independent_fingerprint"],
             "factual_fingerprint_comparison_only": True,
         }
-        pair["comparison_id"] = _domain_hash("0verse-afd-cfg-ssa-pair-v1", pair)
+        pair["comparison_id"] = _domain_hash("xverse-afd-cfg-ssa-pair-v1", pair)
         pairs.append(pair)
     result: dict[str, object] = {
         "schema_version": EXPORT_VERSION,
@@ -247,7 +247,7 @@ def _compile_side(raw: object, side: str, native_side: dict[str, Any]) -> dict[s
             "image_address_independent_fingerprint": cfg["image_address_independent_fingerprint"],
             "cfg_ssa": cfg,
         }
-        row["function_id"] = _domain_hash("0verse-afd-cfg-ssa-function-v1", {"side": side, **row})
+        row["function_id"] = _domain_hash("xverse-afd-cfg-ssa-function-v1", {"side": side, **row})
         rows.append(row)
     cfg_rows = [cast(dict[str, object], row["cfg_ssa"]) for row in rows]
     block_total = sum(cast(int, cfg["block_count"]) for cfg in cfg_rows)
@@ -984,7 +984,7 @@ def _validate(raw: object) -> dict[str, object]:
             material = dict(row)
             function_id = material.pop("function_id")
             if function_id != _domain_hash(
-                "0verse-afd-cfg-ssa-function-v1", {"side": side, **material}
+                "xverse-afd-cfg-ssa-function-v1", {"side": side, **material}
             ):
                 raise ValueError("AFD CFG/SSA function identity mismatch")
             block_total += cast(int, cfg["block_count"])
@@ -1041,7 +1041,7 @@ def _validate(raw: object) -> dict[str, object]:
             )
         ):
             raise ValueError("AFD CFG/SSA pair comparison mismatch")
-        if comparison_id != _domain_hash("0verse-afd-cfg-ssa-pair-v1", comparison_material):
+        if comparison_id != _domain_hash("xverse-afd-cfg-ssa-pair-v1", comparison_material):
             raise ValueError("AFD CFG/SSA pair identity mismatch")
         _sha(comparison_id, "comparison ID")
         _sha(pair["native_pair_id"], "native pair ID")

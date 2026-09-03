@@ -15,16 +15,16 @@ from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import Any
 
-CONSTRUCTION_PROFILE = "0verse.windows-byo-hmac-construction/v1"
+CONSTRUCTION_PROFILE = "xverse.windows-byo-hmac-construction/v1"
 COMMITMENT_SCHEME = "hmac-sha256-private-256-bit-key/v1"
-ITEM_IDENTITY_SCHEMA = "0verse.windows-byo-private-item-identity/v1"
-BUNDLE_MANIFEST_SCHEMA = "0verse.windows-byo-private-evidence-bundle/v1"
-SOURCE_INDEX_SCHEMA = "0verse.windows-byo-private-source-index/v1"
+ITEM_IDENTITY_SCHEMA = "xverse.windows-byo-private-item-identity/v1"
+BUNDLE_MANIFEST_SCHEMA = "xverse.windows-byo-private-evidence-bundle/v1"
+SOURCE_INDEX_SCHEMA = "xverse.windows-byo-private-source-index/v1"
 
-KEY_COMMITMENT_DOMAIN = b"0verse-windows-byo-blinding-key-commitment-v1\0"
-ITEM_COMMITMENT_DOMAIN = b"0verse-windows-byo-item-v1\0"
-BUNDLE_COMMITMENT_DOMAIN = b"0verse-windows-byo-private-evidence-bundle-v1\0"
-SOURCE_INDEX_COMMITMENT_DOMAIN = b"0verse-windows-byo-source-index-v1\0"
+KEY_COMMITMENT_DOMAIN = b"xverse-windows-byo-blinding-key-commitment-v1\0"
+ITEM_COMMITMENT_DOMAIN = b"xverse-windows-byo-item-v1\0"
+BUNDLE_COMMITMENT_DOMAIN = b"xverse-windows-byo-private-evidence-bundle-v1\0"
+SOURCE_INDEX_COMMITMENT_DOMAIN = b"xverse-windows-byo-source-index-v1\0"
 
 _SHA256 = re.compile(r"[0-9a-f]{64}")
 _INVENTORY_ID = re.compile(r"inventory-[0-9a-f]{64}")

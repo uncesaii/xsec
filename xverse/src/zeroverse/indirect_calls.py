@@ -8,7 +8,7 @@ the target functions end up as disconnected islands. Reachability / taint over
 that graph then scores every ground-truth function 0.00 — taint cannot flow
 across edges that do not exist.
 
-This module recovers **speculative** indirect edges from data 0verse already
+This module recovers **speculative** indirect edges from data xverse already
 extracts (no live Ghidra re-run), and propagates taint over the union of direct
 and indirect edges with an ``indirect`` decay so a resolved edge still carries
 taint, weighted below a direct call.

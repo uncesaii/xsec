@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Build the OPTIONAL 0verse native fast-path (zeroverse._native) and install the
+# Build the OPTIONAL xverse native fast-path (zeroverse._native) and install the
 # compiled module into the active environment's ``zeroverse`` package.
 #
-# 0verse runs fine WITHOUT this — it only speeds up large-input ingest + lens
+# xverse runs fine WITHOUT this — it only speeds up large-input ingest + lens
 # scanning. Requires a Rust toolchain (rustc/cargo) and ``pip install maturin``.
 #
 #   ./rust/build.sh            # build + drop the .so next to the installed package

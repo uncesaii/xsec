@@ -2,7 +2,7 @@
 
 Status: **Accepted for R0**, 2026-07-17.
 
-This record defines the boundary between live-device acquisition and 0verse's
+This record defines the boundary between live-device acquisition and xverse's
 offline analysis pipeline. It applies to ECUs and to other embedded targets.
 Device-specific profiles may narrow this policy; they cannot silently weaken it.
 
@@ -49,7 +49,7 @@ A future #77 safety policy is the sole outbound authorization owner; sharing a
 | `active-write` | Perform a state-changing operation | unsupported by the current Scout roadmap |
 
 The manifest can describe an artifact produced elsewhere with an active mode.
-That representation does not make an active adapter available in 0verse. Runtime
+That representation does not make an active adapter available in xverse. Runtime
 code must reject `offline` or `passive` evidence that claims transmitted frames.
 
 ## Prohibited activity
@@ -108,7 +108,7 @@ assumed anonymous.
 
 ## Compatibility
 
-The v1 discriminator is exactly `0verse.acquisition-manifest/v1`. Producers must
+The v1 discriminator is exactly `xverse.acquisition-manifest/v1`. Producers must
 emit it; consumers must reject missing or unknown versions rather than guessing.
 
 V1 is a closed core schema: every field is explicit, unknown fields are rejected,
@@ -130,7 +130,7 @@ the serialized manifest when chain-of-custody binding is required.
 
 ## Consequences
 
-- Core 0verse and offline analysis remain hardware-free and dependency-free.
+- Core xverse and offline analysis remain hardware-free and dependency-free.
 - Live adapters can evolve independently but must emit the same evidence contract.
 - A manifest can honestly represent incomplete or unsuccessful acquisition.
 - No active ECU discovery or firmware read is implemented or authorized by R0.

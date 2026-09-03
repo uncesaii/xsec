@@ -42,7 +42,7 @@ def test_catalog_and_receipt_are_canonical_and_exactly_bound(
 ) -> None:
     helper = load_helper()
     source = tmp_path / "src"
-    out = source / "out" / "0verse-asan"
+    out = source / "out" / "xverse-asan"
     out.mkdir(parents=True)
     (source / ".git").mkdir()
     (out / "args.gn").write_text("use_libfuzzer = true\nis_asan = true\nsymbol_level = 2\n")
@@ -94,7 +94,7 @@ def test_catalog_ignores_blank_gn_ref_lines(
 ) -> None:
     helper = load_helper()
     source = tmp_path / "src"
-    out = source / "out" / "0verse-asan"
+    out = source / "out" / "xverse-asan"
     out.mkdir(parents=True)
     (source / ".git").mkdir()
     (out / "args.gn").write_text("use_libfuzzer = true\nis_asan = true\nsymbol_level = 2\n")
@@ -125,7 +125,7 @@ def test_binding_rejects_catalog_entry_or_noncanonical_receipt(
 ) -> None:
     helper = load_helper()
     source = tmp_path / "src"
-    out = source / "out" / "0verse-asan"
+    out = source / "out" / "xverse-asan"
     out.mkdir(parents=True)
     (source / ".git").mkdir()
     (out / "args.gn").write_text("use_libfuzzer = true\nis_asan = true\nsymbol_level = 2\n")
@@ -149,7 +149,7 @@ def test_catalog_rejects_duplicate_artifact_outputs(
 ) -> None:
     helper = load_helper()
     source = tmp_path / "src"
-    out = source / "out" / "0verse-asan"
+    out = source / "out" / "xverse-asan"
     out.mkdir(parents=True)
     (source / ".git").mkdir()
     (out / "args.gn").write_text("use_libfuzzer = true\n")
@@ -171,7 +171,7 @@ def test_receipt_rejects_contradictory_sanitizer_args(
 ) -> None:
     helper = load_helper()
     source = tmp_path / "src"
-    out = source / "out" / "0verse-asan"
+    out = source / "out" / "xverse-asan"
     out.mkdir(parents=True)
     (source / ".git").mkdir()
     args_file = out / "args.gn"
@@ -213,7 +213,7 @@ def test_catalog_uses_one_stable_args_read_for_digest_and_parse(
 ) -> None:
     helper = load_helper()
     source = tmp_path / "src"
-    out = source / "out" / "0verse-asan"
+    out = source / "out" / "xverse-asan"
     out.mkdir(parents=True)
     (source / ".git").mkdir()
     args_file = out / "args.gn"

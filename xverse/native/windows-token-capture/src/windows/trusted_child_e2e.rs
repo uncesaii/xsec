@@ -42,8 +42,8 @@ use super::child;
 use super::rendezvous::{AcceptOutcome, WitnessRendezvous};
 use super::{ExpectedWitnessIdentity, OwnedKernelHandle, WitnessRendezvousSpec};
 
-const SERVICE_NAME: &str = "0verseWindowsTrustedChildE2E";
-const ROOT_NAME: &str = "0verse-trusted-child-e2e";
+const SERVICE_NAME: &str = "xverseWindowsTrustedChildE2E";
+const ROOT_NAME: &str = "xverse-trusted-child-e2e";
 const CONFIG_NAME: &str = "config.json";
 const FACTS_NAME: &str = "facts.json";
 const DONOR_ERROR_NAME: &str = "donor-error.json";
@@ -474,7 +474,7 @@ fn run_service_test() -> Result<()> {
     create_json(
         &root.join(RECEIPT_NAME),
         &Receipt {
-            schema: "0verse-windows-trusted-child-e2e-receipt-v2",
+            schema: "xverse-windows-trusted-child-e2e-receipt-v2",
             subject_sid: &facts.user_sid,
             session_id: facts.session_id,
             authentication_id: &facts.authentication_id,

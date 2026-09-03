@@ -1,6 +1,6 @@
 # R0 reproducible baseline
 
-This is the starting contract for Firmware Scout work. It records what 0verse can
+This is the starting contract for Firmware Scout work. It records what xverse can
 prove today, which checks are portable, and which capabilities are absent from the
 core development profile. The machine-readable record is
 [`baselines/r0-2026-07-17.json`](baselines/r0-2026-07-17.json).

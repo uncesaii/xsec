@@ -21,16 +21,16 @@ from .ssh_authorization import canonical_signed_material, verify_ssh_signature
 from .windows_app_container import valid_package_app_container_sid
 from .windows_scope import WindowsScope
 
-CAMPAIGN_SCHEMA_VERSION = "0verse.windows-token-campaign/v1"
-LPAC_CAMPAIGN_SCHEMA_VERSION = "0verse.windows-token-campaign/v2"
-GRANT_SCHEMA_VERSION = "0verse.windows-token-execution-grant/v1"
-ACCEPTANCE_SCHEMA_VERSION = "0verse.windows-token-worker-acceptance/v2"
-GRANT_SIGNATURE_NAMESPACE = "0verse-windows-token-execution-grant"
-ACCEPTANCE_SIGNATURE_NAMESPACE = "0verse-windows-token-worker-acceptance"
+CAMPAIGN_SCHEMA_VERSION = "xverse.windows-token-campaign/v1"
+LPAC_CAMPAIGN_SCHEMA_VERSION = "xverse.windows-token-campaign/v2"
+GRANT_SCHEMA_VERSION = "xverse.windows-token-execution-grant/v1"
+ACCEPTANCE_SCHEMA_VERSION = "xverse.windows-token-worker-acceptance/v2"
+GRANT_SIGNATURE_NAMESPACE = "xverse-windows-token-execution-grant"
+ACCEPTANCE_SIGNATURE_NAMESPACE = "xverse-windows-token-worker-acceptance"
 DEFAULT_ACCEPTANCE_ALLOWED_SIGNERS = Path(
-    "/etc/0verse/windows-token-acceptance.allowed_signers"
+    "/etc/xverse/windows-token-acceptance.allowed_signers"
 )
-DEFAULT_GRANT_ALLOWED_SIGNERS = Path("/etc/0verse/windows-token-grant.allowed_signers")
+DEFAULT_GRANT_ALLOWED_SIGNERS = Path("/etc/xverse/windows-token-grant.allowed_signers")
 
 _SHA256 = re.compile(r"^[a-f0-9]{64}$")
 _NONCE = re.compile(r"^[A-Za-z0-9_-]{32,128}$")
@@ -41,7 +41,7 @@ _MACHINE_GUID = re.compile(
     r"^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-"
     r"[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$"
 )
-_WORKER_MACHINE_ID_DOMAIN = b"0verse-windows-machine-id-v1\0"
+_WORKER_MACHINE_ID_DOMAIN = b"xverse-windows-machine-id-v1\0"
 _DENIED_WORKERS = frozenset(
     {
         "localhost",

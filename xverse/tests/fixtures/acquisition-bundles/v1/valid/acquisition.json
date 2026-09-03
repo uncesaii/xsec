@@ -1,5 +1,5 @@
 {
-  "schema_version": "0verse.acquisition-manifest/v1",
+  "schema_version": "xverse.acquisition-manifest/v1",
   "acquisition_id": "synthetic-bundle-valid-001",
   "created_at": "2026-07-17T12:02:00Z",
   "device": {
@@ -191,7 +191,7 @@
   "provenance": {
     "source": "committed synthetic acquisition fixture",
     "method": "offline fixture assembly",
-    "collector": "0verse-tests",
+    "collector": "xverse-tests",
     "authorization_basis": "synthetic-fixture",
     "started_at": "2026-07-17T12:00:00Z",
     "completed_at": "2026-07-17T12:01:00Z",
@@ -206,7 +206,7 @@
   },
   "redaction": {
     "status": "not-required",
-    "policy": "0verse.default-export/v1",
+    "policy": "xverse.default-export/v1",
     "contains_sensitive_values": false,
     "entries": []
   }

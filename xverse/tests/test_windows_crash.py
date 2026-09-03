@@ -188,7 +188,7 @@ def test_signed_worker_rechecks_authorization_immediately_before_scp(monkeypatch
         lambda *args, **kwargs: pytest.fail("expired authorization reached subprocess"),
     )
     with pytest.raises(ValueError, match="expired"):
-        worker._scp(["target.exe"], "0verse-" + "a" * 32)
+        worker._scp(["target.exe"], "xverse-" + "a" * 32)
 
 
 def test_signed_worker_retains_cleanup_only_path_after_expiry(monkeypatch):
@@ -206,7 +206,7 @@ def test_signed_worker_retains_cleanup_only_path_after_expiry(monkeypatch):
         lambda *args, **kwargs: SimpleNamespace(returncode=0, stdout=b"", stderr=b""),
     )
     capability = worker._issue_cleanup_capability(
-        "0verse-" + "a" * 32, ttl_seconds=60
+        "xverse-" + "a" * 32, ttl_seconds=60
     )
     cleaned = worker._ssh_cleanup(timeout=5, capability=capability)
     assert cleaned.returncode == 0
@@ -235,9 +235,9 @@ def test_scp_destination_is_derived_from_authorized_host(monkeypatch):
 
     monkeypatch.setattr("zeroverse.windows_oracle.subprocess.run", fake_run)
     WindowsWorker("worker-02.example.test", lab_only=True)._scp(
-        ["target.exe"], "0verse-" + "a" * 32
+        ["target.exe"], "xverse-" + "a" * 32
     )
-    assert seen[0][-1] == "worker-02.example.test:C:/Windows/Temp/0verse-" + "a" * 32 + "/"
+    assert seen[0][-1] == "worker-02.example.test:C:/Windows/Temp/xverse-" + "a" * 32 + "/"
     with pytest.raises(ValueError, match="run identifier"):
         WindowsWorker("worker-02.example.test", lab_only=True)._scp(
             ["target.exe"], "attacker:/redirect"
@@ -259,7 +259,7 @@ def test_pageheap_lock_contention_fails_without_releasing_another_run(tmp_path, 
     result = WindowsWorker("worker-02.example.test", lab_only=True).run_pageheap(binary, b"poc")
     assert not result.crashed
     assert "another replay owns the lock" in result.stderr
-    assert "0verse-pageheap.lock" not in calls[-1]
+    assert "xverse-pageheap.lock" not in calls[-1]
     assert "/disable" not in calls[-1]
 
 
@@ -283,7 +283,7 @@ def test_pageheap_timeout_runs_out_of_band_disable_and_unlock(tmp_path, monkeypa
     assert not result.crashed
     assert "timeout" in result.stderr.lower()
     assert "target.exe" in calls[1]
-    assert "0verse-pageheap.lock" in calls[-1]
+    assert "xverse-pageheap.lock" in calls[-1]
     assert "/disable" in calls[-1]
     assert calls[-1].index("/disable") < calls[-1].index("Remove-Item")
     assert "gflags PageHeap disable failed" in calls[-1]

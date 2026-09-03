@@ -11,8 +11,8 @@ unsigned confusion**, **path traversal**, **uninitialized-memory use**, **TOCTOU
 
 ## Why
 
-Lenses are how 0verse casts a wide net before the funnel + oracle filter it down.
-Each new lens widens the bug surface 0verse can reason about, at near-zero cost to
+Lenses are how xverse casts a wide net before the funnel + oracle filter it down.
+Each new lens widens the bug surface xverse can reason about, at near-zero cost to
 the rest of the pipeline.
 
 ## How

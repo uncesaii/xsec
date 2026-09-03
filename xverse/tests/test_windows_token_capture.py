@@ -134,7 +134,7 @@ def _sign_with_key(
 
 def _campaign() -> dict[str, object]:
     return {
-        "schema_version": "0verse.windows-token-campaign/v1",
+        "schema_version": "xverse.windows-token-campaign/v1",
         "campaign_id": "canary-lpe-001",
         "worker": "canary-worker-1",
         "starting_context": "standard-user",
@@ -149,7 +149,7 @@ def _campaign() -> dict[str, object]:
 def _scope() -> dict[str, object]:
     now = datetime.now(UTC)
     return {
-        "schema_version": "0verse.windows-scope/v2",
+        "schema_version": "xverse.windows-scope/v2",
         "campaign_id": "canary-lpe-001",
         "program": "windows-canary",
         "scope_url": "https://www.microsoft.com/en-us/msrc/bounty-windows-insider-preview",
@@ -185,7 +185,7 @@ def _scope() -> dict[str, object]:
 def _grant(campaign_sha: str, scope_sha: str) -> dict[str, object]:
     now = datetime.now(UTC)
     return {
-        "schema_version": "0verse.windows-token-execution-grant/v1",
+        "schema_version": "xverse.windows-token-execution-grant/v1",
         "campaign_sha256": campaign_sha,
         "scope_manifest_sha256": scope_sha,
         "campaign_id": "canary-lpe-001",
@@ -205,7 +205,7 @@ def _acceptance(
 ) -> dict[str, object]:
     now = datetime.now(UTC)
     return {
-        "schema_version": "0verse.windows-token-worker-acceptance/v2",
+        "schema_version": "xverse.windows-token-worker-acceptance/v2",
         "campaign_sha256": campaign_sha,
         "scope_manifest_sha256": scope_sha,
         "execution_grant_sha256": grant_sha,
@@ -276,7 +276,7 @@ def _capture(
 ) -> dict[str, object]:
     now = datetime.now(UTC)
     return {
-        "schema_version": "0verse.windows-token-capture/v3",
+        "schema_version": "xverse.windows-token-capture/v3",
         "campaign_sha256": campaign_sha,
         "scope_manifest_sha256": scope_sha,
         "execution_grant_sha256": grant_sha,
@@ -556,7 +556,7 @@ def test_duplicate_unknown_and_symlink_sources_fail(tmp_path: Path) -> None:
 
     authorities = _authority_bundle(tmp_path)
     legacy = _capture(authorities[1], authorities[3], authorities[5], authorities[7])
-    legacy["schema_version"] = "0verse.windows-token-capture/v2"
+    legacy["schema_version"] = "xverse.windows-token-capture/v2"
     _write(path, legacy)
     with pytest.raises(ValueError, match="unsupported Windows token capture schema"):
         load_windows_token_capture(path, allowed_signers=authorization_policy())

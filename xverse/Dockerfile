@@ -1,4 +1,4 @@
-# 0verse engine image — bundles the free, redistributable analysis toolchain so
+# xverse engine image — bundles the free, redistributable analysis toolchain so
 # `docker run ghcr.io/uncesaii/xverse run <binary>` works with no host setup.
 #   Ghidra (Apache-2.0, headless decompiler)  +  angr (symbolic)  +  AFL++ (fuzzing)
 #   + GDB (optional trusted-local runtime reach probes; ptrace remains opt-in)
@@ -13,7 +13,7 @@
 # out-of-tree build. Without it zeroverse.fuzz.aflpp.afl_qemu_available() is
 # False, and since fuzz/orchestrator.py builds AflConfig(qemu_mode=True) for
 # anything that is not a natively instrumented driver, EVERY stripped /
-# non-instrumented ELF — 0verse's actual product surface — silently degrades to
+# non-instrumented ELF — xverse's actual product surface — silently degrades to
 # "no fuzz lane" and the scan reports a clean zero. Build it here.
 #
 # Why only afl-qemu-trace and not all of AFL++ from source:
@@ -134,13 +134,13 @@ COPY pyproject.toml README.md ./
 COPY src ./src
 COPY conf ./conf
 COPY docker ./docker
-COPY tests/fixtures/windows_ioctl_wdm.c /opt/0verse-fixtures/windows_ioctl_wdm.c
-COPY tests/fixtures/windows_ioctl_wdm_patched.c /opt/0verse-fixtures/windows_ioctl_wdm_patched.c
-COPY tests/fixtures/windows_ioctl_wdm_fixed.c /opt/0verse-fixtures/windows_ioctl_wdm_fixed.c
-COPY tests/fixtures/native_lastmile_reach.c /opt/0verse-fixtures/native_lastmile_reach.c
-COPY tests/fixtures/native_lastmile_png.c /opt/0verse-fixtures/native_lastmile_png.c
-COPY tests/fixtures/shared_library_harness_vuln.c /opt/0verse-fixtures/shared_library_harness_vuln.c
-COPY tests/fixtures/shared_library_harness_fixed.c /opt/0verse-fixtures/shared_library_harness_fixed.c
+COPY tests/fixtures/windows_ioctl_wdm.c /opt/xverse-fixtures/windows_ioctl_wdm.c
+COPY tests/fixtures/windows_ioctl_wdm_patched.c /opt/xverse-fixtures/windows_ioctl_wdm_patched.c
+COPY tests/fixtures/windows_ioctl_wdm_fixed.c /opt/xverse-fixtures/windows_ioctl_wdm_fixed.c
+COPY tests/fixtures/native_lastmile_reach.c /opt/xverse-fixtures/native_lastmile_reach.c
+COPY tests/fixtures/native_lastmile_png.c /opt/xverse-fixtures/native_lastmile_png.c
+COPY tests/fixtures/shared_library_harness_vuln.c /opt/xverse-fixtures/shared_library_harness_vuln.c
+COPY tests/fixtures/shared_library_harness_fixed.c /opt/xverse-fixtures/shared_library_harness_fixed.c
 COPY scripts/browser/replay-candidate.py ./scripts/browser/replay-candidate.py
 COPY docker/native_lastmile_e2e.py ./docker/native_lastmile_e2e.py
 
@@ -221,5 +221,5 @@ RUN set -eux; \
     esac; \
     rm -rf /tmp/qsmoke /tmp/qsmoke.c /tmp/qsmoke-in /tmp/qsmoke-out /tmp/qsmoke.log
 
-ENTRYPOINT ["0verse"]
+ENTRYPOINT ["xverse"]
 CMD ["--help"]

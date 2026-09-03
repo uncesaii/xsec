@@ -14,9 +14,9 @@ use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
-const REQUEST_SCHEMA: &str = "0verse.windows-fixed-adapter-request/v1";
-const RESULT_SCHEMA: &str = "0verse.windows-fixed-adapter-unsigned-result/v1";
-const EXECUTION_SCHEMA: &str = "0verse.windows-fixed-adapter-child-execution/v1";
+const REQUEST_SCHEMA: &str = "xverse.windows-fixed-adapter-request/v1";
+const RESULT_SCHEMA: &str = "xverse.windows-fixed-adapter-unsigned-result/v1";
+const EXECUTION_SCHEMA: &str = "xverse.windows-fixed-adapter-child-execution/v1";
 pub(crate) const MAX_REQUEST_BYTES: usize = 256 * 1024;
 const MAX_INPUT_BYTES: usize = 64 * 1024;
 const CONTROL_NOOP_OPERATION_SHA256: &str =

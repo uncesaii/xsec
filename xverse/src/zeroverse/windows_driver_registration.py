@@ -28,11 +28,11 @@ from .windows_variant import (
     _write_new_file_at,
 )
 
-RAW_VERSION = "0verse.windows-driver-registration-facts/v1"
-EXPORT_VERSION = "0verse.windows-driver-registration/v1"
-RECEIPT_VERSION = "0verse.windows-driver-registration-receipt/v1"
+RAW_VERSION = "xverse.windows-driver-registration-facts/v1"
+EXPORT_VERSION = "xverse.windows-driver-registration/v1"
+RECEIPT_VERSION = "xverse.windows-driver-registration-receipt/v1"
 PRODUCER = "zeroverse.windows-driver-registration/v1"
-PROJECTION_VERSION = "0verse.public-wdm-selected-physical-layout/v1"
+PROJECTION_VERSION = "xverse.public-wdm-selected-physical-layout/v1"
 PROJECTION_SHA256 = "d454d47b5795b0c69895e2cc2c45844cc437af05d73df11cd2a59a534a61f1bb"
 PROJECTION_CANONICAL_SHA256 = "08f5a4bf77249612f681b2c72231fdd4cca312a4cbe09c26c67b0362d61f3ffa"
 AUTHORITY_SCOPE = (
@@ -1021,7 +1021,7 @@ def _snapshot_v3_bridge_bundle(source_fd: int, staging_fd: int) -> None:
         ),
         "entry bridge receipt",
     )
-    if receipt.get("schema_version") != "0verse.windows-driver-entry-bridge-receipt/v3":
+    if receipt.get("schema_version") != "xverse.windows-driver-entry-bridge-receipt/v3":
         raise ValueError("registration requires a v3 entry bridge receipt")
     os.mkdir("entry-bridge", 0o700, dir_fd=staging_fd)
     bridge_fd = os.open(

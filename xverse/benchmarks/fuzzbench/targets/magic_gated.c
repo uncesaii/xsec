@@ -1,8 +1,8 @@
-/* 0verse M6 benchmark target — single 4-byte magic gate (expected 0verse win).
+/* xverse M6 benchmark target — single 4-byte magic gate (expected xverse win).
  *
  * The overflow is reachable only behind a REC0 magic-header check. Plain AFL++
  * with a single 0x00 seed and no dictionary must brute-force 4 bytes of header by
- * coverage alone; the 0verse lane mines the REC0 token from the (decompiled)
+ * coverage alone; the xverse lane mines the REC0 token from the (decompiled)
  * slice into its dictionary AND runs CMPLOG/redqueen, cracking the gate in ms.
  * The HEAP buffer makes the OOB confirmable by the differential-allocator oracle. */
 #include <stdint.h>

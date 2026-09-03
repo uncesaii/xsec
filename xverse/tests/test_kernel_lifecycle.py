@@ -28,7 +28,7 @@ def test_extracts_lifecycle_tokens_and_changed_symbols() -> None:
 
 def test_plans_curated_teardown_candidates_without_execution() -> None:
     plan = plan_lifecycle_campaign(_GHL_PATCH)
-    assert plan.schema_version == "0verse.kernel-lifecycle/v1"
+    assert plan.schema_version == "xverse.kernel-lifecycle/v1"
     assert not plan.executable
     assert plan.candidates
     assert any(

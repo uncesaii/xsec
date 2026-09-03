@@ -404,9 +404,9 @@ def adjudicate_kernel_witness(
 
 
 def load_ioctl_map(path: Path) -> dict[str, object]:
-    """Load a ``*-ioctl-map.json`` static triage record (schema 0verse.driver-ioctl-map/v1)."""
+    """Load a ``*-ioctl-map.json`` static triage record (schema xverse.driver-ioctl-map/v1)."""
     data: dict[str, object] = json.loads(path.read_text())
-    if not str(data.get("schema_version", "")).startswith("0verse.driver-ioctl-map/"):
+    if not str(data.get("schema_version", "")).startswith("xverse.driver-ioctl-map/"):
         raise ValueError(f"not a driver-ioctl-map: {path}")
     return data
 
@@ -716,7 +716,7 @@ _CRASH_BINDING_SENTINEL = TriggerRecord(
 
 # ---------------------------------------------------------------------------
 
-_DRIVE_PLAN_SCHEMA = "0verse.driver-witness-plan/v1"
+_DRIVE_PLAN_SCHEMA = "xverse.driver-witness-plan/v1"
 _KD_REG_RE = re.compile(r"\b(rcx|rdx|rax|r8|r9|eax|edx)=([0-9a-fA-F`]+)")
 
 
@@ -774,7 +774,7 @@ class DriveControl:
 
 @dataclass(frozen=True)
 class DrivePlan:
-    """Parsed drive-plan.json (0verse.driver-witness-plan/v1)."""
+    """Parsed drive-plan.json (xverse.driver-witness-plan/v1)."""
 
     driver: str
     module: str

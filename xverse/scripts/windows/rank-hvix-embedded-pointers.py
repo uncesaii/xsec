@@ -2,7 +2,7 @@
 """Rank exact-build hypercall handlers for manual embedded-address review.
 
 This is a triage heuristic, not a vulnerability detector. It correlates an
-already extracted descriptor table with an already generated 0verse/Ghidra
+already extracted descriptor table with an already generated xverse/Ghidra
 cache and never executes the target binary.
 """
 

@@ -31,7 +31,7 @@ from .serialize import finding_dict
 # Bump MINOR for additive fields, MAJOR for removals/renames.
 NEGATIVE_LOG_VERSION = "1.0"
 
-_TOOL = {"name": "0verse", "version": __version__}
+_TOOL = {"name": "xverse", "version": __version__}
 
 # Why a run confirmed nothing — a small, stable vocabulary.
 REASONS = (

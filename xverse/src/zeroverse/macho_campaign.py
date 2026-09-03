@@ -21,19 +21,19 @@ from .elf_campaign import _open_regular_nofollow
 from .ssh_authority_commitment import ssh_authority_key_commitment
 from .ssh_authorization import canonical_signed_material, verify_ssh_signature
 
-CAMPAIGN_SCHEMA_VERSION = "0verse.macho-campaign/v1"
-ACCEPTANCE_SCHEMA_VERSION = "0verse.macho-worker-acceptance/v1"
-RECEIPT_SCHEMA_VERSION = "0verse.macho-campaign-receipt/v1"
+CAMPAIGN_SCHEMA_VERSION = "xverse.macho-campaign/v1"
+ACCEPTANCE_SCHEMA_VERSION = "xverse.macho-worker-acceptance/v1"
+RECEIPT_SCHEMA_VERSION = "xverse.macho-campaign-receipt/v1"
 
-AUTHORIZATION_SIGNATURE_NAMESPACE = "0verse-macho-authorization-v1"
-ACCEPTANCE_SIGNATURE_NAMESPACE = "0verse-macho-worker-acceptance-v1"
-TARGET_OBSERVATION_SIGNATURE_NAMESPACE = "0verse-macho-target-observation-v1"
-CONTROL_OBSERVATION_SIGNATURE_NAMESPACE = "0verse-macho-control-observation-v1"
+AUTHORIZATION_SIGNATURE_NAMESPACE = "xverse-macho-authorization-v1"
+ACCEPTANCE_SIGNATURE_NAMESPACE = "xverse-macho-worker-acceptance-v1"
+TARGET_OBSERVATION_SIGNATURE_NAMESPACE = "xverse-macho-target-observation-v1"
+CONTROL_OBSERVATION_SIGNATURE_NAMESPACE = "xverse-macho-control-observation-v1"
 
-AUTHORIZATION_ALLOWED_SIGNERS = Path("/etc/0verse/macho-authorization.allowed_signers")
-ACCEPTANCE_ALLOWED_SIGNERS = Path("/etc/0verse/macho-worker-acceptance.allowed_signers")
-TARGET_ALLOWED_SIGNERS = Path("/etc/0verse/macho-target-observation.allowed_signers")
-CONTROL_ALLOWED_SIGNERS = Path("/etc/0verse/macho-control-observation.allowed_signers")
+AUTHORIZATION_ALLOWED_SIGNERS = Path("/etc/xverse/macho-authorization.allowed_signers")
+ACCEPTANCE_ALLOWED_SIGNERS = Path("/etc/xverse/macho-worker-acceptance.allowed_signers")
+TARGET_ALLOWED_SIGNERS = Path("/etc/xverse/macho-target-observation.allowed_signers")
+CONTROL_ALLOWED_SIGNERS = Path("/etc/xverse/macho-control-observation.allowed_signers")
 SSH_KEYGEN = Path("/usr/bin/ssh-keygen")
 TRUSTED_POLICY_UID = 0
 TRUSTED_POLICY_GID = 0
@@ -389,7 +389,7 @@ def macho_identity_commitment(identity: MachOIdentity) -> str:
     material = json.dumps(
         asdict(identity), sort_keys=True, separators=(",", ":"), ensure_ascii=False
     ).encode()
-    return hashlib.sha256(b"0verse-macho-identity-v1\0" + material).hexdigest()
+    return hashlib.sha256(b"xverse-macho-identity-v1\0" + material).hexdigest()
 
 
 @dataclass(frozen=True)

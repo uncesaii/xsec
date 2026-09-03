@@ -9,7 +9,7 @@ oracle did not fire" moment. This module closes that gap, binary-only.
 bitmap* keyed by ``(cur_loc ^ prev_loc) >> 1`` — a hash, **not** an address — so
 the bitmap alone cannot be inverted back to instruction addresses (this is the
 load-bearing reason BULLSEYE/AFLGo's compile-time distance pass does not apply to
-0verse; see the directed-fuzzing design doc §2). We therefore recover executed
+xverse; see the directed-fuzzing design doc §2). We therefore recover executed
 *addresses* the only way a stripped target allows: a **qemu-user block trace**
 (``qemu-x86_64 -d exec``), whose per-translation-block guest PC is a real static
 VA for a non-relocated image (the same VA space Ghidra's ``Inst.addr`` lives in).

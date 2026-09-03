@@ -6,10 +6,10 @@ import { wilsonIntervalTuple } from "./wilson.js";
 export const WINDOWS_IOCTL_FOXGUARD_BASELINE_SCHEMA =
   "xsec.windows-ioctl-foxguard-baseline/v1" as const;
 export const WINDOWS_IOCTL_LOCATION_PROJECTION_VERDICT_SCHEMA =
-  "xsec.verified-0verse-windows-ioctl-location-projection/v1" as const;
+  "xsec.verified-xverse-windows-ioctl-location-projection/v1" as const;
 export const WINDOWS_IOCTL_FOXGUARD_VERSION = "0.12.0" as const;
 export const WINDOWS_IOCTL_FOXGUARD_BASELINE_PROOF_LIMIT =
-  "Evaluator-private import of one upstream-verified signed 0verse Windows IOCTL location projection and one exact Foxguard v0.12 native finding-v1 report. Exact source-region overlap produces a label-blind static baseline only. It does not execute a target, invoke Foxguard, create a Research Finding, establish reachability, vulnerability, impact, novelty, claim or bounty eligibility, authorize disclosure, or provide weaponization evidence." as const;
+  "Evaluator-private import of one upstream-verified signed xverse Windows IOCTL location projection and one exact Foxguard v0.12 native finding-v1 report. Exact source-region overlap produces a label-blind static baseline only. It does not execute a target, invoke Foxguard, create a Research Finding, establish reachability, vulnerability, impact, novelty, claim or bounty eligibility, authorize disclosure, or provide weaponization evidence." as const;
 
 const SHA256 = /^[0-9a-f]{64}$/;
 const MAX_SITES = 8_192;
@@ -34,7 +34,7 @@ export interface WindowsIoctlLocationRegion {
 }
 
 /**
- * Construct this value only after the 0verse verifier has authenticated the
+ * Construct this value only after the xverse verifier has authenticated the
  * detached location-projection signature and its complete site-universe binding.
  * It is trusted caller context and is never accepted from the baseline document.
  */

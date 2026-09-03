@@ -1,8 +1,8 @@
-// IoctlTrigger.cs — 0verse Windows kernel-oracle trigger (defensive bug-detection harness).
+// IoctlTrigger.cs — xverse Windows kernel-oracle trigger (defensive bug-detection harness).
 //
 // Drives ONE directed DeviceIoControl (code + flat buffer) at a statically-located
 // sink and reports the outcome as a single machine-parseable marker line
-// (0VERSE-TRIGGER-JSON:{...}). No fuzzing, no loops, no exploitation primitives:
+// (xverse-TRIGGER-JSON:{...}). No fuzzing, no loops, no exploitation primitives:
 // one open, one IOCTL, one report. Compiled in-guest with the in-box
 // C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe (no toolchain dependency);
 // keep the source C# 5-compatible (no interpolation, no out-var, no tuples).
@@ -98,7 +98,7 @@ internal static class IoctlTrigger
         if (h == new IntPtr(-1))
         {
             int openErr = Marshal.GetLastWin32Error();
-            Console.WriteLine("0VERSE-TRIGGER-JSON:{\"device\":" + JsonStr(device)
+            Console.WriteLine("xverse-TRIGGER-JSON:{\"device\":" + JsonStr(device)
                 + ",\"open_error\":" + openErr + "}");
             return 2;
         }
@@ -125,7 +125,7 @@ internal static class IoctlTrigger
         json.Append(",\"out_sha256\":\"").Append(outLen > 0 ? Sha256Hex(outBuf) : "").Append("\"");
         json.Append(",\"out_post_hex\":\"").Append(HexPrefix(outBuf, 64)).Append("\"");
         json.Append("}");
-        Console.WriteLine("0VERSE-TRIGGER-JSON:" + json);
+        Console.WriteLine("xverse-TRIGGER-JSON:" + json);
         return ok ? 0 : 2;
     }
 

@@ -1,7 +1,7 @@
-# 0verse roadmap
+# xverse roadmap
 
 > Status: 2026-07-25. Scope frozen under
-> [XSEC ADR-066](https://github.com/uncesaii/xsec/blob/main/docs/DECISIONS.md#adr-066--2026-07-17--0verse-is-an-evidence-producernotary-input-not-a-dispatchable-engine-yet).
+> [XSEC ADR-066](https://github.com/uncesaii/xsec/blob/main/docs/DECISIONS.md#adr-066--2026-07-17--xverse-is-an-evidence-producernotary-input-not-a-dispatchable-engine-yet).
 > Milestone checkboxes record in-tree implementation or proof work; they do not by
 > themselves mean live-proven or operational. Use the canonical
 > [maturity vocabulary](ARCHITECTURE.md#scope-decision-and-maturity-vocabulary).
@@ -15,8 +15,8 @@ parentheses). Run `gh issue create` from this list once the repo has a remote.
 
 ## M0 — Skeleton (this commit)
 - [x] Repo, README positioning, ARCHITECTURE, license, CI
-- [x] `0verse triage` — dependency-free ELF/PE/Mach-O format + arch + mitigation detection
-- [x] `0verse run` wired as a full pipeline (ingest→decompile→analyze→reason→dynamic→poc→report)
+- [x] `xverse triage` — dependency-free ELF/PE/Mach-O format + arch + mitigation detection
+- [x] `xverse run` wired as a full pipeline (ingest→decompile→analyze→reason→dynamic→poc→report)
 
 ## M1 — MVP vertical slice  ← build this fully before anything below
 **Target: Linux ELF x86-64, bug class: stack/heap buffer overflow, output: a reproducing PoV.**
@@ -147,7 +147,7 @@ hypotheses (`src/zeroverse/bugclasses.py`, `benchmarks/m4_proof.py`).
   `scan_binary`/`list_findings`/`get_pov`/`get_report` over the embeddable API;
   official MCP SDK when installed, JSON-RPC-over-stdio stub otherwise
 - [x] managed evidence contract and reference adapter (`integration:managed`)
-  (#28) — embeddable `zeroverse.api.scan()` + `0verse scan --format
+  (#28) — embeddable `zeroverse.api.scan()` + `xverse scan --format
   ndjson|sarif|json` with a **versioned** machine contract
   (`docs/RESULT-CONTRACT.md`, PoV-is-truth); a reference managed-lane example.
   This is implemented contract scaffolding, not a
@@ -158,15 +158,15 @@ hypotheses (`src/zeroverse/bugclasses.py`, `benchmarks/m4_proof.py`).
 ## M6 — Rigor & community
 - [x] **FuzzBench/Magma comparison harness vs plain AFL++; publish results** (#33)
   (`benchmark`) — an honest, **bounded** ablation (`benchmarks/fuzzbench/compare.py`):
-  0verse's slice-mined dictionary + CMPLOG lane vs default AFL++ on the **same**
-  synthesized harness + identical seed, isolating 0verse's value-add. Results in
-  [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md): **0verse wins the two gated targets**
+  xverse's slice-mined dictionary + CMPLOG lane vs default AFL++ on the **same**
+  synthesized harness + identical seed, isolating xverse's value-add. Results in
+  [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md): **xverse wins the two gated targets**
   (cracks `REC0` / `FMW1`+`0xCAFEBABE` in <1s where baseline burns ~2M execs and
   never cracks them in 60s) and **ties — losing TTE by 0.2s — on the ungated
   control** (no gate, no value-add). NOT a full multi-day Magma sweep; caveats and
   the no-cherry-picking rule are explicit. Parsing/aggregation in
   `src/zeroverse/benchmark.py` (schema v1.0). **Real Magma is now built** (8 C/C++
-  targets, fatal-canary `-O0` images) and run two ways: a real `0verse-CMPLOG vs
+  targets, fatal-canary `-O0` images) and run two ways: a real `xverse-CMPLOG vs
   baseline AFL++` campaign scored on Magma's ground-truth canaries
   ([`docs/BENCHMARKS.md`](docs/BENCHMARKS.md)) and the binary-native pipeline scored
   for reach/confirm/FP ([`docs/EVAL-GROUNDTRUTH.md`](docs/EVAL-GROUNDTRUTH.md));
@@ -244,14 +244,14 @@ in-tree and covered by tests or a proof harness.
   gets no spurious lift, and memory never changes `confirmed`/`verdict`/PoV state.
 - [x] **CRS-API / SARIF adapter + tiered crash dedup** (#47/#48) (`integration`,
   `triage`) — `src/zeroverse/crs_api.py` ingests AIxCC-style task bundles, consumes
-  SARIF broadcasts as hints, runs 0verse, and emits CRS-API `POVSubmission` rows;
+  SARIF broadcasts as hints, runs xverse, and emits CRS-API `POVSubmission` rows;
   `src/zeroverse/dedup.py` fuzzy-merges same-crash findings across exact stack,
   LCS, and Levenshtein tiers before dataset/fleet emission.
 
 ## Scope freeze after M7
 
-The current 0verse role is an evidence-producer/notary. Generic managed
-dispatch remains parked until 0verse blindly confirms a known-CVE stripped
+The current xverse role is an evidence-producer/notary. Generic managed
+dispatch remains parked until xverse blindly confirms a known-CVE stripped
 x86-64 ELF and the result is recorded. Windows execution, browser execution, and
 Mach-O dynamic-execution expansion are also parked. Existing code, tests, and
 fixtures stay available, but they do not establish live-proven or operational

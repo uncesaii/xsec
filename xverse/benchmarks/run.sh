@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# 0verse benchmark corpus — compile each known-vuln program and assert the
+# xverse benchmark corpus — compile each known-vuln program and assert the
 # pipeline CONFIRMS the expected source->sink with a reproducing PoV.
-# Run inside the 0verse image:  docker run --rm -v "$PWD:/work" ... bash /work/benchmarks/run.sh
+# Run inside the xverse image:  docker run --rm -v "$PWD:/work" ... bash /work/benchmarks/run.sh
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 SRC="${ZEROVERSE_SRC:-/work/src}"

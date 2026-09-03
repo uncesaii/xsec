@@ -11,15 +11,15 @@ import {
   type OverseArgs,
   type OverseProcessRunner,
   type ScannerProcessOutcome,
-} from "./0verse.js";
+} from "./xverse.js";
 
 // A confirmed finding line + a hypothesis line, wrapped by the v1.3 _meta header
-// exactly as `0verse api.result_to_ndjson` emits it.
+// exactly as `xverse api.result_to_ndjson` emits it.
 function ndjsonFixture(): string {
   const meta = {
     _meta: {
       contract_version: "1.3",
-      tool: { name: "0verse", version: "0.0.1" },
+      tool: { name: "xverse", version: "0.0.1" },
       binary: "/work/routerd",
       format: "ndjson",
       arch: "x86_64",
@@ -172,11 +172,11 @@ describe("buildOverseScanArgv", () => {
 });
 
 describe("launchOverseBinary / runOverseProcess", () => {
-  it("refuses any binary other than 0verse (fail-closed)", () => {
+  it("refuses any binary other than xverse (fail-closed)", () => {
     expect(launchOverseBinary("bash", ["-c", "id"], {})).toBeNull();
   });
 
-  it("runOverseProcess refuses a non-0verse bin without spawning", async () => {
+  it("runOverseProcess refuses a non-xverse bin without spawning", async () => {
     const out = await runOverseProcess("nmap", ["-sV"], {
       timeoutMs: 1000,
       ceilingMs: 1000,
@@ -208,10 +208,10 @@ describe("executeOverseScan", () => {
   it("surfaces a subprocess error as an unsuccessful result", async () => {
     const res = await executeOverseScan({
       args: goodArgs,
-      runner: stubRunner({ kind: "error", message: "spawn 0verse ENOENT", durationMs: 5 }),
+      runner: stubRunner({ kind: "error", message: "spawn xverse ENOENT", durationMs: 5 }),
     });
     expect(res.success).toBe(false);
-    expect(res.error).toContain("0verse");
+    expect(res.error).toContain("xverse");
   });
 
   it("marks partial results on timeout and notes it", async () => {
@@ -251,7 +251,7 @@ describe("executeOverseScan", () => {
 });
 
 describe("module invariants", () => {
-  it("only ever targets the 0verse binary", () => {
-    expect(ZEROVERSE_BINARY).toBe("0verse");
+  it("only ever targets the xverse binary", () => {
+    expect(ZEROVERSE_BINARY).toBe("xverse");
   });
 });

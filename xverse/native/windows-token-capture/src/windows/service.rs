@@ -9,7 +9,7 @@ use windows_sys::Win32::System::Services::{
     SERVICE_TABLE_ENTRYW, SERVICE_WIN32_OWN_PROCESS, SetServiceStatus, StartServiceCtrlDispatcherW,
 };
 
-const SERVICE_NAME: &str = "0verseWindowsTokenBroker";
+const SERVICE_NAME: &str = "xverseWindowsTokenBroker";
 static STOP_REQUESTED: AtomicBool = AtomicBool::new(false);
 
 fn wide_null(value: &str) -> Vec<u16> {

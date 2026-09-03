@@ -226,7 +226,7 @@ def test_side_isolation_uses_private_canonical_file_and_hard_deadline(
         raw = b'{"side":"side_a"}\n'
         output.write_bytes(raw)
         marker = {
-            "schema_version": "0verse.windows-afd-cfg-ssa-side-isolated-result/v1",
+            "schema_version": "xverse.windows-afd-cfg-ssa-side-isolated-result/v1",
             "side": "side_a",
             "artifact_sha256": hashlib.sha256(raw).hexdigest(),
         }
@@ -265,7 +265,7 @@ def test_side_isolation_rejects_output_hash_tamper(
         del timeout_seconds, label
         Path(command_holder[-1]).write_bytes(b'{"side":"side_a"}\n')
         marker = {
-            "schema_version": "0verse.windows-afd-cfg-ssa-side-isolated-result/v1",
+            "schema_version": "xverse.windows-afd-cfg-ssa-side-isolated-result/v1",
             "side": "side_a",
             "artifact_sha256": "0" * 64,
         }

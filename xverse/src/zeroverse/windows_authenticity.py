@@ -10,7 +10,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-AUTHENTICITY_SCHEMA = "0verse.windows-authenticity-observation/v1"
+AUTHENTICITY_SCHEMA = "xverse.windows-authenticity-observation/v1"
 AUTHENTICITY_PRODUCER = "zeroverse.windows-authenticity/powershell-v1"
 AUTHENTICITY_PROOF_LIMIT = (
     "Producer-observed Windows trust result only; Microsoft root pinning, explicit catalog "

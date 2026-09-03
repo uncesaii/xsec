@@ -94,7 +94,7 @@ def _inputs() -> tuple[dict[str, object], dict[str, object], dict[str, object]]:
 
 
 def _body_hash(rva: int, body: bytes) -> str:
-    digest = hashlib.sha256(b"0verse-afd-function-body-ranges-v1\0")
+    digest = hashlib.sha256(b"xverse-afd-function-body-ranges-v1\0")
     digest.update(rva.to_bytes(8, "little"))
     digest.update(len(body).to_bytes(8, "little"))
     digest.update(body)
@@ -118,14 +118,14 @@ def _refresh_ids(raw: dict[str, object]) -> None:
         material = dict(sides[side])
         material.pop("evidence_id")
         sides[side]["evidence_id"] = semantics._domain_hash(
-            "0verse-afd-native-side-v1", material
+            "xverse-afd-native-side-v1", material
         )
     commitment = raw["hypotheses_commitment"]
     for pair in raw["pairs"]:
         material = dict(pair)
         material.pop("pair_id")
         pair["pair_id"] = semantics._domain_hash(
-            "0verse-afd-native-pair-v1",
+            "xverse-afd-native-pair-v1",
             {
                 "side_a_evidence_id": sides["side_a"]["evidence_id"],
                 "side_b_evidence_id": sides["side_b"]["evidence_id"],
@@ -354,7 +354,7 @@ def test_isolated_bootstrap_ignores_shadow_modules(monkeypatch: pytest.MonkeyPat
             captured.update({"command": command, **kwargs})
 
     marker = {
-        "schema_version": "0verse.windows-afd-isolated-replay-result/v1",
+        "schema_version": "xverse.windows-afd-isolated-replay-result/v1",
         "phase": "full-replay-complete",
         "artifact_sha256": "a" * 64,
     }

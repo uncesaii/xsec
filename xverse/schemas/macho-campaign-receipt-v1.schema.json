@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://xsec.ai/schemas/xverse/macho-campaign-receipt-v1.schema.json",
-  "title": "0verse Apple Mach-O target/control replay receipt v1",
+  "title": "xverse Apple Mach-O target/control replay receipt v1",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "campaign_id", "campaign_sha256", "worker_acceptance_sha256", "coordinator", "worker", "hardware_model", "authorization_kind", "input", "started_at", "finished_at", "classification", "target_observation", "control_observation", "artifacts", "bounty_eligibility", "operational_maturity_claimed", "auto_disclosure"],
   "properties": {
-    "schema_version": {"const": "0verse.macho-campaign-receipt/v1"},
+    "schema_version": {"const": "xverse.macho-campaign-receipt/v1"},
     "campaign_id": {"$ref": "#/$defs/identifier"}, "campaign_sha256": {"$ref": "#/$defs/sha256"},
     "worker_acceptance_sha256": {"$ref": "#/$defs/sha256"}, "coordinator": {"$ref": "#/$defs/identifier"}, "worker": {"$ref": "#/$defs/identifier"},
     "hardware_model": {"$ref": "#/$defs/hardwareModel"},

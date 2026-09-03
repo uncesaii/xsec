@@ -22,12 +22,12 @@ from .windows_ioctl_ghidra_export import (
 from .windows_ioctl_site_identity import ioctl_site_id, site_universe_sha256
 from .windows_variant import _load_artifact
 
-REQUEST_VERSION = "0verse.windows-ioctl-site-universe-request/v1"
-UNIVERSE_VERSION = "0verse.windows-ioctl-site-universe/v1"
+REQUEST_VERSION = "xverse.windows-ioctl-site-universe-request/v1"
+UNIVERSE_VERSION = "xverse.windows-ioctl-site-universe/v1"
 PRODUCER = "zeroverse.windows-ioctl-site-universe/v1"
-SIGNATURE_NAMESPACE = "0verse-windows-ioctl-site-universe-v1"
-SIGNER_IDENTITY = "windows-ioctl-site-universe@0verse"
-DEFAULT_ALLOWED_SIGNERS = Path("/etc/0verse/windows-ioctl-site-universe.allowed_signers")
+SIGNATURE_NAMESPACE = "xverse-windows-ioctl-site-universe-v1"
+SIGNER_IDENTITY = "windows-ioctl-site-universe@xverse"
+DEFAULT_ALLOWED_SIGNERS = Path("/etc/xverse/windows-ioctl-site-universe.allowed_signers")
 PROOF_LIMIT = (
     "Signed enumeration of every normalized site in one complete static export-v2/v3; "
     "no guard assessment, ranking, label, reachability, vulnerability, impact, novelty, "
@@ -135,7 +135,7 @@ def build_windows_ioctl_site_universe(
     policy_sha256 = hashlib.sha256(policy_bytes).hexdigest()
     authority_key_commitment = _policy_key_commitment(policy_bytes)
     universe_id = hashlib.sha256(
-        b"0verse-windows-ioctl-site-universe-id-v1\0"
+        b"xverse-windows-ioctl-site-universe-id-v1\0"
         + nonce.encode("ascii")
         + b"\0"
         + universe_digest.encode("ascii")
@@ -203,7 +203,7 @@ def verify_windows_ioctl_site_universe(
         signature_text = signature_bytes.decode("utf-8")
     except UnicodeDecodeError as exc:
         raise ValueError("site-universe signature must be UTF-8") from exc
-    with tempfile.TemporaryDirectory(prefix="0verse-ioctl-sites-policy-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="xverse-ioctl-sites-policy-") as temporary:
         policy_snapshot = Path(temporary) / "allowed_signers"
         policy_snapshot.write_bytes(policy_bytes)
         verify_ssh_signature(
@@ -349,7 +349,7 @@ def _validate_manifest(raw: dict[str, Any]) -> None:
     if site_universe_sha256(normalized) != raw["site_universe_sha256"]:
         raise ValueError("site-universe digest mismatch")
     expected_universe_id = hashlib.sha256(
-        b"0verse-windows-ioctl-site-universe-id-v1\0"
+        b"xverse-windows-ioctl-site-universe-id-v1\0"
         + str(raw["universe_nonce"]).encode("ascii")
         + b"\0"
         + str(raw["site_universe_sha256"]).encode("ascii")
@@ -443,7 +443,7 @@ def _validate_site_record(site: dict[str, Any]) -> None:
 
 
 def _policy_key_commitment(policy_bytes: bytes) -> str:
-    with tempfile.TemporaryDirectory(prefix="0verse-ioctl-sites-key-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="xverse-ioctl-sites-key-") as temporary:
         snapshot = Path(temporary) / "allowed_signers"
         snapshot.write_bytes(policy_bytes)
         return ssh_authority_key_commitment(snapshot)

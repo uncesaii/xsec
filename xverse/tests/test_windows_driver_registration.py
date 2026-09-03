@@ -37,7 +37,7 @@ def _facts() -> dict[str, object]:
         "image_base": "0x140000000",
         "tool": {"name": "ghidra", "version": "12.1.2"},
         "entry_bridge": {
-            "schema_version": "0verse.windows-driver-entry-bridge/v3",
+            "schema_version": "xverse.windows-driver-entry-bridge/v3",
             "artifact_path": "entry-bridge/entry-bridge.json",
             "artifact_sha256": "3" * 64,
             "receipt_path": "entry-bridge/receipt.json",

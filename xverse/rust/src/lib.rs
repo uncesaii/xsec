@@ -1,4 +1,4 @@
-//! Optional Rust/PyO3 fast-path for 0verse (module ``zeroverse._native``).
+//! Optional Rust/PyO3 fast-path for xverse (module ``zeroverse._native``).
 //!
 //! The pure-Python engine works everywhere; this extension accelerates the one
 //! place the profiler showed Rust genuinely wins — scanning a **large, contiguous
@@ -84,6 +84,6 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(contains_any, m)?)?;
     m.add_function(wrap_pyfunction!(contains_any_bytes, m)?)?;
     m.add_function(wrap_pyfunction!(backend, m)?)?;
-    m.add("__doc__", "0verse native fast-path (Aho-Corasick substring presence).")?;
+    m.add("__doc__", "xverse native fast-path (Aho-Corasick substring presence).")?;
     Ok(())
 }

@@ -17,7 +17,7 @@ from types import ModuleType
 import pytest
 
 SUPERVISOR = Path(__file__).parents[1] / "scripts/browser/run-campaign.py"
-PROTOCOL = "0verse.browser-campaign-supervisor/v1"
+PROTOCOL = "xverse.browser-campaign-supervisor/v1"
 RECORD_PREFIX = "0VERSE-BROWSER-CAMPAIGN:"
 MAX_OUTPUT_BYTES = 1024 * 1024
 
@@ -54,9 +54,9 @@ def _fixture(
             "-C",
             str(source),
             "-c",
-            "user.name=0verse test",
+            "user.name=xverse test",
             "-c",
-            "user.email=test@0verse.invalid",
+            "user.email=test@xverse.invalid",
             "commit",
             "-qm",
             "fixture",

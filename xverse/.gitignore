@@ -33,13 +33,13 @@ corpus/
 findings/
 *.pov
 # cached Ghidra exports (keyed by binary hash)
-.0verse-cache/
+.xverse-cache/
 # emitted PoV replay scripts
-0verse-out/
+xverse-out/
 
 # M6 #32 — labeled-PoV dataset: the real corpus is the PRIVATE MOAT and never
 # lands in the repo. Only examples/dataset/ (synthetic-only) is tracked.
-*.0verse-dataset.ndjson
+*.xverse-dataset.ndjson
 dataset-out/
 # M6 #34 — negative-results machine log (operator-local, append-only)
 *.negatives.ndjson

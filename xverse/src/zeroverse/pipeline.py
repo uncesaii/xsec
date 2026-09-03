@@ -780,7 +780,7 @@ def _record_terminal_receipt(
         )
         pov_count += 1
     store = ReceiptStore(
-        Path(output_dir or os.environ.get("ZEROVERSE_OUT", "0verse-out"))
+        Path(output_dir or os.environ.get("ZEROVERSE_OUT", "xverse-out"))
         / ".receipts"
     )
     with contextlib.suppress(OSError, TypeError, ValueError):
@@ -857,7 +857,7 @@ def _run_pipeline(
         }
 
     requested_output_dir = Path(
-        output_dir or os.environ.get("ZEROVERSE_OUT", "0verse-out")
+        output_dir or os.environ.get("ZEROVERSE_OUT", "xverse-out")
     )
     confirmation_path = Path(confirm_binary) if confirm_binary is not None else Path(path)
     confirmation_triage = t if confirmation_path == Path(path) else triage(confirmation_path)
@@ -1966,7 +1966,7 @@ def _run_pipeline(
     else:
         # The AFL complement executes/fuzzes the target — drive the CONFIRM build.
         # The backend-recovered call graph lets the fuzz selector rank targets by
-        # attacker-reachability, not name shape (0verse#224 sub-gap (a)).
+        # attacker-reachability, not name shape (xverse#224 sub-gap (a)).
         _run_fuzz_complement(
             confirm_path,
             decompiled,

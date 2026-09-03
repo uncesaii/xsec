@@ -107,14 +107,14 @@ def _manifest() -> dict[str, object]:
             "authorization_basis": "synthetic-fixture",
             "started_at": "2026-07-17T12:00:00Z",
             "completed_at": "2026-07-17T12:01:00Z",
-            "tool_name": "0verse-test",
+            "tool_name": "xverse-test",
             "tool_version": "1.0",
             "evidence_artifact_ids": ["capture"],
             "notes": None,
         },
         "redaction": {
             "status": "not-required",
-            "policy": "0verse.default-export/v1",
+            "policy": "xverse.default-export/v1",
             "contains_sensitive_values": False,
             "entries": [],
         },
@@ -178,7 +178,7 @@ def test_schema_and_runtime_reject_invalid_local_states(case: str) -> None:
 
 def test_runtime_rejects_unknown_versions_and_broken_cross_references() -> None:
     versioned: Any = _manifest()
-    versioned["schema_version"] = "0verse.acquisition-manifest/v2"
+    versioned["schema_version"] = "xverse.acquisition-manifest/v2"
     with pytest.raises(ValueError, match="unsupported acquisition manifest schema"):
         AcquisitionManifest.from_mapping(versioned)
 

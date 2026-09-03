@@ -314,7 +314,7 @@ export function formatToolArgs(call: ToolCallLike): string {
     }
 
     // analyze_binary — args { binary_path, bug_class?, backend?, timeout_s? }
-    // (packages/core/src/agent/tools/0verse.ts).
+    // (packages/core/src/agent/tools/xverse.ts).
     case "analyze_binary": {
       const path = frag(str(a.binary_path) ?? "", 80);
       const bugClass = str(a.bug_class);

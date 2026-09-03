@@ -3,7 +3,7 @@
 
     python benchmarks/m3_pe_proof.py
 
-Proves 0verse ingests + routes + statically analyzes a Windows PE32+ x86-64 binary
+Proves xverse ingests + routes + statically analyzes a Windows PE32+ x86-64 binary
 with a gated buffer overflow, surfaces the bug as a hypothesis, and is HONEST that
 full *dynamic* fuzzing of a PE on Linux needs WinAFL on a Windows host (or a
 wine+qemu harness) — it does NOT fabricate a crash.

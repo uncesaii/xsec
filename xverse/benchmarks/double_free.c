@@ -1,4 +1,4 @@
-/* CWE-415: double-free on an attacker-triggered path. 0verse confirms via the
+/* CWE-415: double-free on an attacker-triggered path. xverse confirms via the
  * quarantine guard allocator, which traps the second free of a quarantined
  * pointer; a benign control stays clean. Input: first byte 'X' triggers it. */
 #include <stdlib.h>

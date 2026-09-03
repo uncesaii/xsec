@@ -41,13 +41,13 @@ from .windows_variant import (
     _write_new_file_at,
 )
 
-RAW_VERSION = "0verse.windows-driver-entry-bridge-facts/v2"
-EXPORT_VERSION = "0verse.windows-driver-entry-bridge/v2"
-RECEIPT_VERSION = "0verse.windows-driver-entry-bridge-receipt/v2"
+RAW_VERSION = "xverse.windows-driver-entry-bridge-facts/v2"
+EXPORT_VERSION = "xverse.windows-driver-entry-bridge/v2"
+RECEIPT_VERSION = "xverse.windows-driver-entry-bridge-receipt/v2"
 PRODUCER = "zeroverse.windows-driver-entry-bridge/v2"
-RAW_VERSION_V3 = "0verse.windows-driver-entry-bridge-facts/v3"
-EXPORT_VERSION_V3 = "0verse.windows-driver-entry-bridge/v3"
-RECEIPT_VERSION_V3 = "0verse.windows-driver-entry-bridge-receipt/v3"
+RAW_VERSION_V3 = "xverse.windows-driver-entry-bridge-facts/v3"
+EXPORT_VERSION_V3 = "xverse.windows-driver-entry-bridge/v3"
+RECEIPT_VERSION_V3 = "xverse.windows-driver-entry-bridge-receipt/v3"
 PRODUCER_V3 = "zeroverse.windows-driver-entry-bridge/v3"
 ABI_MANIFEST_SHA256 = "76f04d8acc824c87d2be6851b0a0cb57404ecce3d69c9f2b3a9a06d7b553415e"
 CONFIG = {
@@ -518,9 +518,9 @@ def produce_windows_driver_entry_bridge(
             receipt.pop("abi_authority")
         receipt["cache_key"] = hashlib.sha256(
             (
-                b"0verse-windows-driver-entry-bridge-cache-v3\0"
+                b"xverse-windows-driver-entry-bridge-cache-v3\0"
                 if _profile_version == "v3"
-                else b"0verse-windows-driver-entry-bridge-cache-v2\0"
+                else b"xverse-windows-driver-entry-bridge-cache-v2\0"
             )
             + b"\0".join(
                 value.encode()
@@ -682,9 +682,9 @@ def verify_windows_driver_entry_bridge_bundle(
         raise ValueError("entry bridge tool binding mismatch")
     expected_cache = hashlib.sha256(
         (
-            b"0verse-windows-driver-entry-bridge-cache-v3\0"
+            b"xverse-windows-driver-entry-bridge-cache-v3\0"
             if is_v3
-            else b"0verse-windows-driver-entry-bridge-cache-v2\0"
+            else b"xverse-windows-driver-entry-bridge-cache-v2\0"
         )
         + b"\0".join(
             value.encode()

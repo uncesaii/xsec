@@ -48,7 +48,7 @@ def _fixture(
     policy.write_text(
         json.dumps(
             {
-                "schema_version": "0verse.windows-trust-root-policy/v1",
+                "schema_version": "xverse.windows-trust-root-policy/v1",
                 "policy_id": "xsec-windows-roots-2026-07",
                 "allowed_root_cert_sha256": ["c" * 64],
                 "allowed_signtool_sha256": [_sha(signtool)],
@@ -92,7 +92,7 @@ def _fixture(
     receipt.write_text(
         json.dumps(
             {
-                "schema_version": "0verse.windows-signtool-policy-receipt/v1",
+                "schema_version": "xverse.windows-signtool-policy-receipt/v1",
                 "producer": "zeroverse.windows-signtool-policy/powershell-v1",
                 "receipt_signer_identity": _signer_identity(),
                 "artifact": _ref(artifact),
@@ -155,7 +155,7 @@ def _sign_receipt(receipt: Path) -> None:
             "-f",
             str(authorization_key()),
             "-n",
-            "0verse-windows-trust-receipt-v1",
+            "xverse-windows-trust-receipt-v1",
             str(receipt),
         ],
         check=True,

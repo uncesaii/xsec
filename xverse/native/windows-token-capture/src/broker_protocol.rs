@@ -5,9 +5,9 @@ use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use serde::de::{self, MapAccess, SeqAccess, Visitor};
 use serde::{Deserialize, Serialize};
 
-pub const BROKER_REQUEST_SCHEMA: &str = "0verse.windows-token-broker-request/v1";
-pub const DEVICE_OPEN_BROKER_REQUEST_SCHEMA: &str = "0verse.windows-device-open-broker-request/v1";
-pub const BROKER_RESPONSE_SCHEMA: &str = "0verse.windows-token-broker-response/v1";
+pub const BROKER_REQUEST_SCHEMA: &str = "xverse.windows-token-broker-request/v1";
+pub const DEVICE_OPEN_BROKER_REQUEST_SCHEMA: &str = "xverse.windows-device-open-broker-request/v1";
+pub const BROKER_RESPONSE_SCHEMA: &str = "xverse.windows-token-broker-response/v1";
 pub const MAX_FRAME_BYTES: usize = 1024 * 1024;
 const MAX_AUTHORITY_BYTES: usize = 128 * 1024;
 

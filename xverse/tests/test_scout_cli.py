@@ -45,10 +45,10 @@ def _bundle_with_raw_vin(root: Path) -> Path:
         ),
         interface="virtual-can0",
         source="deterministic in-memory virtual ECU",
-        collector="0verse-tests",
+        collector="xverse-tests",
         authorization_basis="synthetic-fixture",
         started_at="2026-07-18T10:00:00Z",
-        tool_name="0verse-tests",
+        tool_name="xverse-tests",
         tool_version="0.0.1",
         notes="Source bundle intentionally contains a raw VIN for export-redaction testing.",
     )
@@ -93,7 +93,7 @@ def test_capture_standard_fixture_creates_loadable_manifest_v1(
 
     capture = json.loads(capsys.readouterr().out)
     bundle = load_acquisition_bundle(output)
-    assert bundle.manifest.schema_version == "0verse.acquisition-manifest/v1"
+    assert bundle.manifest.schema_version == "xverse.acquisition-manifest/v1"
     assert bundle.manifest.transport.mode == "passive"
     assert bundle.manifest.transport.transmitted is False
     assert capture["observed"]["transport"]["transmitted"] is False

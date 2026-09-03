@@ -5,7 +5,7 @@
 
 ## What
 
-Teach 0verse a new processor calling convention. Good candidates: **PowerPC
+Teach xverse a new processor calling convention. Good candidates: **PowerPC
 (ppc/ppc64)**, **RISC-V (rv32/rv64)**, **SPARC**, **MIPS64 n64**. (`ppc`/`riscv`
 already have *aliases* but no `Abi` — wiring one up is a clean, self-contained task.)
 

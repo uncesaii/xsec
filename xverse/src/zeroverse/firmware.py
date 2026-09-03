@@ -3,7 +3,7 @@
 ``qemu-user`` alone runs a *static* cross-arch ELF, but firmware needs a rootfs +
 loader + syscall layer that qemu-user can't supply on its own. Qiling provides
 exactly that (a Python emulation framework over Unicorn with a Linux/RTOS syscall
-layer and a rootfs), so it is 0verse's firmware execution engine. It lets us:
+layer and a rootfs), so it is xverse's firmware execution engine. It lets us:
 
   * emulate a recovered function directly — seed the integer-arg registers and the
     return-address register straight from the resolved ``Abi`` (``$a0/$a1`` + ``$ra``
@@ -40,7 +40,7 @@ from .preflight import BudgetTracker
 from .report import PoV
 from .sandbox_exec import LocalExecutor, current_executor
 
-# Arches whose dynamic confirmation 0verse routes through Qiling when the host
+# Arches whose dynamic confirmation xverse routes through Qiling when the host
 # cannot natively/binfmt run them (the firmware lane).
 FIRMWARE_ARCHES: frozenset[str] = frozenset({"mips", "mipsel", "arm", "aarch64"})
 

@@ -1,9 +1,9 @@
-# 0verse Seed Catalog — provenance & engine cross-reference
+# xverse Seed Catalog — provenance & engine cross-reference
 
 This documents the **data-driven seed registry**: 90 bug archetypes mined from the
 last ~3 years (2023–2025) of CVE-grounded vulnerability research across three
 domains — **kernel** (34), **userland** (30), **firmware** (26) — consolidated into
-a single auditable, vendored data file and cross-referenced to the 0verse engine
+a single auditable, vendored data file and cross-referenced to the xverse engine
 lens / seed-class that implements each one.
 
 - **Data:** [`src/zeroverse/data/archetypes.json`](../src/zeroverse/data/archetypes.json)
@@ -24,7 +24,7 @@ seedcatalog.hypothesis_only()               # route-to-verify-lane / not-detecta
 
 ## How a seed becomes detection (honesty over volume)
 
-Each archetype carries a `route` saying *how* (or whether) 0verse acts on it:
+Each archetype carries a `route` saying *how* (or whether) xverse acts on it:
 
 | route | meaning | confirmed by |
 |---|---|---|

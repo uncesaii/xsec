@@ -33,18 +33,18 @@ from .windows_ioctl_real_rank import (
 )
 from .windows_ioctl_site_identity import ioctl_site_id, site_universe_sha256
 
-LABEL_VERSION = "0verse.windows-ioctl-real-labels/v1"
-LABEL_VERSION_V2 = "0verse.windows-ioctl-real-labels/v2"
-EVAL_VERSION = "0verse.windows-ioctl-real-evaluation/v1"
-EVAL_VERSION_V2 = "0verse.windows-ioctl-real-evaluation/v2"
-SIGNATURE_NAMESPACE = "0verse-windows-ioctl-real-labels-v1"
-SIGNATURE_NAMESPACE_V2 = "0verse-windows-ioctl-real-labels-v2"
-DEFAULT_ALLOWED_SIGNERS = Path("/etc/0verse/windows-ioctl-real-labels.allowed_signers")
-RANK_RECEIPT_VERSION = "0verse.windows-ioctl-rank-result-receipt/v1"
-RANK_RECEIPT_VERSION_V2 = "0verse.windows-ioctl-rank-result-receipt/v2"
-RANK_RECEIPT_NAMESPACE = "0verse-windows-ioctl-rank-result-receipt-v1"
-RANK_RECEIPT_NAMESPACE_V2 = "0verse-windows-ioctl-rank-result-receipt-v2"
-DEFAULT_RANK_RECEIPT_ALLOWED_SIGNERS = Path("/etc/0verse/windows-ioctl-rank-result.allowed_signers")
+LABEL_VERSION = "xverse.windows-ioctl-real-labels/v1"
+LABEL_VERSION_V2 = "xverse.windows-ioctl-real-labels/v2"
+EVAL_VERSION = "xverse.windows-ioctl-real-evaluation/v1"
+EVAL_VERSION_V2 = "xverse.windows-ioctl-real-evaluation/v2"
+SIGNATURE_NAMESPACE = "xverse-windows-ioctl-real-labels-v1"
+SIGNATURE_NAMESPACE_V2 = "xverse-windows-ioctl-real-labels-v2"
+DEFAULT_ALLOWED_SIGNERS = Path("/etc/xverse/windows-ioctl-real-labels.allowed_signers")
+RANK_RECEIPT_VERSION = "xverse.windows-ioctl-rank-result-receipt/v1"
+RANK_RECEIPT_VERSION_V2 = "xverse.windows-ioctl-rank-result-receipt/v2"
+RANK_RECEIPT_NAMESPACE = "xverse-windows-ioctl-rank-result-receipt-v1"
+RANK_RECEIPT_NAMESPACE_V2 = "xverse-windows-ioctl-rank-result-receipt-v2"
+DEFAULT_RANK_RECEIPT_ALLOWED_SIGNERS = Path("/etc/xverse/windows-ioctl-rank-result.allowed_signers")
 RANK_RECEIPT_PROOF_LIMIT = (
     "Signed observation of exact static rank-result bytes only; no receipt establishes "
     "reachability, vulnerability, impact, novelty, execution authority, or claim eligibility."
@@ -370,7 +370,7 @@ def _validate_rank_receipt(
         for candidate in candidates
     ]
     ordered_digest = hashlib.sha256(
-        b"0verse-windows-ioctl-ordered-candidate-content-ids-v1\0"
+        b"xverse-windows-ioctl-ordered-candidate-content-ids-v1\0"
         + json.dumps(content_ids, separators=(",", ":")).encode()
     ).hexdigest()
     expected = {
@@ -598,7 +598,7 @@ def _validate_rank_result(raw: dict[str, Any]) -> None:
         content_id = _sha(candidate["candidate_content_id"], "candidate_content_id")
         candidate_id = _sha(candidate["candidate_id"], "candidate_id")
         expected_candidate_id = hashlib.sha256(
-            b"0verse-windows-ioctl-real-candidate-v1\0"
+            b"xverse-windows-ioctl-real-candidate-v1\0"
             + str(raw["admission_sha256"]).encode("ascii")
             + b"\0"
             + content_id.encode("ascii")
@@ -863,7 +863,7 @@ def _strict_policy(path: Path, identity: str, label: str) -> tuple[str, str]:
     except ValueError as exc:
         raise ValueError(f"IOCTL {label} authority key is malformed") from exc
     commitment = hashlib.sha256(
-        b"0verse-ssh-authority-key-v1\0ssh-ed25519\0" + key
+        b"xverse-ssh-authority-key-v1\0ssh-ed25519\0" + key
     ).hexdigest()
     return hashlib.sha256(data).hexdigest(), commitment
 

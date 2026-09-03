@@ -23,7 +23,7 @@ from zeroverse.cli import main
 
 def manifest(**updates: object) -> dict[str, object]:
     raw: dict[str, object] = {
-        "schema_version": "0verse.browser-campaign/v3",
+        "schema_version": "xverse.browser-campaign/v3",
         "campaign_id": "v8-json-001",
         "component": "v8",
         "revision": "0123456789abcdef0123456789abcdef01234567",
@@ -47,7 +47,7 @@ def manifest(**updates: object) -> dict[str, object]:
         "gn_label": "//v8:json_parser_fuzzer",
         "command": [
             "/srv/chromium/src/out/asan/json_parser_fuzzer",
-            "-artifact_prefix=/srv/0verse/artifacts/v8-json/",
+            "-artifact_prefix=/srv/xverse/artifacts/v8-json/",
             "-runs=1000",
             "/srv/corpus/json",
         ],
@@ -102,7 +102,7 @@ def supervised(
     header = json.loads(base64.urlsafe_b64decode(token + "=" * (-len(token) % 4)))
     marker = header["marker"]
     record = {
-        "protocol": "0verse.browser-campaign-supervisor/v1",
+        "protocol": "xverse.browser-campaign-supervisor/v1",
         "marker": marker,
         "target_returncode": returncode,
         "timed_out": timed_out,
@@ -142,7 +142,7 @@ def test_load_manifest_and_hash(tmp_path: Path) -> None:
 
 def test_v2_requires_build_identity_fields() -> None:
     with pytest.raises(ValueError, match="unsupported browser campaign schema"):
-        BrowserCampaign.from_mapping(manifest(schema_version="0verse.browser-campaign/v1"))
+        BrowserCampaign.from_mapping(manifest(schema_version="xverse.browser-campaign/v1"))
     with pytest.raises(ValueError, match="harness_sha256"):
         BrowserCampaign.from_mapping(manifest(harness_sha256="not-a-digest"))
     with pytest.raises(ValueError, match="source_root/out"):
@@ -239,9 +239,9 @@ def test_linux_command_is_bound_to_declared_harness_and_corpus(updates: dict[str
     "prefix",
     [
         "/tmp/artifacts/",
-        "/srv/0verse/artifacts/",
-        "/srv/0verse/artifacts/../escaped/",
-        "/srv/0verse/artifacts/campaign",
+        "/srv/xverse/artifacts/",
+        "/srv/xverse/artifacts/../escaped/",
+        "/srv/xverse/artifacts/campaign",
     ],
 )
 def test_linux_campaign_requires_a_dedicated_safe_artifact_prefix(prefix: str) -> None:
@@ -287,7 +287,7 @@ def test_replay_compatible_manifest_without_artifact_prefix_fails_only_at_dispat
 
 def test_v2_replay_contract_cannot_dispatch_a_sustained_campaign() -> None:
     campaign = BrowserCampaign.from_mapping(
-        manifest(schema_version="0verse.browser-campaign/v2")
+        manifest(schema_version="xverse.browser-campaign/v2")
     )
     calls = 0
 
@@ -533,7 +533,7 @@ def test_readiness_failure_never_launches_campaign(returncode: int, stdout: str)
     evidence = execute_campaign(campaign, "e" * 64, runner=fake)
 
     assert len(calls) == 1
-    assert calls[0][-1].startswith("/srv/0verse/bin/worker-preflight.sh campaign ")
+    assert calls[0][-1].startswith("/srv/xverse/bin/worker-preflight.sh campaign ")
     preflight = shlex.split(calls[0][-1])
     assert preflight[-6:] == [
         campaign.build_receipt,

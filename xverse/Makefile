@@ -1,4 +1,4 @@
-# 0verse dev tasks. Uses uv for a reproducible env: `make setup` once, then
+# xverse dev tasks. Uses uv for a reproducible env: `make setup` once, then
 # `make check` (lint + types + tests). No global installs.
 #
 # The lightweight gate (`make check`) runs anywhere. The authoritative PoV-repro
@@ -6,7 +6,7 @@
 
 .PHONY: setup test lint typecheck check baseline fmt clean benchmark proof-angr proof-m2 proof-m4
 
-PYTEST_BASETEMP ?= $(HOME)/.0verse-pytest-basetemp
+PYTEST_BASETEMP ?= $(HOME)/.xverse-pytest-basetemp
 
 setup:
 	uv sync --frozen --extra dev --python 3.11
@@ -32,8 +32,8 @@ baseline: check
 # #9 — authoritative PoV-reproduction gate: build the engine image (Ghidra + angr
 # + AFL++) and assert every planted corpus bug still reproduces with a PoV.
 benchmark:
-	docker build -t 0verse:local .
-	docker run --rm -v "$(PWD):/work" --entrypoint bash 0verse:local /work/benchmarks/run.sh
+	docker build -t xverse:local .
+	docker run --rm -v "$(PWD):/work" --entrypoint bash xverse:local /work/benchmarks/run.sh
 
 # M2 — prove fuzzing finds a bug the static slice MISSES: synthesize a harness
 # for a target function, AFL++/CMPLOG past a magic gate, differential-allocator

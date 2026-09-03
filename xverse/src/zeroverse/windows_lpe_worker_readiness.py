@@ -32,10 +32,10 @@ from .windows_token_runner import (
     load_windows_token_worker_acceptance,
 )
 
-READINESS_SCHEMA_VERSION = "0verse.windows-lpe-worker-readiness/v1"
-PLAN_SCHEMA_VERSION = "0verse.windows-lpe-worker-plan/v1"
-SIGNATURE_NAMESPACE = "0verse-windows-lpe-worker-readiness"
-DEFAULT_ALLOWED_SIGNERS = Path("/etc/0verse/windows-lpe-readiness.allowed_signers")
+READINESS_SCHEMA_VERSION = "xverse.windows-lpe-worker-readiness/v1"
+PLAN_SCHEMA_VERSION = "xverse.windows-lpe-worker-plan/v1"
+SIGNATURE_NAMESPACE = "xverse-windows-lpe-worker-readiness"
+DEFAULT_ALLOWED_SIGNERS = Path("/etc/xverse/windows-lpe-readiness.allowed_signers")
 _MAX_RECEIPT_BYTES = 4 * 1024 * 1024
 _MAX_ARTIFACT_BYTES = 16 * 1024 * 1024 * 1024
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")

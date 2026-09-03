@@ -1,7 +1,7 @@
 """Arch-aware ABI abstraction (M3 breadth keystone, #18/#19; wave-2 #20/#21).
 
 M1/M2 implicitly assumed x86-64 System V: integer/pointer arguments in
-``RDI/RSI/RDX/RCX/R8/R9``, return in ``RAX``. Generalizing 0verse to ARM64 and
+``RDI/RSI/RDX/RCX/R8/R9``, return in ``RAX``. Generalizing xverse to ARM64 and
 Mach-O means the calling convention is no longer fixed, so this module supplies
 an ``Abi`` keyed off the program's *processor* (recovered into Ghidra's
 ``ProgramMeta``).
@@ -37,7 +37,7 @@ from pathlib import Path
 class Abi:
     """Calling-convention + machine facts for one architecture/convention.
 
-    ``arch`` is the canonical 0verse arch tag (``x86-64`` / ``aarch64`` / ``arm``
+    ``arch`` is the canonical xverse arch tag (``x86-64`` / ``aarch64`` / ``arm``
     / ``mips`` / ``x86``); ``int_arg_regs`` is the ordered integer/pointer
     argument register file; ``qemu_user`` / ``afl_qemu_cpu`` drive cross-arch
     dynamic execution; ``ra_reg`` is the return-address register a direct
@@ -157,7 +157,7 @@ _ALIASES: dict[str, str] = {
 
 
 def normalize_arch(raw: str, bits: int = 0) -> str:
-    """Map any processor/machine spelling to a canonical 0verse arch tag.
+    """Map any processor/machine spelling to a canonical xverse arch tag.
 
     ``bits`` disambiguates the spellings that name a family rather than a width:
     Ghidra reports ``x86`` for both 32- and 64-bit, and ``ARM`` covers AArch32 and
@@ -189,7 +189,7 @@ def abi_for(arch_or_processor: str, bits: int = 0, fmt: str = "") -> Abi | None:
     ``fmt`` selects a *format-specific* convention where the arch alone is
     ambiguous: a PE x86-64 program uses the **Microsoft x64** convention
     (``MSVC_X64``), not SysV — same machine, different calling convention. Returns
-    ``None`` for arches 0verse does not yet model a convention for (PPC/RISC-V are
+    ``None`` for arches xverse does not yet model a convention for (PPC/RISC-V are
     later follow-ups) so callers degrade honestly rather than mis-wire registers.
     """
     arch = normalize_arch(arch_or_processor, bits)
@@ -199,7 +199,7 @@ def abi_for(arch_or_processor: str, bits: int = 0, fmt: str = "") -> Abi | None:
 
 
 def host_arch() -> str:
-    """Canonical arch of the machine 0verse is running on."""
+    """Canonical arch of the machine xverse is running on."""
     return normalize_arch(platform.machine())
 
 

@@ -24,7 +24,7 @@ def _fake_result(path: str) -> ScanResult:
         pov_path="", repro_cmd="", dedup_bucket="b1", explanation="cmd injection",
     )
     return ScanResult(
-        contract_version="1.0", tool={"name": "0verse", "version": "0.0.1"},
+        contract_version="1.0", tool={"name": "xverse", "version": "0.0.1"},
         binary=path, format="ELF", arch="x86-64", backend="rizin",
         triage="ELF x86-64", stages_run=["ingest", "analyze", "dynamic"],
         findings=[f], note="",
@@ -91,7 +91,7 @@ def test_jsonrpc_stub_full_handshake(monkeypatch) -> None:  # type: ignore[no-un
     by_id = {r.get("id"): r for r in responses}
     # the notification produced no response.
     assert set(by_id) == {1, 2, 3, 4}
-    assert by_id[1]["result"]["serverInfo"]["name"] == "0verse"
+    assert by_id[1]["result"]["serverInfo"]["name"] == "xverse"
     assert {t["name"] for t in by_id[2]["result"]["tools"]} == {
         "scan_binary", "list_findings", "get_pov", "get_report"}
     call = by_id[3]["result"]

@@ -38,10 +38,10 @@ _MAX_UNPRIVILEGED_IL = 0x2100
 _HIGH_IL = 0x3000
 _SYSTEM_IL = 0x4000
 _SYSTEM_SID = "S-1-5-18"
-EVIDENCE_SCHEMA_VERSION = "0verse.windows-token-evidence/v2"
-EVIDENCE_SIGNATURE_NAMESPACE = "0verse-windows-token-evidence"
+EVIDENCE_SCHEMA_VERSION = "xverse.windows-token-evidence/v2"
+EVIDENCE_SIGNATURE_NAMESPACE = "xverse-windows-token-evidence"
 DEFAULT_EVIDENCE_ALLOWED_SIGNERS = Path(
-    "/etc/0verse/windows-token-evidence.allowed_signers"
+    "/etc/xverse/windows-token-evidence.allowed_signers"
 )
 _EVIDENCE_FIELDS = frozenset(
     {
@@ -388,7 +388,7 @@ def derive_windows_token_ledger_entries(
         raise ValueError("Windows token ledger inputs are invalid")
     return tuple(
         hashlib.sha256(
-            b"0verse-windows-token-ledger-v1\0"
+            b"xverse-windows-token-ledger-v1\0"
             + grant_nonce.encode("ascii")
             + b"\0"
             + run_nonce.encode("ascii")
@@ -406,7 +406,7 @@ def derive_windows_token_grant_ledger_entry(
     if nonce.fullmatch(grant_nonce) is None or sha256.fullmatch(campaign_sha256) is None:
         raise ValueError("Windows token grant ledger inputs are invalid")
     return hashlib.sha256(
-        b"0verse-windows-token-grant-once-v1\0"
+        b"xverse-windows-token-grant-once-v1\0"
         + grant_nonce.encode("ascii")
         + b"\0"
         + campaign_sha256.encode("ascii")

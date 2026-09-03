@@ -14,16 +14,16 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 
-const RESERVATION_SCHEMA: &str = "0verse.windows-device-open-reservation/v1";
-const RESERVATION_RECORD_SCHEMA: &str = "0verse.windows-device-open-reservation-record/v1";
-const COMPLETION_RECORD_SCHEMA: &str = "0verse.windows-device-open-completion-record/v1";
-const RECEIPT_SCHEMA: &str = "0verse.windows-device-open-boundary-receipt/v2";
-const RECEIPT_SIGNATURE_NAMESPACE: &str = "0verse-windows-device-open-boundary-receipt-v2";
+const RESERVATION_SCHEMA: &str = "xverse.windows-device-open-reservation/v1";
+const RESERVATION_RECORD_SCHEMA: &str = "xverse.windows-device-open-reservation-record/v1";
+const COMPLETION_RECORD_SCHEMA: &str = "xverse.windows-device-open-completion-record/v1";
+const RECEIPT_SCHEMA: &str = "xverse.windows-device-open-boundary-receipt/v2";
+const RECEIPT_SIGNATURE_NAMESPACE: &str = "xverse-windows-device-open-boundary-receipt-v2";
 
 // These domains are an external cross-language contract. Do not rename them.
-const RECEIPT_ONCE_DOMAIN: &[u8] = b"0verse-windows-device-open-receipt-once-v1\0";
-const BOUNDARY_ONCE_DOMAIN: &[u8] = b"0verse-windows-device-open-boundary-once-v1\0";
-const TRANSCRIPT_ONCE_DOMAIN: &[u8] = b"0verse-windows-device-open-transcript-once-v1\0";
+const RECEIPT_ONCE_DOMAIN: &[u8] = b"xverse-windows-device-open-receipt-once-v1\0";
+const BOUNDARY_ONCE_DOMAIN: &[u8] = b"xverse-windows-device-open-boundary-once-v1\0";
+const TRANSCRIPT_ONCE_DOMAIN: &[u8] = b"xverse-windows-device-open-transcript-once-v1\0";
 
 const RESERVATION_MAX_BYTES: usize = 4096;
 const RECEIPT_MAX_BYTES: usize = 1024 * 1024;

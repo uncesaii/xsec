@@ -823,7 +823,7 @@ const RECON_PASSIVE_NETWORK_TOOLS: Record<string, true> = {
  *   - run_command     (tools.ts runCommand; also NETWORK_CAPABLE — both gates
  *                      compose, network first then local)
  *   - analyze_binary  (tools.ts analyzeBinary; "requires a local scoped source
- *                      root", feature-gated behind 0verse)
+ *                      root", feature-gated behind xverse)
  * These are the same names the `SCOPED_SOURCE_AUDIT_TOOLS` registry marks as
  * the filesystem read surface (read_file/list_files/search_files/analyze_binary)
  * plus the two scoped write/exec tools (apply_patch/run_command). When one of

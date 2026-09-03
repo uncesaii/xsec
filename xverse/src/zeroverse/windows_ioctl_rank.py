@@ -11,10 +11,10 @@ from typing import Any
 from .windows_ioctl_boundary import plan_windows_ioctl_boundary
 from .windows_variant import _load_artifact
 
-SCHEMA_VERSION = "0verse.windows-ioctl-static-campaign/v1"
-EXPORT_VERSION = "0verse.windows-ioctl-ssa-export/v1"
-RESULT_VERSION = "0verse.windows-ioctl-static-candidates/v1"
-SCORE_VERSION = "0verse.windows-ioctl-static-score/v1"
+SCHEMA_VERSION = "xverse.windows-ioctl-static-campaign/v1"
+EXPORT_VERSION = "xverse.windows-ioctl-ssa-export/v1"
+RESULT_VERSION = "xverse.windows-ioctl-static-candidates/v1"
+SCORE_VERSION = "xverse.windows-ioctl-static-score/v1"
 
 _SHA256 = re.compile(r"[0-9a-f]{64}")
 _SOURCES = {"SystemBuffer", "InputBufferLength", "OutputBufferLength"}
@@ -226,7 +226,7 @@ def rank_windows_ioctl_static(campaign_path: str | Path) -> dict[str, object]:
                 separators=(",", ":"),
             ).encode()
             candidate_id = hashlib.sha256(
-                b"0verse-windows-ioctl-static-candidate-v1\0" + material
+                b"xverse-windows-ioctl-static-candidate-v1\0" + material
             ).hexdigest()
             if candidate_id in seen_candidate_ids:
                 raise ValueError("duplicate static candidate identity")

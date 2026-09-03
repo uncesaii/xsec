@@ -57,7 +57,7 @@ def ssh_authority_key_commitment(path: str | Path) -> str:
         raise ValueError("allowed-signers policy must contain exactly one unique SSH public key")
     key_type, blob = next(iter(keys))
     return hashlib.sha256(
-        b"0verse-ssh-authority-key-v1\0"
+        b"xverse-ssh-authority-key-v1\0"
         + key_type.encode("ascii")
         + b"\0"
         + blob

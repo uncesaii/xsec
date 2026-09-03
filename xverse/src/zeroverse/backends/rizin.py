@@ -28,7 +28,7 @@ from . import _noise
 from .cdecomp import build_il, normalize_c
 from .contract import ProgramAdapter, ProgramMeta
 
-# r2 arch tag -> 0verse canonical arch (abi.normalize_arch handles the rest).
+# r2 arch tag -> xverse canonical arch (abi.normalize_arch handles the rest).
 _ARCH_MAP = {
     "x86": "x86", "x86-64": "x86-64", "arm": "ARM", "arm64": "AArch64",
     "mips": "MIPS", "ppc": "PowerPC",

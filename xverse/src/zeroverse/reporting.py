@@ -157,7 +157,7 @@ def windows_report(rows: list[dict[str, object]], *, title: str) -> str:
         ReportGate(
             "Submission approval",
             False,
-            "operator approval required; 0verse never submits automatically",
+            "operator approval required; xverse never submits automatically",
         ),
     ]
     ready = all(gate.passed for gate in gates)

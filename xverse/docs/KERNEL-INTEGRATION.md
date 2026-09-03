@@ -1,25 +1,25 @@
-# 0verse — the binary-only kernel lane
+# xverse — the binary-only kernel lane
 
 > Status: 2026-06-28. Living document.
 
-0verse is XSEC's **binary-only** vulnerability-research engine. For kernel work it
+xverse is XSEC's **binary-only** vulnerability-research engine. For kernel work it
 is the tool you reach for when there is **no source**:
 
 | Surface | Tool | Why |
 |---|---|---|
 | Upstream Linux **with source** | **syzkaller / source analysis** (CodeQL, Semgrep, coverage-guided fuzzing) | You have the tree. Source-level taint + KCOV/KASAN feedback beats decompiling. |
-| Closed / out-of-tree `.ko` drivers | **0verse** | No source — only a relocatable ELF. |
-| Firmware kernel blobs, vendor BSPs | **0verse** | Shipped as binaries; often stripped. |
-| Vendor / Android kernels & modules | **0verse** | Source unavailable or diverged from upstream; modules ship as `.ko`. |
-| macOS / XNU kexts | **0verse** | Closed Mach-O kernel extensions (IOKit). |
-| n-day binary diffing | **0verse** | Diff a patched vs unpatched blob; no source needed. |
+| Closed / out-of-tree `.ko` drivers | **xverse** | No source — only a relocatable ELF. |
+| Firmware kernel blobs, vendor BSPs | **xverse** | Shipped as binaries; often stripped. |
+| Vendor / Android kernels & modules | **xverse** | Source unavailable or diverged from upstream; modules ship as `.ko`. |
+| macOS / XNU kexts | **xverse** | Closed Mach-O kernel extensions (IOKit). |
+| n-day binary diffing | **xverse** | Diff a patched vs unpatched blob; no source needed. |
 
-The rule of thumb: **if you have the source, 0verse is the wrong tool** — use the
-source lane. 0verse earns its keep precisely where source-analysis can't run.
+The rule of thumb: **if you have the source, xverse is the wrong tool** — use the
+source lane. xverse earns its keep precisely where source-analysis can't run.
 
-## What 0verse does on a kernel binary
+## What xverse does on a kernel binary
 
-0verse classifies the target, decompiles it (Ghidra by default), and primes a
+xverse classifies the target, decompiles it (Ghidra by default), and primes a
 **seed-bug-class** — a directed, Big-Sleep-style variant-analysis hypothesis set
 keyed to the surface. Two kernel families ship today (`src/zeroverse/seedbugs.py`):
 
@@ -51,7 +51,7 @@ classifies as `KMOD`. (XNU's equivalent surviving symbols are `IOMalloc`/`copyin
 
 ### Honest degrade — `.ko` findings stay hypotheses
 
-A bare `.ko` has **no dynamic oracle**. 0verse's confirmable bug-classes
+A bare `.ko` has **no dynamic oracle**. xverse's confirmable bug-classes
 (int-overflow, fmtstring, UAF, cmdi) prove themselves with a reproducing PoV under
 a differential/quarantine allocator — that requires *running* the target. You
 cannot run a `.ko` without a live kernel / VM, which is out of scope for a static
@@ -59,11 +59,11 @@ binary scan. Therefore every `.ko` seed finding is a **hypothesis** (`confirmed 
 false`, `hypothesis = true`) and is **never** upgraded to confirmed without a PoV
 on a live kernel. This is the PoV-is-truth gate (`docs`/`api.py`) holding for the
 kernel lane. To confirm, hand the ranked hypothesis to a kernel PoV harness
-(kernelCTF / a KASAN VM) — that lives outside 0verse.
+(kernelCTF / a KASAN VM) — that lives outside xverse.
 
-## How a kernel-hunt agent calls 0verse
+## How a kernel-hunt agent calls xverse
 
-0verse exposes the engine over the **MCP bridge** (`src/zeroverse/mcp.py`), so an
+xverse exposes the engine over the **MCP bridge** (`src/zeroverse/mcp.py`), so an
 agent that hits a binary-only kernel surface calls it as a tool — same engine,
 one versioned contract (`api.CONTRACT_VERSION`):
 
@@ -82,7 +82,7 @@ Routing decision for the hunt agent:
 3. Read `list_findings()`; the `seed:linux-ko:*` / `seed:iokit.*` origins are the
    directed kernel hypotheses. Treat them as **leads**, not bugs.
 4. Confirmation needs a live kernel — route the lead to a kernelCTF/KASAN PoV
-   harness. 0verse will not (and must not) report a `.ko` finding as confirmed.
+   harness. xverse will not (and must not) report a `.ko` finding as confirmed.
 
 ### MCP smoke test
 

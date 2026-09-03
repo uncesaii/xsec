@@ -1,6 +1,6 @@
-# Integration — how 0verse, foxguard, and the managed platform fit together
+# Integration — how xverse, foxguard, and the managed platform fit together
 
-> Status: 2026-08-20. Scope frozen under XSEC ADR-066: 0verse is an
+> Status: 2026-08-20. Scope frozen under XSEC ADR-066: xverse is an
 > evidence-producer/notary, not a generic dispatch engine. This document
 > distinguishes implemented seams from live-proven and operational integration
 > using the [canonical maturity vocabulary](../ARCHITECTURE.md#scope-decision-and-maturity-vocabulary).
@@ -14,7 +14,7 @@
           ▲
           │ signed evidence import: Hyper-V-specific today;
           │ provider-neutral import remains planned (dispatch is parked)
-  0verse             Apache-2.0, public in uncesaii/xsec · out-of-band binary RE + verifier/notary
+  xverse             Apache-2.0, public in uncesaii/xsec · out-of-band binary RE + verifier/notary
                      ingest → decompile → lift → analyze → reason → dynamic → PoV → report
           │            │                                    │
           │            └── analyze: shell out to ──►  foxguard (OSS, Rust C SAST)
@@ -24,11 +24,11 @@
 ```
 
 Three projects, three roles: **foxguard** = source/decompiled-C static analysis;
-**0verse** = no-source binary RE + evidence production/notarization; **the
-managed platform (proprietary)** = the closed platform. Today its wired 0verse
+**xverse** = no-source binary RE + evidence production/notarization; **the
+managed platform (proprietary)** = the closed platform. Today its wired xverse
 seam imports signed Hyper-V evidence; a provider-neutral PoV importer remains
-planned and gated. foxguard is reused *inside* 0verse. The source-side engine's
-oracle *concepts* are reimplemented in 0verse; its *learned/tuned/private-state*
+planned and gated. foxguard is reused *inside* xverse. The source-side engine's
+oracle *concepts* are reimplemented in xverse; its *learned/tuned/private-state*
 versions stay the moat.
 
 The generic binary job type, engine template, and agent-callable binary tool are
@@ -38,7 +38,7 @@ operational dispatch lane.
 
 ---
 
-## foxguard — reused inside 0verse
+## foxguard — reused inside xverse
 
 **Key fact:** foxguard already parses **C** (`tree-sitter-c`; `src/rules/c_taint.rs`
 has 4 taint classes — CWE-120 buffer overflow, CWE-134 format string, CWE-78 cmd
@@ -47,7 +47,7 @@ injection, CWE-89 SQLi). Its taint engine keys on **libc callee names**
 **survive decompilation** (Ghidra preserves imported symbols). That's exactly why
 it's a fit for decompiled code.
 
-**Integration path:** 0verse normalizes Ghidra pseudo-C (strip/rewrite
+**Integration path:** xverse normalizes Ghidra pseudo-C (strip/rewrite
 `undefined*` types, `CONCAT*`, cast noise), writes a `.c`, and shells out to
 `foxguard scan --format sarif` (or the versioned `foxguard-adapter` JSON
 protocol). Parse SARIF in Python. **No FFI, no Rust build coupling.**
@@ -68,7 +68,7 @@ can't raise.
 - foxguard's source/sink lists are tuned for clean libc names; extend them to
   cover what Ghidra actually emits (thunks, raw syscalls).
 
-**Role in 0verse:** the fast static pre-pass at the **analyze** stage. It does not
+**Role in xverse:** the fast static pre-pass at the **analyze** stage. It does not
 replace the P-Code backward-slicer (foxguard's C taint is intraprocedural,
 single-file, flow-insensitive) — it's a cheap first net whose hits feed the LLM
 triage + dynamic confirmation like any other hypothesis.
@@ -78,12 +78,12 @@ triage + dynamic confirmation like any other hypothesis.
 ## Source-side engine oracles — concepts reimplemented openly; learned versions stay the moat
 
 The source-side engine is public in `uncesaii/xsec`; the managed platform's
-managed operations, trained models, and dataset stay private. 0verse reimplements
+managed operations, trained models, and dataset stay private. xverse reimplements
 from **concepts only — never copy tuned prompt text or learned state.** The split
 (from reading the source-side engine's `packages/core` triage/oracle code and the
 `services/` gates):
 
-### 0verse builds OPEN — this is the core value of a verify-before-report tool
+### xverse builds OPEN — this is the core value of a verify-before-report tool
 - **Differential crash oracle / PoV verifier** — crash the target under a
   sanitizer (ASan/UBSan/MSan) and confirm clean behavior on a control; verdict
   driven by an *external deterministic check* (signal, sanitizer abort, marker),
@@ -92,7 +92,7 @@ from **concepts only — never copy tuned prompt text or learned state.** The sp
   into the PoC, credit a capability only on the token-bound marker line, and close
   the five false-confirmation vectors: stale/replay, echoed-intent,
   capability-without-witness, sprayed-but-didn't-land, privilege-from-privilege.
-  This is 0verse's headline open differentiator. (source-side engine analog: `exploit/oracle.ts`.)
+  This is xverse's headline open differentiator. (source-side engine analog: `exploit/oracle.ts`.)
 - **Dedup** — stack-trace + content-token (Jaccard) + CWE-class, against **public**
   CVE/GHSA/OSV. (ClusterFuzz-style crash bucketing from Buttercup transfers verbatim.)
 - **Exploitability heuristics** — deterministic regex reachability labels
@@ -103,19 +103,19 @@ from **concepts only — never copy tuned prompt text or learned state.** The sp
 - **An open handcrafted feature vector** (VulnBERT-style *idea*) — but our own names,
   not the source-side engine's exact registry.
 
-### Stays the managed platform's MOAT — 0verse must NOT replicate; cloud wraps it
+### Stays the managed platform's MOAT — xverse must NOT replicate; cloud wraps it
 - The **labeled dataset**: `(finding, attempted-PoC, ground-truth, feature-vector)`
-  rows from paid scans at scale (the closed feedback loop). *0verse should emit its
+  rows from paid scans at scale (the closed feedback loop). *xverse should emit its
   oracle verdicts in a clean capturable shape so the cloud can build a dataset — but
   ship no curated corpus.*
 - The **trained triage classifier** (fused VulnBERT, ~92% recall / 1.2% FPR) that
   early-terminates boring scans.
 - The **specific tuned LLM gate prompts** (the 5-check adversarial gate, the skeptic's
-  burned-us checks) that encode hard-won real over-claim failures. 0verse ships
+  burned-us checks) that encode hard-won real over-claim failures. xverse ships
   *deterministic* equivalents + a generic "adversarially refute this" pass.
 - **Own-sent dedup + disclosure routing** — depend on operator-private state.
 
-**Net:** 0verse's open core is *deterministic, externally-checkable proof* — crash
+**Net:** xverse's open core is *deterministic, externally-checkable proof* — crash
 it, mark it with a canary, confirm the marker, dedup against public advisories,
 classify reach by rule. The supported cross-project shape is signed evidence
 produced out of band and imported by the platform. Generic platform dispatch is
@@ -275,7 +275,7 @@ result = api.scan("/path/binary", api.ScanOptions(backend="rizin"))
 print(api.format_result(result, "ndjson"))
 ```
 
-CLI equivalent: `0verse scan <binary> --format ndjson|sarif|json [--backend ...]`.
+CLI equivalent: `xverse scan <binary> --format ndjson|sarif|json [--backend ...]`.
 The **versioned** result contract (`api.CONTRACT_VERSION`, currently 1.5) is
 documented in [`RESULT-CONTRACT.md`](RESULT-CONTRACT.md): a flat, stable
 `{id, class, severity, file/func/offset, confirmed, pov_path, repro_cmd, …}` finding
@@ -298,9 +298,9 @@ reference managed-lane example demonstrates parsing and promotion rules. This is
 **implemented contract scaffolding**, not a registered binary job type or an
 operational platform lane.
 
-Under ADR-066, the only wired 0verse-to-platform seam today is the specific
+Under ADR-066, the only wired xverse-to-platform seam today is the specific
 signed Hyper-V evidence importer. A provider-neutral PoV importer remains planned.
-A platform-dispatched 0verse container, generic binary job type, E2B template,
+A platform-dispatched xverse container, generic binary job type, E2B template,
 and agent-callable binary tool are **parked** until the blind known-CVE stripped-
 ELF gate passes. Until then, generic dispatch is operationally **unsupported**,
 and `confirmed=true` in local output does not by itself make a platform finding.
@@ -319,5 +319,5 @@ minimal JSON-RPC-2.0-over-stdio loop (`initialize`/`tools/list`/`tools/call`) wh
 the SDK is absent. Example Claude Desktop / Cursor config:
 
 ```json
-{ "mcpServers": { "0verse": { "command": "python", "args": ["-m", "zeroverse.mcp"] } } }
+{ "mcpServers": { "xverse": { "command": "python", "args": ["-m", "zeroverse.mcp"] } } }
 ```

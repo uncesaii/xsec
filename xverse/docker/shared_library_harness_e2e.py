@@ -19,7 +19,7 @@ os.environ["ZEROVERSE_FUZZ_SHARED_LIB"] = "1"
 from zeroverse.fuzz.aflpp import AflConfig
 from zeroverse.fuzz.orchestrator import FuzzFinding, run_fuzz_stage
 
-FIXTURES = Path("/opt/0verse-fixtures")
+FIXTURES = Path("/opt/xverse-fixtures")
 DECOMPILED = {
     "parse_shared": """
         int parse_shared(byte *data, int len) {

@@ -1,4 +1,4 @@
-/* 0verse M7 directed-fuzzing benchmark target — a DEEP / GATED bug.
+/* xverse M7 directed-fuzzing benchmark target — a DEEP / GATED bug.
  *
  * The overflow sits behind THREE stacked gates:
  *   gate 1  — a 4-byte string magic   ("DEEP")        cracked by the mined dict

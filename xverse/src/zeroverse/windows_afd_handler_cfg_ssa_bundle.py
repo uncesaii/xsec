@@ -45,7 +45,7 @@ from .windows_variant import (
     _write_new_file_at,
 )
 
-RECEIPT_VERSION = "0verse.windows-afd-handler-cfg-ssa-receipt/v1"
+RECEIPT_VERSION = "xverse.windows-afd-handler-cfg-ssa-receipt/v1"
 PRODUCER = "zeroverse.windows-afd-handler-cfg-ssa-bundle/v1"
 ISOLATED_REPLAY_TIMEOUT_SECONDS = 1800
 ISOLATED_REPLAY_OUTPUT_LIMIT = 64 * 1024
@@ -365,7 +365,7 @@ def _snapshot_cfg_ssa_bundle(source_fd: int, destination_fd: int) -> None:
 
 
 def _extractor_script_sha256() -> str:
-    digest = hashlib.sha256(b"0verse-afd-handler-cfg-ssa-scripts-v1\0")
+    digest = hashlib.sha256(b"xverse-afd-handler-cfg-ssa-scripts-v1\0")
     paths = (
         Path(__file__),
         Path(core.__file__ or ""),
@@ -433,7 +433,7 @@ def _verify_bundle_isolated(bundle: Path, home: Path) -> str:
     result = _obj(json.loads(markers[0], object_pairs_hook=_unique), "isolated replay result")
     _exact(result, {"schema_version", "phase", "artifact_sha256"}, "isolated replay result")
     if (
-        result["schema_version"] != "0verse.windows-afd-cfg-ssa-isolated-replay-result/v1"
+        result["schema_version"] != "xverse.windows-afd-cfg-ssa-isolated-replay-result/v1"
         or result["phase"] != "full-replay-complete"
     ):
         raise ValueError("AFD CFG/SSA isolated replay result marker mismatch")
@@ -501,7 +501,7 @@ def _acquire_side_isolated(
             "side replay result",
         )
         if (
-            result["schema_version"] != "0verse.windows-afd-cfg-ssa-side-isolated-result/v1"
+            result["schema_version"] != "xverse.windows-afd-cfg-ssa-side-isolated-result/v1"
             or result["side"] != side
         ):
             raise ValueError("AFD CFG/SSA side isolated result marker mismatch")

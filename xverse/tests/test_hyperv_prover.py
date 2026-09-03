@@ -25,7 +25,7 @@ from zeroverse.windows_scope import WindowsScope
 
 def manifest(**updates: object) -> dict[str, object]:
     raw: dict[str, object] = {
-        "schema_version": "0verse.hyperv-prover/v1",
+        "schema_version": "xverse.hyperv-prover/v1",
         "campaign_id": "vmswitch-oid-001",
         "worker": "worker-01.example.test",
         "guest_worker": "attacker-insider",
@@ -53,7 +53,7 @@ def bound_campaign(**updates: object) -> HyperVProverManifest:
 def scope(**updates: object) -> WindowsScope:
     now = datetime.now(UTC).isoformat()
     raw: dict[str, object] = {
-        "schema_version": "0verse.windows-scope/v1",
+        "schema_version": "xverse.windows-scope/v1",
         "campaign_id": "vmswitch-oid-001",
         "program": "hyperv-insider",
         "scope_url": "https://example.test/msrc-hyperv-scope",
@@ -82,7 +82,7 @@ def grant(
 ) -> HyperVExecutionGrant:
     now = datetime.now(UTC)
     raw: dict[str, object] = {
-        "schema_version": "0verse.hyperv-execution-grant/v1",
+        "schema_version": "xverse.hyperv-execution-grant/v1",
         "campaign_sha256": campaign._source_sha256,
         "scope_manifest_sha256": "b" * 64,
         "campaign_id": campaign.campaign_id,
@@ -197,7 +197,7 @@ def test_reproduced_requires_paired_repeatable_target_only_crashes() -> None:
         execution_grant_sha256="e" * 64,
     )
     assert evidence.status == "REPRODUCED"
-    assert evidence.to_dict()["schema_version"] == "0verse.hyperv-evidence/v1"
+    assert evidence.to_dict()["schema_version"] == "xverse.hyperv-evidence/v1"
     assert evidence.confirmations == 3
     assert acceptance.validations == 8  # start + 6 cases + promotion
     assert worker.calls == [

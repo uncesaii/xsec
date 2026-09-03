@@ -53,7 +53,7 @@ def _receipt(root: Path, **verification_updates: object) -> tuple[Path, Path]:
     receipt.write_text(
         json.dumps(
             {
-                "schema_version": "0verse.windows-authenticity-observation/v1",
+                "schema_version": "xverse.windows-authenticity-observation/v1",
                 "producer": "zeroverse.windows-authenticity/powershell-v1",
                 "artifact": {
                     "path": artifact.name,

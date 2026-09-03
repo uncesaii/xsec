@@ -60,7 +60,7 @@ def test_contract_version_is_v1_5() -> None:
 def test_contract_version_and_tool() -> None:
     r = api._result_from_run("/bin/vuln", _confirmed_result())
     assert r.contract_version == CONTRACT_VERSION
-    assert r.tool["name"] == "0verse"
+    assert r.tool["name"] == "xverse"
     assert r.format == "ELF" and r.arch == "x86-64"
 
 

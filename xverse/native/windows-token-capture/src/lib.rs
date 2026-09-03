@@ -16,10 +16,10 @@ mod service_store;
 pub mod sshsig;
 mod witness;
 
-pub const SCHEMA_VERSION: &str = "0verse.windows-token-snapshot-pair-fixture/v1";
+pub const SCHEMA_VERSION: &str = "xverse.windows-token-snapshot-pair-fixture/v1";
 pub const OPERATION_ID: &str = "fixture.control.noop";
-const SNAPSHOT_ID_DOMAIN: &[u8] = b"0verse-token-snapshot-id-v1\0";
-const OPERATION_ID_DOMAIN: &[u8] = b"0verse-windows-operation-id-v1\0";
+const SNAPSHOT_ID_DOMAIN: &[u8] = b"xverse-token-snapshot-id-v1\0";
+const OPERATION_ID_DOMAIN: &[u8] = b"xverse-windows-operation-id-v1\0";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SnapshotPhase {

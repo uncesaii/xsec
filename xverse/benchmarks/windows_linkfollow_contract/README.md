@@ -21,8 +21,8 @@ What it pins:
 Run from the repository root:
 
 ```bash
-0verse windows-variant-rank benchmarks/windows_linkfollow_contract/campaign.json
-0verse windows-variant-eval \
+xverse windows-variant-rank benchmarks/windows_linkfollow_contract/campaign.json
+xverse windows-variant-eval \
   benchmarks/windows_linkfollow_contract/campaign.json \
   benchmarks/windows_linkfollow_contract/labels.json
 ```

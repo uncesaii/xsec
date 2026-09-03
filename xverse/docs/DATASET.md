@@ -1,10 +1,10 @@
-# 0verse labeled-PoV dataset (v1.2) — the moat's capture mechanism
+# xverse labeled-PoV dataset (v1.2) — the moat's capture mechanism
 
 > The versioned schema + append-only emitter that turn each pipeline run into a
 > labeled record. Produced by `zeroverse.dataset` (and, opt-in, by every
 > `api.scan()` when `ZEROVERSE_DATASET_PATH` is set). **The OSS ships the capture
 > mechanism, not the corpus.** See [INTEGRATION.md](INTEGRATION.md) for why the
-> labeled dataset is the managed platform's moat and 0verse's job is to emit clean,
+> labeled dataset is the managed platform's moat and xverse's job is to emit clean,
 > capturable rows.
 
 ## What a record is
@@ -18,7 +18,7 @@ oracle that decided it**. It is the foxguard-style data moat, for binaries.
   "record_id": "5c2a9ebd777d",          // stable hash(name, function, sink, offset, bug_class)
   "dataset_version": "1.2",
   "created_at": "2026-06-28T00:00:00+00:00",
-  "tool": {"name": "0verse", "version": "0.0.1"},
+  "tool": {"name": "xverse", "version": "0.0.1"},
   "backend": "ghidra",                   // decompiler backend that produced the IL
   "binary_name": "parser_x64",           // basename only — never a full path, never bytes
   "features": {                          // the FEATURE side (what was known pre-finding)
@@ -33,8 +33,8 @@ oracle that decided it**. It is the foxguard-style data moat, for binaries.
   "verdict": "confirmed",                // confirmed | pruned | hypothesis
   "oracle": "differential-allocator",    // the deterministic stage that DECIDED it
   "pov": {                               // POINTERS ONLY — never raw crash bytes
-    "path": "0verse-out/fuzz/pov_parse_record.py",
-    "repro_cmd": "python3 0verse-out/fuzz/pov_parse_record.py",
+    "path": "xverse-out/fuzz/pov_parse_record.py",
+    "repro_cmd": "python3 xverse-out/fuzz/pov_parse_record.py",
     "capability": "oob-write", "dedup_bucket": "a1b2c3"
   },
   "explanation": "silent heap OOB; faults only under the guard allocator (clean->crash)",
@@ -93,7 +93,7 @@ Enforcement is mechanical, not a promise:
 - The emitter **never** writes bytes (no field exists; `validate_record` rejects
   bytes-bearing keys).
 - Real capture lands wherever the operator points `ZEROVERSE_DATASET_PATH`; that
-  path is **git-ignored** (`*.0verse-dataset.ndjson`, `dataset-out/`).
+  path is **git-ignored** (`*.xverse-dataset.ndjson`, `dataset-out/`).
 - A test (`tests/test_dataset.py::test_committed_example_corpus_is_synthetic_and_payload_free`)
   asserts the only `*.ndjson` in the repo are the `examples/dataset/` rows, every
   one `synthetic: true`, schema-valid, and payload-free. CI fails if a real corpus
@@ -106,7 +106,7 @@ from zeroverse import api, dataset
 from zeroverse.pipeline import run
 
 # Opt-in via the scan API (append-only NDJSON; one record per finding):
-#   ZEROVERSE_DATASET_PATH=corpus.ndjson  0verse scan ./target --format ndjson
+#   ZEROVERSE_DATASET_PATH=corpus.ndjson  xverse scan ./target --format ndjson
 
 # Or directly from a RunResult:
 rr = run("./target")
@@ -127,8 +127,8 @@ The scan API can close the flywheel into a separate, mutable production-learning
 ledger:
 
 ```sh
-ZEROVERSE_LEARNING_PATH=/private/0research/0verse-learning.ndjson \
-  0verse scan ./target --format ndjson
+ZEROVERSE_LEARNING_PATH=/private/0research/xverse-learning.ndjson \
+  xverse scan ./target --format ndjson
 ```
 
 This ledger admits only deterministic reachability refutations (`angr` UNSAT)
@@ -140,7 +140,7 @@ makes the read/deduplicate/append transaction idempotent by record/outcome
 identity even when completed scans race.
 
 `ZEROVERSE_DATASET_PATH` remains the frozen recall/evaluation input. The learning
-path must be different; 0verse refuses to write when both resolve to the same
+path must be different; xverse refuses to write when both resolve to the same
 file. Set `ZEROVERSE_EVALUATION=1` as an additional fail-closed guard for held-out
 or benchmark runs. Promotion from the learning ledger into a later immutable
 recall corpus is a separate, human-reviewed step.
@@ -149,23 +149,23 @@ recall corpus is a separate, human-reviewed step.
 
 0brain may project a completed `zeroverse_evidence_replay` item into an exact,
 sanitized feedback projection. Import it only with the private output tree that
-contains the exact `0verse-learning-bundle-v1` bytes, relative replay scripts,
+contains the exact `xverse-learning-bundle-v1` bytes, relative replay scripts,
 oracle evidence, and detached oracle-result receipts:
 
 ```sh
-0verse research-feedback-import \
+xverse research-feedback-import \
   --projection /private/0brain/zeroverse-feedback.json \
   --bundle /private/runs/run-1/item-1/attempt-1/learning-bundle.json \
   --output-root /private/runs/run-1/item-1/attempt-1 \
-  --ledger /private/0research/0verse-learning.ndjson
+  --ledger /private/0research/xverse-learning.ndjson
 ```
 
 The importer recomputes 0brain's complete output-tree digest, verifies the exact
 bundle SHA-256, rejects symlinks and path traversal, and re-hashes every bounded
 confirmed replay script. Every row must reference an exact
-`0verse-oracle-result-receipt-v1` signed under the
-`0verse-0research-oracle-result-v1` SSHSIG namespace by the separate authority in
-`/etc/0verse/0research-oracle-result.allowed_signers`; the receipt binds the
+`xverse-oracle-result-receipt-v1` signed under the
+`xverse-0research-oracle-result-v1` SSHSIG namespace by the separate authority in
+`/etc/xverse/0research-oracle-result.allowed_signers`; the receipt binds the
 complete source record, verdict, oracle, PoV, and a content-addressed result
 artifact. It admits only signed oracle-confirmed PoVs and signed exact
 `angr-reachability(UNSAT)` refutations. A scheduler `pass`, `reject`, or
@@ -199,7 +199,7 @@ does not affect scientific identity.
 
 Each admission binds the native `event_id` as its source-artifact digest, a new
 verification sidecar, the oracle receipt and evidence, the normalized PoV
-digest, and a separately signed `0verse-target-snapshot-v1`. That snapshot
+digest, and a separately signed `xverse-target-snapshot-v1`. That snapshot
 attests the exact repository commit and tree plus five required artifacts:
 source tree, package, lockfile, toolchain, and runtime configuration. Oracle,
 target-snapshot, and evidence-admission policies must use pairwise-distinct

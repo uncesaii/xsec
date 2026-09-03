@@ -17,8 +17,8 @@ from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 from typing import Protocol
 
-SCHEMA_VERSION = "0verse.browser-campaign/v3"
-LEGACY_SCHEMA_VERSION = "0verse.browser-campaign/v2"
+SCHEMA_VERSION = "xverse.browser-campaign/v3"
+LEGACY_SCHEMA_VERSION = "xverse.browser-campaign/v2"
 COMPONENTS = frozenset({"v8", "blink", "mojo", "skia", "media", "gpu", "spidermonkey", "ipdl"})
 ORACLES = frozenset({"asan", "msan", "ubsan", "browser-crash", "pageheap-cdb"})
 PROCESSES = frozenset({"js-engine", "renderer", "browser", "gpu", "utility", "media"})
@@ -41,10 +41,10 @@ LOCAL_HOSTS = frozenset(
         "0.0.0.0",
     }
 )
-WORKER_PREFLIGHT = "/srv/0verse/bin/worker-preflight.sh"
-CAMPAIGN_SUPERVISOR = "/srv/0verse/0verse/scripts/browser/run-campaign.py"
-CAMPAIGN_SUPERVISOR_PROTOCOL = "0verse.browser-campaign-supervisor/v1"
-CAMPAIGN_ARTIFACT_ROOT = PurePosixPath("/srv/0verse/artifacts")
+WORKER_PREFLIGHT = "/srv/xverse/bin/worker-preflight.sh"
+CAMPAIGN_SUPERVISOR = "/srv/xverse/xverse/scripts/browser/run-campaign.py"
+CAMPAIGN_SUPERVISOR_PROTOCOL = "xverse.browser-campaign-supervisor/v1"
+CAMPAIGN_ARTIFACT_ROOT = PurePosixPath("/srv/xverse/artifacts")
 MAX_RETAINED_STREAM_BYTES = 1024 * 1024
 MAX_CAMPAIGN_ARTIFACT_BYTES = 64 * 1024 * 1024
 MAX_RETRIEVED_ARTIFACT_BYTES = 64 * 1024 * 1024
@@ -535,7 +535,7 @@ def _campaign_artifact_dir(command: Sequence[str]) -> PurePosixPath:
     try:
         path.relative_to(CAMPAIGN_ARTIFACT_ROOT)
     except ValueError as exc:
-        raise ValueError("campaign artifact prefix must be inside /srv/0verse/artifacts") from exc
+        raise ValueError("campaign artifact prefix must be inside /srv/xverse/artifacts") from exc
     if path == CAMPAIGN_ARTIFACT_ROOT:
         raise ValueError("campaign artifact prefix must use a dedicated subdirectory")
     return path
@@ -560,7 +560,7 @@ def _run_supervised_campaign(
         "worker_hostname": "browser",
         "worker_user": "browser",
         "worker_group": "browser",
-        "bootstrap_marker": "/srv/0verse/.browser-worker",
+        "bootstrap_marker": "/srv/xverse/.browser-worker",
         "bootstrap_marker_owner": "root",
         "bootstrap_marker_group": "browser",
         "revision": campaign.revision.lower(),

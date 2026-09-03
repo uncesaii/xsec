@@ -1,8 +1,8 @@
-# AGENTS.md — 0verse
+# AGENTS.md — xverse
 
 > Status: 2026-07-31. Living document.
 >
-> Cross-tool memory for the 0verse repo. Claude Code and Codex auto-load
+> Cross-tool memory for the xverse repo. Claude Code and Codex auto-load
 > this at session start; `CLAUDE.md` is a symlink — edit this file.
 >
 > The parent monorepo has its own `AGENTS.md` covering company-wide rules

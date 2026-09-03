@@ -76,7 +76,7 @@ class LocalProcessBackend:
         elif request.vector == "env":
             pass  # the candidate is represented by the explicitly supplied env
         elif request.vector == "file":
-            fd, name = tempfile.mkstemp(prefix="0verse-input-")
+            fd, name = tempfile.mkstemp(prefix="xverse-input-")
             temp_path = Path(name)
             try:
                 with os.fdopen(fd, "wb") as handle:

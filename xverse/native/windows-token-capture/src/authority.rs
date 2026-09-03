@@ -13,14 +13,14 @@ use sha2::{Digest, Sha256};
 use crate::broker_protocol::{BrokerRequest, parse_strict_json_object};
 use crate::sshsig::verify_ed25519;
 
-const CAMPAIGN_SCHEMA: &str = "0verse.windows-token-campaign/v1";
-const LPAC_CAMPAIGN_SCHEMA: &str = "0verse.windows-token-campaign/v2";
-const SCOPE_SCHEMA: &str = "0verse.windows-scope/v2";
-const GRANT_SCHEMA: &str = "0verse.windows-token-execution-grant/v1";
-const ACCEPTANCE_SCHEMA: &str = "0verse.windows-token-worker-acceptance/v2";
-const SCOPE_NAMESPACE: &str = "0verse-windows-scope-authorization";
-const GRANT_NAMESPACE: &str = "0verse-windows-token-execution-grant";
-const ACCEPTANCE_NAMESPACE: &str = "0verse-windows-token-worker-acceptance";
+const CAMPAIGN_SCHEMA: &str = "xverse.windows-token-campaign/v1";
+const LPAC_CAMPAIGN_SCHEMA: &str = "xverse.windows-token-campaign/v2";
+const SCOPE_SCHEMA: &str = "xverse.windows-scope/v2";
+const GRANT_SCHEMA: &str = "xverse.windows-token-execution-grant/v1";
+const ACCEPTANCE_SCHEMA: &str = "xverse.windows-token-worker-acceptance/v2";
+const SCOPE_NAMESPACE: &str = "xverse-windows-scope-authorization";
+const GRANT_NAMESPACE: &str = "xverse-windows-token-execution-grant";
+const ACCEPTANCE_NAMESPACE: &str = "xverse-windows-token-worker-acceptance";
 const MAX_AGE_SECONDS: i64 = 24 * 60 * 60;
 const CLOCK_SKEW_SECONDS: i64 = 5 * 60;
 
@@ -2023,7 +2023,7 @@ mod tests {
     fn rejects_recursive_duplicates_and_out_of_range_trial() {
         let mut changed = request();
         changed.scope_manifest_json_b64 = URL_SAFE_NO_PAD.encode(
-            br#"{"schema_version":"0verse.windows-scope/v2","preflight":{"ok":true,"ok":false}}"#,
+            br#"{"schema_version":"xverse.windows-scope/v2","preflight":{"ok":true,"ok":false}}"#,
         );
         assert!(verify_authority(&changed, &live()).is_err());
 

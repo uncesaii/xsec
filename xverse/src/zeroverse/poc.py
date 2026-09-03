@@ -18,7 +18,7 @@ from pathlib import Path
 from .report import PoV
 
 _TEMPLATE = '''#!/usr/bin/env python3
-# 0verse proof-of-vulnerability — AUTO-GENERATED, deterministic replay.
+# xverse proof-of-vulnerability — AUTO-GENERATED, deterministic replay.
 # Re-run:  python3 {script_name}
 # Exits 0 iff the binary crashes as expected ({crash_class}).
 import os
@@ -40,12 +40,12 @@ FILE_INPUT = {file_input!r}  # deliver CRASH_INPUT as a file whose path is argv[
 
 def main() -> int:
     if not os.path.exists(BINARY):
-        print(f"[0verse] missing binary: {{BINARY}}", file=sys.stderr)
+        print(f"[xverse] missing binary: {{BINARY}}", file=sys.stderr)
         return 2
     argv = list(ARGV)
     tmp = None
     if FILE_INPUT:
-        fd, tmp = tempfile.mkstemp(prefix="0verse-poc-")
+        fd, tmp = tempfile.mkstemp(prefix="xverse-poc-")
         with os.fdopen(fd, "wb") as fh:
             fh.write(CRASH_INPUT)
         argv = [*argv, tmp]
@@ -70,11 +70,11 @@ def main() -> int:
     sanitizer = (b"Sanitizer" in out or b"runtime error:" in out) and rc not in (0, None)
     crashed = sig != 0 or sanitizer
     reason = name if sig else ("sanitizer-report" if sanitizer else "no-signal")
-    print(f"[0verse] replay of {{BINARY}} -> {{reason}} (expected crash class: {{EXPECT}})")
+    print(f"[xverse] replay of {{BINARY}} -> {{reason}} (expected crash class: {{EXPECT}})")
     if crashed:
-        print("[0verse] PoV REPRODUCED ✅")
+        print("[xverse] PoV REPRODUCED ✅")
         return 0
-    print("[0verse] PoV did NOT reproduce ❌", file=sys.stderr)
+    print("[xverse] PoV did NOT reproduce ❌", file=sys.stderr)
     return 1
 
 

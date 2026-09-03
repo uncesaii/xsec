@@ -7,7 +7,7 @@ a binary signature of the bug site, sweep the same bug class across a corpus of
 vendor firmwares / Android kernels / IoT images / binary versions, and route the
 strongest matches to the PoV lane. One finding becomes ``N`` confirmed n-days.
 
-This module is the *fleet driver*. It composes 0verse primitives that already
+This module is the *fleet driver*. It composes xverse primitives that already
 exist rather than re-implementing them:
 
   * **seed → matcher** (``seed_from_archetype`` / ``seed_from_reference`` /
@@ -37,7 +37,7 @@ exist rather than re-implementing them:
 
 **PoV-is-truth holds.** A swept variant is only ``confirmed`` when a reproducing
 PoV is attached; a low-precision match is never reported as a finding without a
-crash. That is the same discipline that makes 0verse credible — applied at fleet
+crash. That is the same discipline that makes xverse credible — applied at fleet
 scale.
 """
 
@@ -414,7 +414,7 @@ def ingest_fleet(
 ) -> list[FleetMember]:
     """Ingest a fleet: triage + resolve ABI for every binary; decompile each (unless
     ``decompile=False``). Firmware images in ``spec`` are carved first."""
-    base = Path(os.environ.get("ZEROVERSE_OUT", "0verse-out"))
+    base = Path(os.environ.get("ZEROVERSE_OUT", "xverse-out"))
     wd = Path(workdir) if workdir else base / "fleet-unpack"
     members: list[FleetMember] = []
     for path in _expand_spec(spec, wd):
@@ -811,7 +811,7 @@ def run_fleet(
 ) -> FleetReport:
     """The fleet driver: detect → confirm → dedup → emit. Returns the economics
     report. ``confirm=False`` runs detection only (the cheap sweep)."""
-    base = Path(os.environ.get("ZEROVERSE_OUT", "0verse-out"))
+    base = Path(os.environ.get("ZEROVERSE_OUT", "xverse-out"))
     out = Path(out_dir) if out_dir else base / "fleet"
     member_results: list[MemberResult] = []
     for m in members:

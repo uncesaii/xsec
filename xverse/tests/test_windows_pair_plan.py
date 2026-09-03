@@ -122,7 +122,7 @@ def _fixture(root: Path) -> tuple[Path, dict[str, object]]:
     tool.write_bytes(b"pinned-dism-tool-fixture")
 
     plan: dict[str, object] = {
-        "schema_version": "0verse.windows-pair-plan/v1",
+        "schema_version": "xverse.windows-pair-plan/v1",
         "producer": "zeroverse.windows-pair-plan/v1",
         "declared_context": {
             "cve_id": "CVE-2026-12345",

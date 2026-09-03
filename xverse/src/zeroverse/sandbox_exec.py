@@ -402,7 +402,7 @@ class MsbSshExecutor:
         host: str = "fuzzer",
         *,
         image: str = DEFAULT_MSB_IMAGE,
-        sandbox: str = "0verse-oracle",
+        sandbox: str = "xverse-oracle",
         ssh: str = "ssh",
         connect_timeout: int = 10,
         expected_msb_sha256: str = DEFAULT_MSB_SHA256,
@@ -750,7 +750,7 @@ def executor_from_env() -> Executor:
         return MsbSshExecutor(
             host=os.environ.get("ZEROVERSE_MSB_HOST", "fuzzer"),
             image=os.environ.get("ZEROVERSE_MSB_IMAGE", DEFAULT_MSB_IMAGE),
-            sandbox=os.environ.get("ZEROVERSE_MSB_SANDBOX", "0verse-oracle"),
+            sandbox=os.environ.get("ZEROVERSE_MSB_SANDBOX", "xverse-oracle"),
             expected_msb_sha256=os.environ.get(
                 "ZEROVERSE_MSB_SHA256", DEFAULT_MSB_SHA256
             ),

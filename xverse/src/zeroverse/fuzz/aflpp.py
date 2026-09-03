@@ -135,7 +135,7 @@ def afl_qemu_trace_path(cpu: str = "") -> str | None:
 
 
 def _cpu_target(arch: str) -> str:
-    """Canonical 0verse arch → AFL++/qemu ``CPU_TARGET`` tag."""
+    """Canonical xverse arch → AFL++/qemu ``CPU_TARGET`` tag."""
     abi = abi_for(arch)
     return abi.afl_qemu_cpu if abi else arch
 

@@ -18,7 +18,7 @@ def _ctl_code(device: int, function: int) -> int:
 def _plan() -> dict[str, object]:
     code = _ctl_code(0x8337, 0x801)
     return {
-        "schema_version": "0verse.windows-ioctl-boundary/v1",
+        "schema_version": "xverse.windows-ioctl-boundary/v1",
         "campaign_id": "ssa-fixture",
         "synthetic_fixture": True,
         "scope_manifest_sha256": "3" * 64,
@@ -37,7 +37,7 @@ def _plan() -> dict[str, object]:
             "device_type": 0x8337,
         },
         "boundary": {
-            "schema_version": "0verse.windows-boundary-observation/fixture-v1",
+            "schema_version": "xverse.windows-boundary-observation/fixture-v1",
             "receipt_sha256": "7" * 64,
             "worker_machine_id": "2" * 64,
             "build_lab_ex": "synthetic.26100.amd64fre.fixture",
@@ -102,7 +102,7 @@ def _analysis(
     guards: list[str] | None = None,
 ) -> dict[str, object]:
     return {
-        "schema_version": "0verse.windows-ioctl-ssa-export/v1",
+        "schema_version": "xverse.windows-ioctl-ssa-export/v1",
         "producer": "ghidra-high-pcode",
         "driver_sha256": driver_digest,
         "dispatches": [
@@ -147,7 +147,7 @@ def _fixture(tmp_path: Path, *, guards: list[str] | None = None) -> tuple[Path, 
     receipt_path.write_text(
         json.dumps(
             {
-                "schema_version": "0verse.ghidra-analysis-receipt/v1",
+                "schema_version": "xverse.ghidra-analysis-receipt/v1",
                 "producer": "zeroverse.windows-analysis/fixture-v1",
                 "binary_path": "fixture.sys",
                 "binary_sha256": binary_digest,
@@ -174,7 +174,7 @@ def _fixture(tmp_path: Path, *, guards: list[str] | None = None) -> tuple[Path, 
     plan_manifest_digest = hashlib.sha256(plan_path.read_bytes()).hexdigest()
     analysis_path = ghidra_path
     campaign = {
-        "schema_version": "0verse.windows-ioctl-static-campaign/v1",
+        "schema_version": "xverse.windows-ioctl-static-campaign/v1",
         "plan_path": "plan.json",
         "plan_sha256": plan_manifest_digest,
         "analysis_path": "ghidra.json",

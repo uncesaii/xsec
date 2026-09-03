@@ -16,7 +16,7 @@ from .windows_provenance import (
     verify_official_download_receipt_prehashed,
 )
 
-PAIR_PLAN_SCHEMA = "0verse.windows-pair-plan/v1"
+PAIR_PLAN_SCHEMA = "xverse.windows-pair-plan/v1"
 PAIR_PLAN_PRODUCER = "zeroverse.windows-pair-plan/v1"
 PAIR_PLAN_CLAIMS = [
     "plan-referenced-content-sha256",

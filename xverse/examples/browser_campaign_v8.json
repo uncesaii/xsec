@@ -1,5 +1,5 @@
 {
-  "schema_version": "0verse.browser-campaign/v3",
+  "schema_version": "xverse.browser-campaign/v3",
   "campaign_id": "v8-json-parser-001",
   "component": "v8",
   "revision": "REPLACE_WITH_FULL_CHROMIUM_GIT_REVISION",
@@ -9,12 +9,12 @@
     "is_debug=false",
     "dcheck_always_on=true"
   ],
-  "corpus": "/srv/0verse/corpora/v8-json",
+  "corpus": "/srv/xverse/corpora/v8-json",
   "harness": "v8_json_parser_fuzzer",
   "harness_sha256": "REPLACE_WITH_BUILD_MANIFEST_ARTIFACT_SHA256",
-  "build_receipt": "/srv/0verse/chromium/src/out/0verse-asan/REPLACE_BUILD_RECEIPT.json",
+  "build_receipt": "/srv/xverse/chromium/src/out/xverse-asan/REPLACE_BUILD_RECEIPT.json",
   "build_receipt_sha256": "REPLACE_WITH_BUILD_RECEIPT_SHA256",
-  "target_catalog": "/srv/0verse/chromium/src/out/0verse-asan/0verse-libfuzzer-target-catalog.json",
+  "target_catalog": "/srv/xverse/chromium/src/out/xverse-asan/xverse-libfuzzer-target-catalog.json",
   "target_catalog_sha256": "REPLACE_WITH_TARGET_CATALOG_SHA256",
   "gn_label": "//testing/libfuzzer/fuzzers:v8_json_parser_fuzzer",
   "oracle": "asan",
@@ -25,15 +25,15 @@
   "scope_checked_at": "2026-07-11T00:00:00Z",
   "authorization": "published Chrome VRP scope; XSEC-owned dedicated worker",
   "worker": "browser",
-  "source_root": "/srv/0verse/chromium/src",
+  "source_root": "/srv/xverse/chromium/src",
   "command": [
-    "/srv/0verse/chromium/src/out/0verse-asan/v8_json_parser_fuzzer",
-    "-artifact_prefix=/srv/0verse/artifacts/v8-json/",
+    "/srv/xverse/chromium/src/out/xverse-asan/v8_json_parser_fuzzer",
+    "-artifact_prefix=/srv/xverse/artifacts/v8-json/",
     "-timeout=20",
-    "/srv/0verse/corpora/v8-json"
+    "/srv/xverse/corpora/v8-json"
   ],
   "replay_command": [
-    "/srv/0verse/chromium/src/out/0verse-asan/v8_json_parser_fuzzer",
+    "/srv/xverse/chromium/src/out/xverse-asan/v8_json_parser_fuzzer",
     "-runs=1",
     "{input}"
   ],

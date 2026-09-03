@@ -3,7 +3,7 @@ in-process).
 
 ``pipeline.py`` is a fixed sequential best-effort spine: every stage runs once, in
 order, with no budget control across the static / fuzz / concolic / seed lanes and
-no per-stage LLM token cap. The 0verse evaluation measured the cost of that — a
+no per-stage LLM token cap. The xverse evaluation measured the cost of that — a
 clean binary that confirms nothing still burned the full no-signal fuzz lane
 (~30 s) and would burn LLM tokens escalating slices the slice layer never flagged.
 
@@ -340,7 +340,7 @@ class _BudgetedConversation:
 # Fuzzer fallback chain (ATLANTIS LibAFL→AFL++→libFuzzer demotion on repeated abort).
 # ---------------------------------------------------------------------------
 
-# 0verse's fuzzing vectors, strongest first: AFL++ QEMU-mode → native AFL++ →
+# xverse's fuzzing vectors, strongest first: AFL++ QEMU-mode → native AFL++ →
 # Qiling firmware emulation. An engine that aborts > ``demote_after`` times in one
 # epoch is demoted to the next.
 DEFAULT_FUZZ_CHAIN: tuple[str, ...] = ("afl-qemu", "afl-native", "qiling")

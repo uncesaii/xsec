@@ -37,15 +37,15 @@ from .windows_ioctl_real_rank import (
     _token,
 )
 
-SCHEMA_VERSION = "0verse.windows-byo-private-resolution-authorization/v1"
+SCHEMA_VERSION = "xverse.windows-byo-private-resolution-authorization/v1"
 PRODUCER = "zeroverse.windows-byo-private-resolution-authority/v1"
 PURPOSE = "one-time-post-evaluation-private-tuple-resolution-only"
-SIGNATURE_NAMESPACE = "0verse-windows-byo-private-resolution-authorization-v1"
+SIGNATURE_NAMESPACE = "xverse-windows-byo-private-resolution-authorization-v1"
 DEFAULT_ALLOWED_SIGNERS = Path(
-    "/etc/0verse/windows-byo-private-resolution-authorization.allowed_signers"
+    "/etc/xverse/windows-byo-private-resolution-authorization.allowed_signers"
 )
 DEFAULT_RESOLVER_ALLOWED_SIGNERS = Path(
-    "/etc/0verse/windows-byo-private-resolver.allowed_signers"
+    "/etc/xverse/windows-byo-private-resolver.allowed_signers"
 )
 AUTHORIZED_OPERATION = "resolve-one-precommitted-private-bundle"
 PROOF_LIMIT = (
@@ -56,8 +56,8 @@ PROOF_LIMIT = (
     "execution authority, redistribution, disclosure, or weaponization."
 )
 
-_TUPLE_REPLAY_DOMAIN = b"0verse-windows-byo-private-resolution-tuple-once-v1\0"
-_PERMIT_REPLAY_DOMAIN = b"0verse-windows-byo-private-resolution-authorization-once-v1\0"
+_TUPLE_REPLAY_DOMAIN = b"xverse-windows-byo-private-resolution-tuple-once-v1\0"
+_PERMIT_REPLAY_DOMAIN = b"xverse-windows-byo-private-resolution-authorization-once-v1\0"
 
 
 @dataclass(frozen=True)
@@ -278,7 +278,7 @@ def verify_private_resolution_authorization(
     _, receipt_key = _singleton_policy_authority(
         receipt_policy
         if receipt_policy is not None
-        else Path("/etc/0verse/windows-ioctl-rank-result.allowed_signers"),
+        else Path("/etc/xverse/windows-ioctl-rank-result.allowed_signers"),
         receipt_signer,
         "rank receipt",
         require_trusted=rank_receipt_allowed_signers is None,
@@ -286,7 +286,7 @@ def verify_private_resolution_authorization(
     _, label_key = _singleton_policy_authority(
         label_policy
         if label_policy is not None
-        else Path("/etc/0verse/windows-ioctl-real-labels.allowed_signers"),
+        else Path("/etc/xverse/windows-ioctl-real-labels.allowed_signers"),
         label_signer,
         "blinded label",
         require_trusted=label_allowed_signers is None,
@@ -516,7 +516,7 @@ def _singleton_policy_authority(
     except ValueError as exc:
         raise ValueError(f"{label} authority key is malformed") from exc
     commitment = hashlib.sha256(
-        b"0verse-ssh-authority-key-v1\0ssh-ed25519\0" + key
+        b"xverse-ssh-authority-key-v1\0ssh-ed25519\0" + key
     ).hexdigest()
     return hashlib.sha256(data).hexdigest(), commitment
 

@@ -156,7 +156,7 @@ class WindowsWorker:
         ttl_seconds: float,
     ) -> str:
         self._require_authorized()
-        if not re.fullmatch(r"0verse-[0-9a-f]{32}", run_id):
+        if not re.fullmatch(r"xverse-[0-9a-f]{32}", run_id):
             raise ValueError("Windows cleanup run identifier is invalid")
         if pageheap_binary and (
             Path(pageheap_binary).name != pageheap_binary
@@ -174,7 +174,7 @@ class WindowsWorker:
             gflags = (
                 "C:\\Program Files (x86)\\Windows Kits\\10\\Debuggers\\x64\\gflags.exe"
             )
-            lock_dir = "C:\\Windows\\Temp\\0verse-pageheap.lock"
+            lock_dir = "C:\\Windows\\Temp\\xverse-pageheap.lock"
             script = (
                 "$ErrorActionPreference='Stop';"
                 f"& {_ps_quote(gflags)} /p /disable {_ps_quote(pageheap_binary)};"
@@ -193,7 +193,7 @@ class WindowsWorker:
 
     def _scp(self, uploads: list[str], run_id: str) -> subprocess.CompletedProcess[bytes]:
         self._require_authorized()
-        if not re.fullmatch(r"0verse-[0-9a-f]{32}", run_id):
+        if not re.fullmatch(r"xverse-[0-9a-f]{32}", run_id):
             raise ValueError("Windows upload run identifier is invalid")
         destination = f"{self.host}:C:/Windows/Temp/{run_id}/"
         return subprocess.run(
@@ -230,7 +230,7 @@ class WindowsWorker:
         if not binary_path.is_file():
             return _invalid_run(f"PE does not exist: {binary_path}")
 
-        run_id = f"0verse-{uuid.uuid4().hex}"
+        run_id = f"xverse-{uuid.uuid4().hex}"
         remote_dir = f"C:\\Windows\\Temp\\{run_id}"
         remote_binary = f"{remote_dir}\\{binary_path.name}"
         remote_poc = f"{remote_dir}\\poc.bin"
@@ -245,7 +245,7 @@ class WindowsWorker:
             if made.returncode != 0:
                 detail = (made.stdout + made.stderr).decode("utf-8", "replace")
                 return _invalid_run(f"Windows worker mkdir failed: {detail}")
-            with tempfile.NamedTemporaryFile(prefix="0verse-poc-", delete=False) as handle:
+            with tempfile.NamedTemporaryFile(prefix="xverse-poc-", delete=False) as handle:
                 handle.write(poc)
                 local_poc = Path(handle.name)
             remote_uploaded_poc = f"{remote_dir}\\{local_poc.name}"
@@ -320,11 +320,11 @@ class WindowsWorker:
         if not binary_path.is_file():
             return _invalid_run(f"PE does not exist: {binary_path}")
 
-        run_id = f"0verse-{uuid.uuid4().hex}"
+        run_id = f"xverse-{uuid.uuid4().hex}"
         remote_dir = f"C:\\Windows\\Temp\\{run_id}"
         remote_binary = f"{remote_dir}\\{binary_path.name}"
         remote_poc = f"{remote_dir}\\poc.bin"
-        lock_dir = "C:\\Windows\\Temp\\0verse-pageheap.lock"
+        lock_dir = "C:\\Windows\\Temp\\xverse-pageheap.lock"
         lock_owner = f"{lock_dir}\\owner"
         debugger_root = "C:\\Program Files (x86)\\Windows Kits\\10\\Debuggers\\x64"
         gflags = f"{debugger_root}\\gflags.exe"
@@ -362,7 +362,7 @@ class WindowsWorker:
             pageheap_acquired = True
             self._cleanup_capabilities.pop(cleanup_capability, None)
             cleanup_capability = locked_cleanup_capability
-            with tempfile.NamedTemporaryFile(prefix="0verse-poc-", delete=False) as handle:
+            with tempfile.NamedTemporaryFile(prefix="xverse-poc-", delete=False) as handle:
                 handle.write(poc)
                 local_poc = Path(handle.name)
             uploaded_poc = f"{remote_dir}\\{local_poc.name}"

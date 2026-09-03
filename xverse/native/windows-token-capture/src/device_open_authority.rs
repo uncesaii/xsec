@@ -13,8 +13,8 @@ use serde::Deserialize;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 
-const SCHEMA_VERSION: &str = "0verse.windows-device-open-boundary-manifest/v1";
-const SIGNATURE_NAMESPACE: &str = "0verse-windows-device-open-boundary-manifest-v1";
+const SCHEMA_VERSION: &str = "xverse.windows-device-open-boundary-manifest/v1";
+const SIGNATURE_NAMESPACE: &str = "xverse-windows-device-open-boundary-manifest-v1";
 const MAX_AGE_SECONDS: i64 = 24 * 60 * 60;
 const CLOCK_SKEW_SECONDS: i64 = 5 * 60;
 

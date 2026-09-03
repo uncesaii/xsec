@@ -1,5 +1,5 @@
 #!/bin/bash
-# 0verse-lane (CMPLOG/redqueen) vs baseline AFL++ on REAL Magma targets, scored
+# xverse-lane (CMPLOG/redqueen) vs baseline AFL++ on REAL Magma targets, scored
 # against Magma's ground-truth fatal canaries (isan build => a canary trigger
 # aborts == a confirmed real-CVE-class bug). Time-to-first-trigger,
 # AFL_BENCH_UNTIL_CRASH. Emits zeroverse.benchmark BenchTrial NDJSON.
@@ -29,8 +29,8 @@ run_lane() {  # target prog extra(cmplog|"")
 }
 for t in libpng libxml2 libsndfile libtiff; do
   prog=${PROG[$t]}
-  for lane in baseline 0verse; do
-    extra=""; [ "$lane" = "0verse" ] && extra="cmplog"
+  for lane in baseline xverse; do
+    extra=""; [ "$lane" = "xverse" ] && extra="cmplog"
     echo ">> $t $lane (budget ${BUDGET}s)" >&2
     line=$(run_lane "$t" "$prog" "$extra")
     wall=$(echo "$line" | grep -oE "WALL_MS=[0-9]+" | cut -d= -f2); wall=${wall:-0}

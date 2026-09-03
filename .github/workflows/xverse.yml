@@ -1,23 +1,23 @@
-name: "0verse: Main"
+name: "xverse: Main"
 
-# 0verse is the binary-native research engine exported into this repository
-# under 0verse/ (ADR-094). Consistent with the public PR policy, contributor
+# xverse is the binary-native research engine exported into this repository
+# under xverse/ (ADR-094). Consistent with the public PR policy, contributor
 # code executes only after review: this workflow runs on pushes to main and on
 # same-repository pull requests, never on fork checkouts.
 
 on:
   push:
     branches: [main]
-    paths: ["0verse/**", ".github/workflows/0verse.yml"]
+    paths: ["xverse/**", ".github/workflows/xverse.yml"]
   pull_request:
     branches: [main]
-    paths: ["0verse/**", ".github/workflows/0verse.yml"]
+    paths: ["xverse/**", ".github/workflows/xverse.yml"]
 
 permissions:
   contents: read
 
 concurrency:
-  group: 0verse-${{ github.event.pull_request.number || github.ref }}
+  group: xverse-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -31,7 +31,7 @@ jobs:
     timeout-minutes: 25
     defaults:
       run:
-        working-directory: 0verse
+        working-directory: xverse
     env:
       PYTHONDONTWRITEBYTECODE: "1"
     steps:
@@ -64,4 +64,4 @@ jobs:
             --python "$RUNNER_TEMP/package-smoke/bin/python" \
             --no-deps \
             dist/*.whl
-          "$RUNNER_TEMP/package-smoke/bin/0verse" --help
+          "$RUNNER_TEMP/package-smoke/bin/xverse" --help

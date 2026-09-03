@@ -18,7 +18,7 @@ def _manifest() -> dict[str, object]:
     machine = "2" * 64
     build = "synthetic.26100.amd64fre.fixture"
     return {
-        "schema_version": "0verse.windows-ioctl-boundary/v1",
+        "schema_version": "xverse.windows-ioctl-boundary/v1",
         "campaign_id": "fixture-driver-buffer-geometry",
         "synthetic_fixture": True,
         "scope_manifest_sha256": "3" * 64,
@@ -37,7 +37,7 @@ def _manifest() -> dict[str, object]:
             "device_type": 0x8337,
         },
         "boundary": {
-            "schema_version": "0verse.windows-boundary-observation/fixture-v1",
+            "schema_version": "xverse.windows-boundary-observation/fixture-v1",
             "receipt_sha256": "7" * 64,
             "worker_machine_id": machine,
             "build_lab_ex": build,

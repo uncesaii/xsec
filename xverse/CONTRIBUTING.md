@@ -1,4 +1,4 @@
-# Contributing to 0verse
+# Contributing to xverse
 
 Thanks for helping build an open, evidence-first binary bug-finder. This guide
 covers the dev setup, the extension contracts, and the one rule that matters most.
@@ -33,7 +33,7 @@ uv sync --frozen --extra dev --python 3.11
 
 uv run --frozen ruff check src tests
 uv run --frozen mypy
-uv run --frozen pytest -q -ra --basetemp="$HOME/.0verse-pytest-basetemp"
+uv run --frozen pytest -q -ra --basetemp="$HOME/.xverse-pytest-basetemp"
 ```
 
 The core suite does not require network access, credentials, or a live analysis
@@ -71,7 +71,7 @@ behavior needs a test; new engine behavior needs a `benchmarks/` proof.
 
 ## The extension contracts
 
-0verse is built so the common contributions are *additive* — implement an interface,
+xverse is built so the common contributions are *additive* — implement an interface,
 register it, add a test. The four main extension points:
 
 ### Add a bug-class lens (`src/zeroverse/bugclasses.py`)

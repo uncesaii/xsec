@@ -1,4 +1,4 @@
-"""Data-driven seed catalog — the auditable provenance layer for 0verse's seeds.
+"""Data-driven seed catalog — the auditable provenance layer for xverse's seeds.
 
 The 90 mined bug archetypes (kernel / userland / firmware, 2023-2025 CVE-grounded)
 live as *data* in ``data/archetypes.json`` (GENERALIZED patterns only — no exploit
@@ -21,7 +21,7 @@ from functools import lru_cache
 from importlib import resources
 from typing import Any
 
-# Routes that mean "a 0verse lens/oracle can statically detect or dynamically
+# Routes that mean "a xverse lens/oracle can statically detect or dynamically
 # confirm this on a binary" vs. routes that are honest hand-offs.
 CONFIRMABLE_ROUTES: frozenset[str] = frozenset(
     {"userland-confirmable", "userland-med", "firmware-lane"}
@@ -35,7 +35,7 @@ VERIFY_LANE_ROUTES: frozenset[str] = frozenset({"kernel-verify"})
 
 @dataclass(frozen=True)
 class Archetype:
-    """One mined bug archetype + its cross-reference into the 0verse engine."""
+    """One mined bug archetype + its cross-reference into the xverse engine."""
 
     uid: str                     # "<domain>/<orig-id>", e.g. "kernel/DRV-01"
     id: str                      # original catalog id, e.g. "DRV-01"
@@ -52,7 +52,7 @@ class Archetype:
 
     @property
     def implemented(self) -> bool:
-        """True when a 0verse lens / seed-class implements this archetype."""
+        """True when a xverse lens / seed-class implements this archetype."""
         return self.engine_lens is not None
 
     @property

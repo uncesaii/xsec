@@ -5,8 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 
-_SITE_DOMAIN = b"0verse-windows-ioctl-real-site-v1\0"
-_SITE_UNIVERSE_DOMAIN = b"0verse-windows-ioctl-real-site-universe-v1\0"
+_SITE_DOMAIN = b"xverse-windows-ioctl-real-site-v1\0"
+_SITE_UNIVERSE_DOMAIN = b"xverse-windows-ioctl-real-site-universe-v1\0"
 
 
 def ioctl_site_id(driver_sha256: str, analysis_sha256: str, record: dict[str, object]) -> str:

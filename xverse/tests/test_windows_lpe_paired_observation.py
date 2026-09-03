@@ -164,7 +164,7 @@ def test_observation_commitment_is_domain_separated_and_binds_witness(tmp_path) 
         == "a3a23b731f1137992dd30b49290d5ec48741b9141c2e776c2aed5aa0ea54d6c9"
     )
     expected_replay = hashlib.sha256(
-        b"0verse-windows-lpe-paired-observation-replay-v1\0"
+        b"xverse-windows-lpe-paired-observation-replay-v1\0"
         + baseline.observation_commitment_sha256.encode("ascii")
     ).hexdigest()
     assert baseline.pair_replay_identity_sha256 == expected_replay

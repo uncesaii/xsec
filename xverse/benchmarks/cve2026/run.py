@@ -72,7 +72,7 @@ def _load_gt_runner() -> Any:
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="0verse post-training-cutoff CVE eval (#49)")
+    ap = argparse.ArgumentParser(description="xverse post-training-cutoff CVE eval (#49)")
     ap.add_argument("--manifest", default=str(HERE / "manifest.json"))
     ap.add_argument("--out", default=str(HERE / "results.json"))
     ap.add_argument("--only", nargs="*", help="subset of item ids to run")

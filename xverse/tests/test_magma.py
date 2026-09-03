@@ -239,7 +239,7 @@ def test_real_catalogue_loads() -> None:
         return
     bugs = load_catalogue(cat)
     assert len(bugs) >= 100
-    # the catalogue is fully held-out vs 0verse seeds
+    # the catalogue is fully held-out vs xverse seeds
     assert all(not b.in_seed_set for b in bugs)
     # XML001 is the bug reproduced + scored standalone in the real-cve tier
     xml001 = [b for b in bugs if b.bug == "XML001"]

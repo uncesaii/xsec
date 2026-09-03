@@ -17,8 +17,8 @@ use std::fmt::Write as _;
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 
-const PIPE_ID_DOMAIN: &[u8] = b"0verse-windows-token-witness-pipe-v1\0";
-const CHILD_PIPE_ID_DOMAIN: &[u8] = b"0verse-windows-token-witness-child-pipe-v1\0";
+const PIPE_ID_DOMAIN: &[u8] = b"xverse-windows-token-witness-pipe-v1\0";
+const CHILD_PIPE_ID_DOMAIN: &[u8] = b"xverse-windows-token-witness-child-pipe-v1\0";
 const BOOTSTRAP_HELLO: &[u8] = &[0xa1];
 
 pub(crate) const DANGEROUS_PRIVILEGES: [&str; 11] = [
@@ -144,7 +144,7 @@ impl WitnessRendezvousSpec {
         digest.update(expected.session_id().to_le_bytes());
         let binding_sha256 = format!("{:x}", digest.finalize());
         Ok(Self {
-            pipe_name: format!(r"\\.\pipe\0verse.windows-token-witness.v1.{binding_sha256}"),
+            pipe_name: format!(r"\\.\pipe\xverse.windows-token-witness.v1.{binding_sha256}"),
             binding_sha256,
             expected,
             expected_hello: BOOTSTRAP_HELLO.to_vec(),
@@ -196,7 +196,7 @@ impl WitnessRendezvousSpec {
         expected_hello.extend([0xa2, 0x01]);
         expected_hello.extend(binding_bytes);
         Ok(Self {
-            pipe_name: format!(r"\\.\pipe\0verse.windows-token-witness-child.v1.{binding_sha256}"),
+            pipe_name: format!(r"\\.\pipe\xverse.windows-token-witness-child.v1.{binding_sha256}"),
             binding_sha256,
             expected: expected.clone(),
             expected_hello,
@@ -258,7 +258,7 @@ impl WitnessTokenProfile {
         reason = "used by the Windows-only fixed-adapter trusted child"
     )]
     pub(crate) fn sha256(&self) -> Result<String, String> {
-        const DOMAIN: &[u8] = b"0verse-windows-witness-token-profile-v1\0";
+        const DOMAIN: &[u8] = b"xverse-windows-witness-token-profile-v1\0";
         let encoded = serde_json::to_vec(self)
             .map_err(|error| format!("serialize witness token profile failed: {error}"))?;
         let mut digest = Sha256::new();
@@ -658,7 +658,7 @@ mod tests {
         assert!(
             child
                 .pipe_name()
-                .starts_with(r"\\.\pipe\0verse.windows-token-witness-child.v1.")
+                .starts_with(r"\\.\pipe\xverse.windows-token-witness-child.v1.")
         );
         assert_ne!(child.binding_sha256(), first.binding_sha256());
         assert_eq!(child.expected_hello().len(), 34);

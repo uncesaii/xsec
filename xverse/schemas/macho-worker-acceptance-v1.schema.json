@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://xsec.ai/schemas/xverse/macho-worker-acceptance-v1.schema.json",
-  "title": "0verse role-separated Darwin worker acceptance v1",
+  "title": "xverse role-separated Darwin worker acceptance v1",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "acceptance_id", "campaign_id", "coordinator", "worker", "role", "hardware_model", "architecture", "os_product_version", "os_build", "kernel_uuid", "target_sha256", "target_uuid", "control_sha256", "control_uuid", "target_identity_sha256", "control_identity_sha256", "input_model", "capabilities", "network_isolated", "coordinator_is_worker", "accepted_at", "expires_at", "accepted_by", "authority_key_sha256", "signature_ssh"],
   "properties": {
-    "schema_version": {"const": "0verse.macho-worker-acceptance/v1"},
+    "schema_version": {"const": "xverse.macho-worker-acceptance/v1"},
     "acceptance_id": {"$ref": "#/$defs/identifier"}, "campaign_id": {"$ref": "#/$defs/identifier"},
     "coordinator": {"$ref": "#/$defs/identifier"},
     "worker": {"$ref": "#/$defs/identifier"}, "role": {"const": "darwin-native-observer"},

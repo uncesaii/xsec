@@ -35,7 +35,7 @@ def main(argv: list[str] | None = None) -> int:
     finally:
         os.close(descriptor)
     result = {
-        "schema_version": "0verse.windows-afd-cfg-ssa-side-isolated-result/v1",
+        "schema_version": "xverse.windows-afd-cfg-ssa-side-isolated-result/v1",
         "side": str(side),
         "artifact_sha256": hashlib.sha256(raw).hexdigest(),
     }

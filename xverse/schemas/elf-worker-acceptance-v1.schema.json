@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://xsec.ai/schemas/xverse/elf-worker-acceptance-v1.schema.json",
-  "title": "0verse Linux ELF worker acceptance v1",
+  "title": "xverse Linux ELF worker acceptance v1",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -20,7 +20,7 @@
     "signature_ssh"
   ],
   "properties": {
-    "schema_version": {"const": "0verse.elf-worker-acceptance/v1"},
+    "schema_version": {"const": "xverse.elf-worker-acceptance/v1"},
     "acceptance_id": {"$ref": "#/$defs/identifier"},
     "campaign_id": {"$ref": "#/$defs/identifier"},
     "worker": {"$ref": "#/$defs/identifier"},

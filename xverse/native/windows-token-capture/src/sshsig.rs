@@ -271,7 +271,7 @@ mod tests {
     const POLICY: &str =
         include_str!("../../../tests/fixtures/windows-token-sshsig/allowed_signers");
     const IDENTITY: &str = "capture@example.test";
-    const NAMESPACE: &str = "0verse-windows-token-capture";
+    const NAMESPACE: &str = "xverse-windows-token-capture";
     const DISTINCT_PRIVATE_KEY: &str =
         include_str!("../../../tests/fixtures/windows-device-open-sshsig/test-only-key");
 

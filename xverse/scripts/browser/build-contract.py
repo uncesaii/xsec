@@ -17,8 +17,8 @@ from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 from typing import Any
 
-CATALOG_SCHEMA = "0verse.chromium-libfuzzer-target-catalog/v1"
-RECEIPT_SCHEMA = "0verse.chromium-libfuzzer-build-receipt/v1"
+CATALOG_SCHEMA = "xverse.chromium-libfuzzer-target-catalog/v1"
+RECEIPT_SCHEMA = "xverse.chromium-libfuzzer-build-receipt/v1"
 FUZZ_TARGET_MARKER = "//testing/libfuzzer:is_a_fuzz_target"
 HEX = re.compile(r"[0-9a-f]{64}")
 REVISION = re.compile(r"(?:[0-9a-f]{40}|[0-9a-f]{64})")

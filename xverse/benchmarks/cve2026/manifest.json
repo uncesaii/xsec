@@ -1,6 +1,6 @@
 {
   "schema_version": "1.1",
-  "_about": "0verse POST-TRAINING-CUTOFF CVE corpus (#49). Every item is a REAL CVE-2026 memory-safety bug published AFTER current frontier models' training cutoff (conservative cutoff 2026-01-31); see benchmarks/cve2026/provenance.json and docs/EVAL-POST-CUTOFF.md. Each vulnerable item is a faithful standalone extract of the real upstream function (real name, real source->sink, real bounding fix); the paired -DFIXED build is the upstream fix and serves as the false-positive control. Confirming a PoV on a vulnerable build = genuine DISCOVERY (the model could not have memorized a bug published after it was trained).",
+  "_about": "xverse POST-TRAINING-CUTOFF CVE corpus (#49). Every item is a REAL CVE-2026 memory-safety bug published AFTER current frontier models' training cutoff (conservative cutoff 2026-01-31); see benchmarks/cve2026/provenance.json and docs/EVAL-POST-CUTOFF.md. Each vulnerable item is a faithful standalone extract of the real upstream function (real name, real source->sink, real bounding fix); the paired -DFIXED build is the upstream fix and serves as the false-positive control. Confirming a PoV on a vulnerable build = genuine DISCOVERY (the model could not have memorized a bug published after it was trained).",
   "training_cutoff": "2026-01-31",
   "items": [
     {

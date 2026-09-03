@@ -14,7 +14,7 @@ export const WINDOWS_IOCTL_BENCHMARK_OBSERVATION_SCHEMA =
   "osec.windows-ioctl-benchmark-observation/v1" as const;
 
 export const WINDOWS_IOCTL_BENCHMARK_PROOF_LIMIT =
-  "Evaluator-private import of commitment-bound 0verse Windows IOCTL static ranking and blinded aggregate evaluation only. It does not execute a target, resolve or expose a label, create a Research Finding, establish reachability, vulnerability, impact, novelty, claim or bounty eligibility, authorize disclosure, or provide weaponization evidence." as const;
+  "Evaluator-private import of commitment-bound xverse Windows IOCTL static ranking and blinded aggregate evaluation only. It does not execute a target, resolve or expose a label, create a Research Finding, establish reachability, vulnerability, impact, novelty, claim or bounty eligibility, authorize disclosure, or provide weaponization evidence." as const;
 
 const SHA256 = /^[a-f0-9]{64}$/;
 const OPAQUE = /^[A-Za-z0-9_-]{43}$/;
@@ -120,7 +120,7 @@ export interface WindowsIoctlBenchmarkBindingContext {
   /** Independently provisioned evaluator commitment, not read from the resolver itself. */
   expectedResolverSha256: string;
   handle: string;
-  /** Commitments and cardinalities authenticated by upstream 0verse verifiers. */
+  /** Commitments and cardinalities authenticated by upstream xverse verifiers. */
   expectedZeroverse: WindowsIoctlBenchmarkObservation["zeroverse"] & {
     counts: WindowsIoctlBenchmarkObservation["counts"];
   };
@@ -263,7 +263,7 @@ function parseRankRows(value: unknown, candidateCount: number): WindowsIoctlBenc
     if (previous.score < current.score
       || (previous.score === current.score
         && previous.candidateContentId >= current.candidateContentId)) {
-      throw new Error("rankRows are not in deterministic 0verse score/content order");
+      throw new Error("rankRows are not in deterministic xverse score/content order");
     }
   }
   return rows;
@@ -372,7 +372,7 @@ export function validateWindowsIoctlBenchmarkObservation(
     field, digest(raw, `zeroverse.${field}`),
   ])) as unknown as WindowsIoctlBenchmarkObservation["zeroverse"];
   if (new Set(Object.values(zeroverse)).size !== Object.keys(zeroverse).length) {
-    throw new Error("0verse digest roles must not alias one another");
+    throw new Error("xverse digest roles must not alias one another");
   }
   const expectedZeroverseRaw = exact(context.expectedZeroverse, "expectedZeroverse", [
     "driverSha256", "analysisSha256", "analysisReceiptSha256", "siteUniverseManifestSha256",

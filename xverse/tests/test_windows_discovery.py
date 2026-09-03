@@ -189,7 +189,7 @@ def _campaign(
     campaign.write_text(
         json.dumps(
             {
-                "schema_version": "0verse.windows-discovery-campaign/v1",
+                "schema_version": "xverse.windows-discovery-campaign/v1",
                 "source_declaration": {
                     "kind": "owned-fixture",
                     "description": "validated semantic v3 unit fixture",
@@ -232,7 +232,7 @@ def _pair_input(
         "binary_sha256s": [previous.binary_sha256, current.binary_sha256],
     }
     pair_id = hashlib.sha256(
-        b"0verse-windows-driver-discovery-pair-v1\0"
+        b"xverse-windows-driver-discovery-pair-v1\0"
         + json.dumps(pair_material, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
     snapshots = []
@@ -263,7 +263,7 @@ def _pair_input(
     pair.write_text(
         json.dumps(
             {
-                "schema_version": "0verse.windows-driver-local-pair-input/v1",
+                "schema_version": "xverse.windows-driver-local-pair-input/v1",
                 "producer": "zeroverse.windows-driver-pair-intake/v1",
                 "campaign_id": "local-pair-1",
                 "intake_manifest_sha256": intake_sha256,
@@ -290,7 +290,7 @@ def _pair_input(
                 "automatic_disclosure": False,
                 "human_promotion_gate": True,
                 "windows_discovery_campaign": {
-                    "schema_version": "0verse.windows-discovery-campaign/v1",
+                    "schema_version": "xverse.windows-discovery-campaign/v1",
                     "source_declaration": {
                         "kind": "owned-fixture",
                         "description": "verified ordered local semantic-v3 snapshot pair",
@@ -368,7 +368,7 @@ def test_rejects_self_asserted_authorization_field(tmp_path: Path) -> None:
     campaign.write_text(
         json.dumps(
             {
-                "schema_version": "0verse.windows-discovery-campaign/v1",
+                "schema_version": "xverse.windows-discovery-campaign/v1",
                 "authorization": {"basis": "owned-lab", "source": "claim"},
                 "previous": {},
                 "current": {},
@@ -528,8 +528,8 @@ def test_semantic_site_id_survives_address_and_symbol_drift(
 def test_manifest_reader_rejects_duplicate_keys_and_oversize(tmp_path: Path) -> None:
     duplicate = tmp_path / "duplicate.json"
     duplicate.write_text(
-        '{"schema_version":"0verse.windows-discovery-campaign/v1",'
-        '"schema_version":"0verse.windows-discovery-campaign/v1"}',
+        '{"schema_version":"xverse.windows-discovery-campaign/v1",'
+        '"schema_version":"xverse.windows-discovery-campaign/v1"}',
         encoding="utf-8",
     )
     with pytest.raises(ValueError, match="duplicate JSON field"):

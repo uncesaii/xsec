@@ -110,7 +110,7 @@ _OVERFLOW_FLAGS = ["-fno-stack-protector", "-no-pie"]
 
 
 def _compile(src: str, name: str, flags: list[str]) -> tuple[str, Path]:
-    d = Path(tempfile.mkdtemp(prefix="0verse-test-patch-"))
+    d = Path(tempfile.mkdtemp(prefix="xverse-test-patch-"))
     c = d / f"{name}.c"
     c.write_text(src)
     out = d / name
@@ -482,7 +482,7 @@ def test_mitigation_only_real_binary_rejected() -> None:
 def test_source_mode_generates_verified_patch(tmp_path: Path) -> None:
     vuln, _ = _compile(_OVERFLOW_SRC, "overflow", _OVERFLOW_FLAGS)
     pov = _confirmed_overflow_pov(vuln)
-    root = Path(tempfile.mkdtemp(prefix="0verse-test-src-"))
+    root = Path(tempfile.mkdtemp(prefix="xverse-test-src-"))
     (root / "overflow.c").write_text(_OVERFLOW_SRC)
     ctx = PatchContext(
         source_root=str(root),
@@ -567,7 +567,7 @@ def test_binary_micropatch_degrades_to_b0_when_no_clamp() -> None:
 def test_patch_finding_end_to_end_source_mode() -> None:
     vuln, _ = _compile(_OVERFLOW_SRC, "overflow", _OVERFLOW_FLAGS)
     pov = _confirmed_overflow_pov(vuln)
-    root = Path(tempfile.mkdtemp(prefix="0verse-test-e2e-"))
+    root = Path(tempfile.mkdtemp(prefix="xverse-test-e2e-"))
     (root / "overflow.c").write_text(_OVERFLOW_SRC)
     ctx = PatchContext(
         source_root=str(root),

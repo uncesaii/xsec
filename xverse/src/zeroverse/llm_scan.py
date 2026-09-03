@@ -246,7 +246,7 @@ def llm_scan_functions(
     return out
 
 
-# --- projection to a 0verse Finding (hypothesis) ----------------------------
+# --- projection to a xverse Finding (hypothesis) ----------------------------
 
 def to_finding(r: LlmScanFinding) -> Finding:
     """Project a positive LLM verdict to an ``analyze.Finding`` hypothesis. Addresses

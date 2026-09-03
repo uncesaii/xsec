@@ -29,19 +29,19 @@ from typing import Any
 from .pe_symbols import pdb_codeview_identity, pe_codeview_identity
 from .windows_public_pdb import PublicPdbReceipt
 
-SCHEMA_VERSION = "0verse.windows-variant-campaign/v1"
-RESULT_VERSION = "0verse.windows-variant/v1"
-LABEL_VERSION = "0verse.windows-variant-labels/v1"
-EVAL_VERSION = "0verse.windows-variant-eval/v1"
-ANALYSIS_RECEIPT_VERSION = "0verse.ghidra-analysis-receipt/v1"
-ANALYSIS_RECEIPT_VERSION_V2 = "0verse.ghidra-analysis-receipt/v2"
-ANALYSIS_RECEIPT_VERSION_V3 = "0verse.ghidra-analysis-receipt/v3"
-ANALYSIS_RECEIPT_VERSION_V4 = "0verse.ghidra-analysis-receipt/v4"
+SCHEMA_VERSION = "xverse.windows-variant-campaign/v1"
+RESULT_VERSION = "xverse.windows-variant/v1"
+LABEL_VERSION = "xverse.windows-variant-labels/v1"
+EVAL_VERSION = "xverse.windows-variant-eval/v1"
+ANALYSIS_RECEIPT_VERSION = "xverse.ghidra-analysis-receipt/v1"
+ANALYSIS_RECEIPT_VERSION_V2 = "xverse.ghidra-analysis-receipt/v2"
+ANALYSIS_RECEIPT_VERSION_V3 = "xverse.ghidra-analysis-receipt/v3"
+ANALYSIS_RECEIPT_VERSION_V4 = "xverse.ghidra-analysis-receipt/v4"
 ANALYSIS_PRODUCER = "zeroverse.windows-analysis/v1"
 ANALYSIS_FIXTURE_PRODUCER = "zeroverse.windows-analysis/fixture-v1"
 IOCTL_ANALYSIS_PRODUCER = "zeroverse.windows-ioctl-analysis/v1"
-_IOCTL_ANALYSIS_CACHE_DOMAIN = b"0verse-windows-ioctl-analysis-cache-v1\0"
-_PUBLIC_IOCTL_ANALYSIS_CACHE_DOMAIN = b"0verse-windows-public-ioctl-analysis-cache-v1\0"
+_IOCTL_ANALYSIS_CACHE_DOMAIN = b"xverse-windows-ioctl-analysis-cache-v1\0"
+_PUBLIC_IOCTL_ANALYSIS_CACHE_DOMAIN = b"xverse-windows-public-ioctl-analysis-cache-v1\0"
 _BINARY_SIZE_CAP = 512 * 1024 * 1024
 _PDB_SIZE_CAP = 2 * 1024 * 1024 * 1024
 # Measured 2026-08-12: a full P-Code export of the 2.4 MB inbox vmswitch.sys is

@@ -23,7 +23,7 @@ from typing import Literal
 from .acquisition import AcquisitionManifest, MemoryRegion, RegionRole
 from .acquisition_bundle import AcquisitionBundle, ValidatedAcquisitionArtifact
 
-FIRMWARE_INSPECTION_VERSION = "0verse.firmware-inspection/v1"
+FIRMWARE_INSPECTION_VERSION = "xverse.firmware-inspection/v1"
 FIRMWARE_INSPECTOR_PROFILE = "zeroverse.firmware-inspection/deterministic-v1"
 
 LoadAddressBasis = Literal["user-supplied", "inferred", "unknown"]

@@ -1,5 +1,5 @@
 /* CWE-134: attacker-controlled data reaches the FORMAT argument of printf.
- * 0verse's lens flags the non-literal format position; the oracle feeds a
+ * xverse's lens flags the non-literal format position; the oracle feeds a
  * %s-spray (+ %n) probe -> a wild pointer read/write crash a benign control
  * does not trigger. Input: the format string on stdin. */
 #include <stdio.h>

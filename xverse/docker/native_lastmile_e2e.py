@@ -13,8 +13,8 @@ os.environ["ZEROVERSE_EXECUTOR"] = "local"
 
 from zeroverse.fuzz.lastmile import normalize_last_mile_candidate, probe_reaching_inputs
 
-REACH_SOURCE = Path("/opt/0verse-fixtures/native_lastmile_reach.c")
-PNG_SOURCE = Path("/opt/0verse-fixtures/native_lastmile_png.c")
+REACH_SOURCE = Path("/opt/xverse-fixtures/native_lastmile_reach.c")
+PNG_SOURCE = Path("/opt/xverse-fixtures/native_lastmile_png.c")
 
 
 

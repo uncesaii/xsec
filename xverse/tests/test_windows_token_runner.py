@@ -56,7 +56,7 @@ def test_witness_provenance_is_exact_and_rejects_builtin_accounts() -> None:
 
 def campaign() -> dict[str, object]:
     return {
-        "schema_version": "0verse.windows-token-campaign/v1",
+        "schema_version": "xverse.windows-token-campaign/v1",
         "campaign_id": "canary-lpe-001",
         "worker": "canary-worker-1",
         "starting_context": "standard-user",
@@ -71,7 +71,7 @@ def campaign() -> dict[str, object]:
 def scope() -> dict[str, object]:
     now = datetime.now(UTC)
     return {
-        "schema_version": "0verse.windows-scope/v2",
+        "schema_version": "xverse.windows-scope/v2",
         "campaign_id": "canary-lpe-001",
         "program": "windows-canary",
         "scope_url": "https://www.microsoft.com/en-us/msrc/bounty-windows-insider-preview",
@@ -107,7 +107,7 @@ def scope() -> dict[str, object]:
 def grant(campaign_sha: str, scope_sha: str) -> dict[str, object]:
     now = datetime.now(UTC)
     return {
-        "schema_version": "0verse.windows-token-execution-grant/v1",
+        "schema_version": "xverse.windows-token-execution-grant/v1",
         "campaign_sha256": campaign_sha,
         "scope_manifest_sha256": scope_sha,
         "campaign_id": "canary-lpe-001",
@@ -127,7 +127,7 @@ def acceptance(
 ) -> dict[str, object]:
     now = datetime.now(UTC)
     return {
-        "schema_version": "0verse.windows-token-worker-acceptance/v2",
+        "schema_version": "xverse.windows-token-worker-acceptance/v2",
         "campaign_sha256": campaign_sha,
         "scope_manifest_sha256": scope_sha,
         "execution_grant_sha256": grant_sha,
@@ -269,7 +269,7 @@ def test_worker_acceptance_rejects_unbound_witness_identity(
 
 def test_worker_acceptance_v1_is_not_backwards_compatible() -> None:
     raw = acceptance("a" * 64, "b" * 64, "c" * 64)
-    raw["schema_version"] = "0verse.windows-token-worker-acceptance/v1"
+    raw["schema_version"] = "xverse.windows-token-worker-acceptance/v1"
     raw["signature_ssh"] = "test-signature"
     with pytest.raises(ValueError, match="unsupported Windows token worker acceptance schema"):
         WindowsTokenWorkerAcceptance.from_mapping(raw)

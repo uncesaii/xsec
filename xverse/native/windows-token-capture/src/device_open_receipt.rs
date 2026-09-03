@@ -19,8 +19,8 @@ use zeroize::Zeroizing;
 #[cfg(test)]
 use crate::device_open_protocol::DeviceOpenObservation;
 
-const SCHEMA_VERSION: &str = "0verse.windows-device-open-boundary-receipt/v2";
-const SIGNATURE_NAMESPACE: &str = "0verse-windows-device-open-boundary-receipt-v2";
+const SCHEMA_VERSION: &str = "xverse.windows-device-open-boundary-receipt/v2";
+const SIGNATURE_NAMESPACE: &str = "xverse-windows-device-open-boundary-receipt-v2";
 const OBSERVATION_KIND: &str = "natural-standard-user-device-open";
 const EVIDENCE_CLASS: &str = "candidate-capability-only";
 const PRODUCER_AUTHORITY: &str = "system-held-device-open-broker";

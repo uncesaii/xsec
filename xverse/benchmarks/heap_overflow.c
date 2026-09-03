@@ -1,6 +1,6 @@
 /* CWE-122: unbounded copy of attacker-controlled input into a small HEAP buffer.
  * The overflow is SILENT under the stock allocator (no free(), modest spill) —
- * the classic "invisible without instrumentation" heap bug. 0verse confirms it
+ * the classic "invisible without instrumentation" heap bug. xverse confirms it
  * via the differential-allocator oracle: clean under stock, faults under the
  * Electric-Fence guard page (clean -> crash = real heap OOB write), pinned to
  * the offending instruction. Expect: read -> strcpy confirmed. */

@@ -1,6 +1,6 @@
 /* CWE-697 / CWE-287 (hypothesis-only class): a length-less, non-constant-time
  * password compare plus an off-by-one bound. There is NO generic binary oracle
- * for "is this the intended check?", so 0verse surfaces it as a high-value
+ * for "is this the intended check?", so xverse surfaces it as a high-value
  * funnel LEAD via the logic lens and NEVER marks it confirmed without a PoV. */
 #include <string.h>
 #include <stdio.h>

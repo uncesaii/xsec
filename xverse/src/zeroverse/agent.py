@@ -294,7 +294,7 @@ def _fix_line(line: str, sink: str) -> str | None:
         m = re.search(rf"{sink}\s*\(\s*([A-Za-z_]\w*)", line)
         if m:
             v = m.group(1)
-            return (f"{indent}/* 0verse fix: do not pass untrusted input to a shell */ "
+            return (f"{indent}/* xverse fix: do not pass untrusted input to a shell */ "
                     f"(void){v};")
     return None
 

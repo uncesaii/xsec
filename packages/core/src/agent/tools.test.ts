@@ -359,7 +359,7 @@ describe("ToolExecutor", () => {
     }
   });
 
-  it("keeps the 0verse bridge opt-in and confines its binary path to the source scope", async () => {
+  it("keeps the xverse bridge opt-in and confines its binary path to the source scope", async () => {
     process.env["XSEC_FEATURE_ZEROVERSE"] = "1";
     const withoutScope = await executor.execute({
       name: "analyze_binary",

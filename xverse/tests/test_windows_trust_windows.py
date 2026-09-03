@@ -244,7 +244,7 @@ def _write_policy(path: Path, roots: list[str], signtools: list[str]) -> None:
     path.write_text(
         json.dumps(
             {
-                "schema_version": "0verse.windows-trust-root-policy/v1",
+                "schema_version": "xverse.windows-trust-root-policy/v1",
                 "policy_id": "windows-native-producer-test",
                 "allowed_root_cert_sha256": roots,
                 "allowed_signtool_sha256": signtools,
@@ -350,7 +350,7 @@ def test_signtool_producer_accepts_embedded_signature_with_pinned_root(
     assert verified.terminal_root_cert_sha256 == root_sha256
     assert verified.mode == "embedded"
     raw = json.loads(receipt.read_bytes())
-    assert raw["schema_version"] == "0verse.windows-signtool-policy-receipt/v1"
+    assert raw["schema_version"] == "xverse.windows-signtool-policy-receipt/v1"
     assert raw["producer"] == "zeroverse.windows-signtool-policy/powershell-v1"
     assert raw["receipt_signer_identity"] == SIGNER_IDENTITY
     assert Path(f"{receipt}.sig").is_file()

@@ -36,11 +36,11 @@ from .acquisition_bundle import (
     load_acquisition_bundle,
 )
 
-SCOUT_EVENT_VERSION = "0verse.scout-event/v1"
-SCOUT_CAPTURE_VERSION = "0verse.scout-capture/v1"
-SCOUT_SESSION_LOG_VERSION = "0verse.scout-session-log/v1"
+SCOUT_EVENT_VERSION = "xverse.scout-event/v1"
+SCOUT_CAPTURE_VERSION = "xverse.scout-capture/v1"
+SCOUT_SESSION_LOG_VERSION = "xverse.scout-session-log/v1"
 
-SCOUT_CAPTURE_MEDIA_TYPE = "application/vnd.0verse.scout-capture"
+SCOUT_CAPTURE_MEDIA_TYPE = "application/vnd.xverse.scout-capture"
 SCOUT_TRANSACTION_MEDIA_TYPE = "application/x-ndjson"
 SCOUT_SESSION_LOG_MEDIA_TYPE = "application/json"
 

@@ -14,8 +14,8 @@ use sha2::{Digest, Sha256};
 
 use crate::authority::LpacVerifiedAuthority;
 
-const PROFILE_SCHEMA: &str = "0verse.windows-lpac-fixed-launch-profile/v1";
-const PROFILE_DOMAIN: &[u8] = b"0verse-windows-lpac-fixed-launch-profile-v1\0";
+const PROFILE_SCHEMA: &str = "xverse.windows-lpac-fixed-launch-profile/v1";
+const PROFILE_DOMAIN: &[u8] = b"xverse-windows-lpac-fixed-launch-profile-v1\0";
 const MAX_CAPABILITIES: usize = 32;
 const MAX_OPERATIONS: usize = 16;
 const SYNTHETIC_CREATION_FLAGS: u32 = 0x0008_0404;

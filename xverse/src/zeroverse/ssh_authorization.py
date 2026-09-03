@@ -62,7 +62,7 @@ def verify_ssh_signature(
                 f"{label} allowed-signers policy must be root-owned and not group/world writable"
             )
     policy = policy.resolve()
-    with tempfile.TemporaryDirectory(prefix="0verse-signature-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="xverse-signature-") as temporary:
         signature = Path(temporary) / "signature.ssh"
         signature.write_bytes(signature_ssh.encode("utf-8"))
         try:
@@ -115,7 +115,7 @@ def sign_ssh_material(
         raise ValueError(f"{label} signing key permissions are too broad")
     if not material or len(material) > 4 * 1024 * 1024:
         raise ValueError(f"{label} signed material is empty or too large")
-    with tempfile.TemporaryDirectory(prefix="0verse-authorization-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="xverse-authorization-") as temporary:
         material_path = Path(temporary) / "material.json"
         material_path.write_bytes(material)
         try:

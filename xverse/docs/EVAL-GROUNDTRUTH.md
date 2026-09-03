@@ -1,6 +1,6 @@
-# 0verse ground-truth evaluation — does it find REAL bugs without crying wolf?
+# xverse ground-truth evaluation — does it find REAL bugs without crying wolf?
 
-> **The credibility instrument.** Everything else measures 0verse against *itself*
+> **The credibility instrument.** Everything else measures xverse against *itself*
 > (ablations, baselines). This measures it against **ground truth**: real bugs with
 > KNOWN locations + fix commits, scored for **reach** / **recall** (did it surface
 > the bug at the right function/sink, with a reproducing PoV?) and **FP rate** (does
@@ -44,7 +44,7 @@ test the math.
 target is a real upstream library whose real bugs are toggled by
 `MAGMA_ENABLE_FIXES` and guarded by ground-truth `MAGMA_BUG` canaries. We build each
 target **`-O0` with fatal canaries** (`isan=1`) so a Magma-bug trigger aborts the
-process (== a ground-truth confirmation), run the **full 0verse pipeline**
+process (== a ground-truth confirmation), run the **full xverse pipeline**
 (`zeroverse.api.scan`, Ghidra → slice → foxguard → LLM-triage funnel → angr prune →
 oracle → PoV → fuzz complement) over the driver binary with the **real model**, and
 score the findings against Magma's KNOWN bug locations with `zeroverse.magma`.
@@ -104,7 +104,7 @@ scale is the **fuzzing lane's** result, not this one — see below + BENCHMARKS.
 
 ### Reading the Magma numbers honestly (no spin)
 
-- **Magma is HARD, and the number says so.** 0verse's static + LLM lanes **reach** a
+- **Magma is HARD, and the number says so.** xverse's static + LLM lanes **reach** a
   fraction of the catalogued bug-sites (the slice/lens surfaces the right function),
   but binary-native **confirmation** of a *specific* mature-library bug through a
   `libFuzzer`/`AFL`-style driver is genuinely difficult: the oracle has to synthesize
@@ -116,7 +116,7 @@ scale is the **fuzzing lane's** result, not this one — see below + BENCHMARKS.
   library degrades to a hypothesis and never manufactures a confirmation. Precision
   over confirmed findings holds high; confirmations on the fixed builds stay at 0.
 - **Where confirmation at scale actually lives: the fuzzing lane.** Triggering Magma
-  bugs at scale is what a *fuzzing campaign* does — see the **0verse-CMPLOG vs
+  bugs at scale is what a *fuzzing campaign* does — see the **xverse-CMPLOG vs
   baseline AFL++** comparison on real Magma targets in
   [docs/BENCHMARKS.md](BENCHMARKS.md), measured against the same ground-truth fatal
   canaries. The binary-native pipeline's contribution at scale is **reach + triage +
@@ -159,12 +159,12 @@ The fixed build is the FP probe.
 | `cve_2017_9047_xml_{vuln,fixed}` | CVE-2017-9047 | CWE-787 | `xmlSnprintfElementContent` | libxml2 — **== Magma XML001** |
 | `cve_2012_0809_sudo_{vuln,fixed}` | CVE-2012-0809 | CWE-134 | `sudo_debug` | sudo |
 
-These bug instances were **never used to build any 0verse detector** (the lenses are
+These bug instances were **never used to build any xverse detector** (the lenses are
 generic CWE patterns; the one variant seed is macOS IOKit), so a find reads as
 generalization. `cve_2017_9047` *is* Magma **XML001** — independent corroboration
 that the reproducer tracks a real, catalogued bug.
 
-### Tier 2 — sanity floor (0verse's own fixtures; `in_seed_set=true`)
+### Tier 2 — sanity floor (xverse's own fixtures; `in_seed_set=true`)
 
 The `benchmarks/*.c` synthetic fixtures + two clean look-alikes. Explicitly **not**
 held-out evidence — the floor that proves the harness wiring works end to end.

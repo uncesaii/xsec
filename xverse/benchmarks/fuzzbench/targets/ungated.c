@@ -1,8 +1,8 @@
-/* 0verse M6 benchmark target — UNGATED heap overflow (expected TIE).
+/* xverse M6 benchmark target — UNGATED heap overflow (expected TIE).
  *
  * No magic gate: any input >= 16 bytes overflows a 16-byte HEAP buffer via a
- * hand-rolled copy loop. Both plain AFL++ and the 0verse lane should crash this
- * almost immediately: the honest control where 0verse does NOT win. The heap
+ * hand-rolled copy loop. Both plain AFL++ and the xverse lane should crash this
+ * almost immediately: the honest control where xverse does NOT win. The heap
  * buffer makes the silent OOB confirmable by the differential-allocator oracle
  * (guard page) just like the rest of the corpus. */
 #include <stdint.h>

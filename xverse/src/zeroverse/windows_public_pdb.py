@@ -26,7 +26,7 @@ from urllib.parse import SplitResult, quote, urlsplit, urlunsplit
 
 from .pe_symbols import pdb_codeview_identity, pe_codeview_identity
 
-PUBLIC_PDB_SCHEMA = "0verse.windows-public-pdb-download/v1"
+PUBLIC_PDB_SCHEMA = "xverse.windows-public-pdb-download/v1"
 PUBLIC_PDB_PRODUCER = "zeroverse.windows-public-pdb-download/v1"
 PUBLIC_PDB_PROOF_LIMIT = (
     "Acquisition evidence only. The PDB was returned for the PE-derived Microsoft "
@@ -157,7 +157,7 @@ def download_public_pdb(
         if pe_identity is None:  # narrowed by _url_from_identity; keeps mypy explicit
             raise AssertionError("unreachable PE identity state")
         request = urllib.request.Request(
-            requested_url, headers={"User-Agent": "0verse-windows-public-pdb/1"}
+            requested_url, headers={"User-Agent": "xverse-windows-public-pdb/1"}
         )
         if opener is None:
             response_context = urllib.request.build_opener(_SymbolRedirectHandler()).open(

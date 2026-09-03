@@ -30,7 +30,7 @@ import type {
   TargetResearchAdapter,
 } from "../target-research-adapter.js";
 
-const EVIDENCE_SCHEMA = "0verse.hyperv-evidence/v1";
+const EVIDENCE_SCHEMA = "xverse.hyperv-evidence/v1";
 const SHA256 = /^[a-f0-9]{64}$/;
 const RUN_NONCE = /^[A-Za-z0-9_-]{32,128}$/;
 const RECOVERY_ARTIFACTS = [
@@ -145,7 +145,7 @@ export type WindowsHyperVCandidate = ResearchCandidate<HyperVCandidatePayload>;
 export interface WindowsHyperVImportVerdict {
   verdictSchema: "xsec.windows-hyperv-import-verdict/v1";
   executionOrigin: "external";
-  producer: "0verse";
+  producer: "xverse";
   schemaVersion: typeof EVIDENCE_SCHEMA;
   campaignId: string;
   buildLabEx: string;
@@ -315,8 +315,8 @@ function validateWorkerAcceptance(
   const [startedAt, unavailableAt, hostRecoveredAt, guestRecoveredAt, completedAt] = drillTimes;
   const now = Date.now();
   if (!exactAcceptance || !exactDrill
-    || acceptance.schema_version !== "0verse.hyperv-worker-acceptance/v1"
-    || drill.schema_version !== "0verse.hyperv-recovery-drill/v1"
+    || acceptance.schema_version !== "xverse.hyperv-worker-acceptance/v1"
+    || drill.schema_version !== "xverse.hyperv-recovery-drill/v1"
     || acceptance.nonce !== receipt.worker_acceptance_nonce
     || acceptance.recovery_drill_sha256 !== receipt.worker_recovery_drill_sha256
     || acceptance.recovery_drill_path !== receipt.worker_recovery_drill_path
@@ -394,7 +394,7 @@ function validateWorkerAcceptance(
     writeFileSync(signaturePath, acceptance.signature_ssh, { encoding: "utf8", flag: "wx" });
     const result = spawnSync("/usr/bin/ssh-keygen", [
       "-Y", "verify", "-f", signerFile, "-I", acceptance.accepted_by,
-      "-n", "0verse-hyperv-worker-acceptance", "-s", signaturePath,
+      "-n", "xverse-hyperv-worker-acceptance", "-s", signaturePath,
     ], { input: canonicalUnsignedAcceptance(acceptance), timeout: 10_000 });
     if (result.status !== 0) throw new Error("worker acceptance SSH signature is invalid");
   } finally {
@@ -451,7 +451,7 @@ function parseReceipt(path: string): ZeroverseHyperVEvidence {
     || typeof value.error !== "string"
     || typeof value.claim_eligible !== "boolean"
     || (value.fixture_kind !== undefined && typeof value.fixture_kind !== "string")) {
-    throw new Error("invalid or unsupported 0verse Hyper-V evidence receipt");
+    throw new Error("invalid or unsupported xverse Hyper-V evidence receipt");
   }
   return {
     ...value,
@@ -583,7 +583,7 @@ export class WindowsHyperVImportAdapter implements TargetResearchAdapter<
       validateSidecars(receipt, receiptPath);
       return {
         items: [{
-          id: `${target.id}:0verse-receipt`,
+          id: `${target.id}:xverse-receipt`,
           title: target.config.finding.title,
           location: receiptPath,
           hypothesis: "externally executed Hyper-V controls remain clean while target trials produce an identical host dump signature",
@@ -601,9 +601,9 @@ export class WindowsHyperVImportAdapter implements TargetResearchAdapter<
         evidence: [{
           stage: "discover",
           status: "failed",
-          summary: `0verse Hyper-V import rejected: ${error instanceof Error ? error.message : String(error)}`,
+          summary: `xverse Hyper-V import rejected: ${error instanceof Error ? error.message : String(error)}`,
         }],
-        warnings: ["0verse Hyper-V receipt failed identity, schema, or sidecar validation"],
+        warnings: ["xverse Hyper-V receipt failed identity, schema, or sidecar validation"],
       };
     }
   }
@@ -617,7 +617,7 @@ export class WindowsHyperVImportAdapter implements TargetResearchAdapter<
     const evidence: ResearchEvidence[] = [];
     for (const candidate of input.candidates) {
       try {
-        const snapshotRoot = join(ctx.artifactDir, "0verse-hyperv");
+        const snapshotRoot = join(ctx.artifactDir, "xverse-hyperv");
         mkdirSync(snapshotRoot, { recursive: true });
         const receipt = parseReceipt(candidate.payload.receiptPath);
         validateIdentity(receipt, target);
@@ -676,7 +676,7 @@ export class WindowsHyperVImportAdapter implements TargetResearchAdapter<
         const verdict: WindowsHyperVImportVerdict = {
           verdictSchema: "xsec.windows-hyperv-import-verdict/v1",
           executionOrigin: "external",
-          producer: "0verse",
+          producer: "xverse",
           schemaVersion: EVIDENCE_SCHEMA,
           campaignId: receipt.campaign_id,
           buildLabEx: target.buildId!,
@@ -699,7 +699,7 @@ export class WindowsHyperVImportAdapter implements TargetResearchAdapter<
         const record: ResearchEvidence = {
           stage: "verify",
           status: "passed",
-          summary: `re-hashed ${sidecars.length} 0verse sidecar(s); ${receipt.confirmations}/${receipt.observations.filter((row) => row.case === "target").length} target trial(s) matched and ${cleanControls} control(s) were clean`,
+          summary: `re-hashed ${sidecars.length} xverse sidecar(s); ${receipt.confirmations}/${receipt.observations.filter((row) => row.case === "target").length} target trial(s) matched and ${cleanControls} control(s) were clean`,
           data: verdict,
           artifacts: snapshots,
         };
@@ -727,7 +727,7 @@ export class WindowsHyperVImportAdapter implements TargetResearchAdapter<
         evidence.push({
           stage: "verify",
           status: "inconclusive",
-          summary: `0verse Hyper-V receipt was not promoted: ${error instanceof Error ? error.message : String(error)}`,
+          summary: `xverse Hyper-V receipt was not promoted: ${error instanceof Error ? error.message : String(error)}`,
         });
       }
     }

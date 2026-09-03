@@ -29,10 +29,10 @@ MAX_TOTAL_BLOCKS = MAX_FUNCTIONS * MAX_BLOCKS
 MAX_TOTAL_OPS = MAX_FUNCTIONS * MAX_OPS
 MAX_TOTAL_EDGES = MAX_FUNCTIONS * MAX_EDGES
 SIDE_WALL_CLOCK_SECONDS = 300
-SCHEMA_VERSION = "0verse.windows-afd-handler-cfg-ssa-facts/v5"
+SCHEMA_VERSION = "xverse.windows-afd-handler-cfg-ssa-facts/v5"
 PRODUCER = "zeroverse.windows-afd-handler-cfg-ssa-ghidra/v5"
-RAW_SCHEMA_VERSION = "0verse.windows-afd-handler-cfg-ssa-raw/v5"
-SIDE_SCHEMA_VERSION = "0verse.windows-afd-handler-cfg-ssa-side-facts/v1"
+RAW_SCHEMA_VERSION = "xverse.windows-afd-handler-cfg-ssa-raw/v5"
+SIDE_SCHEMA_VERSION = "xverse.windows-afd-handler-cfg-ssa-side-facts/v1"
 SIDE_PRODUCER = "zeroverse.windows-afd-handler-cfg-ssa-side-ghidra/v1"
 _REJECTED_OPCODES = {
     "BRANCHIND",

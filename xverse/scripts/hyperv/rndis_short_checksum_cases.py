@@ -96,7 +96,7 @@ def write_fixture_set(output: Path) -> list[dict[str, object]]:
         (output / f"{case.name}.rndis").write_bytes(blob)
         manifest.append(describe(case, blob))
     (output / "manifest.json").write_text(
-        json.dumps({"format": "0verse-rndis-fixtures-v1", "cases": manifest}, indent=2)
+        json.dumps({"format": "xverse-rndis-fixtures-v1", "cases": manifest}, indent=2)
         + "\n",
         encoding="utf-8",
     )
@@ -114,7 +114,7 @@ def main() -> int:
         manifest = write_fixture_set(args.output)
     else:
         manifest = [describe(case, build_packet(case.data_len, case.checksum_metadata)) for case in CASES]
-    print(json.dumps({"format": "0verse-rndis-fixtures-v1", "cases": manifest}, indent=2))
+    print(json.dumps({"format": "xverse-rndis-fixtures-v1", "cases": manifest}, indent=2))
     return 0
 
 

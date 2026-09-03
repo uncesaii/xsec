@@ -12,7 +12,7 @@ def _write(path: Path, files: list[dict[str, object]]) -> None:
     path.write_text(
         json.dumps(
             {
-                "schema_version": "0verse.windows-lpe-opaque-content/v1",
+                "schema_version": "xverse.windows-lpe-opaque-content/v1",
                 "files": files,
             },
             sort_keys=True,
@@ -80,8 +80,8 @@ def test_rejects_mismatch_unused_duplicate_keys_and_noncanonical_json(
         content.require_all_consumed()
 
     path.write_text(
-        '{"schema_version":"0verse.windows-lpe-opaque-content/v1",'
-        '"schema_version":"0verse.windows-lpe-opaque-content/v1","files":[]}',
+        '{"schema_version":"xverse.windows-lpe-opaque-content/v1",'
+        '"schema_version":"xverse.windows-lpe-opaque-content/v1","files":[]}',
         encoding="utf-8",
     )
     with pytest.raises(ValueError, match="duplicate JSON key"):
@@ -90,7 +90,7 @@ def test_rejects_mismatch_unused_duplicate_keys_and_noncanonical_json(
     path.write_text(
         json.dumps(
             {
-                "schema_version": "0verse.windows-lpe-opaque-content/v1",
+                "schema_version": "xverse.windows-lpe-opaque-content/v1",
                 "files": files,
             },
             indent=2,

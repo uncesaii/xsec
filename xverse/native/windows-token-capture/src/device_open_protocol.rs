@@ -15,9 +15,9 @@ use std::fmt;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
-const REGISTRY_SCHEMA: &str = "0verse.windows-device-open-target-registry/v1";
-pub(crate) const OBSERVATION_SCHEMA: &str = "0verse.windows-device-open-observation/v1";
-const REGISTRY_DOMAIN: &[u8] = b"0verse-windows-device-open-target-registry-v1\0";
+const REGISTRY_SCHEMA: &str = "xverse.windows-device-open-target-registry/v1";
+pub(crate) const OBSERVATION_SCHEMA: &str = "xverse.windows-device-open-observation/v1";
+const REGISTRY_DOMAIN: &[u8] = b"xverse-windows-device-open-target-registry-v1\0";
 
 const ENUMERATION_API: &str = concat!(
     "SetupDiGetClassDevsW+SetupDiEnumDeviceInterfaces+",
@@ -68,7 +68,7 @@ pub(crate) struct DeviceOpenTarget {
 /// The only compiled target is an owned, explicitly non-bounty fixture.
 const SYNTHETIC_FIXTURE_TARGET: DeviceOpenTarget = DeviceOpenTarget {
     target_id: "synthetic-non-bounty-buffered-fixture",
-    driver_id: "0verse-fixture-buffered",
+    driver_id: "xverse-fixture-buffered",
     driver_service_name: "ZeroverseFixtureBuffered",
     expected_installed_driver_image_sha256: "8f2fe04d8b2d6e8a1870460d72e83fb5321156dc8f22d4e618fd80f56a397f22",
     interface_class_guid: "{12345678-1234-1234-1234-1234567890ab}",

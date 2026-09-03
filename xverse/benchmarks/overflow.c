@@ -1,5 +1,5 @@
 /* CWE-120: unbounded copy of attacker-controlled input into a small stack buffer.
- * Expect: 0verse confirms  read -> strcpy  via the differential crash oracle. */
+ * Expect: xverse confirms  read -> strcpy  via the differential crash oracle. */
 #include <string.h>
 #include <unistd.h>
 

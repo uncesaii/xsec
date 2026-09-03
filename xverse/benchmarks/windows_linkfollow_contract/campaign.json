@@ -1,5 +1,5 @@
 {
- "schema_version": "0verse.windows-variant-campaign/v1",
+ "schema_version": "xverse.windows-variant-campaign/v1",
  "seed": {
   "vulnerable": {
    "binary_path": "vulnerable.sys",

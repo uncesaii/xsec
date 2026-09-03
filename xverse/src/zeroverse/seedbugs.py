@@ -2,9 +2,9 @@
 
 Big Sleep's lesson (guidance §#4): seeding a *known* bug class and hunting its
 siblings is far higher signal than open-ended search. This module encodes XSEC
-kernel reverse-engineering knowledge as a **reusable 0verse asset** — declarative
+kernel reverse-engineering knowledge as a **reusable xverse asset** — declarative
 ``SeedBugClass`` records — instead of leaving it as tribal knowledge or a comment.
-Pointing 0verse at a binary-only kernel artifact primes the matching hypotheses
+Pointing xverse at a binary-only kernel artifact primes the matching hypotheses
 automatically (``seeds_for_target``), and the priming pass surfaces candidate
 dispatch / handler routines as hypotheses (``prime_hypotheses``) that the funnel
 then ranks/escalates under variant-analysis framing.
@@ -838,7 +838,7 @@ def seeds_for_target(
 ) -> list[SeedBugClass]:
     """Pick **every** seed-bug-class that applies to a target. A Mach-O kext primes
     the IOKit class; a Linux ``.ko`` (ELF ``kind=="KMOD"``) primes all five
-    kernel-module classes. This is the "point 0verse at a kernel binary and it
+    kernel-module classes. This is the "point xverse at a kernel binary and it
     knows what to hunt" hook (kext → IOKit, ``.ko`` → linux-ko:*)."""
     out: list[SeedBugClass] = []
     have_bodies = bool(decompiled_c)

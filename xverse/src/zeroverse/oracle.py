@@ -435,7 +435,7 @@ class CrashFeedbackReceipt:
     def to_dict(self) -> dict[str, Any]:
         body = {
             "schemaVersion": 1,
-            "contract": "0verse-crash-feedback-receipt-v1",
+            "contract": "xverse-crash-feedback-receipt-v1",
             "targetSha256": self.target_sha256,
             "input": {
                 "originalSha256": self.original_sha256,
@@ -761,7 +761,7 @@ def differential_allocator(
 # malloc is implemented directly over mmap (no dlsym chaining), so there is no
 # allocator-bootstrap recursion. This is also a no-libefence fallback guard page
 # for the differential-allocator (pass it as ``extra_preload``).
-_QUARANTINE_GUARD_C = r"""/* 0verse quarantine guard allocator (auto-generated). */
+_QUARANTINE_GUARD_C = r"""/* xverse quarantine guard allocator (auto-generated). */
 #define _GNU_SOURCE
 #include <stddef.h>
 #include <stdint.h>
@@ -803,7 +803,7 @@ void *malloc(size_t n) {
     if (base == MAP_FAILED) return NULL;
     mprotect(base + data_len, (size_t)pg, PROT_NONE);
     unsigned char *user = base + data_len - need;
-    if (g_count >= MAXN) die("0verse-quarantine: registry exhausted\n");
+    if (g_count >= MAXN) die("xverse-quarantine: registry exhausted\n");
     struct slot *s = &g_slots[g_count++];
     s->user = user; s->base = base; s->map_len = map_len; s->user_len = n;
     s->state = ST_LIVE;
@@ -813,8 +813,8 @@ void *malloc(size_t n) {
 void free(void *p) {
     if (!p) return;
     struct slot *s = find(p);
-    if (!s) die("0verse-quarantine: free of unknown pointer\n");
-    if (s->state == ST_QUARANTINED) die("0verse-quarantine: DOUBLE FREE detected\n");
+    if (!s) die("xverse-quarantine: free of unknown pointer\n");
+    if (s->state == ST_QUARANTINED) die("xverse-quarantine: DOUBLE FREE detected\n");
     memset(s->user, POISON, s->user_len);
     mprotect(s->base, s->map_len, PROT_NONE);
     s->state = ST_QUARANTINED;
@@ -822,7 +822,7 @@ void free(void *p) {
 
 void *calloc(size_t nmemb, size_t size) {
     size_t n = nmemb * size;
-    if (size && n / size != nmemb) die("0verse-quarantine: calloc overflow\n");
+    if (size && n / size != nmemb) die("xverse-quarantine: calloc overflow\n");
     return malloc(n);
 }
 
@@ -830,7 +830,7 @@ void *realloc(void *p, size_t n) {
     if (!p) return malloc(n);
     if (n == 0) { free(p); return NULL; }
     struct slot *s = find(p);
-    if (!s || s->state != ST_LIVE) die("0verse-quarantine: realloc of bad pointer\n");
+    if (!s || s->state != ST_LIVE) die("xverse-quarantine: realloc of bad pointer\n");
     void *np = malloc(n);
     if (!np) return NULL;
     size_t cp = s->user_len < n ? s->user_len : n;
@@ -849,7 +849,7 @@ void *valloc(size_t n) { return malloc(n); }
 
 
 def _cache_dir() -> Path:
-    d = Path(os.environ.get("ZEROVERSE_CACHE", ".0verse-cache"))
+    d = Path(os.environ.get("ZEROVERSE_CACHE", ".xverse-cache"))
     with contextlib.suppress(OSError):
         d.mkdir(parents=True, exist_ok=True)
     return d
@@ -1069,7 +1069,7 @@ def uaf_differential(
 # Non-matching calls are forwarded to the real libc function (RTLD_NEXT) so the
 # program runs normally up to the injected sink. This is the cmdi confirming oracle
 # the differential-allocator cannot provide.
-_EXECTRAP_SHIM_C = r"""/* 0verse exec-trap shim (auto-generated). */
+_EXECTRAP_SHIM_C = r"""/* xverse exec-trap shim (auto-generated). */
 #define _GNU_SOURCE
 #include <dlfcn.h>
 #include <spawn.h>

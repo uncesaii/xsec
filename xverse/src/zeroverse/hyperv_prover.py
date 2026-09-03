@@ -27,11 +27,11 @@ from .windows_scope import (
 if TYPE_CHECKING:
     from .hyperv_acceptance import VerifiedHyperVWorkerAcceptance
 
-SCHEMA_VERSION = "0verse.hyperv-prover/v1"
-GRANT_SCHEMA_VERSION = "0verse.hyperv-execution-grant/v1"
-SIGNED_GRANT_SCHEMA_VERSION = "0verse.hyperv-execution-grant/v2"
-GRANT_AUTHORIZATION_NAMESPACE = "0verse-hyperv-execution-grant"
-EVIDENCE_SCHEMA_VERSION = "0verse.hyperv-evidence/v1"
+SCHEMA_VERSION = "xverse.hyperv-prover/v1"
+GRANT_SCHEMA_VERSION = "xverse.hyperv-execution-grant/v1"
+SIGNED_GRANT_SCHEMA_VERSION = "xverse.hyperv-execution-grant/v2"
+GRANT_AUTHORIZATION_NAMESPACE = "xverse-hyperv-execution-grant"
+EVIDENCE_SCHEMA_VERSION = "xverse.hyperv-evidence/v1"
 _HOST_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
 _NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_. -]{0,127}$")
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")

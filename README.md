@@ -54,7 +54,7 @@ XSEC's core philosophy is to be a single, extensible and transparent tool to tac
 | Dependencies | supply chain, malicious packages, CVE replay |
 | Network / identity | AD, cloud, federation (read-only, offline) |
 | Runtime / OS / kernel | container escape, privesc, 0-day hunt |
-| Compiled binaries | no source → [`0verse`](0verse/README.md) |
+| Compiled binaries | no source → [`xverse`](xverse/README.md) |
 
 ## Automation and research adapters
 

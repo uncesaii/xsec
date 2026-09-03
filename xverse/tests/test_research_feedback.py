@@ -47,7 +47,7 @@ def _evidence_signer(tmp_path: Path):
             material,
             signing_key=key,
             namespace=namespace,
-            label="test 0verse evidence admission",
+            label="test xverse evidence admission",
             inherit_environment=False,
         )
 
@@ -73,7 +73,7 @@ def _target_snapshot(tmp_path: Path, event_ids: tuple[str, ...]):
         artifacts[name] = {"path": artifact.name, "sha256": _digest(artifact.read_bytes())}
     body = {
         "schemaVersion": 1,
-        "contract": "0verse-target-snapshot-v1",
+        "contract": "xverse-target-snapshot-v1",
         "repository": "uncesaii/xverse",
         "commitSha": "a" * 40,
         "gitTreeOid": "b" * 40,
@@ -85,8 +85,8 @@ def _target_snapshot(tmp_path: Path, event_ids: tuple[str, ...]):
     signed["signature_ssh"] = sign_ssh_material(
         canonical_signed_material(signed),
         signing_key=key,
-        namespace="0verse-0research-target-snapshot-v1",
-        label="test 0verse target snapshot",
+        namespace="xverse-0research-target-snapshot-v1",
+        label="test xverse target snapshot",
         inherit_environment=False,
     )
     snapshot = root / "snapshot.json"
@@ -104,7 +104,7 @@ def _record(*, verdict: str = "confirmed", oracle: str = "differential-crash") -
         "record_id": "feedback-record",
         "dataset_version": dataset.DATASET_VERSION,
         "created_at": "2026-07-18T00:00:00+00:00",
-        "tool": {"name": "0verse", "version": "0.0.1"},
+        "tool": {"name": "xverse", "version": "0.0.1"},
         "backend": "ghidra",
         "binary_name": "target",
         "features": {
@@ -185,7 +185,7 @@ def _fixture(tmp_path: Path, records: list[dict] | None = None) -> tuple[Path, P
         )
         receipt_body = {
             "schemaVersion": 1,
-            "contract": "0verse-oracle-result-receipt-v1",
+            "contract": "xverse-oracle-result-receipt-v1",
             "signerIdentity": identity,
             "sourceRecordDigest": source_digest,
             "verdict": record["verdict"],
@@ -199,7 +199,7 @@ def _fixture(tmp_path: Path, records: list[dict] | None = None) -> tuple[Path, P
         signed["signature_ssh"] = sign_ssh_material(
             canonical_signed_material(signed),
             signing_key=key,
-            namespace="0verse-0research-oracle-result-v1",
+            namespace="xverse-0research-oracle-result-v1",
             label="test oracle result",
             inherit_environment=False,
         )
@@ -215,7 +215,7 @@ def _fixture(tmp_path: Path, records: list[dict] | None = None) -> tuple[Path, P
         json.dumps(
             {
                 "schemaVersion": 1,
-                "contract": "0verse-learning-bundle-v1",
+                "contract": "xverse-learning-bundle-v1",
                 "records": selected,
             },
             sort_keys=True,
@@ -229,7 +229,7 @@ def _fixture(tmp_path: Path, records: list[dict] | None = None) -> tuple[Path, P
         json.dumps(
             {
                 "schemaVersion": 1,
-                "kind": "0verse-feedback-projection",
+                "kind": "xverse-feedback-projection",
                 "runKey": f"0research-{'a' * 64}",
                 "terminalReceiptDigest": _digest(b"terminal"),
                 "itemId": "zeroverse-1",
@@ -548,7 +548,7 @@ def test_cli_emits_content_addressed_write_receipt(tmp_path: Path, capsys, monke
         == 0
     )
     receipt = json.loads(capsys.readouterr().out)
-    assert receipt["contract"] == "0verse-learning-write-receipt-v1"
+    assert receipt["contract"] == "xverse-learning-write-receipt-v1"
     assert receipt["recordsWritten"] == 1
     digest = receipt.pop("receiptDigest")
     canonical = (json.dumps(receipt, sort_keys=True, separators=(",", ":")) + "\n").encode()
@@ -615,7 +615,7 @@ def test_issues_one_signed_admission_per_verified_scientific_event(
     (output / first_admission_path).write_bytes(b"mutated after verified capture\n")
     assert verified.read_bytes(first_admission_path) == captured_admission
     (output / first_admission_path).write_bytes(captured_admission)
-    assert manifest["contract"] == "0verse-research-admission-bundle-v2"
+    assert manifest["contract"] == "xverse-research-admission-bundle-v2"
     assert manifest["schemaVersion"] == 2
     assert len(manifest["admissions"]) == 2
     assert sorted(path.name for path in output.iterdir()) == ["manifest.json", "payload"]
@@ -722,7 +722,7 @@ def test_native_admission_matches_0brain_cross_language_golden(
     )
 
     assert golden["schemaVersion"] == 1
-    assert golden["contract"] == "0verse-0brain-admission-golden-v1"
+    assert golden["contract"] == "xverse-0brain-admission-golden-v1"
     assert _digest(expected_material) == golden["signedMaterialDigest"]
     assert admissions[0][0] == golden["admissionDigest"]
     assert admissions[0][3] == expected
@@ -1008,7 +1008,7 @@ def test_native_verifier_mutation_blocks_the_evidence_signer(
     def mutating_verifier(*args, **kwargs) -> None:
         nonlocal mutated
         real_verifier(*args, **kwargs)
-        if not mutated and kwargs.get("namespace") == "0verse-0research-oracle-result-v1":
+        if not mutated and kwargs.get("namespace") == "xverse-0research-oracle-result-v1":
             stage = next(
                 path for path in parent.iterdir() if path.name.startswith(".verifier-mutation.tmp-")
             )

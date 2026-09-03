@@ -99,7 +99,7 @@ pub fn console_self_test() -> Result<(), String> {
         return Err("live Windows fact sampler returned an invalid shape".to_owned());
     }
     let name = format!(
-        r"\\.\pipe\0verse.windows-token-broker.a1.{}",
+        r"\\.\pipe\xverse.windows-token-broker.a1.{}",
         std::process::id()
     );
     let pipe = create_validation_pipe(&name)?;

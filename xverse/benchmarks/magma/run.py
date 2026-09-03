@@ -2,7 +2,7 @@
 """Magma at-scale eval runner — the credibility instrument on REAL library bugs.
 
 Extracts each built Magma target's driver binary from its Docker image, runs the
-**full 0verse pipeline** (`zeroverse.api.scan`) over it with the **real LLM**
+**full xverse pipeline** (`zeroverse.api.scan`) over it with the **real LLM**
 (Codex `gpt-5.5` by default), and scores the findings against Magma's KNOWN bug
 locations with the typed, unit-tested scorer in `zeroverse.magma`: bug-sites
 **reached** (slice/lens), bug-sites **confirmed** (reproducing PoV at the bug
@@ -546,7 +546,7 @@ def _build_output(
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="0verse Magma at-scale eval")
+    ap = argparse.ArgumentParser(description="xverse Magma at-scale eval")
     ap.add_argument("--scan-one", help="(child) scan a single binary, print JSON")
     ap.add_argument("--targets", nargs="*",
                     default=["libpng", "lua", "libxml2", "libtiff", "sqlite3"])

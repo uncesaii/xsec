@@ -6,7 +6,7 @@ import rehypeMermaid from "rehype-mermaid";
 export default defineConfig({
   output: "static",
   outDir: "./dist",
-  site: "",
+  site: undefined,
   // Allow previewing the dev server over Tailscale (dev-only; ignored by the static build).
   vite: { server: { allowedHosts: [".ts.net"] } },
   markdown: {

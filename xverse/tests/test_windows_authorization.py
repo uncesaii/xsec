@@ -28,7 +28,7 @@ from zeroverse.windows_scope import AUTHORIZATION_NAMESPACE, load_scope
 def _scope_v2(**updates: object) -> dict[str, object]:
     now = datetime.now(UTC)
     raw: dict[str, object] = {
-        "schema_version": "0verse.windows-scope/v2",
+        "schema_version": "xverse.windows-scope/v2",
         "campaign_id": "signed-scope-001",
         "program": "hyperv-insider",
         "scope_url": "https://www.microsoft.com/msrc/hyperv-scope",
@@ -66,7 +66,7 @@ def _scope_v2(**updates: object) -> dict[str, object]:
 def _grant_v2(**updates: object) -> dict[str, object]:
     now = datetime.now(UTC)
     raw: dict[str, object] = {
-        "schema_version": "0verse.hyperv-execution-grant/v2",
+        "schema_version": "xverse.hyperv-execution-grant/v2",
         "campaign_sha256": "a" * 64,
         "scope_manifest_sha256": "b" * 64,
         "campaign_id": "signed-scope-001",
@@ -155,7 +155,7 @@ def test_v1_is_inspection_only_and_worker_requires_explicit_mode(tmp_path: Path)
     raw = _scope_v2()
     for field in ("authorized_by", "issued_at", "expires_at", "nonce", "signature_ssh"):
         raw.pop(field)
-    raw["schema_version"] = "0verse.windows-scope/v1"
+    raw["schema_version"] = "xverse.windows-scope/v1"
     path = tmp_path / "scope-v1.json"
     path.write_text(json.dumps(raw), encoding="utf-8")
     scope, _ = load_scope(path)
@@ -164,7 +164,7 @@ def test_v1_is_inspection_only_and_worker_requires_explicit_mode(tmp_path: Path)
 
     grant_raw = _grant_v2()
     grant_raw.pop("signature_ssh")
-    grant_raw["schema_version"] = "0verse.hyperv-execution-grant/v1"
+    grant_raw["schema_version"] = "xverse.hyperv-execution-grant/v1"
     grant_path = tmp_path / "grant-v1.json"
     grant_path.write_text(json.dumps(grant_raw), encoding="utf-8")
     grant, _ = load_execution_grant(grant_path)
@@ -235,7 +235,7 @@ def test_expired_signed_scope_and_grant_are_rejected(tmp_path: Path) -> None:
 def test_raw_v1_grant_object_cannot_be_promoted_programmatically() -> None:
     raw = _grant_v2()
     raw.pop("signature_ssh")
-    raw["schema_version"] = "0verse.hyperv-execution-grant/v1"
+    raw["schema_version"] = "xverse.hyperv-execution-grant/v1"
     grant = HyperVExecutionGrant.from_mapping(raw)
     with pytest.raises(ValueError, match="verified signed grant v2"):
         grant.require_signed_authorization()

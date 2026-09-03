@@ -15,7 +15,7 @@ from .pipeline import RunResult, TriagedFinding
 
 _TOOL = {
     "driver": {
-        "name": "0verse",
+        "name": "xverse",
         "informationUri": "https://github.com/uncesaii/xverse",
         "version": "0.0.1",
     }
@@ -149,7 +149,7 @@ def to_sarif(result: RunResult) -> str:
 
 
 def to_markdown(result: RunResult) -> str:
-    lines = [f"# 0verse report — `{result.triage.path}`", "", result.triage.summary(), ""]
+    lines = [f"# xverse report — `{result.triage.path}`", "", result.triage.summary(), ""]
     if not result.findings:
         lines.append("_No findings._")
         return "\n".join(lines)

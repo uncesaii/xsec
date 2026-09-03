@@ -473,14 +473,14 @@ def test_rank_child_can_run_real_cryptographic_verifier(
     rank_gid = 65534 if os.geteuid() == 0 else os.getegid()
     key, policy, identity = _authority(tmp_path, "child-crypto", "child@example.test")
     material = b'{"child":"cryptographic-verification"}'
-    namespace = "0verse-rank-child-crypto-test-v1"
+    namespace = "xverse-rank-child-crypto-test-v1"
     signature = sign_ssh_material(
         material,
         signing_key=key,
         namespace=namespace,
         label="rank child crypto test",
     )
-    descriptor, public_policy_name = tempfile.mkstemp(prefix="0verse-child-policy-", dir="/tmp")
+    descriptor, public_policy_name = tempfile.mkstemp(prefix="xverse-child-policy-", dir="/tmp")
     public_policy = Path(public_policy_name)
     try:
         os.write(descriptor, policy.read_bytes())

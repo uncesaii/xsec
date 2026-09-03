@@ -612,7 +612,7 @@ def test_guest_runner_is_remote_bounded_hash_bound_and_shell_quoted() -> None:
     remote = command[-1]
     parsed = shlex.split(remote)
     assert parsed[-3:] == list(argv)
-    assert parsed[0] == "/usr/local/sbin/0verse-hyperv-guest-runner"
+    assert parsed[0] == "/usr/local/sbin/xverse-hyperv-guest-runner"
     assert "StrictHostKeyChecking=yes" in command
 
 
@@ -679,7 +679,7 @@ def test_dump_collection_binds_snapshot_and_checks_cdb_exit() -> None:
             "BugCheck 133, {0}\nFAILURE_BUCKET_ID: vmswitch!ParseOid\n"
             '0VERSE-HYPERV-DUMP-JSON:{"sha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
             'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","identity":"1:2:3|nonce|target|1|a",'
-            '"artifact_path":"C:\\\\dumps\\\\0verse-evidence\\\\case.dmp"}\n',
+            '"artifact_path":"C:\\\\dumps\\\\xverse-evidence\\\\case.dmp"}\n',
             "",
         )
 
@@ -710,7 +710,7 @@ def test_dump_retention_uses_strict_scp_and_refuses_bad_remote_paths(tmp_path: P
     destination = tmp_path / "retained.dmp"
     plane.retain_dump(
         manifest(),
-        DumpEvidence("a" * 64, "identity", "C:\\dumps\\0verse-evidence\\case.dmp", ""),
+        DumpEvidence("a" * 64, "identity", "C:\\dumps\\xverse-evidence\\case.dmp", ""),
         destination,
     )
     assert destination.read_bytes() == b"retained dump"
@@ -739,7 +739,7 @@ def test_cli_defaults_to_validation_without_transport(
     scope_path.write_text(
         json.dumps(
             {
-                "schema_version": "0verse.windows-scope/v1",
+                "schema_version": "xverse.windows-scope/v1",
                 "campaign_id": "vmswitch-transport-001",
                 "program": "hyperv-insider",
                 "scope_url": "https://example.test/msrc-hyperv-scope",

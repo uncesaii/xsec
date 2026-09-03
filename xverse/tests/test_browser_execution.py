@@ -19,7 +19,7 @@ from zeroverse.execution.browser import (
 
 def _manifest(binary: Path, **updates: object) -> dict[str, object]:
     raw: dict[str, object] = {
-        "schema_version": "0verse.browser-campaign/v2",
+        "schema_version": "xverse.browser-campaign/v2",
         "campaign_id": "v8-json-replay",
         "component": "v8",
         "revision": "0123456789abcdef0123456789abcdef01234567",
@@ -264,6 +264,6 @@ def test_ssh_transport_keeps_payload_out_of_argv(
     assert decoded["worker_group"] == "browser"
     assert decoded["bootstrap_marker_owner"] == "root"
     assert decoded["bootstrap_marker_group"] == "browser"
-    assert decoded["bootstrap_marker"] == "/srv/0verse/.browser-worker"
+    assert decoded["bootstrap_marker"] == "/srv/xverse/.browser-worker"
     assert decoded["oracle"] == "asan"
     assert payload == request.payload

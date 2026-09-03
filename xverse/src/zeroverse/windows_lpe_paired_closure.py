@@ -23,9 +23,9 @@ from .windows_servicing import (
 )
 from .windows_token_pack import WindowsTokenPackVerification, verify_windows_token_pack
 
-SCHEMA_VERSION = "0verse.windows-lpe-paired-closure/v2"
-EXPERIMENT_SCHEMA_VERSION = "0verse.windows-lpe-experiment/v1"
-EXPERIMENT_SIGNATURE_NAMESPACE = "0verse-windows-lpe-experiment-v1"
+SCHEMA_VERSION = "xverse.windows-lpe-paired-closure/v2"
+EXPERIMENT_SCHEMA_VERSION = "xverse.windows-lpe-experiment/v1"
+EXPERIMENT_SIGNATURE_NAMESPACE = "xverse-windows-lpe-experiment-v1"
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 
@@ -358,7 +358,7 @@ def verify_windows_lpe_experiment(
     policy_bytes = _read_bounded_regular(
         allowed_signers_path, "Windows LPE experiment allowed-signers policy"
     )
-    with tempfile.TemporaryDirectory(prefix="0verse-lpe-experiment-policy-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="xverse-lpe-experiment-policy-") as temporary:
         policy_snapshot = Path(temporary) / "allowed-signers"
         policy_snapshot.write_bytes(policy_bytes)
         verify_ssh_signature(
@@ -549,7 +549,7 @@ def derive_windows_lpe_paired_closure(
         ).encode("utf-8")
     ).hexdigest()
     pair_replay = hashlib.sha256(
-        b"0verse-windows-lpe-paired-replay-v1\0" + commitment.encode("ascii")
+        b"xverse-windows-lpe-paired-replay-v1\0" + commitment.encode("ascii")
     ).hexdigest()
     replay = (
         pair_replay,

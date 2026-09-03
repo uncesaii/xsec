@@ -1,5 +1,5 @@
 {
-  "schema_version": "0verse.macho-campaign/v1",
+  "schema_version": "xverse.macho-campaign/v1",
   "campaign_id": "replace-me-macho-campaign",
   "target": {
     "path": "/replace/target",

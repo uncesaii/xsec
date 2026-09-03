@@ -33,13 +33,13 @@ from .windows_token_runner import (
     validate_windows_witness_user_sid,
 )
 
-SCHEMA_VERSION = "0verse.windows-token-capture/v3"
-LPAC_SCHEMA_VERSION = "0verse.windows-token-capture/v4"
-LPAC_PROCESS_SCHEMA_VERSION = "0verse.windows-token-capture/v5"
-LPAC_LAUNCH_SCHEMA_VERSION = "0verse.windows-lpac-launch-provenance/v1"
-LPAC_LAUNCH_SIGNATURE_NAMESPACE = "0verse-windows-lpac-launch-provenance"
-SIGNATURE_NAMESPACE = "0verse-windows-token-capture"
-DEFAULT_ALLOWED_SIGNERS = Path("/etc/0verse/windows-token-capture.allowed_signers")
+SCHEMA_VERSION = "xverse.windows-token-capture/v3"
+LPAC_SCHEMA_VERSION = "xverse.windows-token-capture/v4"
+LPAC_PROCESS_SCHEMA_VERSION = "xverse.windows-token-capture/v5"
+LPAC_LAUNCH_SCHEMA_VERSION = "xverse.windows-lpac-launch-provenance/v1"
+LPAC_LAUNCH_SIGNATURE_NAMESPACE = "xverse-windows-lpac-launch-provenance"
+SIGNATURE_NAMESPACE = "xverse-windows-token-capture"
+DEFAULT_ALLOWED_SIGNERS = Path("/etc/xverse/windows-token-capture.allowed_signers")
 _SHA256 = re.compile(r"^[a-f0-9]{64}$")
 _NONCE = re.compile(r"^[A-Za-z0-9_-]{32,128}$")
 _PROCESS_ID = re.compile(r"^[A-Za-z0-9_-]{16,128}$")
@@ -191,7 +191,7 @@ def derive_token_id(run_nonce: str, phase: str, statistics_token_id: int) -> str
     if phase not in {"start", "finish"}:
         raise ValueError("Windows token snapshot phase must be start or finish")
     digest = hashlib.sha256(
-        b"0verse-token-snapshot-id-v1\0"
+        b"xverse-token-snapshot-id-v1\0"
         + run_nonce.encode("ascii")
         + b"\0"
         + phase.encode("ascii")

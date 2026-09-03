@@ -16,7 +16,7 @@ from zeroverse.windows_scope import WindowsScope, load_scope, verify_evidence_bu
 def scope(**updates: object) -> dict[str, object]:
     now = datetime.now(UTC).isoformat()
     raw: dict[str, object] = {
-        "schema_version": "0verse.windows-scope/v1",
+        "schema_version": "xverse.windows-scope/v1",
         "campaign_id": "wic-parser-001",
         "program": "windows-canary",
         "scope_url": "https://www.microsoft.com/en-us/msrc/bounty-windows-insider-preview",

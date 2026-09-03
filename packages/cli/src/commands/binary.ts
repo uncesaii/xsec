@@ -5,18 +5,18 @@ import { fileURLToPath } from "node:url";
 import type { Command } from "commander";
 
 /**
- * `xsec binary <target>` — delegate to **0verse**, the in-repo binary-native /
- * no-source analysis engine (a Python project under `0verse/`). This makes
+ * `xsec binary <target>` — delegate to **xverse**, the in-repo binary-native /
+ * no-source analysis engine (a Python project under `xverse/`). This makes
  * "xsec does binary analysis too" literally true: we locate the engine
- * checkout, sanity-check the toolchain (`uv` + the `0verse/` dir), then hand
- * off to `uv run --frozen 0verse <mode> <target> …` with live stdio so the user
+ * checkout, sanity-check the toolchain (`uv` + the `xverse/` dir), then hand
+ * off to `uv run --frozen xverse <mode> <target> …` with live stdio so the user
  * sees the engine's own output and inherits its exit code.
  *
- * We deliberately do NOT reimplement any of 0verse here — this is a thin,
+ * We deliberately do NOT reimplement any of xverse here — this is a thin,
  * dependency-light launcher over Node built-ins.
  */
 
-/** The 0verse subcommands this launcher exposes via `--mode`. */
+/** The xverse subcommands this launcher exposes via `--mode`. */
 export const BINARY_MODES = ["triage", "run", "scan"] as const;
 export type BinaryMode = (typeof BINARY_MODES)[number];
 
@@ -28,7 +28,7 @@ export interface BinaryOptions {
 }
 
 /**
- * Walk up from the compiled/module directory looking for the `0verse/` engine
+ * Walk up from the compiled/module directory looking for the `xverse/` engine
  * checkout (identified by its `pyproject.toml`). Robust whether the CLI runs
  * from `dist/commands/` or `src/commands/` — both sit the same depth below the
  * repo root — and tolerant of being invoked from any cwd.
@@ -37,7 +37,7 @@ export function locateOverseDir(startDir?: string): string | null {
   let dir = startDir ?? dirname(fileURLToPath(import.meta.url));
   // Bounded walk to the filesystem root.
   for (let i = 0; i < 12; i++) {
-    const candidate = join(dir, "0verse");
+    const candidate = join(dir, "xverse");
     if (existsSync(join(candidate, "pyproject.toml"))) {
       return candidate;
     }
@@ -71,7 +71,7 @@ function normalizeMode(value: string): BinaryMode {
   return mode as BinaryMode;
 }
 
-/** Build the `0verse` argv (everything after `uv run --frozen 0verse`). */
+/** Build the `xverse` argv (everything after `uv run --frozen xverse`). */
 export function buildOverseArgv(
   mode: BinaryMode,
   target: string,
@@ -95,21 +95,21 @@ export function setupGuidanceLines(reason: {
   overseDir: string | null;
 }): string[] {
   const lines: string[] = [];
-  lines.push("xsec binary analysis delegates to the 0verse engine, but it isn't ready yet.");
+  lines.push("xsec binary analysis delegates to the xverse engine, but it isn't ready yet.");
   lines.push("");
   if (reason.overseDir === null) {
-    lines.push("  • Could not find the 0verse/ engine checkout next to the xsec CLI.");
-    lines.push("    Make sure the 0verse/ directory exists at the repo root.");
+    lines.push("  • Could not find the xverse/ engine checkout next to the xsec CLI.");
+    lines.push("    Make sure the xverse/ directory exists at the repo root.");
     lines.push("");
   }
   if (reason.uvMissing) {
-    lines.push("  • `uv` (the Python package manager 0verse uses) is not on your PATH.");
+    lines.push("  • `uv` (the Python package manager xverse uses) is not on your PATH.");
     lines.push("    Install it with:");
     lines.push("      curl -LsSf https://astral.sh/uv/install.sh | sh");
     lines.push("");
   }
   lines.push("Then sync the engine's locked dependencies:");
-  const dir = reason.overseDir ?? "0verse";
+  const dir = reason.overseDir ?? "xverse";
   lines.push(`  cd ${dir} && uv sync --frozen`);
   lines.push("");
   lines.push("Once that succeeds, re-run your command, e.g.:");
@@ -130,7 +130,7 @@ export interface BinaryResolution {
 
 /**
  * Pure precheck + argv assembly, split out from the subprocess so it is unit
- * testable without a real 0verse run. Returns either a failure (with guidance
+ * testable without a real xverse run. Returns either a failure (with guidance
  * + non-zero exit code) or the resolved engine dir and argv to spawn.
  */
 export function resolveBinaryRun(
@@ -166,14 +166,14 @@ export function registerBinaryCommand(program: Command): void {
   program
     .command("binary")
     .description(
-      "Analyze a compiled binary by delegating to the in-repo 0verse engine (uv run --frozen 0verse)",
+      "Analyze a compiled binary by delegating to the in-repo xverse engine (uv run --frozen xverse)",
     )
     .argument("<target>", "Path to the target artifact (e.g. an ELF) to analyze")
-    .argument("[passthrough...]", "Extra positional args forwarded verbatim to 0verse")
-    .option("--mode <mode>", `0verse subcommand: ${BINARY_MODES.join("|")}`, "triage")
-    .option("--format <format>", "Forward --format to 0verse (e.g. ndjson)")
-    .option("--backend <backend>", "Forward --backend to 0verse (e.g. rizin, ghidra, angr)")
-    .option("--llm <llm>", "Forward --llm to 0verse (e.g. codex, claude)")
+    .argument("[passthrough...]", "Extra positional args forwarded verbatim to xverse")
+    .option("--mode <mode>", `xverse subcommand: ${BINARY_MODES.join("|")}`, "triage")
+    .option("--format <format>", "Forward --format to xverse (e.g. ndjson)")
+    .option("--backend <backend>", "Forward --backend to xverse (e.g. rizin, ghidra, angr)")
+    .option("--llm <llm>", "Forward --llm to xverse (e.g. codex, claude)")
     .allowUnknownOption(true)
     .action((target: string, passthrough: string[], opts: BinaryOptions) => {
       const resolution = resolveBinaryRun(target, opts, passthrough ?? []);
@@ -187,7 +187,7 @@ export function registerBinaryCommand(program: Command): void {
       }
 
       const overseDir = resolution.overseDir!;
-      const argv = ["run", "--frozen", "0verse", ...(resolution.argv ?? [])];
+      const argv = ["run", "--frozen", "xverse", ...(resolution.argv ?? [])];
 
       const child = spawn("uv", argv, {
         cwd: resolve(overseDir),
@@ -197,7 +197,7 @@ export function registerBinaryCommand(program: Command): void {
 
       child.on("error", (err) => {
         console.error(
-          `Failed to launch 0verse: ${err instanceof Error ? err.message : String(err)}`,
+          `Failed to launch xverse: ${err instanceof Error ? err.message : String(err)}`,
         );
         process.exitCode = 1;
       });

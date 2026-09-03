@@ -21,7 +21,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-PROTOCOL_VERSION = "0verse.browser-campaign-supervisor/v1"
+PROTOCOL_VERSION = "xverse.browser-campaign-supervisor/v1"
 RECORD_PREFIX = "0VERSE-BROWSER-CAMPAIGN:"
 MAX_HEADER_BYTES = 64 * 1024
 MAX_OUTPUT_BYTES = 1024 * 1024

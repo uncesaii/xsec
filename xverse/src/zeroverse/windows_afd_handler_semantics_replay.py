@@ -20,7 +20,7 @@ def main(argv: list[str] | None = None) -> int:
     print("0VERSE_AFD_ISOLATED_PHASE=full-replay-start", flush=True)
     artifact = _verify_snapshotted_semantics_bundle(Path(args[0]), Path(args[1]))
     result = {
-        "schema_version": "0verse.windows-afd-isolated-replay-result/v1",
+        "schema_version": "xverse.windows-afd-isolated-replay-result/v1",
         "phase": "full-replay-complete",
         "artifact_sha256": hashlib.sha256(
             canonical_handler_semantics_bytes(artifact)

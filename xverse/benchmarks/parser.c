@@ -1,4 +1,4 @@
-/* 0verse M2 benchmark — a bug the STATIC SLICE MISSES but FUZZING CATCHES.
+/* xverse M2 benchmark — a bug the STATIC SLICE MISSES but FUZZING CATCHES.
  *
  * `parse_record` copies an attacker-controlled, length-prefixed record into a
  * fixed 32-byte HEAP buffer with a HAND-ROLLED byte-copy loop, behind a 4-byte

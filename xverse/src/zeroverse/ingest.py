@@ -1,6 +1,6 @@
 """Stage 1 — ingest / triage.
 
-Dependency-free first pass so ``0verse triage`` works on a bare Python install:
+Dependency-free first pass so ``xverse triage`` works on a bare Python install:
 detect container format, architecture, and exploit mitigations straight from the
 file bytes. When the ``analyze`` extra (LIEF/capa) is present, richer triage can
 layer on top — but the basics never require it.
@@ -298,7 +298,7 @@ def _triage_macho(data: bytes, t: Triage) -> None:
 
 def _triage_macho_fat(data: bytes, t: Triage) -> None:
     """A universal ('fat') Mach-O wraps several thin Mach-Os. Report each slice's
-    arch; Ghidra/0verse operate on a chosen slice downstream."""
+    arch; Ghidra/xverse operate on a chosen slice downstream."""
     t.fmt = "Mach-O"
     t.kind = "FAT"
     t.endian = "big" if data[:4] == b"\xca\xfe\xba\xbe" else "little"

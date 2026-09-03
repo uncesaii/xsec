@@ -47,7 +47,7 @@ from .serialize import finding_dict
 # Bump MINOR for additive (back-compatible) fields, MAJOR for removals/renames.
 DATASET_VERSION = "1.2"
 
-_TOOL = {"name": "0verse", "version": __version__}
+_TOOL = {"name": "xverse", "version": __version__}
 
 # Keys a record must never carry: raw crash/exploit payloads belong to the private
 # corpus, never the OSS capture. ``validate_record`` rejects any of these.

@@ -5,14 +5,14 @@
 
 ## What
 
-Grow the ground-truth corpus, or extend the 0verse-vs-baseline-AFL++ comparison.
+Grow the ground-truth corpus, or extend the xverse-vs-baseline-AFL++ comparison.
 Two flavors:
 
 - **A PoV-gate benchmark:** a `benchmarks/<name>.c` with a known, reproducing bug,
   wired into `benchmarks/run.sh` so CI asserts the pipeline confirms it with a PoV.
 - **A comparison target:** a new target in `benchmarks/fuzzbench/compare.py::TARGETS`
   — ideally one that probes a *different* gate shape (checksum gate, length-prefix
-  framing, a state machine) so we learn where 0verse helps and where it doesn't.
+  framing, a state machine) so we learn where xverse helps and where it doesn't.
 
 ## Why
 

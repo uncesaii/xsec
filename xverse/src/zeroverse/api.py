@@ -7,10 +7,10 @@ The stable, embeddable seam a scan platform (xsec-cloud) or an external agent
     result = api.scan("/path/to/binary")              # -> ScanResult
     print(api.format_result(result, "ndjson"))
 
-and the equivalent CLI ``0verse scan <binary> --format ndjson|sarif|json``.
+and the equivalent CLI ``xverse scan <binary> --format ndjson|sarif|json``.
 
 The contract is **versioned** (``CONTRACT_VERSION``) and deliberately *flat and
-small* — a downstream platform ingests these fields, not 0verse internals. The
+small* — a downstream platform ingests these fields, not xverse internals. The
 internal ``serialize.finding_dict`` shape stays free to evolve; this contract is
 the compatibility boundary.
 
@@ -51,7 +51,7 @@ from .serialize import finding_dict
 # v1.5: added terminal state/reason and structured per-stage outcomes.
 CONTRACT_VERSION = "1.5"
 
-TOOL = {"name": "0verse", "version": __version__}
+TOOL = {"name": "xverse", "version": __version__}
 
 
 @dataclass
@@ -397,7 +397,7 @@ def result_to_sarif(result: ScanResult) -> str:
         "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
         "runs": [{
             "tool": {"driver": {
-                "name": "0verse",
+                "name": "xverse",
                 "informationUri": "https://github.com/uncesaii/xverse",
                 "version": __version__,
                 "properties": {"contract_version": result.contract_version},

@@ -171,7 +171,7 @@ def _body_ranges(
 ) -> tuple[list[dict[str, object]], int, str]:
     iterator = function.getBody().getAddressRanges()
     ranges: list[dict[str, object]] = []
-    digest = hashlib.sha256(b"0verse-afd-function-body-ranges-v1\0")
+    digest = hashlib.sha256(b"xverse-afd-function-body-ranges-v1\0")
     total = 0
     while iterator.hasNext():
         item = iterator.next()

@@ -48,9 +48,9 @@ from .windows_variant import (
     _write_new_file_at,
 )
 
-RAW_VERSION = "0verse.windows-afd-handler-semantics-facts/v1"
-EXPORT_VERSION = "0verse.windows-afd-handler-semantics/v1"
-RECEIPT_VERSION = "0verse.windows-afd-handler-semantics-receipt/v1"
+RAW_VERSION = "xverse.windows-afd-handler-semantics-facts/v1"
+EXPORT_VERSION = "xverse.windows-afd-handler-semantics/v1"
+RECEIPT_VERSION = "xverse.windows-afd-handler-semantics-receipt/v1"
 PRODUCER = "zeroverse.windows-afd-handler-semantics/v1"
 _EXPECTED_FUNCTIONS = 33
 ISOLATED_REPLAY_TIMEOUT_SECONDS = 900
@@ -124,7 +124,7 @@ def compile_windows_afd_handler_semantics(
                 "factual_hash_comparison_only": True,
             }
         pair["pair_id"] = _domain_hash(
-            "0verse-afd-native-pair-v1",
+            "xverse-afd-native-pair-v1",
             {
                 "side_a_evidence_id": side_a["evidence_id"],
                 "side_b_evidence_id": side_b["evidence_id"],
@@ -440,7 +440,7 @@ def _verify_semantics_bundle_isolated(bundle: Path, home: Path) -> str:
     result = _obj(json.loads(markers[0], object_pairs_hook=_unique), "isolated replay result")
     _exact(result, {"schema_version", "phase", "artifact_sha256"}, "isolated result")
     if (
-        result["schema_version"] != "0verse.windows-afd-isolated-replay-result/v1"
+        result["schema_version"] != "xverse.windows-afd-isolated-replay-result/v1"
         or result["phase"] != "full-replay-complete"
     ):
         raise ValueError("AFD isolated replay result marker mismatch")
@@ -571,7 +571,7 @@ def _side(raw: object, hypotheses: dict[str, object], side: str) -> dict[str, ob
     ):
         raise ValueError("AFD semantic side accounting mismatch")
     value["evidence_id"] = _domain_hash(
-        "0verse-afd-native-side-v1", value
+        "xverse-afd-native-side-v1", value
     )
     return cast(dict[str, object], value)
 
@@ -624,7 +624,7 @@ def _function(value: dict[str, Any], plan: dict[str, Any], side: str) -> None:
         or body.get("complete_ghidra_address_set_captured") is not True
     ):
         raise ValueError("AFD function body extent mismatch")
-    digest = hashlib.sha256(b"0verse-afd-function-body-ranges-v1\0")
+    digest = hashlib.sha256(b"xverse-afd-function-body-ranges-v1\0")
     total = 0
     previous_end = -1
     for raw_range in ranges:
@@ -874,7 +874,7 @@ def _validate(raw: object) -> dict[str, object]:
         side_value = _obj(sides[side_name], f"{side_name} native evidence")
         material = dict(side_value)
         evidence_id = _sha(material.pop("evidence_id", None), f"{side_name} evidence ID")
-        if evidence_id != _domain_hash("0verse-afd-native-side-v1", material):
+        if evidence_id != _domain_hash("xverse-afd-native-side-v1", material):
             raise ValueError("AFD native side evidence identity mismatch")
         _exact(
             material,
@@ -980,7 +980,7 @@ def _validate(raw: object) -> dict[str, object]:
             "factual_hash_comparison_only": True,
         }
         expected_pair["pair_id"] = _domain_hash(
-            "0verse-afd-native-pair-v1",
+            "xverse-afd-native-pair-v1",
             {
                 "side_a_evidence_id": side_values["side_a"]["evidence_id"],
                 "side_b_evidence_id": side_values["side_b"]["evidence_id"],
@@ -1038,7 +1038,7 @@ def _validate_receipt(
 
 
 def _extractor_script_sha256() -> str:
-    digest = hashlib.sha256(b"0verse-afd-handler-semantics-scripts-v1\0")
+    digest = hashlib.sha256(b"xverse-afd-handler-semantics-scripts-v1\0")
     for path in sorted(
         (
             Path(__file__),

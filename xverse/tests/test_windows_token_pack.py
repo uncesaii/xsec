@@ -370,7 +370,7 @@ def test_full_signed_closure_is_verified_without_acceptance_or_replay(
     assert verification["clean_controls"] == 2
     assert verification["runtime_provenance"] == "outer-signed-allowlisted-not-attested"
     assert verification["closure_commitment_sha256"] == verification["pack_id"]
-    assert verification["schema_version"] == "0verse.windows-token-pack-verification/v3"
+    assert verification["schema_version"] == "xverse.windows-token-pack-verification/v3"
     assert verification["witness_user_sid"] == "S-1-5-21-1-2-3-1001"
     assert verification["witness_session_id"] == 1
     assert verification["witness_authentication_id"] == "0000000000001001"

@@ -3,7 +3,7 @@
 
     python benchmarks/m3_mips_qiling_proof.py
 
-Proves 0verse covers the MIPS *firmware* surface with Qiling emulation — the
+Proves xverse covers the MIPS *firmware* surface with Qiling emulation — the
 reusable engine piece that qemu-user alone can't give you for firmware (no
 rootfs/loader). It does NOT fake a router image: it proves the engine on a
 freestanding MIPS o32 ELF and documents the binwalk firmware-unpack step.

@@ -15,8 +15,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-SCHEMA_VERSION = "0verse.windows-ioctl-boundary/v1"
-RESULT_VERSION = "0verse.windows-ioctl-plan/v1"
+SCHEMA_VERSION = "xverse.windows-ioctl-boundary/v1"
+RESULT_VERSION = "xverse.windows-ioctl-plan/v1"
 
 _HEX64 = re.compile(r"[0-9a-f]{64}")
 _GUID = re.compile(r"\{[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\}")
@@ -109,7 +109,7 @@ def plan_windows_ioctl_boundary(manifest_path: str | Path) -> dict[str, object]:
                     rows.append(
                         {
                             "candidate_id": hashlib.sha256(
-                                b"0verse-windows-ioctl-candidate-v1\0" + encoded
+                                b"xverse-windows-ioctl-candidate-v1\0" + encoded
                             ).hexdigest(),
                             "status": "candidate",
                             "ioctl_code": f"0x{ioctl.code:08x}",
@@ -228,7 +228,7 @@ def _boundary(
         },
         "boundary",
     )
-    if value["schema_version"] != "0verse.windows-boundary-observation/fixture-v1":
+    if value["schema_version"] != "xverse.windows-boundary-observation/fixture-v1":
         raise ValueError("boundary fixture schema mismatch")
     if (
         value["starting_context_assertion"] != "synthetic-standard-user"

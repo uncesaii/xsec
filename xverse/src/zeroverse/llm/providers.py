@@ -9,7 +9,7 @@ GLM (z-ai) rides the Anthropic Messages wire at ``https://api.z.ai/api/anthropic
 with ``Z_AI_API_KEY`` — so it's just the Anthropic backend with a base_url override.
 
 This module is intentionally self-contained so it can be lifted into a shared
-``0llm`` Python package used across the Python tools (0verse, noeris, ...).
+``0llm`` Python package used across the Python tools (xverse, noeris, ...).
 """
 
 from __future__ import annotations
@@ -84,7 +84,7 @@ def build_llm(provider: str | None = None, model: str | None = None) -> LLM:
         return AnthropicLLM(model=model or CLAUDE_DEFAULT)
     if prov == "gateway":
         # the 0llm gateway (sidecar at localhost, or your hosted router) — it does
-        # the real provider routing/codex/GLM/ensemble; 0verse just talks OpenAI to it.
+        # the real provider routing/codex/GLM/ensemble; xverse just talks OpenAI to it.
         return OpenAILLM(
             model=model or os.environ.get("ZEROLLM_MODEL", "gpt-5.5"),
             base_url=os.environ.get("LLM_GATEWAY_URL", "http://localhost:8080/v1"),

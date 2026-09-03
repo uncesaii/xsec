@@ -1,4 +1,4 @@
-"""`0verse` command-line entrypoint."""
+"""`xverse` command-line entrypoint."""
 
 from __future__ import annotations
 
@@ -35,8 +35,8 @@ def _require_explicit_backend(requested: str | None) -> int | None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="0verse", description=__doc__)
-    parser.add_argument("--version", action="version", version=f"0verse {__version__}")
+    parser = argparse.ArgumentParser(prog="xverse", description=__doc__)
+    parser.add_argument("--version", action="version", version=f"xverse {__version__}")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p_triage = sub.add_parser("triage", help="identify format, arch, and mitigations (no deps)")

@@ -2,7 +2,7 @@
 
 Proves the gate binds to the recovered call graph and enforces the G1 severity
 contract: REFUTED load-bearing premise floors severity; UNKNOWN load-bearing caps
-it at low; GROUNDED keeps it. The oracle is 0verse's own ``meta.callgraph``.
+it at low; GROUNDED keeps it. The oracle is xverse's own ``meta.callgraph``.
 """
 
 from dataclasses import dataclass

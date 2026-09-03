@@ -1,6 +1,6 @@
-"""G1 structural-grounding gate for 0verse findings (opt-in, ``ZEROVERSE_GROUND``).
+"""G1 structural-grounding gate for xverse findings (opt-in, ``ZEROVERSE_GROUND``).
 
-0verse already grounds the CONCLUSION of a finding (did it crash? -> the PoV
+xverse already grounds the CONCLUSION of a finding (did it crash? -> the PoV
 oracle) but nothing grounds the PREMISE the LLM used to pick a *severity*: "this
 function calls the dangerous sink", "the sink is reachable from an attacker-facing
 entry", "this object is freed here". A decompiler that mis-types a pointer and
@@ -9,7 +9,7 @@ on an unconfirmed finding.
 
 This module ports the G1 structural-grounding gate
 (``research/g1-structural-grounding/`` in the XSEC monorepo) and binds it to the
-call graph 0verse ALREADY recovered in ``backends.ghidra.ProgramMeta.callgraph``
+call graph xverse ALREADY recovered in ``backends.ghidra.ProgramMeta.callgraph``
 (the disassembly-level ``FunctionManager`` graph, authoritative over pseudo-C) —
 no second Ghidra run, no KD dependency.
 
@@ -23,7 +23,7 @@ Contract (unchanged from G1):
 Design note: the implicit premises are marked load-bearing ONLY when the oracle
 can actually speak (the function is in the recovered call graph; exports exist).
 On a partial/stripped graph an unresolvable premise is informational, so a poor
-call graph never mass-caps the corpus — it mirrors 0verse's own
+call graph never mass-caps the corpus — it mirrors xverse's own
 ``unresolved_edges`` honesty.
 """
 
@@ -54,7 +54,7 @@ class ClaimVerdict(StrEnum):
     UNKNOWN = "UNKNOWN"
 
 
-# 0verse's native severity ladder (agent.VERDICT_SCHEMA enum order).
+# xverse's native severity ladder (agent.VERDICT_SCHEMA enum order).
 _SEV_ORDER = ["info", "low", "medium", "high", "critical"]
 
 
@@ -70,10 +70,10 @@ def _cap(sev: str, ceiling: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# The oracle: 0verse's already-recovered disassembly call graph.
+# The oracle: xverse's already-recovered disassembly call graph.
 # ---------------------------------------------------------------------------
 
-# Free primitives across the surfaces 0verse targets (ELF/Mach-O/PE, kernel + user).
+# Free primitives across the surfaces xverse targets (ELF/Mach-O/PE, kernel + user).
 # Matched on the exact recovered symbol name; extend per target as needed.
 _FREE_NAMES = frozenset({
     "free", "cfree", "kfree", "kfree_sensitive", "kvfree", "vfree", "kmem_cache_free",
@@ -312,7 +312,7 @@ def _adj_free_site(cg: CallGraph, op: dict[str, Any]) -> tuple[ClaimVerdict, str
 
 def _adj_no_oracle(cg: CallGraph, op: dict[str, Any]) -> tuple[ClaimVerdict, str]:
     # offset_field / lock_coverage need a per-instruction operand (or KD) oracle
-    # 0verse does not have per-binary today (design doc v2). Cap, never ground.
+    # xverse does not have per-binary today (design doc v2). Cap, never ground.
     return ClaimVerdict.UNKNOWN, "no offset oracle available (needs P-Code operand export)"
 
 
@@ -408,7 +408,7 @@ def implicit_claims(finding: Any, verdict: Any, cg: CallGraph) -> list[Claim]:
     claims: list[Claim] = []
 
     # 1) core premise: the dangerous sink is reachable from the finding's function.
-    #    0verse SLICE findings are source->sink call slices that can span several
+    #    xverse SLICE findings are source->sink call slices that can span several
     #    hops, so the honest implicit premise is REACHABILITY (function ->* sink),
     #    not a direct call edge — a direct-edge check would falsely refute every
     #    legitimate multi-hop finding (e.g. amdxdna_sched_job_run ->* to_gobj).

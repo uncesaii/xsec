@@ -232,7 +232,7 @@ describe("Windows IOCTL benchmark observation", () => {
     })).toThrow(/not bound by the evaluator projection/);
   });
 
-  it("rejects unknown fields, digest aliases, and malformed 0verse bindings", () => {
+  it("rejects unknown fields, digest aliases, and malformed xverse bindings", () => {
     const { context, observation } = validFixture();
     const hidden = copy(observation) as unknown as Record<string, unknown>;
     hidden.labels = [];

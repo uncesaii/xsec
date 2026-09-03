@@ -1,4 +1,4 @@
-"""Per-event 0research admissions from natively verified 0verse outcomes."""
+"""Per-event 0research admissions from natively verified xverse outcomes."""
 
 from __future__ import annotations
 
@@ -25,8 +25,8 @@ _LIST_DIRECTORY = os.listdir
 _UNLINK = os.unlink
 
 _ADMISSION_NAMESPACE = "0research-evidence-admission-v1:zeroverse_scientific_event"
-_PACKAGE_NAMESPACE = "0verse-research-admission-bundle-v2"
-_SNAPSHOT_NAMESPACE = "0verse-0research-target-snapshot-v1"
+_PACKAGE_NAMESPACE = "xverse-research-admission-bundle-v2"
+_SNAPSHOT_NAMESPACE = "xverse-0research-target-snapshot-v1"
 _SHA = re.compile(r"sha256:[0-9a-f]{64}")
 _GIT_OID = re.compile(r"[0-9a-f]{40}")
 _PRINCIPAL = re.compile(r"[A-Za-z0-9@._-]{3,128}")
@@ -184,12 +184,12 @@ def _validate_policy_separation(policies: dict[str, str | Path]) -> None:
         role: Path(value).absolute().resolve(strict=True) for role, value in policies.items()
     }
     if len(set(resolved.values())) != len(resolved):
-        raise ValueError("0verse source signer policies must be pairwise distinct")
+        raise ValueError("xverse source signer policies must be pairwise distinct")
     owners: dict[tuple[str, str], str] = {}
     for role, policy in resolved.items():
         for key in _policy_keys(policy, role):
             if key in owners:
-                raise ValueError(f"0verse source signer keys overlap: {owners[key]} and {role}")
+                raise ValueError(f"xverse source signer keys overlap: {owners[key]} and {role}")
             owners[key] = role
 
 
@@ -204,7 +204,7 @@ def _require_plain_ed25519_policy(path_value: str | Path) -> None:
             key_index = tokens.index("ssh-ed25519")
         except ValueError as exc:
             raise ValueError(
-                "0verse evidence policy must contain only plain ssh-ed25519 signer lines"
+                "xverse evidence policy must contain only plain ssh-ed25519 signer lines"
             ) from exc
         if (
             len(tokens) < 3
@@ -212,10 +212,10 @@ def _require_plain_ed25519_policy(path_value: str | Path) -> None:
             or key_index + 1 >= len(tokens)
             or re.fullmatch(r"[A-Za-z0-9+/]+={0,2}", tokens[key_index + 1]) is None
         ):
-            raise ValueError("0verse evidence policy has an unsupported signer line")
+            raise ValueError("xverse evidence policy has an unsupported signer line")
         keys.add(tokens[key_index + 1])
     if not keys:
-        raise ValueError("0verse evidence policy contains no signers")
+        raise ValueError("xverse evidence policy contains no signers")
 
 
 def _read_artifact_under(root: Path, relative: Path, label: str) -> bytes:
@@ -266,11 +266,11 @@ def _target_snapshot(
 ) -> str:
     snapshot_path = Path(snapshot_path_value).absolute()
     if snapshot_path.is_symlink() or snapshot_path.resolve(strict=True) != snapshot_path:
-        raise ValueError("0verse target snapshot path is unsafe")
+        raise ValueError("xverse target snapshot path is unsafe")
     try:
-        raw = json.loads(_read(snapshot_path, "0verse target snapshot"))
+        raw = json.loads(_read(snapshot_path, "xverse target snapshot"))
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise ValueError("0verse target snapshot is not UTF-8 JSON") from exc
+        raise ValueError("xverse target snapshot is not UTF-8 JSON") from exc
     keys = {
         "schemaVersion",
         "contract",
@@ -283,27 +283,27 @@ def _target_snapshot(
         "signature_ssh",
     }
     if not isinstance(raw, dict) or set(raw) != keys:
-        raise ValueError("0verse target snapshot has unsupported or missing fields")
+        raise ValueError("xverse target snapshot has unsupported or missing fields")
     if (
         raw["schemaVersion"] != 1
-        or raw["contract"] != "0verse-target-snapshot-v1"
+        or raw["contract"] != "xverse-target-snapshot-v1"
         or raw["repository"] != "uncesaii/xverse"
     ):
-        raise ValueError("0verse target snapshot identity is invalid")
+        raise ValueError("xverse target snapshot identity is invalid")
     if (
         not isinstance(raw["commitSha"], str)
         or _GIT_OID.fullmatch(raw["commitSha"]) is None
         or not isinstance(raw["gitTreeOid"], str)
         or _GIT_OID.fullmatch(raw["gitTreeOid"]) is None
     ):
-        raise ValueError("0verse target snapshot Git identity is invalid")
+        raise ValueError("xverse target snapshot Git identity is invalid")
     if raw["eventIds"] != sorted(expected_event_ids) or len(set(raw["eventIds"])) != len(
         expected_event_ids
     ):
-        raise ValueError("0verse target snapshot does not bind the exact scientific events")
+        raise ValueError("xverse target snapshot does not bind the exact scientific events")
     artifacts = raw["artifacts"]
     if not isinstance(artifacts, dict) or set(artifacts) != _SNAPSHOT_ARTIFACTS:
-        raise ValueError("0verse target snapshot artifact set is invalid")
+        raise ValueError("xverse target snapshot artifact set is invalid")
     artifact_digests: dict[str, str] = {}
     root = snapshot_path.parent.resolve(strict=True)
     for name in sorted(_SNAPSHOT_ARTIFACTS):
@@ -313,25 +313,25 @@ def _target_snapshot(
             or set(descriptor) != {"path", "sha256"}
             or not isinstance(descriptor["path"], str)
         ):
-            raise ValueError(f"0verse target snapshot {name} descriptor is invalid")
+            raise ValueError(f"xverse target snapshot {name} descriptor is invalid")
         relative = Path(descriptor["path"])
         if relative.is_absolute() or ".." in relative.parts:
-            raise ValueError(f"0verse target snapshot {name} path is unsafe")
-        expected = _digest(descriptor["sha256"], f"0verse target snapshot {name}")
-        artifact_bytes = _read_artifact_under(root, relative, f"0verse target snapshot {name}")
+            raise ValueError(f"xverse target snapshot {name} path is unsafe")
+        expected = _digest(descriptor["sha256"], f"xverse target snapshot {name}")
+        artifact_bytes = _read_artifact_under(root, relative, f"xverse target snapshot {name}")
         if _sha256(artifact_bytes) != expected:
-            raise ValueError(f"0verse target snapshot {name} bytes drift")
+            raise ValueError(f"xverse target snapshot {name} bytes drift")
         artifact_digests[name] = expected
     principal = raw["principal"]
     if not isinstance(principal, str) or _PRINCIPAL.fullmatch(principal) is None:
-        raise ValueError("0verse target snapshot principal is unsafe")
+        raise ValueError("xverse target snapshot principal is unsafe")
     verify_ssh_signature(
         canonical_signed_material(raw),
         raw["signature_ssh"],
         identity=principal,
         namespace=_SNAPSHOT_NAMESPACE,
         allowed_signers=allowed_signers,
-        label="0verse target snapshot",
+        label="xverse target snapshot",
         require_trusted_policy=True,
         inherit_environment=False,
     )
@@ -431,16 +431,16 @@ def _write_bytes_under(root: int, relative: Path, payload: bytes, label: str) ->
 
 def _target_snapshot_sources(snapshot_path_value: str | Path) -> tuple[bytes, dict[Path, bytes]]:
     snapshot_path = Path(snapshot_path_value).absolute()
-    snapshot_bytes = _read(snapshot_path, "0verse target snapshot")
+    snapshot_bytes = _read(snapshot_path, "xverse target snapshot")
     try:
         raw = json.loads(snapshot_bytes)
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise ValueError("0verse target snapshot is not UTF-8 JSON") from exc
+        raise ValueError("xverse target snapshot is not UTF-8 JSON") from exc
     if not isinstance(raw, dict) or not isinstance(raw.get("artifacts"), dict):
-        raise ValueError("0verse target snapshot artifacts are invalid")
+        raise ValueError("xverse target snapshot artifacts are invalid")
     artifacts = raw["artifacts"]
     if set(artifacts) != _SNAPSHOT_ARTIFACTS:
-        raise ValueError("0verse target snapshot artifact set is invalid")
+        raise ValueError("xverse target snapshot artifact set is invalid")
     retained: dict[Path, bytes] = {Path("snapshot.json"): snapshot_bytes}
     root = snapshot_path.parent.resolve(strict=True)
     for name in sorted(_SNAPSHOT_ARTIFACTS):
@@ -450,12 +450,12 @@ def _target_snapshot_sources(snapshot_path_value: str | Path) -> tuple[bytes, di
             or set(descriptor) != {"path", "sha256"}
             or not isinstance(descriptor["path"], str)
         ):
-            raise ValueError(f"0verse target snapshot {name} descriptor is invalid")
+            raise ValueError(f"xverse target snapshot {name} descriptor is invalid")
         relative = Path(descriptor["path"])
-        _safe_parts(relative, f"0verse target snapshot {name}")
+        _safe_parts(relative, f"xverse target snapshot {name}")
         if relative in retained:
-            raise ValueError("0verse target snapshot source paths collide")
-        retained[relative] = _read_artifact_under(root, relative, f"0verse target snapshot {name}")
+            raise ValueError("xverse target snapshot source paths collide")
+        retained[relative] = _read_artifact_under(root, relative, f"xverse target snapshot {name}")
     return snapshot_bytes, retained
 
 
@@ -565,7 +565,7 @@ def _signed_admissions(
         )
         receipt_body = {
             "schemaVersion": 1,
-            "contract": "0verse-scientific-event-verification-v2",
+            "contract": "xverse-scientific-event-verification-v2",
             "eventId": event_id,
             "sourceRecordDigest": event.source_artifact_digest,
             "oracleReceiptDigest": event.verification_receipt_digest,
@@ -584,7 +584,7 @@ def _signed_admissions(
             "schemaVersion": 1,
             "contract": "0research-evidence-admission-v1",
             "kind": "zeroverse_scientific_event",
-            "project": "0verse",
+            "project": "xverse",
             "outcome": outcome,
             "sourceArtifactDigest": event_id,
             "verificationReceiptDigest": verification_digest,
@@ -604,7 +604,7 @@ def _signed_admissions(
             identity=evidence_principal,
             namespace=_ADMISSION_NAMESPACE,
             allowed_signers=evidence_allowed_signers,
-            label="0verse scientific evidence admission",
+            label="xverse scientific evidence admission",
             require_trusted_policy=True,
             inherit_environment=False,
         )
@@ -633,7 +633,7 @@ def issue_feedback_admissions(
     if flywheel._env_truthy("ZEROVERSE_EVALUATION"):
         raise ValueError("evaluation mode cannot produce research admissions")
     if _PRINCIPAL.fullmatch(evidence_principal) is None:
-        raise ValueError("0verse evidence principal is unsafe")
+        raise ValueError("xverse evidence principal is unsafe")
     source_policies = {
         "oracle": oracle_allowed_signers,
         "target-snapshot": target_snapshot_allowed_signers,
@@ -646,17 +646,17 @@ def issue_feedback_admissions(
     parent = output.parent
     output_name = output.name
     if output_name in {"", ".", ".."} or Path(output_name).name != output_name:
-        raise ValueError("0verse admission output name is unsafe")
+        raise ValueError("xverse admission output name is unsafe")
     if (
         output.exists()
         or parent.is_symlink()
         or not parent.is_dir()
         or parent.resolve(strict=True) != parent
     ):
-        raise ValueError("0verse admission output or parent is unsafe")
+        raise ValueError("xverse admission output or parent is unsafe")
     parent_info = parent.stat()
     if parent_info.st_uid != os.getuid() or parent_info.st_mode & (stat.S_IRWXG | stat.S_IRWXO):
-        raise ValueError("0verse admission parent must be owner-only")
+        raise ValueError("xverse admission parent must be owner-only")
     parent_descriptor = os.open(
         parent,
         os.O_RDONLY
@@ -670,7 +670,7 @@ def issue_feedback_admissions(
         parent_info.st_ino,
     ):
         os.close(parent_descriptor)
-        raise ValueError("0verse admission parent changed while opened")
+        raise ValueError("xverse admission parent changed while opened")
     temporary_name: str | None = None
     stage_descriptor: int | None = None
     reservation_descriptor: int | None = None
@@ -706,9 +706,9 @@ def issue_feedback_admissions(
                 _named_identity(parent_descriptor, output_name) != reservation_identity
                 or _named_identity(parent_descriptor, staging_name) != temporary_identity
             ):
-                raise ValueError(f"0verse admission reservation changed {label}")
+                raise ValueError(f"xverse admission reservation changed {label}")
 
-        projection_bytes = _read(Path(projection_path).absolute(), "0verse feedback projection")
+        projection_bytes = _read(Path(projection_path).absolute(), "xverse feedback projection")
         _, target_sources = _target_snapshot_sources(target_snapshot_path)
         policy_bytes = {
             role: _read(Path(value).absolute(), f"{role} signer policy", 1024 * 1024)
@@ -720,7 +720,7 @@ def issue_feedback_admissions(
             len(fixed_source_payloads) >= _MAX_PROVENANCE_FILES
             or fixed_source_bytes >= _MAX_PROVENANCE_BYTES
         ):
-            raise ValueError("0verse retained provenance exceeds its file or byte limit")
+            raise ValueError("xverse retained provenance exceeds its file or byte limit")
         captured_root, captured_output_tree_digest, captured_files = _sealed_provenance_tree(
             output_root,
             max_files=_MAX_PROVENANCE_FILES - len(fixed_source_payloads),
@@ -783,7 +783,7 @@ def issue_feedback_admissions(
         def check_preledger_boundary(label: str) -> None:
             check_reservation(label)
             if _sealed_provenance_tree(source_path)[1] != preledger_source_tree_digest:
-                raise ValueError(f"0verse retained source tree changed {label}")
+                raise ValueError(f"xverse retained source tree changed {label}")
 
         check_preledger_boundary("before native verification")
         events, projection_digest, bundle_digest, output_tree_digest = (
@@ -796,11 +796,11 @@ def issue_feedback_admissions(
         )
         check_preledger_boundary("during native verification")
         if output_tree_digest != captured_output_tree_digest:
-            raise ValueError("retained 0verse output tree changed while copied")
+            raise ValueError("retained xverse output tree changed while copied")
         event_ids = tuple(sorted(str(event.record["event_id"]) for event in events))
         package_file_count = len(retained_payloads) + 2 + (2 * len(events)) + 1
         if package_file_count > _MAX_PROVENANCE_FILES:
-            raise ValueError("0verse retained provenance exceeds its package file limit")
+            raise ValueError("xverse retained provenance exceeds its package file limit")
         check_preledger_boundary("before target snapshot verification")
         target_snapshot_digest = _target_snapshot(
             retained_target, event_ids, retained_policies["target-snapshot"]
@@ -861,7 +861,7 @@ def issue_feedback_admissions(
                 + len(ledger_membership_bytes)
                 > _MAX_PROVENANCE_BYTES
             ):
-                raise ValueError("0verse retained provenance exceeds its total byte limit")
+                raise ValueError("xverse retained provenance exceeds its total byte limit")
             _write_bytes_under(
                 stage_descriptor,
                 Path("payload/source/production-ledger.ndjson"),
@@ -879,7 +879,7 @@ def issue_feedback_admissions(
             def check_authority_boundary(label: str) -> None:
                 check_reservation(label)
                 if _sealed_provenance_tree(source_path)[1] != source_tree_digest:
-                    raise ValueError(f"0verse retained source tree changed {label}")
+                    raise ValueError(f"xverse retained source tree changed {label}")
 
             admissions = _signed_admissions(
                 events,
@@ -922,19 +922,19 @@ def issue_feedback_admissions(
                 + generated_payload_bytes
                 > _MAX_PROVENANCE_BYTES
             ):
-                raise ValueError("0verse retained provenance exceeds its package byte limit")
+                raise ValueError("xverse retained provenance exceeds its package byte limit")
             for receipt_path, receipt_bytes, admission_path, admission_bytes in rendered_admissions:
                 _write_bytes_under(
                     stage_descriptor,
                     Path(receipt_path),
                     receipt_bytes,
-                    "retained 0verse verification receipt",
+                    "retained xverse verification receipt",
                 )
                 _write_bytes_under(
                     stage_descriptor,
                     Path(admission_path),
                     admission_bytes,
-                    "retained signed 0verse admission",
+                    "retained signed xverse admission",
                 )
             check_authority_boundary("before retained replay")
             replayed, replayed_projection, replayed_bundle, replayed_tree = (
@@ -961,7 +961,7 @@ def issue_feedback_admissions(
                 or _read(source_path / "ledger-membership.json", "retained ledger membership")
                 != ledger_membership_bytes
             ):
-                raise ValueError("retained 0verse provenance does not replay exactly")
+                raise ValueError("retained xverse provenance does not replay exactly")
             if (
                 _read(ledger_path, "production ledger after signing", 32 * 1024 * 1024)
                 != ledger_snapshot_bytes
@@ -970,22 +970,22 @@ def issue_feedback_admissions(
             for ref in refs:
                 if (
                     _sha256(
-                        _read(stage_path / ref["admissionPath"], "retained signed 0verse admission")
+                        _read(stage_path / ref["admissionPath"], "retained signed xverse admission")
                     )
                     != ref["admissionSignedArtifactDigest"]
                     or _sha256(
                         _read(
                             stage_path / ref["verificationPath"],
-                            "retained 0verse verification receipt",
+                            "retained xverse verification receipt",
                         )
                     )
                     != ref["verificationSignedArtifactDigest"]
                 ):
-                    raise ValueError("retained 0verse admission artifacts changed before commit")
+                    raise ValueError("retained xverse admission artifacts changed before commit")
             payload_tree_digest = _sealed_provenance_tree(payload_path)[1]
             manifest_body = {
                 "schemaVersion": 2,
-                "contract": "0verse-research-admission-bundle-v2",
+                "contract": "xverse-research-admission-bundle-v2",
                 "principal": evidence_principal,
                 "projectionDigest": projection_digest,
                 "learningBundleDigest": bundle_digest,
@@ -1023,7 +1023,7 @@ def issue_feedback_admissions(
                 identity=evidence_principal,
                 namespace=_PACKAGE_NAMESPACE,
                 allowed_signers=retained_policies["evidence"],
-                label="0verse research admission package root",
+                label="xverse research admission package root",
                 require_trusted_policy=True,
                 inherit_environment=False,
             )
@@ -1038,7 +1038,7 @@ def issue_feedback_admissions(
                 + len(manifest_bytes)
                 > _MAX_PROVENANCE_BYTES
             ):
-                raise ValueError("0verse retained provenance exceeds its package byte limit")
+                raise ValueError("xverse retained provenance exceeds its package byte limit")
             _write_bytes_exclusive_at(stage_descriptor, "manifest.json", manifest_bytes)
             os.fsync(stage_descriptor)
             check_authority_boundary("before commit")
@@ -1047,7 +1047,7 @@ def issue_feedback_admissions(
                 or _read(stage_path / "manifest.json", "retained admission manifest")
                 != manifest_bytes
             ):
-                raise ValueError("0verse admission payload or manifest changed before commit")
+                raise ValueError("xverse admission payload or manifest changed before commit")
             _exchange_directories(parent_descriptor, temporary_name, output_name)
             if (
                 _named_identity(parent_descriptor, output_name) != temporary_identity
@@ -1055,12 +1055,12 @@ def issue_feedback_admissions(
             ):
                 with suppress(OSError):
                     _exchange_directories(parent_descriptor, temporary_name, output_name)
-                raise ValueError("0verse admission exchange identity mismatch")
+                raise ValueError("xverse admission exchange identity mismatch")
             published = True
             temporary_identity = reservation_identity
             os.fsync(parent_descriptor)
             if not _remove_tree_at(parent_descriptor, temporary_name, temporary_identity):
-                raise ValueError("0verse admission reservation changed during cleanup")
+                raise ValueError("xverse admission reservation changed during cleanup")
             temporary_name = None
             os.fsync(parent_descriptor)
     except BaseException:
@@ -1089,14 +1089,14 @@ def verify_feedback_admission_bundle(
     """Authenticate a retained package root and its complete bounded payload."""
     root = Path(bundle_path).absolute()
     if root.is_symlink() or root.resolve(strict=True) != root or not root.is_dir():
-        raise ValueError("0verse admission bundle path is unsafe")
+        raise ValueError("xverse admission bundle path is unsafe")
     if sorted(path.name for path in root.iterdir()) != ["manifest.json", "payload"]:
-        raise ValueError("0verse admission bundle has unexpected top-level entries")
-    manifest_bytes = _read(root / "manifest.json", "0verse admission manifest")
+        raise ValueError("xverse admission bundle has unexpected top-level entries")
+    manifest_bytes = _read(root / "manifest.json", "xverse admission manifest")
     try:
         manifest = json.loads(manifest_bytes)
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise ValueError("0verse admission manifest is not UTF-8 JSON") from exc
+        raise ValueError("xverse admission manifest is not UTF-8 JSON") from exc
     if not isinstance(manifest, dict) or set(manifest) != {
         "schemaVersion",
         "contract",
@@ -1115,18 +1115,18 @@ def verify_feedback_admission_bundle(
         "authority",
         "signatureSsh",
     }:
-        raise ValueError("0verse admission manifest fields are invalid")
+        raise ValueError("xverse admission manifest fields are invalid")
     if (
         manifest.get("schemaVersion") != 2
-        or manifest.get("contract") != "0verse-research-admission-bundle-v2"
+        or manifest.get("contract") != "xverse-research-admission-bundle-v2"
         or manifest.get("authority") != _AUTHORITY
         or not isinstance(manifest.get("principal"), str)
         or _PRINCIPAL.fullmatch(str(manifest["principal"])) is None
         or not isinstance(manifest.get("signatureSsh"), str)
     ):
-        raise ValueError("0verse admission manifest contract is invalid")
+        raise ValueError("xverse admission manifest contract is invalid")
     if manifest_bytes != _canonical(manifest) + b"\n":
-        raise ValueError("0verse admission manifest encoding is not canonical")
+        raise ValueError("xverse admission manifest encoding is not canonical")
     body = {key: value for key, value in manifest.items() if key != "signatureSsh"}
     verify_ssh_signature(
         _canonical(body),
@@ -1134,7 +1134,7 @@ def verify_feedback_admission_bundle(
         identity=str(manifest["principal"]),
         namespace=_PACKAGE_NAMESPACE,
         allowed_signers=evidence_allowed_signers,
-        label="0verse research admission package root",
+        label="xverse research admission package root",
         require_trusted_policy=True,
         inherit_environment=False,
     )
@@ -1145,18 +1145,18 @@ def verify_feedback_admission_bundle(
         max_total_bytes=_MAX_PROVENANCE_BYTES - len(manifest_bytes),
     )
     if len(payload_files) + 1 > _MAX_PROVENANCE_FILES:
-        raise ValueError("0verse admission bundle exceeds its package file limit")
+        raise ValueError("xverse admission bundle exceeds its package file limit")
     if payload_digest != manifest.get("payloadTreeDigest"):
-        raise ValueError("0verse admission bundle payload root is invalid")
+        raise ValueError("xverse admission bundle payload root is invalid")
     source_paths = manifest.get("sourcePaths")
     policy_digests = manifest.get("policyDigests")
     if not isinstance(source_paths, dict) or not isinstance(policy_digests, dict):
-        raise ValueError("0verse admission manifest source policy fields are invalid")
+        raise ValueError("xverse admission manifest source policy fields are invalid")
     policies = source_paths.get("policies")
     if not isinstance(policies, dict) or policies.get("evidence") != (
         "payload/source/policies/evidence.allowed_signers"
     ):
-        raise ValueError("0verse admission evidence policy path is invalid")
+        raise ValueError("xverse admission evidence policy path is invalid")
     retained_policy = payload_files.get(
         payload / "source" / "policies" / "evidence.allowed_signers"
     )
@@ -1168,7 +1168,7 @@ def verify_feedback_admission_bundle(
         or retained_policy != trusted_policy
         or policy_digests.get("evidence") != _sha256(retained_policy)
     ):
-        raise ValueError("0verse admission retained evidence policy is not trusted")
+        raise ValueError("xverse admission retained evidence policy is not trusted")
     captured = {
         "manifest.json": manifest_bytes,
         **{path.relative_to(root).as_posix(): payload for path, payload in payload_files.items()},

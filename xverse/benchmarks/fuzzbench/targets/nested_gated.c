@@ -1,5 +1,5 @@
-/* 0verse M6 benchmark target — nested gate: 4-byte magic + a 32-bit constant
- * compare (expected larger 0verse win / baseline timeout).
+/* xverse M6 benchmark target — nested gate: 4-byte magic + a 32-bit constant
+ * compare (expected larger xverse win / baseline timeout).
  *
  * Two sequential gates guard the overflow: a FMW1 header, then a 32-bit field
  * that must equal 0xCAFEBABE. The string gate is cracked by the mined dictionary;

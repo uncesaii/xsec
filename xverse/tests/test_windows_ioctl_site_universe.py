@@ -421,7 +421,7 @@ def test_policy_path_substitution_is_rejected_while_same_fd_is_held(
     policy = tmp_path / "allowed-signers"
     replacement = tmp_path / "replacement"
     policy.write_text(
-        "windows-ioctl-site-universe@0verse ssh-ed25519 AAAAattacker\n",
+        "windows-ioctl-site-universe@xverse ssh-ed25519 AAAAattacker\n",
         encoding="utf-8",
     )
     replacement.write_text("root-owned-looking replacement\n", encoding="utf-8")
@@ -446,7 +446,7 @@ def test_rejects_wrong_role_and_noncanonical_signed_manifest(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     manifest, key, _policy, _artifact_value = _build(tmp_path, monkeypatch)
-    _other_key, wrong_policy = _authority(tmp_path / "wrong", "rank-worker@0verse")
+    _other_key, wrong_policy = _authority(tmp_path / "wrong", "rank-worker@xverse")
     with pytest.raises(ValueError, match="dedicated signer identity"):
         build_windows_ioctl_site_universe(_request(tmp_path), allowed_signers=wrong_policy)
 

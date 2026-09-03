@@ -206,7 +206,7 @@ def selection_note(name: str | None = None) -> str:
     if choice == "ghidra":
         if not ghidra_install_dir():
             return ("Ghidra toolchain not found (GHIDRA_HOME/GHIDRA_INSTALL_DIR unset) — "
-                    "run inside the 0verse Docker image, or set ZEROVERSE_BACKEND=rizin|angr "
+                    "run inside the xverse Docker image, or set ZEROVERSE_BACKEND=rizin|angr "
                     "for the non-Ghidra fallback")
         if not pyghidra_installed():
             return (f"Ghidra is installed at {ghidra_install_dir()} but "

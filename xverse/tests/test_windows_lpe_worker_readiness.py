@@ -71,7 +71,7 @@ def _bundle(tmp_path: Path) -> dict[str, Path]:
     readiness_key, readiness_policy, readiness_identity = _authority(tmp_path, "readiness")
     campaign_path = tmp_path / "campaign.json"
     campaign = {
-        "schema_version": "0verse.windows-token-campaign/v1",
+        "schema_version": "xverse.windows-token-campaign/v1",
         "campaign_id": "canary-lpe-readiness-001",
         "worker": "canary-worker-1",
         "starting_context": "standard-user",
@@ -84,7 +84,7 @@ def _bundle(tmp_path: Path) -> dict[str, Path]:
     campaign_sha = _write(campaign_path, campaign)
     scope_path = tmp_path / "scope.json"
     scope = {
-        "schema_version": "0verse.windows-scope/v2",
+        "schema_version": "xverse.windows-scope/v2",
         "campaign_id": campaign["campaign_id"],
         "program": "windows-canary",
         "scope_url": "https://www.microsoft.com/en-us/msrc/bounty-windows-insider-preview",
@@ -118,7 +118,7 @@ def _bundle(tmp_path: Path) -> dict[str, Path]:
     scope_sha = _write(scope_path, _sign(scope, scope_key, AUTHORIZATION_NAMESPACE))
     grant_path = tmp_path / "grant.json"
     grant = {
-        "schema_version": "0verse.windows-token-execution-grant/v1",
+        "schema_version": "xverse.windows-token-execution-grant/v1",
         "campaign_sha256": campaign_sha,
         "scope_manifest_sha256": scope_sha,
         "campaign_id": campaign["campaign_id"],
@@ -134,7 +134,7 @@ def _bundle(tmp_path: Path) -> dict[str, Path]:
     grant_sha = _write(grant_path, _sign(grant, grant_key, GRANT_SIGNATURE_NAMESPACE))
     acceptance_path = tmp_path / "acceptance.json"
     acceptance = {
-        "schema_version": "0verse.windows-token-worker-acceptance/v2",
+        "schema_version": "xverse.windows-token-worker-acceptance/v2",
         "campaign_sha256": campaign_sha,
         "scope_manifest_sha256": scope_sha,
         "execution_grant_sha256": grant_sha,
@@ -172,7 +172,7 @@ def _bundle(tmp_path: Path) -> dict[str, Path]:
         (tmp_path / filename).write_bytes(data)
     readiness_path = tmp_path / "readiness.json"
     readiness: dict[str, object] = {
-        "schema_version": "0verse.windows-lpe-worker-readiness/v1",
+        "schema_version": "xverse.windows-lpe-worker-readiness/v1",
         "campaign_sha256": campaign_sha,
         "scope_manifest_sha256": scope_sha,
         "execution_grant_sha256": grant_sha,
@@ -334,7 +334,7 @@ def test_reset_and_fail_closed_safety_are_mandatory() -> None:
         if not name.startswith("_")
     }
     raw.update(
-        schema_version="0verse.windows-lpe-worker-readiness/v1",
+        schema_version="xverse.windows-lpe-worker-readiness/v1",
         **{name: "a" * 64 for name in raw if name.endswith("_sha256")},
         campaign_id="campaign",
         worker="worker",

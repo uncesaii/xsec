@@ -74,7 +74,7 @@ export const features = {
    */
   get pythonExec(): boolean { return env("XSEC_FEATURE_PYTHON_EXEC", false); },
   /**
-   * Expose the path-confined `analyze_binary` bridge to 0verse. Default OFF:
+   * Expose the path-confined `analyze_binary` bridge to xverse. Default OFF:
    * a model may request a long-running binary analysis only after an operator
    * opts in with XSEC_FEATURE_ZEROVERSE=1.
    */

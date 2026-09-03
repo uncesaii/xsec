@@ -17,10 +17,10 @@ from itertools import pairwise
 from pathlib import Path
 from typing import Any, cast
 
-EXPORT_VERSION_V2 = "0verse.windows-ioctl-real-ssa-export/v2"
-EXPORT_VERSION_V3 = "0verse.windows-ioctl-real-ssa-export/v3"
-RAW_FACT_VERSION_V1 = "0verse.windows-ioctl-normalized-high-pcode-facts/v1"
-RAW_FACT_VERSION_V2 = "0verse.windows-ioctl-normalized-high-pcode-facts/v2"
+EXPORT_VERSION_V2 = "xverse.windows-ioctl-real-ssa-export/v2"
+EXPORT_VERSION_V3 = "xverse.windows-ioctl-real-ssa-export/v3"
+RAW_FACT_VERSION_V1 = "xverse.windows-ioctl-normalized-high-pcode-facts/v1"
+RAW_FACT_VERSION_V2 = "xverse.windows-ioctl-normalized-high-pcode-facts/v2"
 RAW_FACT_VERSION = RAW_FACT_VERSION_V2
 EXTRACTOR_PROFILE_V2 = "zeroverse.windows-ioctl-ghidra-high-pcode/v2"
 EXTRACTOR_PROFILE = "zeroverse.windows-ioctl-ghidra-high-pcode/v3"
@@ -1967,7 +1967,7 @@ def _ref(raw: object) -> dict[str, object]:
 
 def _stable_op_id(ref: dict[str, object]) -> int:
     digest = hashlib.sha256(
-        b"0verse-windows-ioctl-pcode-op-v2\0" + _ref_token(ref).encode()
+        b"xverse-windows-ioctl-pcode-op-v2\0" + _ref_token(ref).encode()
     ).digest()
     value = int.from_bytes(digest[:8], "big") & ((1 << 63) - 1)
     return value or 1

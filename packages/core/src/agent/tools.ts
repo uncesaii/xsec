@@ -185,7 +185,7 @@ import { mapWithConcurrency } from "../concurrency.js";
 import { executeIntel } from "./tools/intel.js";
 import { resolveScopedPath } from "./tools/scope-path.js";
 import { windowFileContent } from "./tools/read-file-window.js";
-import { executeOverseScan, validateOverseArgs } from "./tools/0verse.js";
+import { executeOverseScan, validateOverseArgs } from "./tools/xverse.js";
 
 
 // ── Tool registry (xsec#611) ──
@@ -550,7 +550,7 @@ const SCOPED_SOURCE_AUDIT_TOOLS: Record<string, true> = {
   // source-audit trust boundary.
   update_todos: true,
   // Explicitly opt-in; the handler confines the path, strips credentials, and
-  // leaves dynamic target execution disabled unless 0verse itself is configured.
+  // leaves dynamic target execution disabled unless xverse itself is configured.
   analyze_binary: true,
 };
 
@@ -7534,9 +7534,9 @@ export class ToolExecutor {
   }
 
   /**
-   * `analyze_binary` is an explicit 0verse bridge. The agent may only submit a
+   * `analyze_binary` is an explicit xverse bridge. The agent may only submit a
    * regular file below its local source scope; the child receives the minimal
-   * credential-free environment and 0verse keeps target execution disabled by
+   * credential-free environment and xverse keeps target execution disabled by
    * default.
    */
   private async analyzeBinary(args: Record<string, unknown>): Promise<ToolResult> {
@@ -8680,7 +8680,7 @@ export function getToolsForRole(role: string, opts?: { hasScope?: boolean; webMo
     && (featureFlags.oastCollaborator || !OAST_TOOL_NAMES.includes(name))
     // Phase-0 python_exec stays out unless pythonExec is on.
     && (featureFlags.pythonExec || name !== "python_exec")
-    // 0verse execution is opt-in and path-confined by the executor.
+    // xverse execution is opt-in and path-confined by the executor.
     && (featureFlags.zeroverse || !BINARY_TOOL_NAMES.includes(name as (typeof BINARY_TOOL_NAMES)[number]))
     // web_search / pty_session are feature-gated everywhere else (networkTools
     // honors their flags), but leaked into the audit/review "everything" set

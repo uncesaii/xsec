@@ -18,7 +18,7 @@ from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 from typing import Literal, cast
 
-ACQUISITION_MANIFEST_VERSION = "0verse.acquisition-manifest/v1"
+ACQUISITION_MANIFEST_VERSION = "xverse.acquisition-manifest/v1"
 
 TransportKind = Literal["file", "can", "serial", "network", "debug-port", "storage", "unknown"]
 TransportMode = Literal["offline", "passive", "active-read", "active-write"]

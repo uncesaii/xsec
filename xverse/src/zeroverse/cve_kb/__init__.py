@@ -1,4 +1,4 @@
-"""0verse shared CVE knowledge base + novelty/dedup gate.
+"""xverse shared CVE knowledge base + novelty/dedup gate.
 
 A cross-profile capability that answers three questions against a local store of
 normalized public advisories (NVD, OSV/GHSA, loldrivers-by-name) + our own prior

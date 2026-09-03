@@ -1,5 +1,5 @@
 {
-  "schema_version": "0verse.hyperv-evidence/v1",
+  "schema_version": "xverse.hyperv-evidence/v1",
   "manifest_sha256": "6bb2c05e4ea08b21def8c19c86ea087f0b6337729e1e653d426684b5ca605ab7",
   "scope_manifest_sha256": "10cde8a0366232236281f7fe9d081de8af9fcb30e65777334e1fa73ee692c411",
   "campaign_id": "contract-fixture-hyperv-001",

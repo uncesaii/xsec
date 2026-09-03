@@ -4,7 +4,7 @@ The operator's bench box authenticates to OpenAI through the Codex CLI's ChatGPT
 OAuth (``~/.codex/auth.json``: an OAuth ``access_token`` + ``account_id``, no
 metered API key). This backend talks the **Responses API** over that same wire —
 ``POST https://chatgpt.com/backend-api/codex/responses`` with the bearer token —
-so 0verse can run a real model (``gpt-5.5``) where only a ChatGPT subscription is
+so xverse can run a real model (``gpt-5.5``) where only a ChatGPT subscription is
 available. It is intentionally **stdlib-only** (urllib + json): unlike the
 anthropic/openai SDK backends it needs no extra to import or run.
 

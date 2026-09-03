@@ -374,7 +374,7 @@ def test_rejects_legacy_non_byo_rank_chain_before_authorization(
         tmp_path, monkeypatch
     )
     result = json.loads(paths[1].read_text(encoding="utf-8"))
-    result["schema_version"] = "0verse.windows-ioctl-real-static-candidates/v2"
+    result["schema_version"] = "xverse.windows-ioctl-real-static-candidates/v2"
     paths[1].write_text(json.dumps(result, sort_keys=True), encoding="utf-8")
     with pytest.raises(ValueError, match="exact BYO v3/v2 closure"):
         _verify(paths, authorizer_policy, resolver_policy)

@@ -122,7 +122,7 @@ def _fixture(
             "ghidra_export_sha256": artifact.export_sha256,
             "analysis_receipt_sha256": artifact.analysis_receipt_sha256,
             "rank_contract": RESULT_VERSION,
-            "score_version": "0verse.windows-ioctl-static-score/v1",
+            "score_version": "xverse.windows-ioctl-static-score/v1",
             "max_dispatches": 4,
             "max_fields_per_dispatch": 8,
             "max_candidates": 16,
@@ -614,7 +614,7 @@ def test_admission_signature_is_namespace_separated(
     admission_path = tmp_path / campaign_raw["admission_path"]
     admission = json.loads(admission_path.read_text(encoding="utf-8"))
     admission.pop("signature_ssh")
-    admission = sign_document(admission, "0verse-windows-scope-authorization")
+    admission = sign_document(admission, "xverse-windows-scope-authorization")
     admission_path.write_text(json.dumps(admission, sort_keys=True), encoding="utf-8")
     campaign_raw["admission_sha256"] = _sha(admission_path)
     campaign.write_text(json.dumps(campaign_raw, sort_keys=True), encoding="utf-8")
@@ -659,7 +659,7 @@ def test_real_ranker_traverses_pe_pdb_and_receipt_loader(
     receipt.write_text(
         json.dumps(
             {
-                "schema_version": "0verse.ghidra-analysis-receipt/v1",
+                "schema_version": "xverse.ghidra-analysis-receipt/v1",
                 "producer": "zeroverse.windows-analysis/v1",
                 "binary_path": binary.name,
                 "binary_sha256": binary_sha,

@@ -36,7 +36,7 @@ NVD_API = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 OSV_QUERY_API = "https://api.osv.dev/v1/query"
 LOLDRIVERS_API = "https://www.loldrivers.io/api/drivers.json"
 
-_USER_AGENT = "0verse-cve-kb/1.0 (+defensive-security)"
+_USER_AGENT = "xverse-cve-kb/1.0 (+defensive-security)"
 
 
 # --- low-level HTTP (stdlib, optional) --------------------------------------
@@ -324,7 +324,7 @@ def normalize_driver_tally(payload: Any) -> list[CveRecord]:
             CveRecord(
                 id=primary,
                 source="driver-tally",
-                description=f"0verse driver novelty gate: {label} ({name})",
+                description=f"xverse driver novelty gate: {label} ({name})",
                 files=(name,),
                 aliases=aliases,
                 references=sources or ("https://www.loldrivers.io/",),

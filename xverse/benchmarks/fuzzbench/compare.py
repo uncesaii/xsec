@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
-"""M6 #33 — honest, bounded 0verse-lane vs baseline-AFL++ comparison harness.
+"""M6 #33 — honest, bounded xverse-lane vs baseline-AFL++ comparison harness.
 
 Representative subset (NOT a multi-day FuzzBench/Magma sweep). For each target it
-runs two lanes on the **same** #16-synthesized harness, changing only what 0verse
+runs two lanes on the **same** #16-synthesized harness, changing only what xverse
 adds on top of plain AFL++:
 
-  * **0verse lane**   — CMPLOG/redqueen + a dictionary *mined from the decompiled
+  * **xverse lane**   — CMPLOG/redqueen + a dictionary *mined from the decompiled
     slice* (``tokens_from_context``), i.e. exactly what the engine surfaces.
   * **baseline lane** — default AFL++: no CMPLOG, no dictionary.
 
 Both lanes start from the **identical** single ``\\x00`` seed and the identical
 synthesized harness — only {dictionary + CMPLOG} varies, so the delta is purely
-0verse's slice-derived value-add.
+xverse's slice-derived value-add.
 
 Headline metric: does the lane find + oracle-confirm a crash within the budget,
 and the wall-clock to do so (``AFL_BENCH_UNTIL_CRASH`` stops at first crash). The
-ablation isolates 0verse's seed/dict/CMPLOG contribution; the shared harness-synth
+ablation isolates xverse's seed/dict/CMPLOG contribution; the shared harness-synth
 is held constant on purpose (plain AFL++ cannot fuzz an internal function without
 *some* harness — see the caveats in docs/BENCHMARKS.md).
 
@@ -75,9 +75,9 @@ def run_lane(name: str, func: str, decl: str, lane: str, budget: int) -> BenchTr
                           budget, 0, 0.0, note="signature recovery failed")
 
     # Clean ablation: BOTH lanes start from the identical single \x00 seed and the
-    # identical #16-synthesized harness. Only what 0verse adds on top of plain
+    # identical #16-synthesized harness. Only what xverse adds on top of plain
     # AFL++ varies — a dictionary mined from the (decompiled) slice + CMPLOG.
-    if lane == "0verse":
+    if lane == "xverse":
         mined = tokens_from_context(_source_text(name))   # what the engine surfaces
         config = AflConfig(duration_s=budget, cmplog=True, use_asan=True,
                            stop_on_crash=True, seeds=[b"\x00"], dict_tokens=mined)
@@ -100,7 +100,7 @@ def run_lane(name: str, func: str, decl: str, lane: str, budget: int) -> BenchTr
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="0verse vs baseline AFL++ comparison")
+    ap = argparse.ArgumentParser(description="xverse vs baseline AFL++ comparison")
     ap.add_argument("--budget", type=int, default=60, help="per-lane time budget (s)")
     ap.add_argument("--out", default=str(HERE / "results.ndjson"))
     ap.add_argument("--targets", nargs="*", help="subset of target names")
@@ -114,7 +114,7 @@ def main(argv: list[str] | None = None) -> int:
     out = Path(args.out)
     lines: list[str] = []
     for name, func, decl in chosen:
-        for lane in ("0verse", "baseline"):
+        for lane in ("xverse", "baseline"):
             print(f"== {name} [{lane}] budget={args.budget}s ==", file=sys.stderr)
             trial = run_lane(name, func, decl, lane, args.budget)
             print(f"   crash={trial.crash_found} ttc={trial.time_to_crash_s} "

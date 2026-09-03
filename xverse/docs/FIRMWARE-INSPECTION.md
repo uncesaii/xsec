@@ -3,7 +3,7 @@
 Issue `#79` adds the final R1 boundary between verified acquisition bytes and
 later decompilation or emulation. The dependency-free
 `zeroverse.firmware_inspection` module snapshots an opaque binary and emits a
-canonical `0verse.firmware-inspection/v1` evidence report. It never opens a live
+canonical `xverse.firmware-inspection/v1` evidence report. It never opens a live
 transport, invokes binwalk, unpacks a filesystem, executes code, or writes to the
 source artifact.
 

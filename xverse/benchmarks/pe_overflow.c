@@ -3,7 +3,7 @@
    parse_record copies `len` bytes into a 32-byte stack buffer, but only behind a
    4-byte "PE0!" magic gate. An oversized len overruns the buffer (the classic
    stack smash). Built with mingw-w64 (clang/gcc --target x86_64-w64-mingw32) it
-   is a real PE32+; 0verse ingests + slices + triages it on Linux and surfaces the
+   is a real PE32+; xverse ingests + slices + triages it on Linux and surfaces the
    bug as a hypothesis, while being honest that the dynamic confirmation needs
    WinAFL on a Windows host (no fabricated crash on Linux). */
 

@@ -1,6 +1,6 @@
-"""Engine-side cloud sink — stream 0verse findings to the xcloud orchestrator.
+"""Engine-side cloud sink — stream xverse findings to the xcloud orchestrator.
 
-The binary-scan lane's engine half of ``0verse scan --cloud``. The cloud half
+The binary-scan lane's engine half of ``xverse scan --cloud``. The cloud half
 (``POST /scans/:id/findings``) is already built + flag-gated server-side; this
 module is the producer that drives it.
 
@@ -248,7 +248,7 @@ def map_pov_to_finding(pov: OversePoV) -> dict[str, Any]:
         })
     return {
         "id": pov.id,
-        "templateId": f"0verse-binary:{pov.bug_class}",
+        "templateId": f"xverse-binary:{pov.bug_class}",
         "title": pov.title,
         "description": pov.description,
         "severity": severity,
@@ -354,7 +354,7 @@ _RETRYABLE_STATUS = {429, 500, 502, 503, 504}
 
 
 def _log(msg: str) -> None:
-    sys.stderr.write(f"[0verse cloud-sink] {msg}\n")
+    sys.stderr.write(f"[xverse cloud-sink] {msg}\n")
 
 
 def _headers(config: CloudSinkConfig) -> dict[str, str]:

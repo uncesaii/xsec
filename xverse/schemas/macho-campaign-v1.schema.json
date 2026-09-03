@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://xsec.ai/schemas/xverse/macho-campaign-v1.schema.json",
-  "title": "0verse Apple Mach-O campaign manifest v1",
+  "title": "xverse Apple Mach-O campaign manifest v1",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "campaign_id", "target", "control", "coordinator", "worker", "hardware_model", "worker_acceptance_path", "worker_acceptance_sha256", "input_model", "authorization"],
   "properties": {
-    "schema_version": {"const": "0verse.macho-campaign/v1"},
+    "schema_version": {"const": "xverse.macho-campaign/v1"},
     "campaign_id": {"$ref": "#/$defs/identifier"},
     "target": {"$ref": "#/$defs/macho"},
     "control": {"$ref": "#/$defs/macho"},

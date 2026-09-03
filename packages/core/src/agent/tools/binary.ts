@@ -1,5 +1,5 @@
 import type { ToolDefinition } from "../types.js";
-import { ZEROVERSE_TOOL_DEFINITION } from "./0verse.js";
+import { ZEROVERSE_TOOL_DEFINITION } from "./xverse.js";
 
 /** Opt-in binary analysis is intentionally isolated from generic scanner tools. */
 export const BINARY_TOOL_NAMES = ["analyze_binary"] as const;

@@ -12,10 +12,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-TRUST_POLICY_SCHEMA = "0verse.windows-trust-root-policy/v1"
-TRUST_RECEIPT_SCHEMA = "0verse.windows-signtool-policy-receipt/v1"
+TRUST_POLICY_SCHEMA = "xverse.windows-trust-root-policy/v1"
+TRUST_RECEIPT_SCHEMA = "xverse.windows-signtool-policy-receipt/v1"
 TRUST_RECEIPT_PRODUCER = "zeroverse.windows-signtool-policy/powershell-v1"
-TRUST_RECEIPT_SIGNATURE_NAMESPACE = "0verse-windows-trust-receipt-v1"
+TRUST_RECEIPT_SIGNATURE_NAMESPACE = "xverse-windows-trust-receipt-v1"
 TRUST_POLICY_PROOF_LIMIT = (
     "Out-of-band terminal-root and SignTool allowlists only; policy authenticity and "
     "authorization depend on the operator-supplied retained policy bytes."
@@ -174,7 +174,7 @@ def verify_windows_trust_receipt(
     allowed_signers_bytes = _read_once(
         allowed_signers_file, "allowed signers", max_bytes=1024 * 1024
     )
-    with tempfile.TemporaryDirectory(prefix="0verse-trust-signers-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="xverse-trust-signers-") as temporary:
         policy_snapshot = Path(temporary) / "allowed_signers"
         policy_snapshot.write_bytes(allowed_signers_bytes)
         verify_ssh_signature(

@@ -1,5 +1,5 @@
 {
- "schema_version": "0verse.ghidra-analysis-receipt/v1",
+ "schema_version": "xverse.ghidra-analysis-receipt/v1",
  "producer": "zeroverse.windows-analysis/fixture-v1",
  "binary_path": "fixed.sys",
  "binary_sha256": "dd40854cdef8b344393a3285fd4219a6d16f6b51a29341386809b29196c289bd",

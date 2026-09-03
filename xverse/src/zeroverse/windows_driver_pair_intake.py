@@ -26,13 +26,13 @@ from .windows_ioctl_ghidra_export import (
 )
 from .windows_variant import Artifact, _load_artifact
 
-INTAKE_VERSION = "0verse.windows-driver-pair-intake/v2"
-INTAKE_VERSION_V3 = "0verse.windows-driver-pair-intake/v3"
-SNAPSHOT_VERSION = "0verse.windows-local-driver-export/v2"
-SNAPSHOT_VERSION_V3 = "0verse.windows-local-driver-export/v3"
-SERVICING_EVIDENCE_VERSION = "0verse.windows-retained-driver-servicing-evidence/v1"
-RESULT_VERSION = "0verse.windows-driver-local-pair-input/v2"
-RESULT_VERSION_V3 = "0verse.windows-driver-local-pair-input/v3"
+INTAKE_VERSION = "xverse.windows-driver-pair-intake/v2"
+INTAKE_VERSION_V3 = "xverse.windows-driver-pair-intake/v3"
+SNAPSHOT_VERSION = "xverse.windows-local-driver-export/v2"
+SNAPSHOT_VERSION_V3 = "xverse.windows-local-driver-export/v3"
+SERVICING_EVIDENCE_VERSION = "xverse.windows-retained-driver-servicing-evidence/v1"
+RESULT_VERSION = "xverse.windows-driver-local-pair-input/v2"
+RESULT_VERSION_V3 = "xverse.windows-driver-local-pair-input/v3"
 PRODUCER = "zeroverse.windows-driver-pair-intake/v2"
 PRODUCER_V3 = "zeroverse.windows-driver-pair-intake/v3"
 PROOF_LIMIT = (
@@ -160,9 +160,9 @@ def plan_windows_driver_pair_intake(manifest_path: str | Path) -> dict[str, obje
     }
     pair_id = hashlib.sha256(
         (
-            b"0verse-windows-driver-discovery-pair-v3\0"
+            b"xverse-windows-driver-discovery-pair-v3\0"
             if public_lane
-            else b"0verse-windows-driver-discovery-pair-v2\0"
+            else b"xverse-windows-driver-discovery-pair-v2\0"
         )
         + _canonical(pair_material)
     ).hexdigest()
@@ -245,7 +245,7 @@ def plan_windows_driver_pair_intake(manifest_path: str | Path) -> dict[str, obje
         "automatic_disclosure": False,
         "human_promotion_gate": True,
         "windows_discovery_campaign": {
-            "schema_version": "0verse.windows-discovery-campaign/v1",
+            "schema_version": "xverse.windows-discovery-campaign/v1",
             "source_declaration": {
                 "kind": earlier.source_kind,
                 "description": "verified ordered local semantic-v3 snapshot pair",

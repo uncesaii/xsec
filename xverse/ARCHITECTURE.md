@@ -1,13 +1,13 @@
-# 0verse architecture
+# xverse architecture
 
-> Status: 2026-07-25. Scope frozen: 0verse is an evidence-producer/notary,
+> Status: 2026-07-25. Scope frozen: xverse is an evidence-producer/notary,
 > not a dispatchable platform engine, until the blind stripped-binary gate passes.
 > M1–M7 describe in-tree implementation and test/proof coverage, not uniform live
 > or operational maturity. Expensive or mutating lanes remain opt-in by flag.
 
 ## One-line story
 
-> *0verse is a binary-native Cyber Reasoning System: an agentic orchestration
+> *xverse is a binary-native Cyber Reasoning System: an agentic orchestration
 > layer over free binary-analysis engines (Ghidra headless, angr, AFL++). The
 > LLM writes fuzz harnesses, guides exploration, and triages crashes; the engine
 > proves each hypothesis with a reproducing PoV and proposes a verified patch —
@@ -39,8 +39,8 @@
 ## Scope decision and maturity vocabulary
 
 This repository follows
-[XSEC ADR-066](https://github.com/uncesaii/xsec/blob/main/docs/DECISIONS.md#adr-066--2026-07-17--0verse-is-an-evidence-producernotary-input-not-a-dispatchable-engine-yet):
-**0verse produces and notarizes evidence out of band; it is not a generic
+[XSEC ADR-066](https://github.com/uncesaii/xsec/blob/main/docs/DECISIONS.md#adr-066--2026-07-17--xverse-is-an-evidence-producernotary-input-not-a-dispatchable-engine-yet):
+**xverse produces and notarizes evidence out of band; it is not a generic
 managed dispatch engine.** Dispatch investment is gated on a blind run that
 confirms a known-CVE stripped x86-64 ELF. Until that gate passes, the generic
 cloud job type, engine template, and agent-callable binary tool are parked.
@@ -100,7 +100,7 @@ or change ordering. None of those flags can create a confirmed finding; only the
 oracle can.
 
 Each stage is a module behind a typed interface so backends swap cleanly and
-stages can run standalone (`0verse triage` is just stage 1). The fuzz complement
+stages can run standalone (`xverse triage` is just stage 1). The fuzz complement
 runs only when the static slice confirmed nothing (or `ZEROVERSE_FORCE_FUZZ`):
 a synthesized harness without a reproduced crash is an artifact, never a finding.
 
@@ -127,21 +127,21 @@ Rust for performance-critical leaf passes behind PyO3.
 
 ## Relationship to the rest of the line
 
-- **foxguard** — source-level SAST (Rust). `0verse` is its no-source sibling.
+- **foxguard** — source-level SAST (Rust). `xverse` is its no-source sibling.
 - **the managed platform (proprietary)** — currently imports the specific signed
-  Hyper-V evidence shape produced by `0verse` out of band. Provider-neutral PoV
+  Hyper-V evidence shape produced by `xverse` out of band. Provider-neutral PoV
   import, the generic dispatch engine, binary job type, and agent-callable binary
   tool remain planned and parked behind the blind stripped-ELF gate above.
 
 ## Module layout
 
 The import package is `zeroverse` (a module can't start with a digit; the brand
-and CLI are "0verse"). The module list records in-tree implementation, not uniform
+and CLI are "xverse"). The module list records in-tree implementation, not uniform
 default-path integration or maturity; use the vocabulary above for each lane.
 
 ```
 src/zeroverse/
-  cli.py              # `0verse triage | run | scan`
+  cli.py              # `xverse triage | run | scan`
   api.py              # embeddable scan() + format_result() (versioned ScanResult)
   pipeline.py         # deterministic stage scheduler (ingest → … → report)
   ingest.py           # stage 1 — pure-python ELF/Mach-O/PE/.ko format/arch/mitigation triage
