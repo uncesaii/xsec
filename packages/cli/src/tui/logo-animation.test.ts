@@ -12,11 +12,11 @@ import {
 
 /** The shipped xsec block mark (mirrors chat-screen's TERMINAL_BLOCK_LOGO). */
 const LOGO = [
-  " ######   #######  #######   ######",
-  "##  //##  ##       ##       ##     ",
-  "## // ##  #######  #####    ##     ",
-  "##//  ##       ##  ##       ##     ",
-  " ######   #######  #######   ######",
+  "#      /  #######  #######   ######",
+  "  #  /    ##       ##       ##     ",
+  "   /#     #######  #####    ##     ",
+  "  /  #         ##  ##       ##     ",
+  "/      #  #######  #######   ######",
 ] as const;
 
 const ONE_SHOT: LogoAnimStyle[] = [
@@ -103,7 +103,7 @@ describe("finalLogoFrame", () => {
   });
 
   it("has the expected slash cells (the diagonal through the X)", () => {
-    expect(slashTotal).toBe(6);
+    expect(slashTotal).toBe(5);
   });
 });
 
@@ -149,10 +149,10 @@ describe("strike", () => {
   });
 
   it("reveals lower-left before upper-right (diagonal order)", () => {
-    // Early frame: the lower-left slash (row 3) shows before the upper-right (row 1).
+    // Early frame: the lower-left slash (row 4) shows before the upper-right (row 0).
     const early = computeLogoFrame(LOGO, "strike", 0);
-    const lowerLeft = early[3]!.some((c) => c.ch === "/" && c.visible);
-    const upperRight = early[1]!.some((c) => c.ch === "/" && c.visible);
+    const lowerLeft = early[4]!.some((c) => c.ch === "/" && c.visible);
+    const upperRight = early[0]!.some((c) => c.ch === "/" && c.visible);
     expect(lowerLeft).toBe(true);
     expect(upperRight).toBe(false);
   });
@@ -379,8 +379,8 @@ describe("logoRowRuns", () => {
     const row0 = finalLogoFrame(LOGO)[0]!;
     const runs = logoRowRuns(row0);
     expect(runs.length).toBeGreaterThan(1);
-    expect(runs[0]).toMatchObject({ tone: "text", visible: false });
-    expect(runs[1]).toMatchObject({ tone: "text", visible: true });
+    expect(runs[0]).toMatchObject({ tone: "text", visible: true });
+    expect(runs[1]).toMatchObject({ tone: "text", visible: false });
     // Neighbouring runs never share the same (tone, visible) pair.
     for (let i = 1; i < runs.length; i += 1) {
       const same = runs[i]!.tone === runs[i - 1]!.tone && runs[i]!.visible === runs[i - 1]!.visible;
@@ -490,7 +490,7 @@ describe("sweep", () => {
 
   it("reveals the left of the mark before the right", () => {
     const mid = computeLogoFrame(LOGO, "sweep", Math.floor(last / 3));
-    const leftCol = mid.some((row) => row[1]!.visible);
+    const leftCol = mid.some((row) => row[0]!.visible);
     const rightCol = mid.some((row) => row[34]!.visible);
     expect(leftCol).toBe(true);
     expect(rightCol).toBe(false);
@@ -761,7 +761,7 @@ describe("wave", () => {
 
   it("reveals the left of the mark before the right", () => {
     const mid = computeLogoFrame(LOGO, "wave", Math.floor(last / 4));
-    const leftCol = mid.some((row) => row[1]!.visible);
+    const leftCol = mid.some((row) => row[0]!.visible);
     const rightCol = mid.some((row) => row[34]!.visible);
     expect(leftCol).toBe(true);
     expect(rightCol).toBe(false);
