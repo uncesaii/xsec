@@ -2,11 +2,11 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 
 /**
- * Per-user engine state directory (`~/.0sec`): scan DB, journals, kernel and
+ * Per-user engine state directory (`~/.xsec`): scan DB, journals, kernel and
  * intel caches, cloud credentials.
  */
 export function homeStateDir(home: string = homedir()): string {
-  return join(home, ".0sec");
+  return join(home, ".xsec");
 }
 
 /**
@@ -15,7 +15,7 @@ export function homeStateDir(home: string = homedir()): string {
  */
 export function runStateDir(runId: string, home?: string): string {
   if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(runId)) {
-    throw new Error(`Invalid 0sec run id ${JSON.stringify(runId)}.`);
+    throw new Error(`Invalid xsec run id ${JSON.stringify(runId)}.`);
   }
   return join(homeStateDir(home), "runs", runId);
 }

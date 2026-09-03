@@ -24,7 +24,7 @@ import {
   listToolsDef,
   loadToolDef,
 } from "../agent/deferred-tools.js";
-import type { osecDB } from "@0sec/db";
+import type { osecDB } from "@xsec/db";
 import { TOOL_DISPATCH } from "../agent/tools/dispatch.js";
 import {
   BUILTIN_GUARDS,
@@ -48,8 +48,8 @@ import { createSessionObjectiveService } from "./session-objective.js";
 /**
  * Unified interactive chat console — engine-side turn driver.
  *
- * This is the conversational front-end for the 0sec engine described in the
- * 0sec "operator cockpit" direction: one surface where an operator talks to the
+ * This is the conversational front-end for the xsec engine described in the
+ * xsec "operator cockpit" direction: one surface where an operator talks to the
  * engine and it can invoke every tool in the registry (recon, web pentest,
  * source-scan, variant-hunt, verify, patch-gen) in one place.
  *
@@ -123,7 +123,7 @@ export interface ConsoleUsageReport {
   maxToolIterations: number;
 }
 
-// ── Console autonomy / scope resolution (0sec console) ──
+// ── Console autonomy / scope resolution (xsec console) ──
 
 /**
  * Operator engagement mode for the console. This is a FRICTION model, not an
@@ -533,7 +533,7 @@ export interface ConsoleSessionConfig {
    */
   allowModelSelfExtension?: boolean;
   /**
-   * Live plugin host for THIS session (0sec plugin system). Optional; absent =
+   * Live plugin host for THIS session (xsec plugin system). Optional; absent =
    * today's behaviour exactly (no plugin tools are exposed or dispatched). When
    * provided, the tools of ENABLED/loaded plugins are unioned into the
    * model-facing tool set at each turn boundary and their calls are dispatched
@@ -648,8 +648,8 @@ export function buildConsoleSystemPrompt(opts: {
     ? "Recon mode: passive, in-scope reconnaissance ONLY. Operate strictly within the authorized target/scope and use only read-only and passive network-recon tools (crawling, fingerprinting, surface/API discovery, JS recon, intel lookups, source reading). Do NOT attempt any effectful, mutating, or exploitation action — those tools are refused in this mode. Gather and report what you observe, then hand control back. Scope is not auto-expanded; an out-of-scope target needs the operator's decision."
     : "Standard mode: the operator approves each action before it runs. Take one concrete step, wait for approval, and when a target is not authorized request a narrow scope extension and wait for the operator's decision.";
   return [
-    "You are the 0sec operator console — an interactive security assistant with",
-    "direct access to the full 0sec tool registry (reconnaissance, web pentest,",
+    "You are the xsec operator console — an interactive security assistant with",
+    "direct access to the full xsec tool registry (reconnaissance, web pentest,",
     "source and package scanning, variant hunting, exploit verification, and",
     "patch generation).",
     "",

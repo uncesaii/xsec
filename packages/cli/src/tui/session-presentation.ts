@@ -2,7 +2,7 @@ import {
   createTranscriptDocument,
   type PresentationTranscriptDocument,
   type PresentationTranscriptEntry,
-} from "@0sec/shared";
+} from "@xsec/shared";
 import type { SessionState, TranscriptItem } from "./session-state.js";
 
 export function projectSessionItem(item: TranscriptItem): PresentationTranscriptEntry {

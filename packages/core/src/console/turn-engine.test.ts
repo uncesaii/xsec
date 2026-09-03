@@ -55,7 +55,7 @@ function endTurn(text: string): NativeRuntimeResult {
 describe("buildConsoleSystemPrompt", () => {
   it("frames the operator cockpit and includes target + session", () => {
     const p = buildConsoleSystemPrompt({ target: "https://example.com", scanId: "console-x" });
-    expect(p).toContain("0sec operator console");
+    expect(p).toContain("xsec operator console");
     expect(p).toContain("https://example.com");
     expect(p).toContain("console-x");
   });
@@ -1059,7 +1059,7 @@ describe("Console autonomy — local filesystem scope-on-demand", () => {
 
   /** Create an isolated temp tree and return its symlink-resolved real path. */
   function makeTmpRoot(): string {
-    const root = mkdtempSync(join(tmpdir(), "0sec-localscope-"));
+    const root = mkdtempSync(join(tmpdir(), "xsec-localscope-"));
     tmpRoots.push(root);
     return realpathSync(root);
   }
@@ -1940,8 +1940,8 @@ describe("Console scope gate — unresolvable shell destinations", () => {
     // operator's explicit full-autonomy opt-in, so the scope gate no longer
     // refuses an unreadable command — it runs (the executor's SSRF rail still
     // governs any real egress beneath). Only a FOREIGN NAMED host stays refused.
-    const prevRequireScope = process.env["0SEC_REQUIRE_SCOPE"];
-    delete process.env["0SEC_REQUIRE_SCOPE"];
+    const prevRequireScope = process.env["XSEC_REQUIRE_SCOPE"];
+    delete process.env["XSEC_REQUIRE_SCOPE"];
     try {
       const runtime = new ScriptedRuntime([bashTurn("c1", `echo aGk= | base64 -d`), endTurn("done")]);
       let prompts = 0;
@@ -1961,7 +1961,7 @@ describe("Console scope gate — unresolvable shell destinations", () => {
       expect(outcome.toolCalls[0].result.error ?? "").not.toContain("cannot resolve");
       expect(outcome.toolCalls[0].result.error ?? "").not.toContain("YOLO mode");
     } finally {
-      if (prevRequireScope !== undefined) process.env["0SEC_REQUIRE_SCOPE"] = prevRequireScope;
+      if (prevRequireScope !== undefined) process.env["XSEC_REQUIRE_SCOPE"] = prevRequireScope;
     }
   });
 
@@ -2088,8 +2088,8 @@ describe("Console autonomy — yolo: no preconfigured scope, but the target stil
     // Previously yolo refused any command whose destination it couldn't read.
     // That blocked legitimate local work, so yolo now RUNS it (SSRF rail still
     // governs real egress beneath); only a foreign NAMED host stays refused.
-    const prevRequireScope = process.env["0SEC_REQUIRE_SCOPE"];
-    delete process.env["0SEC_REQUIRE_SCOPE"];
+    const prevRequireScope = process.env["XSEC_REQUIRE_SCOPE"];
+    delete process.env["XSEC_REQUIRE_SCOPE"];
     try {
       const runtime = new ScriptedRuntime([
         { content: [{ type: "tool_use", id: "c1", name: "bash", input: { command: `echo aGk= | base64 -d` } }], stopReason: "tool_use", durationMs: 1 },
@@ -2111,7 +2111,7 @@ describe("Console autonomy — yolo: no preconfigured scope, but the target stil
       expect(outcome.toolCalls[0].result.success).toBe(true);
       expect(outcome.toolCalls[0].result.error ?? "").not.toContain("cannot resolve");
     } finally {
-      if (prevRequireScope !== undefined) process.env["0SEC_REQUIRE_SCOPE"] = prevRequireScope;
+      if (prevRequireScope !== undefined) process.env["XSEC_REQUIRE_SCOPE"] = prevRequireScope;
     }
   });
 
@@ -2550,7 +2550,7 @@ describe("Console turn cancellation — AbortSignal", () => {
   });
 });
 
-// ── Session-registered tools: self-extension + plugin host (0sec console) ──────
+// ── Session-registered tools: self-extension + plugin host (xsec console) ──────
 //
 // The interactive console turn loop wires the SAME two kinds of session-
 // registered tools the scan `runNativeAgentLoop` supports: (1) model self-

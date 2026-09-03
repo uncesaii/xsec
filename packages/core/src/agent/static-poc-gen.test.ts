@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { AttackCategory, Finding } from "@0sec/shared";
+import type { AttackCategory, Finding } from "@xsec/shared";
 import type {
   NativeRuntime,
   NativeMessage,
@@ -299,7 +299,7 @@ describe("applyStaticPocResult", () => {
     expect(finding.triageNote).toContain(POC_NONE_MARKER);
     // Severity untouched — no-PoC ≠ false positive (the #666 lesson).
     expect(finding.severity).toBe(before);
-    // Still no executable PoC (so 0cloud routes it to manual, not auto-verify).
+    // Still no executable PoC (so xcloud routes it to manual, not auto-verify).
     expect(finding.pocSteps).toBeUndefined();
 
     const verdict = finding.layerVerdicts?.find((v) => v.layer === "poc_gen");

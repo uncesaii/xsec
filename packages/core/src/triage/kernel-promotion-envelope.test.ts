@@ -17,7 +17,7 @@ import type {
 import type {
   VerificationResult,
   ResearchNoveltyReceipt,
-} from "@0sec/shared";
+} from "@xsec/shared";
 
 // ── Fixtures ────────────────────────────────────────────────────────────────
 

@@ -4,7 +4,7 @@ import {
   createScanReportDocument,
   type AuditReport,
   type ScanReport,
-} from "@0sec/shared";
+} from "@xsec/shared";
 import {
   formatAuditReport,
   formatPresentationDocument,

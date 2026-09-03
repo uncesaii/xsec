@@ -89,7 +89,7 @@ export type {
   KernelRunResult,
 } from "../agent/tools/kernel-run.js";
 
-// 0sec#193 — deterministic replay runner public surface.
+// xsec#193 — deterministic replay runner public surface.
 export {
   runDeterministicReplay,
   LocalShellRunner,

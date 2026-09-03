@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { Finding, Severity } from "@0sec/shared";
+import type { Finding, Severity } from "@xsec/shared";
 
 import {
   rankAndDedupeFoxguardLeads,

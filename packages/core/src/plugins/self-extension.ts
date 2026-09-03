@@ -13,7 +13,7 @@
  * without calling `next()` short-circuits the chain — so one model-written
  * plugin can silently disable the ENTIRE authorization pipeline. Their own
  * README concedes the toolset is "not a security boundary… treat it like bash
- * access." 0sec's guard layer is deny-only, and that single type-level fact is
+ * access." xsec's guard layer is deny-only, and that single type-level fact is
  * what lets us accept model-authored contributions without inheriting that
  * property.
  *

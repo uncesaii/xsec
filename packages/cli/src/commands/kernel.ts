@@ -1,9 +1,9 @@
 import type { Command } from "commander";
 import chalk from "chalk";
 import { readFileSync, writeFileSync } from "node:fs";
-import { generateSyzChoiceWeights, syzChoiceWeightsFromPlan } from "@0sec/core";
-import type { KernelVariantHuntReport } from "@0sec/core";
-import type { ScanReport, Severity } from "@0sec/shared";
+import { generateSyzChoiceWeights, syzChoiceWeightsFromPlan } from "@xsec/core";
+import type { KernelVariantHuntReport } from "@xsec/core";
+import type { ScanReport, Severity } from "@xsec/shared";
 import { formatSarif } from "../formatters/sarif.js";
 
 const VALID_OUTPUT_FORMATS = ["terminal", "json", "sarif"] as const;
@@ -152,7 +152,7 @@ export function registerKernelCommand(program: Command): void {
         const details = parsePositiveInt(opts.details, "--details", 100);
         const detailDelayMs = parsePositiveInt(opts.detailDelay, "--detail-delay", 5_000);
         const subsystems = opts.subsystems.split(",").map((value) => value.trim()).filter(Boolean);
-        const { defaultSyzbotFetcher, mineSyzbotQueue, toHuntCandidates } = await import("@0sec/core");
+        const { defaultSyzbotFetcher, mineSyzbotQueue, toHuntCandidates } = await import("@xsec/core");
         const result = await mineSyzbotQueue({
           fetch: defaultSyzbotFetcher,
           fetchDetail: defaultSyzbotFetcher,
@@ -233,7 +233,7 @@ export function registerKernelCommand(program: Command): void {
           );
         }
 
-        const { runKernelVariantHunt } = await import("@0sec/core");
+        const { runKernelVariantHunt } = await import("@xsec/core");
         const report = await runKernelVariantHunt({
           tree: opts.tree,
           advisory: opts.advisory,

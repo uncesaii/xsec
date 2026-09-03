@@ -1,9 +1,9 @@
 ---
 title: Agent Loop
-description: How 0sec's autonomous agent loop works — system prompt, LLM calls, tool execution, budget-aware reflection, and debugging.
+description: How XSEC's autonomous agent loop works — system prompt, LLM calls, tool execution, budget-aware reflection, and debugging.
 ---
 
-0sec runs assessments by putting an LLM in a loop with tools. There is no
+XSEC runs assessments by putting an LLM in a loop with tools. There is no
 hard-coded playbook. The agent reads a system prompt, reasons, calls tools,
 reads the results, and decides what to do next.
 
@@ -58,7 +58,7 @@ text-only response after enough turns, or runs out of budget.
 ## What the agent sees
 
 **System prompt** — the most important input. It says what the agent is, what
-tools it has, and how to approach the target. 0sec assembles a different prompt
+tools it has, and how to approach the target. XSEC assembles a different prompt
 per mode:
 
 - `shellPentestPrompt` (web) — gives `bash`, `save_finding`, `done` and tells
@@ -158,7 +158,7 @@ Common patterns:
 (`db.logEvent`). Reconstruct a scan with:
 
 ```bash
-0sec history <scan-id> --events
+xsec history <scan-id> --events
 ```
 
 Session state is persisted every 2 turns, so interrupted scans resume with

@@ -35,4 +35,4 @@ For users without free Azure access: Kimi K2.5 is the best cost/performance opti
 
 ## Model comparison matters
 
-KinoSec uses Claude Sonnet (92.3% black-box), Shannon uses Claude Opus (96.15% white-box), deadend-cli uses Kimi K2.5 (78%). Our current 0sec numbers live on the [Benchmark](/benchmark/) page, which tracks the artifact-backed tally separately from the older published figure. Switching models still moves the score more than most framework tweaks.
+KinoSec uses Claude Sonnet (92.3% black-box), Shannon uses Claude Opus (96.15% white-box), deadend-cli uses Kimi K2.5 (78%). Our current XSEC numbers live on the [Benchmark](/benchmark/) page, which tracks the artifact-backed tally separately from the older published figure. Switching models still moves the score more than most framework tweaks.

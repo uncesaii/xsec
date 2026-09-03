@@ -1,13 +1,13 @@
 /**
- * `0sec upgrade` — re-runs install.sh to fetch the latest binary.
+ * `xsec upgrade` — re-runs install.sh to fetch the latest binary.
  *
  * Convenience wrapper around the canonical install path:
  *
- *   curl -fsSL https://raw.githubusercontent.com/0sec-labs/0sec/main/install.sh | bash
+ *   curl -fsSL https://raw.githubusercontent.com/uncesaii/xsec/main/install.sh | bash
  *
- * When run from inside an installed 0sec binary, this re-fetches the
+ * When run from inside an installed xsec binary, this re-fetches the
  * matching binary for the host platform and writes it into
- * `$0SEC_INSTALL_DIR` (default `~/.0sec/bin/`), overwriting the
+ * `$XSEC_INSTALL_DIR` (default `~/.xsec/bin/`), overwriting the
  * current binary atomically.
  *
  * Windows is intentionally not supported by install.sh — print the
@@ -18,8 +18,8 @@ import type { Command } from "commander";
 import { spawn } from "node:child_process";
 import chalk from "chalk";
 
-const INSTALL_URL = "https://raw.githubusercontent.com/0sec-labs/0sec/main/install.sh";
-const RELEASES_URL = "https://github.com/0sec-labs/0sec/releases/latest";
+const INSTALL_URL = "https://raw.githubusercontent.com/uncesaii/xsec/main/install.sh";
+const RELEASES_URL = "https://github.com/uncesaii/xsec/releases/latest";
 
 interface UpgradeOptions {
   version?: string;
@@ -29,15 +29,15 @@ interface UpgradeOptions {
 export function registerUpgradeCommand(program: Command): void {
   program
     .command("upgrade")
-    .description("Fetch and install the latest 0sec binary (re-runs install.sh)")
+    .description("Fetch and install the latest xsec binary (re-runs install.sh)")
     .option("--version <tag>", "Pin a specific release tag (e.g. v0.10.0)")
-    .option("--install-dir <path>", "Override the install directory (default: ~/.0sec/bin)")
+    .option("--install-dir <path>", "Override the install directory (default: ~/.xsec/bin)")
     .action(async (opts: UpgradeOptions) => {
       if (process.platform === "win32") {
         console.log("");
-        console.log(`  ${chalk.bold("0sec upgrade")} doesn't support Windows yet.`);
+        console.log(`  ${chalk.bold("xsec upgrade")} doesn't support Windows yet.`);
         console.log("");
-        console.log(`  Download the latest ${chalk.cyan("0sec-windows-x64.exe")} from:`);
+        console.log(`  Download the latest ${chalk.cyan("xsec-windows-x64.exe")} from:`);
         console.log(`    ${chalk.cyan(RELEASES_URL)}`);
         console.log("");
         console.log(`  Replace your current binary in place. Auto-upgrade is tracked in #234.`);
@@ -49,14 +49,14 @@ export function registerUpgradeCommand(program: Command): void {
       // liner from the README. Set up the env so install.sh picks up the
       // requested overrides.
       const env: NodeJS.ProcessEnv = { ...process.env };
-      if (opts.version) env["0SEC_VERSION"] = opts.version;
-      if (opts.installDir) env["0SEC_INSTALL_DIR"] = opts.installDir;
+      if (opts.version) env["XSEC_VERSION"] = opts.version;
+      if (opts.installDir) env["XSEC_INSTALL_DIR"] = opts.installDir;
 
       console.log("");
-      console.log(`  ${chalk.bold("0sec upgrade")} — fetching the latest binary…`);
+      console.log(`  ${chalk.bold("xsec upgrade")} — fetching the latest binary…`);
       console.log(`    ${chalk.dim(`curl -fsSL ${INSTALL_URL} | bash`)}`);
-      if (opts.version) console.log(`    ${chalk.dim(`0SEC_VERSION=${opts.version}`)}`);
-      if (opts.installDir) console.log(`    ${chalk.dim(`0SEC_INSTALL_DIR=${opts.installDir}`)}`);
+      if (opts.version) console.log(`    ${chalk.dim(`XSEC_VERSION=${opts.version}`)}`);
+      if (opts.installDir) console.log(`    ${chalk.dim(`XSEC_INSTALL_DIR=${opts.installDir}`)}`);
       console.log("");
 
       // Use sh -c so we can pipe curl into bash without writing a temp
@@ -75,7 +75,7 @@ export function registerUpgradeCommand(program: Command): void {
         }
         if (code === 0) {
           console.log("");
-          console.log(`  ${chalk.green("✓")} ${chalk.bold("upgraded.")} run ${chalk.cyan("0sec --version")} to confirm.`);
+          console.log(`  ${chalk.green("✓")} ${chalk.bold("upgraded.")} run ${chalk.cyan("xsec --version")} to confirm.`);
           console.log("");
         }
         process.exit(code ?? 0);

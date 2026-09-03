@@ -1,5 +1,5 @@
 /**
- * Shell-level plugin-host lifecycle for the live console (0sec plugin system).
+ * Shell-level plugin-host lifecycle for the live console (xsec plugin system).
  *
  * This is the missing link between "a plugin is enabled in the marketplace" and
  * "its tools reach the running console". `plugin-service.ts` writes the on-disk
@@ -43,7 +43,7 @@
  *     throws out of `refresh`; a failed build degrades to "no plugin host".
  */
 
-import type { PluginHost } from "@0sec/core";
+import type { PluginHost } from "@xsec/core";
 
 import type { CoreLoadResult, CorePluginApi, PluginHostLike } from "./plugin-service.js";
 
@@ -90,9 +90,9 @@ export interface SessionPluginHostDeps {
    * built-in is rejected on both the reconcile and the load path.
    */
   reservedToolNames?: readonly string[];
-  /** Running @0sec/core version, for the loader's `minCoreVersion` check. */
+  /** Running @xsec/core version, for the loader's `minCoreVersion` check. */
   coreVersion?: string;
-  /** Injected @0sec/core. Defaults to a lazy `import("@0sec/core")`. */
+  /** Injected @xsec/core. Defaults to a lazy `import("@xsec/core")`. */
   core?: CorePluginApi | (() => Promise<CorePluginApi>);
   /** Injected host factory (tests). Defaults to `new core.PluginHost(...)`. */
   hostFactory?: (opts: {
@@ -103,13 +103,13 @@ export interface SessionPluginHostDeps {
   }) => PluginHostLike;
 }
 
-/** Lazily resolve @0sec/core once, honouring an injected override. */
+/** Lazily resolve @xsec/core once, honouring an injected override. */
 function coreLoader(injected: SessionPluginHostDeps["core"]): () => Promise<CorePluginApi> {
   if (typeof injected === "function") return injected as () => Promise<CorePluginApi>;
   if (injected) return async () => injected;
   let cached: Promise<CorePluginApi> | undefined;
   return () => {
-    if (!cached) cached = import("@0sec/core") as unknown as Promise<CorePluginApi>;
+    if (!cached) cached = import("@xsec/core") as unknown as Promise<CorePluginApi>;
     return cached;
   };
 }

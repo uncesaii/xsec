@@ -14,7 +14,7 @@ import {
   type BenchScanResult,
   type BenchVariant,
   type TargetProvisioner,
-} from "@0sec/core";
+} from "@xsec/core";
 
 import {
   cleanupOwnedTaskDir,
@@ -179,7 +179,7 @@ export function cyberGymResultToBenchScanResult(
     outputTokens: result.outputTokens ?? 0,
     totalTokens: (result.inputTokens ?? 0) + (result.outputTokens ?? 0),
     execution: {
-      harnessId: variant.harnessId ?? "0sec-agentic",
+      harnessId: variant.harnessId ?? "xsec-agentic",
       model: result.model,
       ...(variant.runtime ? { runtime: variant.runtime } : {}),
     },
@@ -248,7 +248,7 @@ export function createCyberGymBenchIntegration(
         provisioner,
         oracle,
         executionMetadata: {
-          harnessId: variant.harnessId ?? "0sec-agentic",
+          harnessId: variant.harnessId ?? "xsec-agentic",
           ...(variant.model ? { model: variant.model } : {}),
           ...(variant.runtime ? { runtime: variant.runtime } : {}),
         },

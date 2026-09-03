@@ -3,14 +3,14 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import type { Finding } from "@0sec/shared";
+import type { Finding } from "@xsec/shared";
 import type { NativeMessage, NativeRuntime } from "../runtime/types.js";
 import { runSourceFix } from "./source-fix.js";
 
 const tempRepos: string[] = [];
 
 function createRepository(): string {
-  const root = mkdtempSync(join(tmpdir(), "0sec-source-fix-"));
+  const root = mkdtempSync(join(tmpdir(), "xsec-source-fix-"));
   tempRepos.push(root);
   mkdirSync(join(root, "src"));
   writeFileSync(
@@ -35,7 +35,7 @@ function createRepository(): string {
   execFileSync("git", ["add", "."], { cwd: root });
   execFileSync(
     "git",
-    ["-c", "user.name=0sec-test", "-c", "user.email=0sec@example.test", "commit", "-qm", "fixture"],
+    ["-c", "user.name=xsec-test", "-c", "user.email=xsec@example.test", "commit", "-qm", "fixture"],
     { cwd: root },
   );
   return root;

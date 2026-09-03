@@ -1,5 +1,5 @@
 /**
- * Pure, deterministic per-frame animation for the "0SEC" block-logo intro.
+ * Pure, deterministic per-frame animation for the "xsec" block-logo intro.
  *
  * This module owns only the *logic* of the intro: given the base logo grid
  * (the three-letter colour map used by the masthead — `' '` empty, `'#'` white,
@@ -48,7 +48,7 @@
  *               column, each leaving the settled mark behind it.
  *   - `wave`    a rippling RED wavefront (a sine-bent edge) wipes the mark in.
  *   - `neon`    a neon-sign warm-up: cells buzz on in neon colours, then settle.
- *   - `strike`  a red slash strikes the 0 along its diagonal (bright-red hot edge).
+ *   - `strike`  a red slash strikes the X along its diagonal (bright-red hot edge).
  *   - `draw`    a left-to-right column reveal behind a bright pen tip.
  *   - `fade`    a centre-out brightness bloom (a red-tinted multi-step ramp).
  *   - `typein`  per-cell reveal in reading order with a bright-red leading glow.
@@ -137,7 +137,7 @@ export function logoRowRuns(row: readonly LogoCellState[]): LogoRun[] {
 
 /**
  * One-shot frame budgets per style (the number of distinct frames in the
- * intro). Sized for the shipped 0SEC mark (5 rows x 35 cols) but the compute
+ * intro). Sized for the shipped xsec mark (5 rows x 35 cols) but the compute
  * function scales its thresholds to the actual grid, so a differently-sized
  * grid still reveals fully by the final frame.
  *
@@ -361,14 +361,14 @@ const DRAW_TIP: readonly string[] = ["#ffffff", "#ffb3b3"];
  * The "hot edge" tone for the reveal styles (strike/typein/sweep) and the pulse
  * peak. A bright RED — brighter than the settled `error` red — so a leading edge
  * still reads as hotter than the mark behind it, WITHOUT the purple that belongs
- * to the 0sec voice rather than the logo.
+ * to the xsec voice rather than the logo.
  */
 const HOT_RED = "#ff6a6a";
 
 /**
- * strike: the SEC outline and the "0" white cells are visible from frame 0; the
+ * strike: the SEC outline and the "X" white cells are visible from frame 0; the
  * red slash ("/") cells reveal progressively along the diagonal from the
- * lower-left corner to the upper-right, striking through the zero. Ordering is by
+ * lower-left corner to the upper-right, striking through the X. Ordering is by
  * the anti-diagonal key `col - row` (lower-left is the smallest key). The
  * just-struck leading edge flashes bright red (HOT_RED) and settles to red ("error")
  * behind it — the snappy easeOutCubic threshold gives the strike a decisive
@@ -694,7 +694,7 @@ function shimmerFrame(grid: readonly string[], frame: number, width: number): Lo
   const period = FRAME_COUNTS.shimmer;
   const idx = ((frame % period) + period) % period;
   // Start the (darkest) head OFF-SCREEN LEFT so the band visibly sweeps IN from
-  // the left edge, rather than popping in already centered on the 0. The head
+   // the left edge, rather than popping in already centered on the X. The head
   // begins at column -SHIMMER_TAIL and travels rightward off the mark.
   const head = idx - SHIMMER_TAIL;
   for (let offset = -SHIMMER_TAIL; offset <= SHIMMER_TAIL; offset += 1) {

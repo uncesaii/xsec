@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { ToolHealthSummary } from "@0sec/core";
+import type { ToolHealthSummary } from "@xsec/core";
 
 import {
   buildUsageReport,

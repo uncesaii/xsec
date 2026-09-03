@@ -1,15 +1,15 @@
-# 0sec paper workspace
+# XSEC paper workspace
 
 This folder mirrors the noeris paper workflow pattern:
 
-- one living narrative draft (`0sec.md`)
-- one submission-oriented LaTeX draft (`0sec-submission.tex`)
+- one living narrative draft (`xsec.md`)
+- one submission-oriented LaTeX draft (`xsec-submission.tex`)
 - split support notes for evaluation and related work
 
 ## Files
 
-- `0sec.md` - canonical long-form draft with repo-grounded claims
-- `0sec-submission.tex` - arXiv-style LaTeX draft
+- `xsec.md` - canonical long-form draft with repo-grounded claims
+- `xsec-submission.tex` - arXiv-style LaTeX draft
 - `evaluation.md` - canonical table/numbers source for paper text
 - `related_work.md` - comparison/citation notes with caveats
 - `refs.bib` - bibliography database for LaTeX draft
@@ -21,17 +21,17 @@ This folder mirrors the noeris paper workflow pattern:
 From this directory:
 
 ```bash
-pdflatex -interaction=nonstopmode "0sec-submission.tex"
-pdflatex -interaction=nonstopmode "0sec-submission.tex"
+pdflatex -interaction=nonstopmode "xsec-submission.tex"
+pdflatex -interaction=nonstopmode "xsec-submission.tex"
 ```
 
 With bibliography:
 
 ```bash
-pdflatex -interaction=nonstopmode "0sec-submission.tex"
-bibtex "0sec-submission"
-pdflatex -interaction=nonstopmode "0sec-submission.tex"
-pdflatex -interaction=nonstopmode "0sec-submission.tex"
+pdflatex -interaction=nonstopmode "xsec-submission.tex"
+bibtex "xsec-submission"
+pdflatex -interaction=nonstopmode "xsec-submission.tex"
+pdflatex -interaction=nonstopmode "xsec-submission.tex"
 ```
 
 Create arXiv source package:

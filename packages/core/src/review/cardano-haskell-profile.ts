@@ -1,4 +1,4 @@
-import type { SemgrepFinding } from "@0sec/shared";
+import type { SemgrepFinding } from "@xsec/shared";
 
 /**
  * Prompt for the Cardano FIRST-PARTY HASKELL source-review profile.

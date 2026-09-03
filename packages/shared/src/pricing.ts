@@ -46,10 +46,10 @@ export const MANUAL_PRICING: Record<string, ModelRates> = {
   "k3": { input: 3.0, output: 15.0, cachedInput: 0.30 },
   "k3[1m]": { input: 3.0, output: 15.0, cachedInput: 0.30 },
   "kimi-for-coding": { input: 3.0, output: 15.0, cachedInput: 0.30 },
-  // Alibaba Model Studio Qwen (Token Plan) — list rates mirroring the 0cloud
+  // Alibaba Model Studio Qwen (Token Plan) — list rates mirroring the xcloud
   // pricing source; actual spend is credit-billed at the operator's
   // subscription discount, so reconcile to the Model Studio invoice. Only the
-  // entries the 0cloud rate source carries are pinned; the rest of the
+  // entries the xcloud rate source carries are pinned; the rest of the
   // catalog deliberately warns + inherits `default` until they are.
   // deepseek-v4-flash-0731 (Token Plan credit lane) is NOT pinned here on
   // purpose: AZURE_DEPLOYMENT_PRICE_ALIASES already resolves it to the
@@ -88,7 +88,7 @@ export const MANUAL_PRICING: Record<string, ModelRates> = {
  * Effective price table = the auto-generated OSS rates (source of truth for every
  * model the feed covers) overlaid with the manual residue. OSS wins where it has
  * data, so refreshing the generated file is the only "maintenance" for those
- * models — no hand-typed rates. Run `pnpm --filter @0sec/shared sync-pricing`
+ * models — no hand-typed rates. Run `pnpm --filter @xsec/shared sync-pricing`
  * to check drift, `--write` to refresh.
  */
 export const MODEL_PRICING: Record<string, ModelRates> = {
@@ -144,7 +144,7 @@ export function getRates(model?: string): ModelRates {
   const aliasKey = azureDeploymentPriceKey(key);
   const rates = MODEL_PRICING[key] ?? (aliasKey ? MODEL_PRICING[aliasKey] : undefined);
   if (!rates) {
-    if (model) console.warn(`[0sec] Unknown model for cost estimation: ${model}`);
+    if (model) console.warn(`[xsec] Unknown model for cost estimation: ${model}`);
     return MODEL_PRICING.default;
   }
   return rates;

@@ -203,7 +203,7 @@ export interface LensSynthesisDeps {
   probe: LensProbe;
   /**
    * Durable overlay file to append to. Defaults to the operator-owned
-   * `~/.0sec/lenses/appsec-archetypes.json`, never the bundled seed registry.
+   * `~/.xsec/lenses/appsec-archetypes.json`, never the bundled seed registry.
    */
   registryPath?: string;
   /** Hard cap on how many lenses ONE run may register. Default 1. */

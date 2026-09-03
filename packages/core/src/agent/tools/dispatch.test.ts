@@ -4,7 +4,7 @@ import { TOOL_DEFINITIONS } from "./index.js";
 import { ToolExecutor } from "../tools.js";
 import type { ToolContext } from "../types.js";
 
-// 0sec#614 — the dispatch table replaced ToolExecutor's hand-written switch.
+// xsec#614 — the dispatch table replaced ToolExecutor's hand-written switch.
 // These tests pin the routing byte-for-byte against the pre-split switch and
 // guard the one new coupling it introduces: the handler-method *names* are
 // strings, so a method rename would silently break dispatch at runtime. The
@@ -52,11 +52,11 @@ const EXPECTED_ROUTING: Record<string, string> = {
   structural_sqli_probe: "structuralSqliProbe",
   prompt_layer_probe: "promptLayerProbe",
   auth_boundary_probe: "authBoundaryProbe",
-  // 0sec#925 — live cloud-surface tools.
+  // xsec#925 — live cloud-surface tools.
   cloud_s3_probe: "cloudS3Probe",
   cloud_validate_credentials: "cloudValidateCredentials",
   start_scan: "startScan",
-  // 0sec#659 — OAST out-of-band interaction tools.
+  // xsec#659 — OAST out-of-band interaction tools.
   oast_register: "oastRegister",
   oast_poll: "oastPoll",
   // Phase-0 — persistent compute-only Python kernel.
@@ -71,7 +71,7 @@ const EXPECTED_ROUTING: Record<string, string> = {
   self_extend: "selfExtend",
 };
 
-describe("TOOL_DISPATCH (0sec#614)", () => {
+describe("TOOL_DISPATCH (xsec#614)", () => {
   it("routes every tool to the same handler the switch did", () => {
     expect(TOOL_DISPATCH).toEqual(EXPECTED_ROUTING);
   });

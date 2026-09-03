@@ -1,16 +1,16 @@
 /**
- * `0sec bench` — A/B variant tournament + CI regression gate over the
- * labeled corpus (0sec#656).
+ * `xsec bench` — A/B variant tournament + CI regression gate over the
+ * labeled corpus (xsec#656).
  *
- * Lives in the 0sec CLI (not the remote `0cloud` HTTP client) because a
+ * Lives in the xsec CLI (not the remote `xcloud` HTTP client) because a
  * tournament runs the engine locally — it installs packages, runs audits, and
  * grades against the in-tree corpus. Two subcommands:
  *
- *   0sec bench run   — run N variants over the corpus, emit per-variant
+ *   xsec bench run   — run N variants over the corpus, emit per-variant
  *                        scorecards + pairwise Wilson-95 deltas, append the
  *                        champion to a benchmark ledger, and (with --gate)
  *                        fail when the champion regressed vs the last green.
- *   0sec bench diff  — compare two recorded runs (by id) in a ledger.
+ *   xsec bench diff  — compare two recorded runs (by id) in a ledger.
  */
 
 import { readFileSync, existsSync } from "node:fs";
@@ -18,7 +18,7 @@ import { resolve } from "node:path";
 import { performance } from "node:perf_hooks";
 import type { Command } from "commander";
 import chalk from "chalk";
-import type { RuntimeMode, ScanDepth } from "@0sec/shared";
+import type { RuntimeMode, ScanDepth } from "@xsec/shared";
 import {
   createBenchIntegrationRegistry,
   createCoreBenchIntegration,
@@ -41,14 +41,14 @@ import {
   type LedgerEntry,
   type TournamentSchedule,
   type VariantExecutionFactory,
-} from "@0sec/core";
+} from "@xsec/core";
 import {
   createCyberGymBenchIntegration,
   createCyberGymManifest,
   createXbowBenchIntegration,
   createXbowManifestFromPath,
   loadCyberGymTaskIds,
-} from "@0sec/benchmark/bench-integrations";
+} from "@xsec/benchmark/bench-integrations";
 import {
   registerBenchImprovementCommand,
   writeCanonicalJsonAtomic,
@@ -270,7 +270,7 @@ export function registerBenchCommand(program: Command): void {
 
       if (!isJson) {
         console.log("");
-        console.log(chalk.red.bold("  0sec bench — canonical tournament"));
+        console.log(chalk.red.bold("  xsec bench — canonical tournament"));
         console.log(chalk.dim(`  integration: ${integrationId}`));
         console.log(chalk.dim(`  corpus:      ${manifest.id} (${manifest.cases.length} cases)`));
         console.log(chalk.dim(`  variants:    ${variants.map((v) => v.id).join(", ")}`));

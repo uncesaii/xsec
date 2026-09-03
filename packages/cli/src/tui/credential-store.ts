@@ -1,5 +1,5 @@
 /**
- * Per-provider LLM credentials, persisted to `~/.0sec/credentials.json`.
+ * Per-provider LLM credentials, persisted to `~/.xsec/credentials.json`.
  *
  * The runtime resolves provider credentials from environment variables only
  * (see `provider-status.ts`, transcribed from `llm-api.ts`). That is fine for
@@ -38,7 +38,7 @@
 import { chmodSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import { homeStateDir } from "@0sec/shared";
+import { homeStateDir } from "@xsec/shared";
 
 import { PROVIDERS } from "./provider-status.js";
 
@@ -47,7 +47,7 @@ export interface StoredCredentials {
   [providerId: string]: string;
 }
 
-/** Basename of the credential file inside the 0sec state directory. */
+/** Basename of the credential file inside the xsec state directory. */
 const CREDENTIALS_FILENAME = "credentials.json";
 
 /** Owner-only: nobody else on the machine has business reading this file. */
@@ -63,7 +63,7 @@ const DIR_MODE = 0o700;
 /**
  * Credentials live beside the rest of the per-user engine state (scan DB,
  * journals, TUI settings) rather than in a bespoke directory, so
- * `homeStateDir` from `@0sec/shared` — not a local `".0sec"` literal — decides
+ * `homeStateDir` from `@xsec/shared` — not a local `".xsec"` literal — decides
  * where that is. One definition of the state root means a future relocation or
  * an `$XDG_STATE_HOME` migration happens in one place.
  */
@@ -188,7 +188,7 @@ export function saveCredentials(creds: StoredCredentials, homeDir?: string): boo
  * broken export, not a choice.
  *
  * The check spans *all* of a provider's variables, not just the one we would
- * write. A parent process that supplied `0SEC_CHATGPT_OAUTH_REFRESH_TOKEN`
+ * write. A parent process that supplied `XSEC_CHATGPT_OAUTH_REFRESH_TOKEN`
  * already configured that provider; injecting a stored access token alongside
  * it would mix credentials from two sources into one auth attempt, and the
  * runtime prefers ours — which is precisely the silent override this rule forbids.

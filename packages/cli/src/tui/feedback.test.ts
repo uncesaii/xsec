@@ -20,7 +20,7 @@ import {
 
 const temps: string[] = [];
 function tempHome(): string {
-  const dir = mkdtempSync(join(tmpdir(), "0sec-feedback-"));
+  const dir = mkdtempSync(join(tmpdir(), "xsec-feedback-"));
   temps.push(dir);
   return dir;
 }
@@ -33,8 +33,8 @@ afterEach(() => {
 });
 
 describe("feedbackFilePath", () => {
-  it("lives under the operator's own 0sec directory", () => {
-    expect(feedbackFilePath("/home/op")).toBe("/home/op/.0sec/feedback.md");
+  it("lives under the operator's own xsec directory", () => {
+    expect(feedbackFilePath("/home/op")).toBe("/home/op/.xsec/feedback.md");
   });
 });
 
@@ -82,8 +82,8 @@ describe("appendFeedback", () => {
 
   it("reports failure instead of throwing when the path is unwritable", () => {
     const home = tempHome();
-    // A regular file where the .0sec directory needs to be.
-    writeFileSync(join(home, ".0sec"), "not a directory", "utf8");
+    // A regular file where the .xsec directory needs to be.
+    writeFileSync(join(home, ".xsec"), "not a directory", "utf8");
     const result = appendFeedback({ message: "nope", timestamp: "t" }, home);
     expect(result.ok).toBe(false);
     expect(result.error).toBeTruthy();
@@ -116,11 +116,11 @@ describe("parseFeedbackCommand", () => {
 // Opt-in submission
 // ---------------------------------------------------------------------------
 
-const HTTPS_ENV = { "0SEC_FEEDBACK_URL": "https://feedback.example.test/v1/feedback" };
+const HTTPS_ENV = { "XSEC_FEEDBACK_URL": "https://feedback.example.test/v1/feedback" };
 const NO_CLOUD = { cloudCredentials: () => null };
 const CLOUD_CREDENTIALS = {
   cloudCredentials: () => ({
-    host: "https://cloud.0sec.ai",
+    host: "https://cloud.xsec.dev",
     token: "cloud-feedback-token",
   }),
 };
@@ -159,17 +159,17 @@ describe("feedbackEndpoint", () => {
   });
 
   it("ignores a blank or whitespace-only setting", () => {
-    expect(feedbackEndpoint({ "0SEC_FEEDBACK_URL": "   " }, NO_CLOUD)).toBeNull();
+    expect(feedbackEndpoint({ "XSEC_FEEDBACK_URL": "   " }, NO_CLOUD)).toBeNull();
   });
 
   it("derives the canonical authenticated cloud receiver from CLI credentials", () => {
-    expect(feedbackEndpoint({}, CLOUD_CREDENTIALS)).toBe("https://cloud.0.security/api/cli-feedback");
+    expect(feedbackEndpoint({}, CLOUD_CREDENTIALS)).toBe("https://cloud.xsec.dev/api/cli-feedback");
   });
 
   it("can disable cloud fallback for a flow without a reviewed preview", () => {
     expect(feedbackEndpoint({}, { ...CLOUD_CREDENTIALS, allowCloud: false })).toBeNull();
     expect(
-      feedbackEndpoint({ "0SEC_FEEDBACK_URL": "https://self-hosted.example/feedback" }, {
+      feedbackEndpoint({ "XSEC_FEEDBACK_URL": "https://self-hosted.example/feedback" }, {
         ...CLOUD_CREDENTIALS,
         allowCloud: false,
       }),
@@ -187,16 +187,16 @@ describe("submissionBlockedReason", () => {
   });
 
   it("refuses plaintext http", () => {
-    expect(submissionBlockedReason({ "0SEC_FEEDBACK_URL": "http://feedback.example.test" })).toBe(
+    expect(submissionBlockedReason({ "XSEC_FEEDBACK_URL": "http://feedback.example.test" })).toBe(
       "insecure-endpoint",
     );
   });
 
   it("refuses an unparseable endpoint", () => {
-    expect(submissionBlockedReason({ "0SEC_FEEDBACK_URL": "not a url" })).toBe("insecure-endpoint");
+    expect(submissionBlockedReason({ "XSEC_FEEDBACK_URL": "not a url" })).toBe("insecure-endpoint");
   });
 
-  it.each(["0SEC_OFFLINE", "0SEC_NO_TELEMETRY", "DO_NOT_TRACK"])(
+  it.each(["XSEC_OFFLINE", "XSEC_NO_TELEMETRY", "DO_NOT_TRACK"])(
     "%s wins over a configured endpoint",
     (name) => {
       expect(submissionBlockedReason({ ...HTTPS_ENV, [name]: "1" })).toBe("opt-out");
@@ -204,11 +204,11 @@ describe("submissionBlockedReason", () => {
   );
 
   it.each(["1", "true", "yes", "on"])("treats %s as opt-out", (value) => {
-    expect(submissionBlockedReason({ ...HTTPS_ENV, "0SEC_OFFLINE": value })).toBe("opt-out");
+    expect(submissionBlockedReason({ ...HTTPS_ENV, "XSEC_OFFLINE": value })).toBe("opt-out");
   });
 
   it.each(["0", "false", "no", "", "  "])("does not treat %s as opt-out", (value) => {
-    expect(submissionBlockedReason({ ...HTTPS_ENV, "0SEC_OFFLINE": value })).toBeNull();
+    expect(submissionBlockedReason({ ...HTTPS_ENV, "XSEC_OFFLINE": value })).toBeNull();
   });
 });
 
@@ -274,7 +274,7 @@ describe("buildSubmitPreview", () => {
 
   it("redacts cloud authorization in the preview but sends it on the wire", async () => {
     const preview = buildSubmitPreview(payload(), {}, CLOUD_CREDENTIALS)!;
-    expect(preview.url).toBe("https://cloud.0.security/api/cli-feedback");
+    expect(preview.url).toBe("https://cloud.xsec.dev/api/cli-feedback");
     expect(preview.headers).toEqual({
       "content-type": "application/json",
       authorization: "Bearer <redacted>",
@@ -295,8 +295,8 @@ describe("buildSubmitPreview", () => {
 
   it("is null when submission is blocked", () => {
     expect(buildSubmitPreview(payload(), {}, NO_CLOUD)).toBeNull();
-    expect(buildSubmitPreview(payload(), { ...HTTPS_ENV, "0SEC_OFFLINE": "1" })).toBeNull();
-    expect(buildSubmitPreview(payload(), { "0SEC_FEEDBACK_URL": "http://x.test" })).toBeNull();
+    expect(buildSubmitPreview(payload(), { ...HTTPS_ENV, "XSEC_OFFLINE": "1" })).toBeNull();
+    expect(buildSubmitPreview(payload(), { "XSEC_FEEDBACK_URL": "http://x.test" })).toBeNull();
   });
 
   it("matches the bytes actually transmitted", async () => {
@@ -364,7 +364,7 @@ describe("submitFeedback", () => {
 
   it("refuses when opted out, even though sending was explicitly requested", async () => {
     const { fn, calls } = stubFetch(() => okResponse());
-    for (const name of ["0SEC_OFFLINE", "0SEC_NO_TELEMETRY", "DO_NOT_TRACK"]) {
+    for (const name of ["XSEC_OFFLINE", "XSEC_NO_TELEMETRY", "DO_NOT_TRACK"]) {
       const result = await submitFeedback(payload(), { ...HTTPS_ENV, [name]: "1" }, { fetchImpl: fn });
       expect(result.ok).toBe(false);
       expect(result.skipped).toBe("opt-out");
@@ -379,7 +379,7 @@ describe("submitFeedback", () => {
     const result = await submitFeedback(payload(), {}, { fetchImpl: fn, cloudCredentials: () => null });
     expect(result.ok).toBe(false);
     expect(result.skipped).toBe("no-endpoint");
-    expect(result.error).toContain("0SEC_FEEDBACK_URL");
+    expect(result.error).toContain("XSEC_FEEDBACK_URL");
     expect(calls).toHaveLength(0);
   });
 
@@ -387,7 +387,7 @@ describe("submitFeedback", () => {
     const { fn, calls } = stubFetch(() => okResponse());
     const result = await submitFeedback(
       payload(),
-      { "0SEC_FEEDBACK_URL": "http://feedback.example.test" },
+      { "XSEC_FEEDBACK_URL": "http://feedback.example.test" },
       { fetchImpl: fn },
     );
     expect(result.ok).toBe(false);

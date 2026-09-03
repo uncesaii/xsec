@@ -1,9 +1,9 @@
 ---
 title: Finding Triage
-description: The multi-layer triage pipeline that sits between 0sec's research and verify agents — and what the 2026-04-11 ablation measured it doing.
+description: The multi-layer triage pipeline that sits between XSEC's research and verify agents — and what the 2026-04-11 ablation measured it doing.
 ---
 
-0sec runs a triage pipeline between the research agent and the blind verify agent.
+XSEC runs a triage pipeline between the research agent and the blind verify agent.
 Every finding walks through a stack of independent filters; each can kill,
 downgrade, or boost it. Most are deterministic, zero-cost, and run before any
 verification token is spent.
@@ -11,7 +11,7 @@ verification token is spent.
 > **What the ablation measured (2026-04-11).** The stack strictly beats the
 > no-triage baseline on XBOW black-box, is a Pareto tradeoff on white-box (2
 > flags at limit=50 for 63% fewer findings), and is a no-op on npm-bench. Layer
-> 11 (EGATS) is the one broken layer and is opt-in only ([0sec#116](https://github.com/0sec-labs/0sec/issues/116)).
+> 11 (EGATS) is the one broken layer and is opt-in only ([XSEC#116](https://github.com/uncesaii/xsec/issues/116)).
 > Numbers: [FP Reduction Moat](/research/fp-reduction-moat/); narrative:
 > [2026-04-11 ablation](/research/2026-04-11-ablation/).
 
@@ -107,7 +107,7 @@ Dispatch by category with `verifyOracleByCategory(finding, target)`.
 
 ## 4. Reachability gate
 
-`triage/reachability.ts` — `0SEC_FEATURE_REACHABILITY_GATE=1`. When source is
+`triage/reachability.ts` — `XSEC_FEATURE_REACHABILITY_GATE=1`. When source is
 available, walks imports, route mounts, and framework entry points to check
 whether the sink is reachable from an HTTP handler, CLI main, or user-facing
 API. Dead code and test-only paths are suppressed before LLM tokens are spent.
@@ -117,25 +117,25 @@ when it can't make a confident call it returns `reachable: true` with low
 confidence so later stages still run. A tree-sitter interprocedural upgrade is
 planned.
 
-## 5. Multi-modal agreement (foxguard × 0sec)
+## 5. Multi-modal agreement (foxguard × XSEC)
 
-`triage/multi-modal.ts` — `0SEC_FEATURE_MULTIMODAL=1`. When both source and the
-[foxguard](https://github.com/0sec-labs/foxguard) binary are present, 0sec runs
+`triage/multi-modal.ts` — `XSEC_FEATURE_MULTIMODAL=1`. When both source and the
+[foxguard](https://github.com/uncesaii/foxguard) binary are present, XSEC runs
 foxguard on the same code and cross-checks each finding against its SARIF:
 
 - **Both fire on the same file/category** → auto-accept, high confidence.
-- **Only 0sec fires, foxguard scanned the file cleanly** → down-weight or
+- **Only XSEC fires, foxguard scanned the file cleanly** → down-weight or
   auto-reject.
 - **foxguard didn't scan the file** → no signal.
 
 ```bash
-env 0SEC_FEATURE_MULTIMODAL=1 \
-  0sec scan --target https://example.com --repo ./source
+env XSEC_FEATURE_MULTIMODAL=1 \
+  xsec scan --target https://example.com --repo ./source
 ```
 
 ## 6. PoV generation gate
 
-`triage/pov-gate.ts` — `0SEC_FEATURE_POV_GATE=1`. Grounded in *All You Need Is A
+`triage/pov-gate.ts` — `XSEC_FEATURE_POV_GATE=1`. Grounded in *All You Need Is A
 Fuzzing Brain* (arXiv:2509.07225): if an agent can't build a working PoC in N
 turns, the finding is almost certainly a false positive.
 
@@ -159,13 +159,13 @@ Any step failure marks the finding a false positive.
 
 ## 8. Self-consistency voting
 
-`0SEC_FEATURE_CONSENSUS_VERIFY=1`. Runs the structured verify N times (different
+`XSEC_FEATURE_CONSENSUS_VERIFY=1`. Runs the structured verify N times (different
 seeds) and takes the majority vote via `runSelfConsistencyVerify`. Trades tokens
 for confidence on ambiguous findings.
 
 ## 9. Assistant memories
 
-`triage/memories.ts` — `0SEC_FEATURE_TRIAGE_MEMORIES=1`. Semgrep-style per-target
+`triage/memories.ts` — `XSEC_FEATURE_TRIAGE_MEMORIES=1`. Semgrep-style per-target
 FP context that learns from human triage. When a user marks a finding FP (and
 says why), the reason is stored as a `TriageMemory`. On later scans, memories are
 injected as few-shot examples into the verify prompt, and a strong match
@@ -177,20 +177,20 @@ today; an embedding ranker can replace `scoreMemory` without API changes.
 
 ```bash
 # Mark a finding FP and remember why
-0sec triage mark-fp <finding-id> --reason "test fixture, not prod"
+xsec triage mark-fp <finding-id> --reason "test fixture, not prod"
 
 # Add a standalone memory
-0sec triage memory add --finding <id> --reason "sink is harmless helper" \
+xsec triage memory add --finding <id> --reason "sink is harmless helper" \
   --scope package --scope-value my-pkg
 
 # List memories
-0sec triage memory list --scope target
+xsec triage memory list --scope target
 ```
 
 ## 10. Adversarial debate
 
 **Planned — not implemented.** There is no `triage/adversarial.ts` module and no
-`0SEC_FEATURE_DEBATE` flag in the engine. The intent: a prosecutor (finding is
+`XSEC_FEATURE_DEBATE` flag in the engine. The intent: a prosecutor (finding is
 real) and a defender (it's an FP) argue from fresh contexts, and a skeptical
 judge picks the winner — each seeing only the other's written arguments, never
 the research agent's chain of thought. The design follows the open-source read of
@@ -203,30 +203,30 @@ refute pass onto a different model family than the finder.
 
 ## 11. EGATS — Evidence-Gated Attack Tree Search
 
-`--egats` or `0SEC_FEATURE_EGATS=1`. Beam-search over an explicit hypothesis
+`--egats` or `XSEC_FEATURE_EGATS=1`. Beam-search over an explicit hypothesis
 tree: the agent proposes attack branches with required evidence and only expands
 branches where prior evidence is observed; dead hypotheses are pruned. Highest
 variance in the pipeline — use it for breadth (unknown-class vulns), not depth on
-a known lead. Removed from the default aliases after the ablation ([0sec#116](https://github.com/0sec-labs/0sec/issues/116)).
+a known lead. Removed from the default aliases after the ablation ([XSEC#116](https://github.com/uncesaii/xsec/issues/116)).
 
 ## Configuration cheat-sheet
 
 | Env var | Default | Stage |
 |---------|---------|-------|
-| `0SEC_FEATURE_HOLDING_IT_WRONG` | **on** | 1 |
-| `0SEC_FEATURE_EVIDENCE_GATE` | **on** | 2 |
-| `0SEC_FEATURE_REACHABILITY_GATE` | off | 4 |
-| `0SEC_FEATURE_MULTIMODAL` | off | 5 |
-| `0SEC_FEATURE_POV_GATE` | off | 6 |
-| `0SEC_FEATURE_PUBLISHABILITY_GATE` | off | 6 |
-| `0SEC_FEATURE_POC_GEN_STATIC` | off | 6 |
-| `0SEC_FEATURE_CONSENSUS_VERIFY` | off | 8 |
-| `0SEC_FEATURE_LEARNED_ROUTER` | off | router |
-| `0SEC_FEATURE_DYNAMIC_TRIAGE` | off | router |
+| `XSEC_FEATURE_HOLDING_IT_WRONG` | **on** | 1 |
+| `XSEC_FEATURE_EVIDENCE_GATE` | **on** | 2 |
+| `XSEC_FEATURE_REACHABILITY_GATE` | off | 4 |
+| `XSEC_FEATURE_MULTIMODAL` | off | 5 |
+| `XSEC_FEATURE_POV_GATE` | off | 6 |
+| `XSEC_FEATURE_PUBLISHABILITY_GATE` | off | 6 |
+| `XSEC_FEATURE_POC_GEN_STATIC` | off | 6 |
+| `XSEC_FEATURE_CONSENSUS_VERIFY` | off | 8 |
+| `XSEC_FEATURE_LEARNED_ROUTER` | off | router |
+| `XSEC_FEATURE_DYNAMIC_TRIAGE` | off | router |
 
-`0SEC_FEATURE_TRIAGE_MEMORIES`, `_DEBATE`, and `_EGATS` were in earlier versions
+`XSEC_FEATURE_TRIAGE_MEMORIES`, `_DEBATE`, and `_EGATS` were in earlier versions
 of this table but no longer exist as separate toggles — `egats` was removed from
-the default aliases after the ablation ([0sec#116](https://github.com/0sec-labs/0sec/issues/116)).
+the default aliases after the ablation ([XSEC#116](https://github.com/uncesaii/xsec/issues/116)).
 See [Features](/features/) for the full env-var inventory.
 
 ## Enabling the whole moat at once
@@ -240,9 +240,9 @@ roughly flat. Enable it to re-measure, not to score better.
 Every gate is off by default. `fp-moat` names the set:
 
 ```bash
-0sec scan --features fp-moat --target https://example.com
+xsec scan --features fp-moat --target https://example.com
 # or, for templated CI:
-env 0SEC_FEATURE_PRESET=fp-moat 0sec scan --target https://example.com
+env XSEC_FEATURE_PRESET=fp-moat xsec scan --target https://example.com
 ```
 
 It expands to `REACHABILITY_GATE`, `MULTIMODAL`, `PUBLISHABILITY_GATE`,
@@ -252,7 +252,7 @@ It expands to `REACHABILITY_GATE`, `MULTIMODAL`, `PUBLISHABILITY_GATE`,
 A flag you set yourself always wins, so you can ablate one layer:
 
 ```bash
-env 0SEC_FEATURE_POV_GATE=0 0sec scan --features fp-moat …
+env XSEC_FEATURE_POV_GATE=0 xsec scan --features fp-moat …
 ```
 
 The preset deliberately omits `LEARNED_ROUTER` and `DYNAMIC_TRIAGE` — those
@@ -265,7 +265,7 @@ Each layer records a verdict on the finding as it runs. `findings show` renders
 it:
 
 ```bash
-0sec findings show <id>
+xsec findings show <id>
 ```
 
 ```
@@ -274,7 +274,7 @@ it:
   Layers: 3 executed, 5 skipped, 3 unrecorded | 412ms | $0.0000
     + holding_it_wrong   executed(pass) — no holding-it-wrong pattern matched
     + evidence_gate      executed(pass) — evidence_completeness=0.83 > 0.5
-    - reachability       skipped(skip) — 0SEC_FEATURE_REACHABILITY_GATE=0
+    - reachability       skipped(skip) — XSEC_FEATURE_REACHABILITY_GATE=0
     …
 ```
 

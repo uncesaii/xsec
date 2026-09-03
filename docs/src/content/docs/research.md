@@ -1,11 +1,11 @@
 ---
 title: Research
-description: How 0sec makes its decisions, what data backs them, and the experiments behind the open cybersecurity harness.
+description: How XSEC makes its decisions, what data backs them, and the experiments behind the open cybersecurity harness.
 ---
 
-0sec is built by the Swiss Applied AI Cybersecurity Research Lab. Our approach is evidence-first. This section documents the reasoning and the data behind that design.
+XSEC's approach is evidence-first. This section documents the reasoning and the data behind that design.
 
-Real, disclosed CVEs at [0.security](https://0.security) — not vendor benchmarks. Most experiments here run against the [XBOW benchmark](https://github.com/xbow-engineering/validation-benchmarks) (104 Docker CTF challenges) as a reproducible harness.
+Most experiments here run against the [XBOW benchmark](https://github.com/xbow-engineering/validation-benchmarks) (104 Docker CTF challenges) as a reproducible harness.
 
 For benchmark scores, methodology, and competitor comparisons, see the [Benchmarks](/benchmark/) section. For product-facing mechanism docs (agent loop, triage, verification), see [Architecture](/architecture/).
 
@@ -31,7 +31,7 @@ The full false-positive reduction stack, measured effects per benchmark slice, w
 
 ### [TypeScript/Rust Boundary](/research/typescript-rust-boundary/)
 
-Why 0sec keeps TypeScript for orchestration while moving deterministic engines such as FoxGuard into Rust behind stable contracts.
+Why XSEC keeps TypeScript for orchestration while moving deterministic engines such as FoxGuard into Rust behind stable contracts.
 
 ## Triage ML
 
@@ -67,11 +67,11 @@ Dated, archival records of specific experiments. Kept for transparency and audit
 
 ### [2026-05-09 Control Flow, Not Prompts](/research/2026-05-09-control-flow-not-prompts/)
 
-Audit of 0sec's agent loop against the "agents need control flow, not more prompts" thesis, and the five deterministic-chokepoint fixes it produced.
+Audit of XSEC's agent loop against the "agents need control flow, not more prompts" thesis, and the five deterministic-chokepoint fixes it produced.
 
 ### [2026-05-08 Cost per Flag](/research/2026-05-08-cost-per-flag/)
 
-Why autonomous-pentest reporting should publish a dollar-per-flag axis alongside the solve percentage, and how 0sec computes its number.
+Why autonomous-pentest reporting should publish a dollar-per-flag axis alongside the solve percentage, and how XSEC computes its number.
 
 ### [2026-05-06 HackerOne Program Audit](/research/2026-05-06-h1-ai-readiness/)
 

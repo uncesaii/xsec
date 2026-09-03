@@ -1,7 +1,7 @@
-// 0sec-cloud client surface.
+// xsec-cloud client surface.
 //
 // The CLI half of issue #303. The server-side mint endpoint that issues
-// scoped tokens after a better-auth flow lives in 0sec-cloud and is
+// scoped tokens after a better-auth flow lives in xsec-cloud and is
 // out of scope for this PR.
 
 export {

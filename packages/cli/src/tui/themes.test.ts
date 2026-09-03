@@ -798,7 +798,7 @@ import {
 
 const themeHomes: string[] = [];
 function makeThemeHome(): string {
-  const dir = mkdtempSync(join(tmpdir(), "0sec-installed-themes-"));
+  const dir = mkdtempSync(join(tmpdir(), "xsec-installed-themes-"));
   themeHomes.push(dir);
   return dir;
 }
@@ -820,8 +820,8 @@ function seedInstalledTheme(home: string, id: string, palette = GOOD_PALETTE): v
 }
 
 describe("installed theme paths + id safety", () => {
-  it("places themes under the shared 0sec state dir", () => {
-    expect(installedThemesDir("/home/x")).toBe(`/home/x/.0sec/${INSTALLED_THEMES_DIRNAME}`);
+  it("places themes under the shared xsec state dir", () => {
+    expect(installedThemesDir("/home/x")).toBe(`/home/x/.xsec/${INSTALLED_THEMES_DIRNAME}`);
   });
   it("accepts safe ids and rejects traversal / unsafe ones", () => {
     expect(isSafeThemeId("acme.midnight")).toBe(true);

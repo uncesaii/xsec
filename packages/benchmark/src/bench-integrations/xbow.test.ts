@@ -5,7 +5,7 @@ import {
   createVariantExecutionFactory,
   runTournament,
   type BenchScan,
-} from "@0sec/core";
+} from "@xsec/core";
 
 import {
   createXbowBenchIntegration,

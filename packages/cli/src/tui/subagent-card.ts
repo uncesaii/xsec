@@ -1,6 +1,6 @@
-import type { SubagentLifecyclePayload } from "@0sec/core";
+import type { SubagentLifecyclePayload } from "@xsec/core";
 
-export type { SubagentLifecyclePayload } from "@0sec/core";
+export type { SubagentLifecyclePayload } from "@xsec/core";
 
 
 /**

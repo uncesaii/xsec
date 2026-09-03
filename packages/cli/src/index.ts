@@ -3,13 +3,13 @@
 
 import { Command } from "commander";
 import chalk from "chalk";
-import { VERSION } from "@0sec/shared";
+import { VERSION } from "@xsec/shared";
 import {
   createHerdrEventSink,
   eventBus,
   maybeSubscribeCloudEventSink,
   presentationEventSink,
-} from "@0sec/core";
+} from "@xsec/core";
 import { maybeLoadCodexAuth } from "./codex-auth.js";
 import { presentationEventBus } from "./presentation/event-bus.js";
 import {
@@ -24,16 +24,16 @@ import { setHerdrSink } from "./herdr-state.js";
 installConsolePresentationBridge();
 installProcessPresentationStreamBridge();
 // Local-dev convenience: if `codex login` has run (~/.codex/auth.json) and no
-// 0SEC_CHATGPT_* token is in the env, plumb the codex tokens in so the engine
+// XSEC_CHATGPT_* token is in the env, plumb the codex tokens in so the engine
 // resolves to the chatgpt-codex provider (highest priority) instead of falling
 // through to stale AZURE_OPENAI_API_KEY / OPENAI_API_KEY. No-op in the cloud
 // worker (it sets the tokens itself) and when a token is already present.
 maybeLoadCodexAuth();
 
 // Subscribe the cloud-event sink before any subcommand runs. Idempotent
-// + env-gated (0SEC_CLOUD_EVENTS=1): the sink writes one
-// `0SEC_EVENT_<TYPE>` line per emitted event to stdout, which the
-// 0sec-cloud worker-controller's stdout streamer parses and POSTs to
+// + env-gated (XSEC_CLOUD_EVENTS=1): the sink writes one
+// `XSEC_EVENT_<TYPE>` line per emitted event to stdout, which the
+// xsec-cloud worker-controller's stdout streamer parses and POSTs to
 // the orchestrator's /scans/:id/events endpoint. Without this call,
 // the sink module is dead code and the cloud's live-trace UI stays
 // dark for every scan.
@@ -43,7 +43,7 @@ maybeSubscribeCloudEventSink();
 // Legacy cloud/stdout and Herdr projections remain independent adapters.
 eventBus.subscribe(presentationEventSink(presentationEventBus));
 
-// Report coarse agent state to herdr when 0sec is running inside one of its
+// Report coarse agent state to herdr when xsec is running inside one of its
 // panes, so the pane shows working/idle instead of "unknown" and
 // `herdr agent wait` becomes usable against a scan. The factory returns null
 // off-herdr, every write is fail-soft, and the payload carries only counters
@@ -114,14 +114,14 @@ import { enforceSourceDistFreshness } from "./source-freshness.js";
 enforceSourceDistFreshness({ entryUrl: import.meta.url });
 
 
-// Fire-and-forget update check. It only runs when 0SEC_UPDATE_CHECK=1;
+// Fire-and-forget update check. It only runs when XSEC_UPDATE_CHECK=1;
 // otherwise normal commands make no update request or cache write.
 void maybeNotifyUpdate(VERSION);
 
 const program = new Command();
 
 program
-  .name("0sec")
+  .name("xsec")
   .description("Open-source multi-model security research harness")
   .version(VERSION);
 
@@ -193,17 +193,17 @@ async function showInteractiveMenu(): Promise<void> {
   }
 
   console.log("");
-  console.log(`  ${chalk.bold("0sec")} ${chalk.dim(`v${VERSION}`)}`);
+  console.log(`  ${chalk.bold("xsec")} ${chalk.dim(`v${VERSION}`)}`);
   console.log("");
-  console.log(`  ${chalk.dim("From v0.9.0 onwards, 0sec ships as a self-contained binary.")}`);
+  console.log(`  ${chalk.dim("From v0.9.0 onwards, xsec ships as a self-contained binary.")}`);
   console.log(`  ${chalk.dim("The full TUI (mission control + live scan view) needs Bun's runtime.")}`);
   console.log("");
   console.log(`  ${chalk.bold("Install")} (single curl, no Node / Bun required):`);
-  console.log(`    curl -fsSL https://raw.githubusercontent.com/0sec-labs/0sec/main/install.sh | bash`);
+  console.log(`    curl -fsSL https://raw.githubusercontent.com/uncesaii/xsec/main/install.sh | bash`);
   console.log("");
   console.log(`  ${chalk.dim("After install, run:")}`);
-  console.log(`    0sec scan --target https://example.com`);
-  console.log(`    0sec --help`);
+  console.log(`    xsec scan --target https://example.com`);
+  console.log(`    xsec --help`);
   console.log("");
 }
 

@@ -48,7 +48,7 @@ import {
   type Submitter,
   type CyberGymResult,
 } from "./cybergym-runner.js";
-import type { CraftScanOptions, CraftScanResult, CraftCandidateJudge } from "@0sec/core";
+import type { CraftScanOptions, CraftScanResult, CraftCandidateJudge } from "@xsec/core";
 
 const tmpDirs: string[] = [];
 afterEach(() => {
@@ -62,11 +62,11 @@ afterEach(() => {
 });
 
 describe("CyberGym direct-execution guard", () => {
-  it("does not start the benchmark when bundled into the 0sec CLI entrypoint", () => {
+  it("does not start the benchmark when bundled into the xsec CLI entrypoint", () => {
     expect(
       isCyberGymRunnerEntrypoint(
-        "file:///tmp/0sec.js",
-        "/tmp/0sec.js",
+        "file:///tmp/xsec.js",
+        "/tmp/xsec.js",
       ),
     ).toBe(false);
     expect(
@@ -1057,14 +1057,14 @@ describe("verifyThroughOracleBridge", () => {
   });
 });
 
-// ── CYBERGYM_API_KEY comes from the environment (0sec#132) ────────────────
+// ── CYBERGYM_API_KEY comes from the environment (xsec#132) ────────────────
 //
 // The key used to be a literal in craft-agent.ts / craft-task.ts /
 // craft-arvo10400.ts. These pin the replacement: the key is read from the env
 // and its absence is a loud failure, never a silent `undefined` that reaches
 // the oracle as a 401.
 
-describe("requireCyberGymApiKey (0sec#132)", () => {
+describe("requireCyberGymApiKey (xsec#132)", () => {
   it("returns the key from the environment", () => {
     expect(requireCyberGymApiKey({ CYBERGYM_API_KEY: "cybergym-test-key" })).toBe(
       "cybergym-test-key",

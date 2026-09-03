@@ -2,7 +2,7 @@ import {
   appendStageAction,
   normalizeStageAction,
   normalizeStageEndDetail,
-} from "@0sec/core";
+} from "@xsec/core";
 import { buildShareUrl } from "../utils.js";
 
 export type SessionMode = "audit" | "review" | "scan";

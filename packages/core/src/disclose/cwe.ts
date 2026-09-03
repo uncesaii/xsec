@@ -1,4 +1,4 @@
-import type { AttackCategory } from "@0sec/shared";
+import type { AttackCategory } from "@xsec/shared";
 
 export interface CweEntry {
   id: string;

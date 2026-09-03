@@ -2,7 +2,7 @@
 #
 # run-recency-flywheel.sh — the daily RECENCY FLYWHEEL driver (bench).
 #
-# Fetches fresh linux-next, then runs `0sec recency-hunt` over the last N hours
+# Fetches fresh linux-next, then runs `xsec recency-hunt` over the last N hours
 # and writes a dated JSON + markdown report. ADDITIVE and NON-DISRUPTIVE: it only
 # fetches /root/linux-next (the snapshot repo — NOT the KASAN/kmsan build trees
 # under /root/next-recency or /root/kernel-objects) and runs one CLI process at

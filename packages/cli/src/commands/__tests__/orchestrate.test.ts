@@ -1,5 +1,5 @@
 /**
- * Coverage seed for `0sec-cli`'s `orchestrate` command — the autonomous
+ * Coverage seed for `xsec-cli`'s `orchestrate` command — the autonomous
  * worker that pulls runnable WorkItems from the case graph, claims them,
  * dispatches the right agent loop (attack / verify / triage / family-aware),
  * and reconciles outcomes back into the DB. This file is the entry point
@@ -16,7 +16,7 @@
  * The chatty FakeOsecDB records every method invocation in a shared
  * `dbState.calls` log so we can assert on the call *sequence* the action
  * walks (claim → reopen → log_event → execute → upsertWorkItem(done) →
- * completeScan), which is the actual contract 0sec-cloud's worker-
+ * completeScan), which is the actual contract xsec-cloud's worker-
  * controller depends on. Per-test we mutate `dbState.workItems`,
  * `dbState.cases`, `dbState.scans`, and `dbState.findings` to plant
  * runnable / dependent / blocked fixtures.
@@ -90,7 +90,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Command } from "commander";
-import type { WorkItemRecord, WorkerRecord } from "@0sec/shared";
+import type { WorkItemRecord, WorkerRecord } from "@xsec/shared";
 
 // ── Module-level mocks ──────────────────────────────────────────────────────
 //
@@ -250,9 +250,9 @@ class FakeOsecDB {
   }
 }
 
-vi.mock("@0sec/db", () => ({ osecDB: FakeOsecDB }));
+vi.mock("@xsec/db", () => ({ osecDB: FakeOsecDB }));
 
-// @0sec/core: agenticScan, runAgentLoop, createRuntime, LlmApiRuntime,
+// @xsec/core: agenticScan, runAgentLoop, createRuntime, LlmApiRuntime,
 // getToolsForRole. We intercept each so no real LLM call ever fires.
 
 const agenticScanMock = vi.fn();
@@ -264,7 +264,7 @@ class FakeLlmApiRuntime {
   constructor(public opts: unknown) {}
 }
 
-vi.mock("@0sec/core", () => ({
+vi.mock("@xsec/core", () => ({
   agenticScan: agenticScanMock,
   runAgentLoop: runAgentLoopMock,
   createRuntime: createRuntimeMock,
@@ -292,7 +292,7 @@ async function runCli(argv: string[]): Promise<unknown> {
   });
   registerOrchestrateCommand(program);
   try {
-    await program.parseAsync(["node", "0sec-cli", ...argv]);
+    await program.parseAsync(["node", "xsec-cli", ...argv]);
     return undefined;
   } catch (err) {
     return err;

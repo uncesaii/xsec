@@ -1,4 +1,4 @@
-import type { PresentationEvent } from "@0sec/shared";
+import type { PresentationEvent } from "@xsec/shared";
 
 export type ScanSummary = {
   totalFindings: number;

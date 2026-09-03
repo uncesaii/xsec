@@ -14,7 +14,7 @@
  * (~L660-712), `providerForModel` (~L1152-1200), and the env-priority chain
  * in `detectProvider` (~L1386-1533). It is DERIVED, not guessed: several
  * providers deviate from the `<VENDOR>_API_KEY` pattern (`Z_AI_API_KEY`,
- * `AZURE_OPENAI_API_KEY`, and the two `0SEC_CHATGPT_*` tokens), so extend
+ * `AZURE_OPENAI_API_KEY`, and the two `XSEC_CHATGPT_*` tokens), so extend
  * this table by re-reading that file rather than by analogy.
  */
 
@@ -59,9 +59,9 @@ export const PROVIDERS: readonly ProviderInfo[] = [
     auth: "oauth",
     // OAuth, not an API key. Both tokens are accepted and the access token is
     // read first (llm-api.ts L874-875, L1386-1394), so it leads the list.
-    envVars: ["0SEC_CHATGPT_ACCESS_TOKEN", "0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"],
-    fileSource: "~/.codex/auth.json (override with 0SEC_CHATGPT_AUTH_FILE)",
-    hint: "run `codex login` to write ~/.codex/auth.json, or invoke 0sec with env 0SEC_CHATGPT_OAUTH_REFRESH_TOKEN=...",
+    envVars: ["XSEC_CHATGPT_ACCESS_TOKEN", "XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"],
+    fileSource: "~/.codex/auth.json (override with XSEC_CHATGPT_AUTH_FILE)",
+    hint: "run `codex login` to write ~/.codex/auth.json, or invoke xsec with env XSEC_CHATGPT_OAUTH_REFRESH_TOKEN=...",
   },
   {
     id: "deepseek",

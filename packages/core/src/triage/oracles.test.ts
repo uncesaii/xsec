@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import type { AttackCategory, Finding } from "@0sec/shared";
+import type { AttackCategory, Finding } from "@xsec/shared";
 import {
   verifySqli,
   verifyReflectedXss,

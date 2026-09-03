@@ -1,10 +1,9 @@
 ---
 title: Benchmark methodology
-description: How 0sec measures itself on XBOW — what "percent solved" actually means, why a single solve is not a benchmark, and why the honest number matters.
+description: How XSEC measures itself on XBOW — what "percent solved" actually means, why a single solve is not a benchmark, and why the honest number matters.
 ---
 
-Benchmarks are a secondary signal for 0sec; the real proof is disclosed CVEs at
-**[0.security](https://0.security)**. But if we quote a benchmark number, it should
+Benchmarks are a secondary signal for XSEC. But if we quote a benchmark number, it should
 be measured honestly — so this page documents exactly how a raw pile of XBOW
 attempts becomes a headline, and which choices move that headline by several points.
 
@@ -15,11 +14,11 @@ attempts into a number. Change any one and the number moves.
 
 ## A single solve is an anecdote
 
-On 2026-04-06 a 0sec sweep solved XBEN-061 in 8 turns and we nearly promoted that
+On 2026-04-06 a XSEC sweep solved XBEN-061 in 8 turns and we nearly promoted that
 config to a recommended default. The same afternoon a regression run of the same
 config against the same challenge *failed*; the true per-attempt rate was later
 estimated at 20–40%. One solve, one failure. Single-shot results cannot be promoted
-to defaults — which is why 0sec measures with a `--repeat N` harness rather than a
+to defaults — which is why XSEC measures with a `--repeat N` harness rather than a
 single lucky run.
 
 ## Three methodologies, one raw dataset
@@ -34,7 +33,7 @@ only. Each methodology reports that same dataset differently:
    flag. XBEN-061 counts as solved. A 1/10 lucky run scores the same as 10/10
    reproducible; best-of-N conflates "the agent can do this" with "the agent
    sometimes accidentally does this." The published XBOW protocol permits it.
-3. **Per-attempt rate with Wilson CI** *(what 0sec uses internally)* — run N times,
+3. **Per-attempt rate with Wilson CI** *(what XSEC uses internally)* — run N times,
    report `passes / N` with a 95% Wilson score interval. XBEN-061 becomes a 10%
    rate, CI roughly `[0.018, 0.404]`. The wide interval is the point: at N=10 a 10%
    observed rate is compatible with anything from "rarely" to "~40% of the time," so
@@ -70,7 +69,7 @@ configurations (different models, solvers, prompts):
   ceiling of this whole stack?" — the more impressive headline.
 
 Both are honest, but a single-config 80% and an aggregate 97% are **not comparable**;
-treating them as if they were is the trap. For XBOW, 0sec publishes both and labels
+treating them as if they were is the trap. For XBOW, XSEC publishes both and labels
 them: the headline is the **per-model gpt-5.4 cohort (93/95 = 97.9%)** — a
 single-config single-shot solve rate — and a wider retained-artifact aggregate is
 disclosed separately as a ceiling claim (see [Benchmark](/benchmark/) for the exact
@@ -81,37 +80,37 @@ distinction).
 A solve rate with no cost attached invites "how much compute did that take?" An
 agent that hits 95% at $50/run is a different product from one that hits 95% at
 $0.50/run. `$/flag` ties the score to cost: it turns a percentage into a budget, and
-shows when an aggregate buys its extra points by spending 10× the compute. 0sec
+shows when an aggregate buys its extra points by spending 10× the compute. XSEC
 publishes `$/flag` (currently $5.20 at $0.48/run on the gpt-5.4 XBOW cohort) as a
 first-class comparison axis, and encourages other evaluators to do the same.
 
-## What 0sec publishes with every number
+## What XSEC publishes with every number
 
 Every XBOW result we quote ships with the substrate needed to reproduce it:
 
 - **Fork** (upstream / `0ca` patched / `KeygraphHQ`) at a specific git sha
 - **Model** — exact model ID and provider
 - **Turn cap** — max tool calls per attempt
-- **Feature stack** — the `0SEC_FEATURE_*` flags in effect
+- **Feature stack** — the `XSEC_FEATURE_*` flags in effect
 - **Retry protocol** — best-of-K vs. repeat-N, and the value
 - **Per-attempt success rate** and its **95% Wilson CI**
 - **Cost ceiling** — the `--repeat-cost-ceiling-usd` in effect
 
 That's the JSON schema `packages/benchmark/README.md` emits at `--repeat > 1`, and
 what CI uploads on every scheduled run. The repo also keeps an explicit
-[benchmark ledger](https://github.com/0sec-labs/0sec/blob/main/packages/benchmark/results/benchmark-ledger.json)
+[benchmark ledger](https://github.com/uncesaii/xsec/blob/main/packages/benchmark/results/benchmark-ledger.json)
 separating the retained artifact-backed tally from the older historical publication
 line.
 
 Most competitor reports omit most of this — not because anyone is lying (the XBOW
 protocol allows best-of-N, and everyone knows single-shot is noisy) but because the
-headline is the product. 0sec's bet is simpler: it's cheaper to publish the real
+headline is the product. XSEC's bet is simpler: it's cheaper to publish the real
 number now than to explain the inflated one later.
 
 ## Run the harness yourself
 
 ```sh
-pnpm --filter @0sec/benchmark xbow \
+pnpm --filter @xsec/benchmark xbow \
   --agentic \
   --only XBEN-010,XBEN-051,XBEN-061,XBEN-066,XBEN-080,XBEN-084,XBEN-099,XBEN-104 \
   --repeat 10 \
@@ -126,7 +125,6 @@ not a second hand-maintained source of truth.
 
 ## Related
 
-- **[0.security](https://0.security)**
 - [Benchmark](/benchmark/) — the compact score view and caveats
 - [XBOW Analysis](/research/xbow-analysis/) — how the XBOW score is built and its limits
 - [Competitive Landscape](/research/competitive-landscape/) — where other agents sit

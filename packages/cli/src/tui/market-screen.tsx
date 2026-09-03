@@ -21,14 +21,14 @@
  *    anything. The action is confirmed before it runs, and the detail pane names
  *    the separate, explicit step an operator must take to enable a plugin.
  *
- * 3. **No endpoint ships.** The registry URL comes from `$0SEC_REGISTRY_URL` or
+ * 3. **No endpoint ships.** The registry URL comes from `$XSEC_REGISTRY_URL` or
  *    the (empty) core `DEFAULT_REGISTRY_URL`. When none is configured, or the
  *    fetch fails, the screen renders an honest empty state — guidance, not a
  *    crash — and remains a fully functional UI scaffold.
  *
  * The registry fetch, the install action and the installed-state read are all
  * INJECTED (`load`, `installItem`, `readInstalled`) with real defaults that
- * lazily import `@0sec/core`, so the screen can be driven under a test without
+ * lazily import `@xsec/core`, so the screen can be driven under a test without
  * touching the network or the filesystem.
  */
 
@@ -83,7 +83,7 @@ const PAGE_STEP = 5;
 
 /** The registry index URL: prop, then env, then the (empty) core default. */
 function resolveRegistryUrl(explicit?: string): string {
-  return (explicit ?? process.env["0SEC_REGISTRY_URL"] ?? "").trim();
+  return (explicit ?? process.env["XSEC_REGISTRY_URL"] ?? "").trim();
 }
 
 // ---------------------------------------------------------------------------
@@ -103,7 +103,7 @@ export interface MarketScreenProps {
   onBack: () => void;
   /** Leave the console entirely — ctrl+c. */
   onExit: () => void;
-  /** Registry URL override. Defaults to $0SEC_REGISTRY_URL then the empty core default. */
+  /** Registry URL override. Defaults to $XSEC_REGISTRY_URL then the empty core default. */
   registryUrl?: string;
   /** Pre-fetched registry (tests / synchronous). When given, no fetch runs. */
   initialData?: MarketRegistryView;
@@ -600,7 +600,7 @@ export function MarketScreen({
         : notice
           ? notice
           : url.length === 0
-            ? "registry: not configured — set 0SEC_REGISTRY_URL"
+            ? "registry: not configured — set XSEC_REGISTRY_URL"
             : `registry: ${url}`;
 
   const statusTone =

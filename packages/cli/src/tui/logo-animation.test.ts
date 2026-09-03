@@ -10,7 +10,7 @@ import {
   type LogoFrame,
 } from "./logo-animation.js";
 
-/** The shipped 0SEC block mark (mirrors chat-screen's TERMINAL_BLOCK_LOGO). */
+/** The shipped xsec block mark (mirrors chat-screen's TERMINAL_BLOCK_LOGO). */
 const LOGO = [
   " ######   #######  #######   ######",
   "##  //##  ##       ##       ##     ",
@@ -102,7 +102,7 @@ describe("finalLogoFrame", () => {
     }
   });
 
-  it("has the expected slash cells (the diagonal through the zero)", () => {
+  it("has the expected slash cells (the diagonal through the X)", () => {
     expect(slashTotal).toBe(6);
   });
 });
@@ -282,14 +282,14 @@ describe("shimmer (comet gradient)", () => {
     expect(greyLevel(colored.get(head)!)).toBeLessThan(greyLevel(colored.get(Math.max(...cols))!));
   });
 
-  it("enters from the left edge and sweeps rightward (not popping in at the 0)", () => {
+  it("enters from the left edge and sweeps rightward (not popping in at the X)", () => {
     // Frame 0: only the band's leading edge has reached column 0.
     const start = computeLogoFrame(LOGO, "shimmer", 0);
     const startCols = new Set<number>();
     for (const row of start) {
       for (const [c, cell] of row.entries()) if (isHex(cell.tone)) startCols.add(c);
     }
-    expect([...startCols]).toEqual([0]); // hugs the far left, hasn't reached the 0's body yet
+    expect([...startCols]).toEqual([0]); // hugs the far left, hasn't reached the X's body yet
     // The (darkest) head marches rightward as the animation advances.
     expect(headCol(20)).toBeGreaterThan(headCol(10));
   });

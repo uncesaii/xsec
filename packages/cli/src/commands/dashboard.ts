@@ -13,8 +13,8 @@ import {
   type FindingTriageStatus,
   type PresentationEvent,
   type PresentationSource,
-} from "@0sec/shared";
-import { readToolCallNames } from "@0sec/core";
+} from "@xsec/shared";
+import { readToolCallNames } from "@xsec/core";
 import { presentationEventBus } from "../presentation/event-bus.js";
 import { buildFindingConsoleCommand } from "../finding-handoff.js";
 
@@ -199,7 +199,7 @@ function sendFile(res: ServerResponse, filePath: string, controlToken?: string):
   if (controlToken && ext === ".html") {
     content = content.toString().replace(
       "</head>",
-      `<meta name="0sec-control-token" content="${controlToken}"></head>`,
+      `<meta name="xsec-control-token" content="${controlToken}"></head>`,
     );
   }
   res.end(content);
@@ -924,7 +924,7 @@ function isLiveLocalPid(pid: number | null | undefined): boolean {
 }
 
 function stopDaemonWorkers(
-  osecDb: typeof import("@0sec/db").osecDB,
+  osecDb: typeof import("@xsec/db").osecDB,
   dbPath: string | undefined,
 ): number {
   const db = new osecDb(dbPath);
@@ -1053,7 +1053,7 @@ function resolveAssetPath(assetDir: string, pathname: string): string | null {
 }
 
 function requireControlToken(req: IncomingMessage, res: ServerResponse, controlToken: string): boolean {
-  const provided = req.headers["x-0sec-control-token"];
+  const provided = req.headers["x-xsec-control-token"];
   if (provided !== controlToken) {
     json(res, 403, { error: "Invalid or missing control token" });
     return false;
@@ -1102,7 +1102,7 @@ async function handleApiRequest(
   dbPath: string | undefined,
   controlToken: string,
 ): Promise<boolean> {
-  const { osecDB } = await import("@0sec/db");
+  const { osecDB } = await import("@xsec/db");
 
   if (isPresentationEventsStreamPath(pathname)) {
     if (req.method !== "GET") {
@@ -1271,7 +1271,7 @@ async function handleApiRequest(
     }
 
     if (controlPath.action === "reset-database") {
-      const { resetOsecDatabase } = await import("@0sec/db");
+      const { resetOsecDatabase } = await import("@xsec/db");
       const { seedVerificationWorkbench } = await import("./db.js");
       const body = (await readJson(req)) as { seed?: string };
       const seed = typeof body.seed === "string" ? body.seed.trim().toLowerCase() : "verification";
@@ -1640,7 +1640,7 @@ export function registerDashboardCommand(program: Command): void {
 
       server.listen(port, host, () => {
         const url = origin;
-        console.log(chalk.red.bold("  \u25C6 0sec") + chalk.gray(" dashboard"));
+        console.log(chalk.red.bold("  \u25C6 xsec") + chalk.gray(" dashboard"));
         console.log(chalk.gray(`  ${url}`));
         console.log(chalk.gray("  Ctrl+C to stop"));
         if (opts.open !== false) openBrowser(url);

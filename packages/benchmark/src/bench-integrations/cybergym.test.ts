@@ -7,7 +7,7 @@ import {
   createBenchIntegrationRegistry,
   createVariantExecutionFactory,
   runTournament,
-} from "@0sec/core";
+} from "@xsec/core";
 
 import {
   createCyberGymBenchIntegration,

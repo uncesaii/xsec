@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { AttackCategory, Finding, LayerVerdict, PocStep } from "@0sec/shared";
+import type { AttackCategory, Finding, LayerVerdict, PocStep } from "@xsec/shared";
 import {
   VERIFY_EVIDENCE_KINDS,
   VERIFY_EVIDENCE_KINDS_ENGINE_EXT,
@@ -8,18 +8,18 @@ import {
 
 // EPIC #674 — cross-workspace parity guard for the verify evidence-kind union.
 //
-// The 0sec engine and the 0cloud orchestrator are decoupled by design (linked
+// The xsec engine and the xcloud orchestrator are decoupled by design (linked
 // only by the cloud-sink wire format), and the engine is a separate publishable
-// workspace that cannot import a private `@0cloud/*` package. So the engine
+// workspace that cannot import a private `@xcloud/*` package. So the engine
 // keeps its own copy of this union (`VerifyEvidenceKind` in `verify-verdict.ts`)
-// and 0cloud keeps its copy in `@0cloud/cloud-contracts` (`VerifyEvidenceKind`,
+// and xcloud keeps its copy in `@xcloud/cloud-contracts` (`VerifyEvidenceKind`,
 // PR #681).
 //
 // The CANONICAL table below is duplicated VERBATIM from the locked cloud-
 // contracts strings. Each side asserts its own exported set against this
-// identical table, so any divergence between the engine union and the 0cloud
+// identical table, so any divergence between the engine union and the xcloud
 // single source is caught here — without a physical cross-workspace import.
-// PARITY: when you change a value, update BOTH this fixture and the 0cloud one
+// PARITY: when you change a value, update BOTH this fixture and the xcloud one
 // (and both source modules). Mirrors `can-auto-suppress.parity.test.ts` (#650).
 //
 // `reproduced-memcorruption-poc` was added here in the coordinated change of
@@ -33,7 +33,7 @@ const CANONICAL_VERIFY_EVIDENCE_KINDS = [
   "reproduced-memcorruption-poc",
 ];
 
-describe("verify evidence-kind parity with @0cloud/cloud-contracts (#674)", () => {
+describe("verify evidence-kind parity with @xcloud/cloud-contracts (#674)", () => {
   it("engine VERIFY_EVIDENCE_KINDS matches the canonical cloud table", () => {
     expect([...VERIFY_EVIDENCE_KINDS].sort()).toEqual(
       [...CANONICAL_VERIFY_EVIDENCE_KINDS].sort(),

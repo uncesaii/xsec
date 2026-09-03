@@ -1,4 +1,4 @@
-import type { AuthConfig } from "@0sec/shared";
+import type { AuthConfig } from "@xsec/shared";
 
 export type RuntimeType = "api" | "claude" | "codex" | "gemini" | "ollama";
 

@@ -1,4 +1,4 @@
-import type { ScanContext, StageResult, ScanReport, ReportSummary } from "@0sec/shared";
+import type { ScanContext, StageResult, ScanReport, ReportSummary } from "@xsec/shared";
 
 export async function generateReport(
   ctx: ScanContext

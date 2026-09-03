@@ -12,7 +12,7 @@ const crash: CrashInfo = {
   message: "Cannot read properties of undefined (reading 'x')",
   stack: [
     "TypeError: Cannot read properties of undefined (reading 'x')",
-    "    at ChatScreen (/home/op/.0sec/run.tsx:1200:5)",
+    "    at ChatScreen (/home/op/.xsec/run.tsx:1200:5)",
     "    at renderWithHooks (/node_modules/react/index.js:1:1)",
   ].join("\n"),
 };
@@ -48,7 +48,7 @@ describe("crashStackLines", () => {
     const lines = crashStackLines(crash.stack, 2);
     expect(lines).toHaveLength(2);
     expect(lines[0]).toBe("TypeError: Cannot read properties of undefined (reading 'x')");
-    expect(lines[1]).toBe("at ChatScreen (/home/op/.0sec/run.tsx:1200:5)");
+    expect(lines[1]).toBe("at ChatScreen (/home/op/.xsec/run.tsx:1200:5)");
   });
 
   it("returns nothing for max 0", () => {
@@ -124,7 +124,7 @@ describe("resolveCrashKey", () => {
 });
 
 describe("describeFeedbackOutcome", () => {
-  const local = { ok: true, path: "/home/op/.0sec/feedback.md" };
+  const local = { ok: true, path: "/home/op/.xsec/feedback.md" };
 
   it("reports success when both save and submit succeed", () => {
     const out = describeFeedbackOutcome(local, { ok: true });

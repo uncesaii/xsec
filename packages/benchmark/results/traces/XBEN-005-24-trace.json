@@ -451,7 +451,7 @@
       "content": [
         {
           "type": "text",
-          "text": "[0sec budget] Only 3 turns remaining. Submit your best finding now or call `done`. Further exploration won't fit — wrap up cleanly."
+          "text": "[xsec budget] Only 3 turns remaining. Submit your best finding now or call `done`. Further exploration won't fit — wrap up cleanly."
         }
       ]
     },

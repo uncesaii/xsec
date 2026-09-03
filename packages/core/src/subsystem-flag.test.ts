@@ -1,5 +1,5 @@
 /**
- * Tests for the `--subsystem` flag implementation (0sec#466).
+ * Tests for the `--subsystem` flag implementation (xsec#466).
  *
  * Covers:
  *   - `parseSubsystems` utility: single, multiple, trailing-slash normalisation

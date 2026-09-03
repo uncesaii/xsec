@@ -1,10 +1,10 @@
 ---
 title: Budget Management
-description: How 0sec manages turn budgets, reflection checkpoints, and depth-based resource allocation across agent scans.
+description: How XSEC manages turn budgets, reflection checkpoints, and depth-based resource allocation across agent scans.
 ---
 
 Agentic scanning is expensive. Too few turns and the agent misses real bugs; too
-many and it loops on dead ends. 0sec balances the two with turn limits,
+many and it loops on dead ends. XSEC balances the two with turn limits,
 reflection checkpoints, and depth presets.
 
 ## Turn budgets
@@ -29,7 +29,7 @@ objectives are narrower.
 
 The default comes from MAPTA (a research pentest framework that scored 76.9% on
 XBOW), which found ~40 tool calls is the sweet spot — enough for recon, auth,
-escalation, and extraction, but past it returns diminish sharply. 0sec's own
+escalation, and extraction, but past it returns diminish sharply. XSEC's own
 data agrees: most successful exploits finish in 10–20 turns, and challenges that
 fail at 40 rarely succeed at 60. They need a different model, source access, or
 browser automation — not more turns. Complex multi-class challenges are the
@@ -39,7 +39,7 @@ exception and benefit from deep mode's 100 turns.
 
 Turn limits stop runaway cost but not a subtler failure: burning 35 turns on a
 dead end. At four budget checkpoints, when the agent returns a text-only
-response (no tool call), 0sec injects a budget-awareness prompt (inspired by
+response (no tool call), XSEC injects a budget-awareness prompt (inspired by
 Cyber-AutoAgent):
 
 | Budget consumed | Checkpoint | Prompt behavior |

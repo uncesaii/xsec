@@ -1,4 +1,4 @@
-% 0sec: context compaction and session resume design note
+% XSEC: context compaction and session resume design note
 % Compile: pdflatex context-compaction.tex && pdflatex context-compaction.tex
 
 \documentclass[11pt]{article}
@@ -26,8 +26,8 @@
 \title{Automatic Context Compaction and Session Resume for\\Long-Running Autonomous Pentesting Agents}
 
 \author{
-  0sec Labs \\
-  \texttt{github.com/0sec-labs/0sec}
+  XSEC Labs \\
+  \texttt{github.com/uncesaii/xsec}
 }
 
 \date{}
@@ -42,8 +42,8 @@ transcript grows past the ceiling, the agent must either fail or discard
 history, and the wrong discard drops exactly the credential, endpoint, or
 evidence line a finding depends on. This note surveys how three production
 coding and agent harnesses --- OpenCode, Claude Code, and Oh My Pi --- handle
-automatic context compaction and session resume, and maps the choices onto 0sec.
-The central engineering finding is that 0sec already performs mid-run LLM
+automatic context compaction and session resume, and maps the choices onto XSEC.
+The central engineering finding is that XSEC already performs mid-run LLM
 compaction and already keeps the most reproducibility-critical state in
 compaction-proof structured stores (loot, the task ledger, and the findings
 database), but it (i) triggers on an absolute token count rather than a
@@ -78,7 +78,7 @@ untrusted target output inherits an indirect prompt-injection surface.
 
 This note (i) surveys OpenCode, Claude Code, and Oh My Pi along four axes ---
 \textbf{when} compaction triggers, \textbf{what} it preserves, \textbf{how} the
-summary is generated, and how \textbf{resume} rehydrates; (ii) audits what 0sec
+summary is generated, and how \textbf{resume} rehydrates; (ii) audits what XSEC
 already does; and (iii) proposes a design with an explicit decision, a phased
 plan, and the concrete code seams it lands on. No code is implemented here.
 
@@ -198,9 +198,9 @@ Reserve $\ge 15\%$ of window; idle at $200$k &
 \label{tab:survey}
 \end{table}
 
-\section{What 0sec Already Does}
+\section{What XSEC Already Does}
 
-Contrary to the assumption that 0sec has no mid-run compaction, the native agent
+Contrary to the assumption that XSEC has no mid-run compaction, the native agent
 loop already implements it, and the most reproducibility-critical state already
 lives outside the transcript. The audit below is grounded in
 \texttt{packages/core/src/agent/}.
@@ -274,7 +274,7 @@ The interactive console is a distinct loop. \texttt{console/turn-engine.ts}'s
 \texttt{ConsoleSession} accepts \texttt{initialMessages} and starts its history
 as a \texttt{structuredClone} of them, replaying the transcript over a fresh
 client. \texttt{cli/src/tui/session-store.ts} persists the \emph{entire} native
-message array to \texttt{\~{}/.0sec/console-sessions/<id>.json} (files
+message array to \texttt{\~{}/.xsec/console-sessions/<id>.json} (files
 \texttt{0600}, directory \texttt{0700}, re-applied on every save; \texttt{prune}
 caps accumulation; nothing is transmitted). Resume loads a stored transcript and
 feeds it back as \texttt{initialMessages}. The store's own header notes the
@@ -352,7 +352,7 @@ resume seam rehydrates from a compact checkpoint plus durable stores instead of
 the raw transcript; (4) extend compaction to the console loop by reusing the
 native-loop primitives. We explicitly do \emph{not} adopt Oh My Pi's PNG
 snapcompact or a full entry-tree rewrite: they are large surface for marginal
-gain given 0sec's stores already carry the durable state that matters.
+gain given XSEC's stores already carry the durable state that matters.
 
 \subsection{Auto-compaction: fraction trigger and cheap summarizer}
 
@@ -417,7 +417,7 @@ compaction.
 \paragraph{Evidence retention for reproducibility.} A finding is only useful if
 it reproduces, and reproduction needs exact bytes: the literal credential, the
 exact request, the response status, the flag. A lossy summary that paraphrases
-these breaks the finding. 0sec's existing answer is right and must be kept:
+these breaks the finding. XSEC's existing answer is right and must be kept:
 (i) evidence lives in the findings DB via \texttt{save\_finding}, not in the
 transcript, so compaction cannot touch it; (ii)
 \texttt{preserveCriticalMessages} appends credential- and exploit-bearing turns
@@ -505,13 +505,13 @@ Re-wrap generated summary as lower-trust data on re-entry. \\
 \texttt{contextCompaction}, \texttt{preserveCriticalMessages}, \texttt{dynamicPlaybooks}; add fraction/summarizer flags. \\
 \bottomrule
 \end{tabular}
-\caption{0sec integration seams for the proposed design.}
+\caption{XSEC integration seams for the proposed design.}
 \label{tab:seams}
 \end{table}
 
 \section{Conclusion}
 
-0sec is closer to the surveyed state of the art than a naive audit suggests: it
+XSEC is closer to the surveyed state of the art than a naive audit suggests: it
 already compacts mid-run, preserves credentials verbatim, and keeps
 reproducibility-critical evidence in compaction-proof stores. The remaining work
 is refinement, not invention --- a window-fraction trigger, a cheap summarizer, a

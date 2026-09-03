@@ -2,8 +2,8 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { osecDB } from "@0sec/db";
-import type { Finding } from "@0sec/shared";
+import { osecDB } from "@xsec/db";
+import type { Finding } from "@xsec/shared";
 import {
   buildFindingChatPrompt,
   buildFindingConsoleCommand,
@@ -42,14 +42,14 @@ describe("finding handoff", () => {
 
   it("quotes the terminal handoff without exposing shell injection", () => {
     expect(
-      buildFindingConsoleCommand({ id: "F'42" }, "/tmp/0sec db's.sqlite", "draft_fix"),
+      buildFindingConsoleCommand({ id: "F'42" }, "/tmp/xsec db's.sqlite", "draft_fix"),
     ).toBe(
-      "0sec console --finding 'F'\\''42' --finding-intent draft_fix --db-path '/tmp/0sec db'\\''s.sqlite'",
+      "xsec console --finding 'F'\\''42' --finding-intent draft_fix --db-path '/tmp/xsec db'\\''s.sqlite'",
     );
   });
 
   it("rehydrates a persisted finding before opening the chat", () => {
-    const root = mkdtempSync(join(tmpdir(), "0sec-finding-focus-"));
+    const root = mkdtempSync(join(tmpdir(), "xsec-finding-focus-"));
     const dbPath = join(root, "findings.sqlite");
     const db = new osecDB(dbPath);
     try {

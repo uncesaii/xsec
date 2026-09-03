@@ -31,12 +31,12 @@ const EXPECTED_LENS_IDS = [
   "resource-exhaustion-dos",
 ];
 
-const REGISTRY_ENV = "0SEC_APPSEC_LENS_REGISTRY";
+const REGISTRY_ENV = "XSEC_APPSEC_LENS_REGISTRY";
 const originalRegistryPath = process.env[REGISTRY_ENV];
 let isolatedRegistryDirectory: string;
 
 beforeEach(() => {
-  isolatedRegistryDirectory = mkdtempSync(join(tmpdir(), "0sec-appsec-registry-"));
+  isolatedRegistryDirectory = mkdtempSync(join(tmpdir(), "xsec-appsec-registry-"));
   process.env[REGISTRY_ENV] = join(isolatedRegistryDirectory, "overlay.json");
 });
 
@@ -121,9 +121,9 @@ describe("appsecArchetypeToFinderLens / loadAppsecFinderLenses", () => {
   });
 });
 
-describe("loadAppsecFinderLenses — runtime lens injection (0SEC_RUNTIME_LENSES)", () => {
-  const FLAG = "0SEC_RUNTIME_LENSES_ENABLED";
-  const ENV = "0SEC_RUNTIME_LENSES";
+describe("loadAppsecFinderLenses — runtime lens injection (XSEC_RUNTIME_LENSES)", () => {
+  const FLAG = "XSEC_RUNTIME_LENSES_ENABLED";
+  const ENV = "XSEC_RUNTIME_LENSES";
 
   /** A full, well-formed on-disk (snake_case) runtime archetype for `id`. */
   const rawRuntimeArchetype = (id: string) => ({

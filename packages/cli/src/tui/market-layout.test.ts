@@ -673,7 +673,7 @@ describe("the empty / error state", () => {
   it("guides an unconfigured registry rather than reading as a crash", () => {
     const text = textOf(marketEmptyLines({ registryUrl: "" }, 60));
     expect(text).toContain("No marketplace registry configured");
-    expect(text).toContain("0SEC_REGISTRY_URL");
+    expect(text).toContain("XSEC_REGISTRY_URL");
     expect(text).toContain("runs nothing");
   });
 

@@ -2,7 +2,7 @@
  * herdr pane-state integration (protocol 19).
  *
  * `herdr` (https://herdr.dev) is a terminal workspace manager for AI coding
- * agents. When 0sec runs inside a herdr pane, herdr wants to know whether the
+ * agents. When xsec runs inside a herdr pane, herdr wants to know whether the
  * agent in that pane is `idle | working | blocked` — it drives the sidebar,
  * the completion sounds/toasts and `herdr agent wait` off exactly that signal.
  * Without a native reporter herdr falls back to screen-scraping our TUI and
@@ -34,7 +34,7 @@
  *     swallows. One ~500 ms attempt plus one ~1500 ms retry, then we give up
  *     on that report — no backoff loop, no unbounded queue.
  *
- *  2. NO PRINTING. 0sec runs inside an Ink TUI that owns the terminal;
+ *  2. NO PRINTING. xsec runs inside an Ink TUI that owns the terminal;
  *     a stray `console.log` or `process.stderr.write` corrupts the
  *     framebuffer. There is deliberately not a single write to stdout/stderr
  *     in this file, not even on error. Failures are silent by design.
@@ -56,8 +56,8 @@ import type { EventSink, EventType } from "../events/bus.js";
 export type HerdrAgentState = "idle" | "working" | "blocked" | "unknown";
 
 /** Identifies us as the reporter in herdr's sidebar / `herdr agent ls`. */
-const HERDR_SOURCE = "0sec";
-const HERDR_AGENT = "0sec";
+const HERDR_SOURCE = "xsec";
+const HERDR_AGENT = "xsec";
 
 /** Protocol 19: `tokens` is a map of at most 16 entries… */
 const MAX_TOKENS = 16;
@@ -259,7 +259,7 @@ function coerceTokenValue(value: unknown): string | null {
  * loop is going straight into the next turn, so the agent is still working.
  *
  * WHY THERE IS NO `blocked` MAPPING: the bus vocabulary in `bus.ts` has no
- * event that means "waiting on the operator". The two places 0sec actually
+ * event that means "waiting on the operator". The two places xsec actually
  * blocks on a human — the co-pilot `approveTool` gate and the
  * `requestScope` prompt in `console/turn-engine.ts` — resolve their promises
  * inline and emit nothing. Rather than invent a mapping from an event that
@@ -318,7 +318,7 @@ export class HerdrEventSink implements EventSink {
 
   /**
    * Monotonic sequence number. Seeded from wall-clock micros exactly like
-   * herdr's `pi` integration so that a restarted 0sec in the same pane still
+   * herdr's `pi` integration so that a restarted xsec in the same pane still
    * produces seqs above the ones the daemon already saw — otherwise the
    * daemon drops our first reports as stale.
    */
@@ -569,7 +569,7 @@ export class HerdrEventSink implements EventSink {
   }
 
   private nextId(): string {
-    return `0sec-${this.seq + 1}`;
+    return `xsec-${this.seq + 1}`;
   }
 
   /**

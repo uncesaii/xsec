@@ -1,11 +1,11 @@
 ---
 title: Kernel VM Verification
-description: Build and configure the QEMU guest used by 0sec ingest --verify.
+description: Build and configure the QEMU guest used by xsec ingest --verify.
 ---
 
-`0sec ingest --verify` runs C reproducers inside a local QEMU guest and compares
+`xsec ingest --verify` runs C reproducers inside a local QEMU guest and compares
 the guest `dmesg` against the imported kernel crash report. Without the VM,
-kernel verification stays static-only — 0sec won't claim a crash was reproduced.
+kernel verification stays static-only — XSEC won't claim a crash was reproduced.
 
 ## What the repo provides
 
@@ -14,9 +14,9 @@ A maintained build recipe at `packages/core/src/triage/kernel-vm/` builds:
 - `bzImage` — Linux 6.8.12 for x86_64 with KASAN, UBSAN, KCSAN, lock debugging,
   RCU stall detection, and virtio/9p/ext4/NFS/Bluetooth/WiFi/SCTP support.
 - `rootfs.img` — 512 MB Debian Bookworm ext4 with `gcc`, `binutils`, `make`,
-  `procps`, `kmod`, `strace`, `gdb`, OpenSSH, and `/sbin/0sec-init`.
+  `procps`, `kmod`, `strace`, `gdb`, OpenSSH, and `/sbin/xsec-init`.
 - `kernel.config` — the exact config used for the build.
-- `osec_vm_key[.pub]` — root SSH keypair for manual debugging only (the verifier
+- `xsec_vm_key[.pub]` — root SSH keypair for manual debugging only (the verifier
   uses a QEMU 9p share, not SSH).
 
 Prebuilt artifacts are not committed. Build locally or let the GitHub Actions
@@ -39,58 +39,58 @@ From the repo root:
 pnpm install --frozen-lockfile
 
 cd packages/core/src/triage/kernel-vm
-env 0SEC_KERNEL_VM_MAKE_JOBS=4 \
-  ./build.sh "$HOME/.0sec/kernel-vm/linux-6.8.12-kasan"
+env XSEC_KERNEL_VM_MAKE_JOBS=4 \
+  ./build.sh "$HOME/.xsec/kernel-vm/linux-6.8.12-kasan"
 ```
 
 Output:
 
 ```text
-$HOME/.0sec/kernel-vm/linux-6.8.12-kasan/
+$HOME/.xsec/kernel-vm/linux-6.8.12-kasan/
   bzImage
   rootfs.img
   kernel.config
-  osec_vm_key
-  osec_vm_key.pub
+  xsec_vm_key
+  xsec_vm_key.pub
 ```
 
 Treat the output directory as a local cache; regenerate it when the Dockerfile,
 kernel version, or guest package list changes.
 
-## Configure 0sec
+## Configure XSEC
 
-Required values must be passed with `env`: `0SEC_*` names begin with a digit and
+Required values must be passed with `env`: `XSEC_*` names begin with a digit and
 cannot be exported by POSIX shells.
 
 ```bash
 env \
-  0SEC_KERNEL_QEMU=1 \
-  0SEC_KERNEL_QEMU_KERNEL="$HOME/.0sec/kernel-vm/linux-6.8.12-kasan/bzImage" \
-  0SEC_KERNEL_QEMU_DISK="$HOME/.0sec/kernel-vm/linux-6.8.12-kasan/rootfs.img" \
-  0sec ingest --verify ./crashes
+  XSEC_KERNEL_QEMU=1 \
+  XSEC_KERNEL_QEMU_KERNEL="$HOME/.xsec/kernel-vm/linux-6.8.12-kasan/bzImage" \
+  XSEC_KERNEL_QEMU_DISK="$HOME/.xsec/kernel-vm/linux-6.8.12-kasan/rootfs.img" \
+  xsec ingest --verify ./crashes
 ```
 
 Recommended local defaults can be added to the same command:
 
 ```bash
 env \
-  0SEC_KERNEL_QEMU=1 \
-  0SEC_KERNEL_QEMU_KERNEL="$HOME/.0sec/kernel-vm/linux-6.8.12-kasan/bzImage" \
-  0SEC_KERNEL_QEMU_DISK="$HOME/.0sec/kernel-vm/linux-6.8.12-kasan/rootfs.img" \
-  0SEC_KERNEL_QEMU_MEMORY_MB=2048 \
-  0SEC_KERNEL_QEMU_SMP=2 \
-  0SEC_KERNEL_QEMU_BOOT_TIMEOUT_SEC=180 \
-  0SEC_KERNEL_QEMU_TIMEOUT_SEC=60 \
-  0SEC_KERNEL_QEMU_ARTIFACT_DIR="$HOME/.0sec/kernel-vm/runs" \
-  0sec ingest --verify ./crashes
+  XSEC_KERNEL_QEMU=1 \
+  XSEC_KERNEL_QEMU_KERNEL="$HOME/.xsec/kernel-vm/linux-6.8.12-kasan/bzImage" \
+  XSEC_KERNEL_QEMU_DISK="$HOME/.xsec/kernel-vm/linux-6.8.12-kasan/rootfs.img" \
+  XSEC_KERNEL_QEMU_MEMORY_MB=2048 \
+  XSEC_KERNEL_QEMU_SMP=2 \
+  XSEC_KERNEL_QEMU_BOOT_TIMEOUT_SEC=180 \
+  XSEC_KERNEL_QEMU_TIMEOUT_SEC=60 \
+  XSEC_KERNEL_QEMU_ARTIFACT_DIR="$HOME/.xsec/kernel-vm/runs" \
+  xsec ingest --verify ./crashes
 ```
 
-On Linux hosts with KVM, add `0SEC_KERNEL_QEMU_ACCEL=kvm` to that `env` invocation.
+On Linux hosts with KVM, add `XSEC_KERNEL_QEMU_ACCEL=kvm` to that `env` invocation.
 
-Leave `0SEC_KERNEL_QEMU_APPEND` unset unless using a custom guest. Default:
+Leave `XSEC_KERNEL_QEMU_APPEND` unset unless using a custom guest. Default:
 
 ```text
-console=ttyS0 root=/dev/vda rw nokaslr panic=-1 init=/sbin/0sec-init
+console=ttyS0 root=/dev/vda rw nokaslr panic=-1 init=/sbin/xsec-init
 ```
 
 ## Run verification
@@ -106,12 +106,12 @@ crashes/
 ```
 
 ```bash
-0sec ingest ./crashes --verify --output json
+xsec ingest ./crashes --verify --output json
 ```
 
-For each C reproducer 0sec writes `repro.c` and `runner.sh` to a temp dir, boots
-QEMU with a 9p share (`osecshare`), lets `/sbin/0sec-init` run
-`/mnt/0sec/runner.sh`, compiles and runs the reproducer under the timeout, and
+For each C reproducer XSEC writes `repro.c` and `runner.sh` to a temp dir, boots
+QEMU with a 9p share (`xsecshare`), lets `/sbin/xsec-init` run
+`/mnt/xsec/runner.sh`, compiles and runs the reproducer under the timeout, and
 copies `compile.log`, `run.log`, `dmesg.log`, markers, and the serial log back
 to the artifact directory (when configured).
 
@@ -132,7 +132,7 @@ ordinary label/artifact mixups but is **not** hardware attestation (no TPM /
 SEV-SNP) and does not defend against a malicious host or guest kernel, nor prove
 the running kernel config without a runtime measurement like `/proc/config.gz`.
 
-If `0SEC_KERNEL_QEMU_ARTIFACT_DIR` is unset, the temp run directory is deleted
+If `XSEC_KERNEL_QEMU_ARTIFACT_DIR` is unset, the temp run directory is deleted
 after each attempt.
 
 ## Guest contract
@@ -143,9 +143,9 @@ A custom guest must satisfy:
 | --- | --- |
 | Architecture | x86_64, bootable by `qemu-system-x86_64` |
 | Root device | `root=/dev/vda` (or matching custom append) |
-| Init path | `/sbin/0sec-init` (unless `0SEC_KERNEL_QEMU_APPEND` changed) |
-| Host share | Mount 9p tag `osecshare` at `/mnt/0sec` |
-| Runner | Execute `/mnt/0sec/runner.sh`, leave results in the share |
+| Init path | `/sbin/xsec-init` (unless `XSEC_KERNEL_QEMU_APPEND` changed) |
+| Host share | Mount 9p tag `xsecshare` at `/mnt/xsec` |
+| Runner | Execute `/mnt/xsec/runner.sh`, leave results in the share |
 | Compiler | `/usr/bin/gcc` plus libc headers and `binutils` |
 | Logs | `dmesg` readable after the reproducer runs |
 | Kernel | Debug-friendly, crash signal visible in `dmesg` |
@@ -156,30 +156,30 @@ SSH is not part of the contract; the keypair is only for manual debugging.
 
 | Variable | Required | Default | Description |
 | --- | --- | --- | --- |
-| `0SEC_KERNEL_QEMU` | Yes | - | `1` to enable VM execution |
-| `0SEC_KERNEL_QEMU_KERNEL` | Yes | - | Path to `bzImage` |
-| `0SEC_KERNEL_QEMU_DISK` | Yes | - | Path to `rootfs.img` or other bootable disk |
-| `0SEC_KERNEL_QEMU_CONFIG` | For provenance | - | Config used to build the selected kernel |
-| `0SEC_KERNEL_QEMU_EXPECTED_RELEASE` | For prebuilt artifacts | - | Exact expected `uname -r`; never inferred from filename |
-| `0SEC_KERNEL_QEMU_BINARY` | No | `qemu-system-x86_64` | QEMU binary |
-| `0SEC_KERNEL_QEMU_DISK_FORMAT` | No | inferred | `raw` or `qcow2` |
-| `0SEC_KERNEL_QEMU_MEMORY_MB` | No | `2048` | Guest memory (MB) |
-| `0SEC_KERNEL_QEMU_SMP` | No | `2` | Guest CPU count |
-| `0SEC_KERNEL_QEMU_APPEND` | No | see above | Kernel command line |
-| `0SEC_KERNEL_QEMU_ACCEL` | No | - | Accelerator, e.g. `kvm` |
-| `0SEC_KERNEL_QEMU_INITRD` | No | - | Optional initrd for custom guests |
-| `0SEC_KERNEL_QEMU_BOOT_TIMEOUT_SEC` | No | `120` | Boot + setup time |
-| `0SEC_KERNEL_QEMU_TIMEOUT_SEC` | No | `60` | Reproducer time |
-| `0SEC_KERNEL_QEMU_SHARE_TAG` | No | `osecshare` | 9p mount tag |
-| `0SEC_KERNEL_QEMU_ARTIFACT_DIR` | No | - | Where per-run artifacts are preserved |
+| `XSEC_KERNEL_QEMU` | Yes | - | `1` to enable VM execution |
+| `XSEC_KERNEL_QEMU_KERNEL` | Yes | - | Path to `bzImage` |
+| `XSEC_KERNEL_QEMU_DISK` | Yes | - | Path to `rootfs.img` or other bootable disk |
+| `XSEC_KERNEL_QEMU_CONFIG` | For provenance | - | Config used to build the selected kernel |
+| `XSEC_KERNEL_QEMU_EXPECTED_RELEASE` | For prebuilt artifacts | - | Exact expected `uname -r`; never inferred from filename |
+| `XSEC_KERNEL_QEMU_BINARY` | No | `qemu-system-x86_64` | QEMU binary |
+| `XSEC_KERNEL_QEMU_DISK_FORMAT` | No | inferred | `raw` or `qcow2` |
+| `XSEC_KERNEL_QEMU_MEMORY_MB` | No | `2048` | Guest memory (MB) |
+| `XSEC_KERNEL_QEMU_SMP` | No | `2` | Guest CPU count |
+| `XSEC_KERNEL_QEMU_APPEND` | No | see above | Kernel command line |
+| `XSEC_KERNEL_QEMU_ACCEL` | No | - | Accelerator, e.g. `kvm` |
+| `XSEC_KERNEL_QEMU_INITRD` | No | - | Optional initrd for custom guests |
+| `XSEC_KERNEL_QEMU_BOOT_TIMEOUT_SEC` | No | `120` | Boot + setup time |
+| `XSEC_KERNEL_QEMU_TIMEOUT_SEC` | No | `60` | Reproducer time |
+| `XSEC_KERNEL_QEMU_SHARE_TAG` | No | `xsecshare` | 9p mount tag |
+| `XSEC_KERNEL_QEMU_ARTIFACT_DIR` | No | - | Where per-run artifacts are preserved |
 
 ## Troubleshooting
 
-If the VM exits early, inspect `serial.log` in `0SEC_KERNEL_QEMU_ARTIFACT_DIR`.
+If the VM exits early, inspect `serial.log` in `XSEC_KERNEL_QEMU_ARTIFACT_DIR`.
 Common causes:
 
-- The guest didn't mount the 9p share (keep `0SEC_KERNEL_QEMU_SHARE_TAG` and
-  `/sbin/0sec-init` in sync).
+- The guest didn't mount the 9p share (keep `XSEC_KERNEL_QEMU_SHARE_TAG` and
+  `/sbin/xsec-init` in sync).
 - Missing `gcc` or libc headers in a custom guest.
 - `dmesg` unreadable, or boot timeout too low without KVM.
 - Custom append line no longer points at the correct root disk or init.

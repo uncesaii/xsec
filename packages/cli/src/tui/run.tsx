@@ -4,8 +4,8 @@ import { randomUUID } from "node:crypto";
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { CliRenderEvents, createCliRenderer, type CliRenderer } from "@opentui/core";
 import { AppContext, createRoot, useKeyboard, useTerminalDimensions } from "@opentui/react";
-import { VERSION, type Finding, type FindingTriageStatus } from "@0sec/shared";
-import type { NativeRuntime, SourceFixResult, SourceFixStatus } from "@0sec/core";
+import { VERSION, type Finding, type FindingTriageStatus } from "@xsec/shared";
+import type { NativeRuntime, SourceFixResult, SourceFixStatus } from "@xsec/core";
 import { resolveEngagement } from "../engagement-plan.js";
 import { getRuntimeAvailability } from "../utils.js";
 import { buildFindingChatPrompt, loadFindingFocus } from "../finding-focus.js";
@@ -33,7 +33,7 @@ import { listSessions, loadSession, deleteSession } from "./session-store.js";
 import { MarketScreen } from "./market-screen.js";
 import { createPluginService } from "./plugin-service.js";
 import { createSessionPluginHostManager, type SessionPluginHostManager } from "./session-plugin-host.js";
-import { TOOL_DEFINITIONS } from "@0sec/core";
+import { TOOL_DEFINITIONS } from "@xsec/core";
 import { ConnectScreen } from "./connect-screen.js";
 import type { ConnectionRecovery } from "./connection-recovery.js";
 import { UsageScreen } from "./usage-screen.js";
@@ -140,7 +140,7 @@ interface ShellNav {
   /**
    * Opens the full-screen marketplace browser: plugins and themes from the
    * configured registry. No endpoint ships by default, so it opens on an honest
-   * empty state until `$0SEC_REGISTRY_URL` points at a registry the operator trusts.
+   * empty state until `$XSEC_REGISTRY_URL` points at a registry the operator trusts.
    */
   openMarket: () => void;
   /**
@@ -177,7 +177,7 @@ const RUNTIME_OPTIONS: LaunchRuntime[] = ["auto", "api", "claude", "codex", "gem
 const DEPTH_OPTIONS: LaunchDepth[] = ["quick", "default", "deep"];
 
 function appendTuiTrace(record: Record<string, unknown>): void {
-  const file = process.env["0SEC_TRACE_TUI_EVENTS"] ?? process.env["0SEC_TRACE_TUI_RENDER"];
+  const file = process.env["XSEC_TRACE_TUI_EVENTS"] ?? process.env["XSEC_TRACE_TUI_RENDER"];
   if (!file) return;
   try {
     appendFileSync(file, `${JSON.stringify({ ts: new Date().toISOString(), ...record })}\n`, "utf8");
@@ -198,7 +198,7 @@ function serializeError(error: unknown): Record<string, unknown> {
 }
 
 function appendTuiCrash(record: Record<string, unknown>): void {
-  const file = process.env["0SEC_TRACE_TUI_EVENTS"] ?? "/tmp/0sec-tui-crashes.ndjson";
+  const file = process.env["XSEC_TRACE_TUI_EVENTS"] ?? "/tmp/xsec-tui-crashes.ndjson";
   try {
     appendFileSync(file, `${JSON.stringify({ ts: new Date().toISOString(), kind: "tui-crash", ...record })}\n`, "utf8");
   } catch {
@@ -415,7 +415,7 @@ function CrashPanel({ crash, onRestart, onQuit }: { crash: CrashInfo; onRestart:
   const contentWidth = Math.max(1, width - SHELL_HORIZONTAL_PADDING * 2 - PANEL_HORIZONTAL_CHROME);
   const footerWidth = Math.max(1, width - SHELL_HORIZONTAL_PADDING * 2);
   const inputWidth = Math.max(1, contentWidth - 3);
-  const tracePath = process.env["0SEC_TRACE_TUI_EVENTS"] ?? "/tmp/0sec-tui-crashes.ndjson";
+  const tracePath = process.env["XSEC_TRACE_TUI_EVENTS"] ?? "/tmp/xsec-tui-crashes.ndjson";
 
   const cleanMessage = sanitizeCrashText(crash.message) || "unknown TUI error";
   // Budget the stack against the rows the frame can actually spare so the
@@ -441,7 +441,7 @@ function CrashPanel({ crash, onRestart, onQuit }: { crash: CrashInfo; onRestart:
         const local = appendFeedback({ message, timestamp, version: VERSION, mode: "crash" });
         // Crash feedback has no transcript preview surface. Preserve its
         // historical local-only default; an operator may still opt in with an
-        // explicit 0SEC_FEEDBACK_URL.
+        // explicit XSEC_FEEDBACK_URL.
         const sent = await submitFeedback(
           { message, timestamp, version: VERSION, mode: "crash" },
           process.env,
@@ -586,7 +586,7 @@ interface FindingsRow {
   evidenceResponse: string;
   evidenceAnalysis?: string | null;
   /**
-   * JSON-stringified VerificationSpec as stored by `@0sec/db`. NULL for
+   * JSON-stringified VerificationSpec as stored by `@xsec/db`. NULL for
    * findings that carry no machine-executable re-check contract. The
    * source-fix action parses it back before asking `fixEligibility`.
    */
@@ -689,17 +689,17 @@ function groupFindings(rows: FindingsRow[]): FindingGroup[] {
 
 // ── Source-fix action (`f` on the Findings screen) ──
 //
-// These mirror the defaults of `0sec fix` (packages/cli/src/commands/fix.ts)
+// These mirror the defaults of `xsec fix` (packages/cli/src/commands/fix.ts)
 // so the TUI and the CLI behave identically. `apply` is deliberately absent:
 // the CLI defaults `--apply` to false and applying stays an explicit,
 // separate operator action.
 const FIX_MODEL_TIMEOUT_MS = 600_000;
 const FIX_TEST_TIMEOUT_MS = 300_000;
 const FIX_MAX_ATTEMPTS = 3;
-/** Operator-owned regression command; `0sec fix` requires --test-command. */
-const FIX_TEST_COMMAND_ENV = "0SEC_FIX_TEST_COMMAND";
-/** Overrides the scan target as the repo to fix in; `0sec fix` takes <repo>. */
-const FIX_REPO_ENV = "0SEC_FIX_REPO";
+/** Operator-owned regression command; `xsec fix` requires --test-command. */
+const FIX_TEST_COMMAND_ENV = "XSEC_FIX_TEST_COMMAND";
+/** Overrides the scan target as the repo to fix in; `xsec fix` takes <repo>. */
+const FIX_REPO_ENV = "XSEC_FIX_REPO";
 
 interface FixRunState {
   findingId: string;
@@ -755,7 +755,7 @@ function isNativeRuntime(runtime: unknown): runtime is NativeRuntime {
 const REMOTE_TARGET_PATTERN = /^[a-z][a-z0-9+.-]*:\/\//i;
 
 /**
- * Where a source fix for this finding would run. `0SEC_FIX_REPO` wins so an
+ * Where a source fix for this finding would run. `XSEC_FIX_REPO` wins so an
  * operator can point at a checkout that is not the recorded scan target;
  * otherwise the scan target is used, but only when it looks like a path.
  */
@@ -1020,11 +1020,11 @@ const SESSION_MIN_TRANSCRIPT_WIDTH = 56;
 const SESSION_MIN_SIDEBAR_WIDTH = 28;
 const SESSION_MAX_SIDEBAR_WIDTH = 40;
 const SESSION_MIN_SIDEBAR_HEIGHT = 22;
-// BrandStamp paints "0sec" and " v<version>" as two adjacent auto-width
+// BrandStamp paints "xsec" and " v<version>" as two adjacent auto-width
 // <text> nodes. VERSION is a build-time string, so a prerelease suffix
 // silently widens the stamp; without reserving those cells up front the
 // footer hint next to it is shrunk and the two fuse.
-const BRAND_STAMP_WIDTH = "0sec".length + " v".length + VERSION.length;
+const BRAND_STAMP_WIDTH = "xsec".length + " v".length + VERSION.length;
 // Below this HeaderBar stacks its two columns, which costs two extra rows.
 const HEADER_COMPACT_WIDTH = 88;
 // Overlays are anchored at 12% of the terminal height.
@@ -1375,18 +1375,18 @@ function ComposeOverlay({ text }: { text: string }) {
 }
 
 // Keep every frame four cells wide so the footer never jitters. The animation
-// may glitch the wordmark, but it must remain recognizably 0sec.
+// may glitch the wordmark, but it must remain recognizably xsec.
 const BRAND_WORD_FRAMES = [
-  "0sec",
-  "0sec",
+  "xsec",
+  "xsec",
   "0S3c",
-  "0sEc",
+  "xsec",
   "0s3c",
   "0s.c",
-  "0sec",
-  "0sec",
-  "0sec",
-  "0sec",
+  "xsec",
+  "xsec",
+  "xsec",
+  "xsec",
 ];
 
 function useAnimatedBrand(enabled: boolean) {
@@ -1426,7 +1426,7 @@ function BrandSignature({
   return (
     <box flexDirection="column" alignItems="flex-end">
       <box flexDirection="row" width={BRAND_STAMP_WIDTH} flexShrink={0}>
-        <text width={4} flexShrink={0} fg={muted ? theme.MUTED : theme.PRIMARY}>{animated && !muted ? brand.word : "0sec"}</text>
+        <text width={4} flexShrink={0} fg={muted ? theme.MUTED : theme.PRIMARY}>{animated && !muted ? brand.word : "xsec"}</text>
         <text flexShrink={0} fg={theme.MUTED}>{` v${VERSION}`}</text>
       </box>
       {subtitle ? <text fg={theme.MUTED}>{fitTuiText(subtitle, 36)}</text> : null}
@@ -1440,7 +1440,7 @@ function BrandStamp({ animated = false }: { animated?: boolean }) {
 
   return (
     <box flexDirection="row" width={BRAND_STAMP_WIDTH} flexShrink={0}>
-      <text width={4} flexShrink={0} fg={theme.MUTED}>{animated ? brand.word : "0sec"}</text>
+      <text width={4} flexShrink={0} fg={theme.MUTED}>{animated ? brand.word : "xsec"}</text>
       <text flexShrink={0} fg={theme.MUTED}>{` v${VERSION}`}</text>
     </box>
   );
@@ -1471,7 +1471,7 @@ function HeaderBar({
         <RailBar tone={theme.PRIMARY} />
         <box flexDirection="row" marginLeft={1} flexGrow={1} minWidth={0}>
           <box width={titleWidth} flexShrink={0} minWidth={0}>
-            <text fg={theme.TEXT}>{fitTuiText(`0sec / ${view}`, titleWidth)}</text>
+            <text fg={theme.TEXT}>{fitTuiText(`xsec / ${view}`, titleWidth)}</text>
           </box>
           {status ? (
             <box width={statusWidth} flexShrink={0} minWidth={0} alignItems="flex-end">
@@ -2048,7 +2048,7 @@ function OpsScreen({ dbPath, refreshMs, onExit, shell }: { dbPath?: string; refr
     let alive = true;
     const refresh = async () => {
       try {
-        const { osecDB } = await import("@0sec/db");
+        const { osecDB } = await import("@xsec/db");
         const db = new osecDB(dbPath);
         try {
           const scans = db.listScans(12) as OpsSnapshot["scans"];
@@ -2246,7 +2246,7 @@ function DoctorScreen({ onExit, shell }: { onExit: () => void; shell?: ShellNav 
   const nextStep = !state
     ? "Checking environment"
     : !state.nodeOk
-      ? "Upgrade to Node 20+ before running 0sec."
+      ? "Upgrade to Node 20+ before running xsec."
       : state.apiRuntime.configured && !state.apiRuntime.valid && state.apiRuntime.error
         ? "Repair the configured API runtime before scanning."
         : state.hasApiKey || state.availableRuntimes.length > 0
@@ -2302,9 +2302,9 @@ function DoctorScreen({ onExit, shell }: { onExit: () => void; shell?: ShellNav 
               <text fg={theme.TEXT}>{fitTuiText(nextStep, panelContentWidth)}</text>
               {showNextStepExamples && (state?.hasApiKey || (state && state.availableRuntimes.length > 0)) ? (
                 <>
-                  <text fg={theme.MUTED}>{fitTuiText("0sec scan --target https://example.com --mode web", panelContentWidth)}</text>
-                  <text fg={theme.MUTED}>{fitTuiText("0sec review .", panelContentWidth)}</text>
-                  <text fg={theme.MUTED}>{fitTuiText("0sec audit express", panelContentWidth)}</text>
+                  <text fg={theme.MUTED}>{fitTuiText("xsec scan --target https://example.com --mode web", panelContentWidth)}</text>
+                  <text fg={theme.MUTED}>{fitTuiText("xsec review .", panelContentWidth)}</text>
+                  <text fg={theme.MUTED}>{fitTuiText("xsec audit express", panelContentWidth)}</text>
                 </>
               ) : null}
               {state?.apiRuntime.error ? <text fg={theme.ERROR}>{fitTuiText(state.apiRuntime.error, panelContentWidth)}</text> : null}
@@ -2369,7 +2369,7 @@ function HistoryScreen({ dbPath, limit, onResolve, onExit, shell }: { dbPath?: s
     let alive = true;
     const load = async () => {
       try {
-        const { osecDB } = await import("@0sec/db");
+        const { osecDB } = await import("@xsec/db");
         const db = new osecDB(dbPath);
         try {
           const rows = db.listScans(limit) as HistoryScanRow[];
@@ -2516,7 +2516,7 @@ function FindingsScreen({ options, onExit, shell }: { options: FindingsScreenOpt
     let alive = true;
     const load = async () => {
       try {
-        const { osecDB } = await import("@0sec/db");
+        const { osecDB } = await import("@xsec/db");
         const db = new osecDB(options.dbPath);
         try {
           const findings = db.listFindings({
@@ -2528,7 +2528,7 @@ function FindingsScreen({ options, onExit, shell }: { options: FindingsScreenOpt
             limit: options.all ? options.limit : 1000,
           }) as FindingsRow[];
           // The scan's target doubles as the repo the source-fix action runs
-          // in, mirroring the `<repo>` argument of `0sec fix`.
+          // in, mirroring the `<repo>` argument of `xsec fix`.
           const targets: Record<string, string> = {};
           for (const scanId of new Set(findings.map((row) => row.scanId))) {
             const scan = db.getScan(scanId);
@@ -2587,7 +2587,7 @@ function FindingsScreen({ options, onExit, shell }: { options: FindingsScreenOpt
   const fixTestCommand = process.env[FIX_TEST_COMMAND_ENV] ?? "";
   const fixSourceFile = useMemo(() => findingSourcePath(selectedFinding), [selectedFinding]);
   // The finding-level predicate runs first so the operator sees the same
-  // reason `0sec fix` would report first.
+  // reason `xsec fix` would report first.
   const fixReadiness = useMemo(() => {
     const findingCheck = fixEligibility(selectedFinding);
     if (!findingCheck.eligible) return findingCheck;
@@ -2683,7 +2683,7 @@ function FindingsScreen({ options, onExit, shell }: { options: FindingsScreenOpt
     setNotice(`Updating ${selectedRow.fingerprint.slice(0, 10)} to ${triageStatus}...`);
 
     try {
-      const { osecDB } = await import("@0sec/db");
+      const { osecDB } = await import("@xsec/db");
       const db = new osecDB(options.dbPath);
       try {
         db.updateFindingTriageByFingerprint(selectedRow.fingerprint, triageStatus);
@@ -2700,7 +2700,7 @@ function FindingsScreen({ options, onExit, shell }: { options: FindingsScreenOpt
   };
 
   /**
-   * Run `runSourceFix` exactly as `0sec fix` does, minus `--apply`. The await
+   * Run `runSourceFix` exactly as `xsec fix` does, minus `--apply`. The await
    * chain yields to the event loop, so the renderer keeps painting while the
    * model call and the regression command run.
    */
@@ -2711,7 +2711,7 @@ function FindingsScreen({ options, onExit, shell }: { options: FindingsScreenOpt
     testCommand: string,
   ): Promise<void> => {
     try {
-      const { createRuntime, runSourceFix } = await import("@0sec/core");
+      const { createRuntime, runSourceFix } = await import("@xsec/core");
       const runtime = createRuntime({ type: "api", timeout: FIX_MODEL_TIMEOUT_MS });
       if (!isNativeRuntime(runtime)) {
         throw new Error("runtime 'api' does not support structured source remediation");
@@ -2724,7 +2724,7 @@ function FindingsScreen({ options, onExit, shell }: { options: FindingsScreenOpt
         finding,
         runtime,
         testCommand,
-        // `0sec fix` defaults --apply to false. Applying a validated patch
+        // `xsec fix` defaults --apply to false. Applying a validated patch
         // stays an explicit, separate operator action; the TUI never widens
         // that gate.
         apply: false,
@@ -2915,7 +2915,7 @@ function FindingsScreen({ options, onExit, shell }: { options: FindingsScreenOpt
             Every row here is a single full-width <text>, so there are no
             sibling columns to overflow the pane. The candidate patch body is
             deliberately not rendered: it is an unbounded apply_patch envelope
-            that reads as noise in a narrow column, and `0sec fix --output` is
+            that reads as noise in a narrow column, and `xsec fix --output` is
             the supported way to get it on disk. `precondition` / `postcondition`
             are omitted for the same reason — they are predicate arrays, not
             one-liners.
@@ -3000,7 +3000,7 @@ function ReplayScreen({ dbPath, scanId, onExit, shell }: { dbPath?: string; scan
     let alive = true;
     const load = async () => {
       try {
-        const { osecDB } = await import("@0sec/db");
+        const { osecDB } = await import("@xsec/db");
         const db = new osecDB(dbPath);
         try {
           let selected = scanId ? db.getScan(scanId) as ReplayScanRow | undefined : undefined;
@@ -3879,7 +3879,7 @@ function ResumeRoute({
  * mounted here: every printable key on this screen filters the list, so a second
  * `useKeyboard` competing for those keystrokes would fight the filter. The
  * registry URL, install action and installed-state read are left at their
- * defaults — `MarketScreen` resolves `$0SEC_REGISTRY_URL` (empty by default) and
+ * defaults — `MarketScreen` resolves `$XSEC_REGISTRY_URL` (empty by default) and
  * reuses the core install APIs — so this route is pure wiring and stays honest
  * with no endpoint configured.
  */
@@ -3891,7 +3891,7 @@ function MarketRoute({ onExit, shell, pluginHostManager }: { onExit: () => void;
   // host, and a theme activate hands off to the theme setting. Built once so a
   // load host persists for the life of the overlay.
   const registryUrl = React.useMemo(
-    () => (process.env["0SEC_REGISTRY_URL"] ?? "").trim(),
+    () => (process.env["XSEC_REGISTRY_URL"] ?? "").trim(),
     [],
   );
   const service = React.useMemo(
@@ -4247,19 +4247,19 @@ function ConsoleApp({
       },
     });
 
-    const previousStartupLogSetting = process.env["0SEC_SUPPRESS_PROVIDER_STARTUP_LOG"];
-    const previousNativeTracePath = process.env["0SEC_TRACE_NATIVE_RESPONSES"];
-    const previousTuiTracePath = process.env["0SEC_TRACE_TUI_EVENTS"];
-    process.env["0SEC_SUPPRESS_PROVIDER_STARTUP_LOG"] = "1";
-    process.env["0SEC_TRACE_NATIVE_RESPONSES"] = `/tmp/0sec-native-responses-${Date.now()}.ndjson`;
-    process.env["0SEC_TRACE_TUI_EVENTS"] = `/tmp/0sec-tui-events-${Date.now()}.ndjson`;
+    const previousStartupLogSetting = process.env["XSEC_SUPPRESS_PROVIDER_STARTUP_LOG"];
+    const previousNativeTracePath = process.env["XSEC_TRACE_NATIVE_RESPONSES"];
+    const previousTuiTracePath = process.env["XSEC_TRACE_TUI_EVENTS"];
+    process.env["XSEC_SUPPRESS_PROVIDER_STARTUP_LOG"] = "1";
+    process.env["XSEC_TRACE_NATIVE_RESPONSES"] = `/tmp/xsec-native-responses-${Date.now()}.ndjson`;
+    process.env["XSEC_TRACE_TUI_EVENTS"] = `/tmp/xsec-tui-events-${Date.now()}.ndjson`;
     appendTuiTrace({
       kind: "session-start",
       target: plan.target,
       mode,
       runtime,
       depth,
-      nativeTrace: process.env["0SEC_TRACE_NATIVE_RESPONSES"],
+      nativeTrace: process.env["XSEC_TRACE_NATIVE_RESPONSES"],
     });
     try {
       await runUnified({
@@ -4321,12 +4321,12 @@ function ConsoleApp({
         }),
       });
     } finally {
-      if (previousStartupLogSetting === undefined) delete process.env["0SEC_SUPPRESS_PROVIDER_STARTUP_LOG"];
-      else process.env["0SEC_SUPPRESS_PROVIDER_STARTUP_LOG"] = previousStartupLogSetting;
-      if (previousNativeTracePath === undefined) delete process.env["0SEC_TRACE_NATIVE_RESPONSES"];
-      else process.env["0SEC_TRACE_NATIVE_RESPONSES"] = previousNativeTracePath;
-      if (previousTuiTracePath === undefined) delete process.env["0SEC_TRACE_TUI_EVENTS"];
-      else process.env["0SEC_TRACE_TUI_EVENTS"] = previousTuiTracePath;
+      if (previousStartupLogSetting === undefined) delete process.env["XSEC_SUPPRESS_PROVIDER_STARTUP_LOG"];
+      else process.env["XSEC_SUPPRESS_PROVIDER_STARTUP_LOG"] = previousStartupLogSetting;
+      if (previousNativeTracePath === undefined) delete process.env["XSEC_TRACE_NATIVE_RESPONSES"];
+      else process.env["XSEC_TRACE_NATIVE_RESPONSES"] = previousNativeTracePath;
+      if (previousTuiTracePath === undefined) delete process.env["XSEC_TRACE_TUI_EVENTS"];
+      else process.env["XSEC_TRACE_TUI_EVENTS"] = previousTuiTracePath;
     }
   };
 
@@ -4491,7 +4491,7 @@ function UnifiedApp({
 
 async function mountApp(mode: AppMode): Promise<void> {
   installTuiCrashHandlers();
-  const traceRender = Boolean(process.env["0SEC_TRACE_TUI_RENDER"]);
+  const traceRender = Boolean(process.env["XSEC_TRACE_TUI_RENDER"]);
   suspendProcessPresentationStreamBridge();
   let renderer: CliRenderer;
   try {
@@ -4562,10 +4562,10 @@ async function mountApp(mode: AppMode): Promise<void> {
       if (captured.length > 0 || dropped > 0) {
         // Labelled so the replay reads as a session log rather than a
         // duplicate of what the transcript already showed.
-        process.stderr.write(`[0sec] runtime output captured during this session:\n`);
+        process.stderr.write(`[xsec] runtime output captured during this session:\n`);
       }
       if (dropped > 0) {
-        process.stderr.write(`[0sec] ${dropped} earlier line(s) dropped (buffer full)\n`);
+        process.stderr.write(`[xsec] ${dropped} earlier line(s) dropped (buffer full)\n`);
       }
       for (const line of captured) {
         const stream = line.stream === "stderr" ? process.stderr : process.stdout;

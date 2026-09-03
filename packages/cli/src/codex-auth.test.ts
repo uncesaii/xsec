@@ -20,7 +20,7 @@ function writeAuth(name: string, tokens: unknown): string {
 }
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), "0sec-codex-auth-"));
+  dir = mkdtempSync(join(tmpdir(), "xsec-codex-auth-"));
 });
 
 afterEach(() => {
@@ -28,25 +28,25 @@ afterEach(() => {
 });
 
 describe("maybeLoadCodexAuth", () => {
-  it("honours 0SEC_CHATGPT_AUTH_FILE — the variable the runtime and docs use", () => {
-    const e = env({ "0SEC_CHATGPT_AUTH_FILE": writeAuth("primary.json", { access_token: "acc-primary" }) });
+  it("honours XSEC_CHATGPT_AUTH_FILE — the variable the runtime and docs use", () => {
+    const e = env({ "XSEC_CHATGPT_AUTH_FILE": writeAuth("primary.json", { access_token: "acc-primary" }) });
     maybeLoadCodexAuth({ env: e, home: dir });
-    expect(e["0SEC_CHATGPT_ACCESS_TOKEN"]).toBe("acc-primary");
+    expect(e["XSEC_CHATGPT_ACCESS_TOKEN"]).toBe("acc-primary");
   });
 
-  it("still accepts the deprecated 0SEC_CODEX_AUTH_JSON_PATH when the primary is unset", () => {
-    const e = env({ "0SEC_CODEX_AUTH_JSON_PATH": writeAuth("legacy.json", { refresh_token: "ref-legacy" }) });
+  it("still accepts the deprecated XSEC_CODEX_AUTH_JSON_PATH when the primary is unset", () => {
+    const e = env({ "XSEC_CODEX_AUTH_JSON_PATH": writeAuth("legacy.json", { refresh_token: "ref-legacy" }) });
     maybeLoadCodexAuth({ env: e, home: dir });
-    expect(e["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"]).toBe("ref-legacy");
+    expect(e["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"]).toBe("ref-legacy");
   });
 
   it("prefers the primary over the deprecated variable when both are set", () => {
     const e = env({
-      "0SEC_CHATGPT_AUTH_FILE": writeAuth("primary.json", { access_token: "acc-primary" }),
-      "0SEC_CODEX_AUTH_JSON_PATH": writeAuth("legacy.json", { access_token: "acc-legacy" }),
+      "XSEC_CHATGPT_AUTH_FILE": writeAuth("primary.json", { access_token: "acc-primary" }),
+      "XSEC_CODEX_AUTH_JSON_PATH": writeAuth("legacy.json", { access_token: "acc-legacy" }),
     });
     maybeLoadCodexAuth({ env: e, home: dir });
-    expect(e["0SEC_CHATGPT_ACCESS_TOKEN"]).toBe("acc-primary");
+    expect(e["XSEC_CHATGPT_ACCESS_TOKEN"]).toBe("acc-primary");
   });
 
   it("falls back to ~/.codex/auth.json when neither override is set", () => {
@@ -54,95 +54,95 @@ describe("maybeLoadCodexAuth", () => {
     writeAuth(join(".codex", "auth.json"), { access_token: "acc-home", refresh_token: "ref-home" });
     const e = env();
     maybeLoadCodexAuth({ env: e, home: dir });
-    expect(e["0SEC_CHATGPT_ACCESS_TOKEN"]).toBe("acc-home");
-    expect(e["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"]).toBe("ref-home");
+    expect(e["XSEC_CHATGPT_ACCESS_TOKEN"]).toBe("acc-home");
+    expect(e["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"]).toBe("ref-home");
   });
 
   it("treats an empty override as unset instead of stat'ing the empty path", () => {
     mkdirSync(join(dir, ".codex"));
     writeAuth(join(".codex", "auth.json"), { access_token: "acc-home" });
-    const e = env({ "0SEC_CHATGPT_AUTH_FILE": "" });
+    const e = env({ "XSEC_CHATGPT_AUTH_FILE": "" });
     maybeLoadCodexAuth({ env: e, home: dir });
-    expect(e["0SEC_CHATGPT_ACCESS_TOKEN"]).toBe("acc-home");
+    expect(e["XSEC_CHATGPT_ACCESS_TOKEN"]).toBe("acc-home");
   });
 
   it("does not overwrite an access token that is already exported", () => {
     const e = env({
-      "0SEC_CHATGPT_ACCESS_TOKEN": "acc-from-shell",
-      "0SEC_CHATGPT_AUTH_FILE": writeAuth("primary.json", { access_token: "acc-file", refresh_token: "ref-file" }),
+      "XSEC_CHATGPT_ACCESS_TOKEN": "acc-from-shell",
+      "XSEC_CHATGPT_AUTH_FILE": writeAuth("primary.json", { access_token: "acc-file", refresh_token: "ref-file" }),
     });
     maybeLoadCodexAuth({ env: e, home: dir });
-    expect(e["0SEC_CHATGPT_ACCESS_TOKEN"]).toBe("acc-from-shell");
+    expect(e["XSEC_CHATGPT_ACCESS_TOKEN"]).toBe("acc-from-shell");
     // An explicit export wins wholesale: the file's refresh token must not be
     // spliced in alongside, or the process would mix credentials from two
     // different logins.
-    expect(e["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"]).toBeUndefined();
+    expect(e["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"]).toBeUndefined();
   });
 
   it("replaces stale process tokens after an explicit OAuth reconnect", () => {
     const e = env({
-      "0SEC_CHATGPT_ACCESS_TOKEN": "stale-access",
-      "0SEC_CHATGPT_OAUTH_REFRESH_TOKEN": "stale-refresh",
-      "0SEC_CHATGPT_AUTH_FILE": writeAuth("fresh.json", {
+      "XSEC_CHATGPT_ACCESS_TOKEN": "stale-access",
+      "XSEC_CHATGPT_OAUTH_REFRESH_TOKEN": "stale-refresh",
+      "XSEC_CHATGPT_AUTH_FILE": writeAuth("fresh.json", {
         access_token: "fresh-access",
         refresh_token: "fresh-refresh",
       }),
     });
     maybeLoadCodexAuth({ env: e, home: dir, force: true });
-    expect(e["0SEC_CHATGPT_ACCESS_TOKEN"]).toBe("fresh-access");
-    expect(e["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"]).toBe("fresh-refresh");
+    expect(e["XSEC_CHATGPT_ACCESS_TOKEN"]).toBe("fresh-access");
+    expect(e["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"]).toBe("fresh-refresh");
   });
 
   it("does not overwrite a refresh token that is already exported", () => {
     const e = env({
-      "0SEC_CHATGPT_OAUTH_REFRESH_TOKEN": "ref-from-shell",
-      "0SEC_CHATGPT_AUTH_FILE": writeAuth("primary.json", { access_token: "acc-file" }),
+      "XSEC_CHATGPT_OAUTH_REFRESH_TOKEN": "ref-from-shell",
+      "XSEC_CHATGPT_AUTH_FILE": writeAuth("primary.json", { access_token: "acc-file" }),
     });
     maybeLoadCodexAuth({ env: e, home: dir });
-    expect(e["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"]).toBe("ref-from-shell");
-    expect(e["0SEC_CHATGPT_ACCESS_TOKEN"]).toBeUndefined();
+    expect(e["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"]).toBe("ref-from-shell");
+    expect(e["XSEC_CHATGPT_ACCESS_TOKEN"]).toBeUndefined();
   });
 
   it("is a silent no-op when the file is missing", () => {
-    const e = env({ "0SEC_CHATGPT_AUTH_FILE": join(dir, "nope.json") });
+    const e = env({ "XSEC_CHATGPT_AUTH_FILE": join(dir, "nope.json") });
     expect(() => maybeLoadCodexAuth({ env: e, home: dir })).not.toThrow();
-    expect(e["0SEC_CHATGPT_ACCESS_TOKEN"]).toBeUndefined();
-    expect(e["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"]).toBeUndefined();
+    expect(e["XSEC_CHATGPT_ACCESS_TOKEN"]).toBeUndefined();
+    expect(e["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"]).toBeUndefined();
   });
 
   it("is a silent no-op when the home default does not exist either", () => {
     const e = env();
     expect(() => maybeLoadCodexAuth({ env: e, home: join(dir, "no-such-home") })).not.toThrow();
-    expect(e["0SEC_CHATGPT_ACCESS_TOKEN"]).toBeUndefined();
+    expect(e["XSEC_CHATGPT_ACCESS_TOKEN"]).toBeUndefined();
   });
 
   it("is a silent no-op on malformed JSON", () => {
     const path = join(dir, "broken.json");
     writeFileSync(path, "{not json", "utf8");
-    const e = env({ "0SEC_CHATGPT_AUTH_FILE": path });
+    const e = env({ "XSEC_CHATGPT_AUTH_FILE": path });
     expect(() => maybeLoadCodexAuth({ env: e, home: dir })).not.toThrow();
-    expect(e["0SEC_CHATGPT_ACCESS_TOKEN"]).toBeUndefined();
+    expect(e["XSEC_CHATGPT_ACCESS_TOKEN"]).toBeUndefined();
   });
 
   it("is a silent no-op when the file carries no tokens object", () => {
     const path = join(dir, "empty.json");
     writeFileSync(path, JSON.stringify({ OPENAI_API_KEY: "sk-unrelated" }), "utf8");
-    const e = env({ "0SEC_CHATGPT_AUTH_FILE": path });
+    const e = env({ "XSEC_CHATGPT_AUTH_FILE": path });
     maybeLoadCodexAuth({ env: e, home: dir });
-    expect(e["0SEC_CHATGPT_ACCESS_TOKEN"]).toBeUndefined();
+    expect(e["XSEC_CHATGPT_ACCESS_TOKEN"]).toBeUndefined();
   });
 
   it("ignores non-string token values rather than exporting them", () => {
-    const e = env({ "0SEC_CHATGPT_AUTH_FILE": writeAuth("junk.json", { access_token: null, refresh_token: 42 }) });
+    const e = env({ "XSEC_CHATGPT_AUTH_FILE": writeAuth("junk.json", { access_token: null, refresh_token: 42 }) });
     maybeLoadCodexAuth({ env: e, home: dir });
-    expect(e["0SEC_CHATGPT_ACCESS_TOKEN"]).toBeUndefined();
-    expect(e["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"]).toBeUndefined();
+    expect(e["XSEC_CHATGPT_ACCESS_TOKEN"]).toBeUndefined();
+    expect(e["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"]).toBeUndefined();
   });
 
   it("is a silent no-op when the file is unreadable", () => {
     const path = writeAuth("locked.json", { access_token: "acc-locked" });
     chmodSync(path, 0o000);
-    const e = env({ "0SEC_CHATGPT_AUTH_FILE": path });
+    const e = env({ "XSEC_CHATGPT_AUTH_FILE": path });
     let threw = false;
     try {
       maybeLoadCodexAuth({ env: e, home: dir });
@@ -155,30 +155,30 @@ describe("maybeLoadCodexAuth", () => {
     // Running as root defeats the permission bit, so only assert the env is
     // untouched when the chmod actually denied us.
     if (process.getuid?.() !== 0) {
-      expect(e["0SEC_CHATGPT_ACCESS_TOKEN"]).toBeUndefined();
+      expect(e["XSEC_CHATGPT_ACCESS_TOKEN"]).toBeUndefined();
     }
   });
 
   it("defaults to the real process.env when called with no arguments", () => {
     // The call site in index.ts is zero-arg; the options must stay optional.
     const saved = {
-      access: process.env["0SEC_CHATGPT_ACCESS_TOKEN"],
-      refresh: process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"],
-      file: process.env["0SEC_CHATGPT_AUTH_FILE"],
-      legacy: process.env["0SEC_CODEX_AUTH_JSON_PATH"],
+      access: process.env["XSEC_CHATGPT_ACCESS_TOKEN"],
+      refresh: process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"],
+      file: process.env["XSEC_CHATGPT_AUTH_FILE"],
+      legacy: process.env["XSEC_CODEX_AUTH_JSON_PATH"],
     };
     try {
-      delete process.env["0SEC_CHATGPT_ACCESS_TOKEN"];
-      delete process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
-      delete process.env["0SEC_CODEX_AUTH_JSON_PATH"];
-      process.env["0SEC_CHATGPT_AUTH_FILE"] = writeAuth("ambient.json", { access_token: "acc-ambient" });
+      delete process.env["XSEC_CHATGPT_ACCESS_TOKEN"];
+      delete process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
+      delete process.env["XSEC_CODEX_AUTH_JSON_PATH"];
+      process.env["XSEC_CHATGPT_AUTH_FILE"] = writeAuth("ambient.json", { access_token: "acc-ambient" });
       maybeLoadCodexAuth();
-      expect(process.env["0SEC_CHATGPT_ACCESS_TOKEN"]).toBe("acc-ambient");
+      expect(process.env["XSEC_CHATGPT_ACCESS_TOKEN"]).toBe("acc-ambient");
     } finally {
-      restore("0SEC_CHATGPT_ACCESS_TOKEN", saved.access);
-      restore("0SEC_CHATGPT_OAUTH_REFRESH_TOKEN", saved.refresh);
-      restore("0SEC_CHATGPT_AUTH_FILE", saved.file);
-      restore("0SEC_CODEX_AUTH_JSON_PATH", saved.legacy);
+      restore("XSEC_CHATGPT_ACCESS_TOKEN", saved.access);
+      restore("XSEC_CHATGPT_OAUTH_REFRESH_TOKEN", saved.refresh);
+      restore("XSEC_CHATGPT_AUTH_FILE", saved.file);
+      restore("XSEC_CODEX_AUTH_JSON_PATH", saved.legacy);
     }
   });
 });

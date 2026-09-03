@@ -1,4 +1,4 @@
-import type { PresentationTranscriptEntry } from "@0sec/shared";
+import type { PresentationTranscriptEntry } from "@xsec/shared";
 import {
   createPresentationEmitter,
   type PresentationEmitter,

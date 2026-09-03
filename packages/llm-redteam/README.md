@@ -1,4 +1,4 @@
-# @0sec/llm-redteam
+# @xsec/llm-redteam
 
 Offensive LLM/agent **indirect-prompt-injection** engine — the attack-side mirror
 of `packages/benchmark`'s detection suite. Point it at any LLM/agent target,
@@ -27,7 +27,7 @@ frontier models.
 ## CLI
 
 ```bash
-pnpm --filter @0sec/llm-redteam build
+pnpm --filter @xsec/llm-redteam build
 node dist/cli.js strategies                 # list the strategy library
 node dist/cli.js gen install-package        # print generated candidate payloads
 node dist/cli.js run install-package        # campaign vs simulated models (no network)
@@ -38,12 +38,12 @@ LLM_BASEURL=https://api.openai.com/v1 LLM_API_KEY=sk-... LLM_MODELS=gpt-4o,gpt-4
 
 ## Agent-action assurance
 
-`0sec agent-assure` is the scope-bound runtime path for a customer-owned MCP
+`XSEC agent-assure` is the scope-bound runtime path for a customer-owned MCP
 agent. It tests a prohibited, externally observable action; model text alone
 never decides the verdict.
 
 ```bash
-0sec agent-assure \
+XSEC agent-assure \
   --agent-endpoint https://agent.staging.example.test/execute \
   --mcp-endpoint https://mcp.staging.example.test/mcp \
   --oracle-endpoint https://oracle.staging.example.test/observe \
@@ -73,7 +73,7 @@ envelope to the customer adapter:
 
 ```json
 {
-  "protocol_version": "0sec.agent-action-target/v1",
+  "protocol_version": "xsec.agent-action-target/v1",
   "run_id": "<uuid>",
   "canary_token": "<synthetic marker>",
   "scenario": { "...": "scenario fields" },

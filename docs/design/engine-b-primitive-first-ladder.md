@@ -1,6 +1,6 @@
 # Engine B — primitive-first autonomous weaponization ladder (L0→L4 on a KASAN VM)
 
-> Status: 2026-07-13. Design + prototype for 0sec#1230 (EPIC #1227,
+> Status: 2026-07-13. Design + prototype for xsec#1230 (EPIC #1227,
 > plan `docs/operations/llm-lpe-innovation-plan.md`). NOT a merge — a
 > PR-ready branch (`feat/engine-b-primitive-first-ladder`) with a driver
 > skeleton + worked-example test. Prototype: `packages/core/src/kernel/exploit/ladder-driver.ts`.
@@ -226,8 +226,8 @@ primitive `snd_rawmidi_runtime @ kmalloc-192 +0x18`, reclaimed by `msgsnd-2ndseg
 
 ## Wiring path (post-prototype, not in this branch)
 
-1. Back `RungPlanner` with the unified LLM service (`@0cloud/llm callLlm` /
-   `0sec chatgpt-codex` — never raw keys) behind the same injectable seam.
+1. Back `RungPlanner` with the unified LLM service (`@xcloud/llm callLlm` /
+   `xsec chatgpt-codex` — never raw keys) behind the same injectable seam.
 2. Back `ConfirmRungDeps.nbootStable` with a `verifyAcrossBoots` adapter and
    `detectSignature` with the shipped `detectKernelSignature`.
 3. Have `enumerateGoalPrimitives` call `selectSprayPlans` + `introspect` +

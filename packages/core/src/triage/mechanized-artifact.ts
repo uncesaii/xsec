@@ -1,5 +1,5 @@
 /**
- * Engine C — the mechanized-artifact oracle (0sec#1228).
+ * Engine C — the mechanized-artifact oracle (xsec#1228).
  *
  * The FP-killer that converts LLM RECALL into PRECISION. The field's #1
  * convergent bottleneck (docs/operations/llm-lpe-innovation-plan.md): LLM
@@ -59,7 +59,7 @@
  */
 
 import { z } from "zod";
-import type { Finding } from "@0sec/shared";
+import type { Finding } from "@xsec/shared";
 import type { CrashArtifact } from "./memsafety-types.js";
 import { isReproducedMemCorruption } from "./pov-gate.js";
 import type { VerifyVerdict, VerifySignal } from "./verify-verdict.js";
@@ -279,7 +279,7 @@ export async function verifyStructuralProof(
 
 /**
  * Engine-C-local evidence basis. Kept OUT of the parity-locked
- * `VERIFY_EVIDENCE_KINDS*` tuples in verify-verdict.ts (the 0cloud contract
+ * `VERIFY_EVIDENCE_KINDS*` tuples in verify-verdict.ts (the xcloud contract
  * mirror is asserted verbatim) — Engine C carries its own basis label on the
  * result so the shared union is untouched. `reproduced-sanitizer-crash` reuses
  * the same signal as `reproduced-memcorruption-poc`; `bounded-structural-check`

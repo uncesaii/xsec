@@ -1,27 +1,27 @@
 #!/usr/bin/env sh
-# Install the latest verified standalone 0sec binary for this host.
+# Install the latest verified standalone xsec binary for this host.
 set -eu
 
-REPO="0sec-labs/0sec"
+REPO="uncesaii/xsec"
 RELEASE_BASE_URL="${RELEASE_BASE_URL:-https://github.com/${REPO}/releases/latest/download}"
-INSTALL_DIR="${INSTALL_DIR:-${HOME}/.0sec/bin}"
+INSTALL_DIR="${INSTALL_DIR:-${HOME}/.xsec/bin}"
 
 fail() {
-  printf '%s\n' "0sec installer: $*" >&2
+  printf '%s\n' "xsec installer: $*" >&2
   exit 1
 }
 
 case "$(uname -s)" in
   Darwin)
     case "$(uname -m)" in
-      arm64) ASSET="0sec-darwin-arm64" ;;
+      arm64) ASSET="xsec-darwin-arm64" ;;
       *) fail "unsupported macOS architecture; download a matching release asset manually" ;;
     esac
     ;;
   Linux)
     case "$(uname -m)" in
-      x86_64|amd64) ASSET="0sec-linux-x64" ;;
-      aarch64|arm64) ASSET="0sec-linux-arm64" ;;
+      x86_64|amd64) ASSET="xsec-linux-x64" ;;
+      aarch64|arm64) ASSET="xsec-linux-arm64" ;;
       *) fail "unsupported Linux architecture; download a matching release asset manually" ;;
     esac
     ;;
@@ -40,7 +40,7 @@ else
 fi
 
 mkdir -p "$INSTALL_DIR"
-manifest="$(mktemp "${TMPDIR:-/tmp}/0sec-checksums.XXXXXX")"
+manifest="$(mktemp "${TMPDIR:-/tmp}/xsec-checksums.XXXXXX")"
 binary="$(mktemp "${INSTALL_DIR}/.${ASSET}.XXXXXX")"
 cleanup() {
   rm -f "$manifest" "$binary"
@@ -59,19 +59,19 @@ actual="$(sha256_file "$binary")"
 [ "$expected" = "$actual" ] || fail "checksum mismatch for ${ASSET}; refusing to install"
 
 chmod 755 "$binary"
-mv -f "$binary" "${INSTALL_DIR}/0sec"
+mv -f "$binary" "${INSTALL_DIR}/xsec"
 binary=""
 alias_path="${INSTALL_DIR}/0"
 if [ -L "$alias_path" ]; then
-  [ "$(readlink "$alias_path")" = "0sec" ] || fail "refusing to replace existing alias at ${alias_path}"
+  [ "$(readlink "$alias_path")" = "xsec" ] || fail "refusing to replace existing alias at ${alias_path}"
   rm -f "$alias_path"
 elif [ -e "$alias_path" ]; then
   fail "refusing to replace existing file at ${alias_path}"
 fi
-ln -s "0sec" "$alias_path"
-printf '%s\n' "Installed verified 0sec to ${INSTALL_DIR}/0sec (also available as ${INSTALL_DIR}/0)" >&2
+ln -s "xsec" "$alias_path"
+printf '%s\n' "Installed verified xsec to ${INSTALL_DIR}/xsec (also available as ${INSTALL_DIR}/0)" >&2
 
 case ":${PATH}:" in
   *":${INSTALL_DIR}:"*) ;;
-  *) printf '%s\n' "Add ${INSTALL_DIR} to PATH to run: 0sec --help (or 0 --help)" >&2 ;;
+  *) printf '%s\n' "Add ${INSTALL_DIR} to PATH to run: xsec --help (or 0 --help)" >&2 ;;
 esac

@@ -5,7 +5,7 @@ import type {
   AttackResult,
   TargetInfo,
   Severity,
-} from "@0sec/shared";
+} from "@xsec/shared";
 
 // ── Types ──
 
@@ -320,7 +320,7 @@ function buildReplayLines(data: ReplayData): ReplayLine[] {
     text: boxRow(
       chalk.white(`Completed in ${duration}`) +
         chalk.dim(" \u2192 ") +
-        chalk.gray("./0sec-report.json")
+        chalk.gray("./xsec-report.json")
     ),
     delay: MED,
   });
@@ -338,7 +338,7 @@ export async function renderReplay(data: ReplayData): Promise<void> {
   // Banner
   process.stdout.write("\n");
   process.stdout.write(
-    chalk.red.bold("  \u25c6 0sec") +
+    chalk.red.bold("  \u25c6 xsec") +
       chalk.gray(" attack replay") +
       "\n"
   );

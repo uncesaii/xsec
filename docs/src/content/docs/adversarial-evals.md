@@ -1,9 +1,9 @@
 ---
 title: Adversarial evals
-description: How 0sec extends its pentest wedge into attack-driven adversarial evaluation for AI systems.
+description: How XSEC extends its pentest wedge into attack-driven adversarial evaluation for AI systems.
 ---
 
-0sec already behaves like an adversarial evaluator: it attacks systems, attempts
+XSEC already behaves like an adversarial evaluator: it attacks systems, attempts
 exploitation, and reports only what it can back with evidence. This page makes
 that category explicit.
 
@@ -69,8 +69,8 @@ should also capture:
 - whether the failure is specific to agent/tool composition
 - whether it's an authorization, tool-use, or instruction-hijack failure
 
-## Relationship to 0sec cloud
+## Relationship to XSEC cloud
 
-0sec is the public, self-run tool; 0sec cloud is the managed service for
+XSEC is the public, self-run tool; xsec cloud is the managed service for
 orchestration and recurring runs. Adversarial evals should work on both — locally
-and in CI through `0sec`, and as a managed recurring product through `0sec cloud`.
+and in CI through `xsec`, and as a managed recurring product through `xsec cloud`.

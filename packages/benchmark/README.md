@@ -1,18 +1,18 @@
-# @0sec/benchmark
+# @xsec/benchmark
 
-Benchmark runners for 0sec across multiple security evaluation suites
+Benchmark runners for XSEC across multiple security evaluation suites
 (XBOW, AutoPenBench, CyBench, HarmBench, NPM advisories).
 
 ## Canonical bench integrations
 
-`@0sec/core/bench` owns the only generic benchmark execution protocol:
+`@xsec/core/bench` owns the only generic benchmark execution protocol:
 manifest → provisioner → scan adapter → oracle → scorecard → tournament →
 sealed evidence. This package contributes XBOW and CyberGym integrations; it
 does not add another runner/scorecard format.
 
 ```sh
-0sec bench run --integration xbow --xbow-path /path/to/xbow --variants variants.json
-0sec bench run --integration cybergym \
+XSEC bench run --integration xbow --xbow-path /path/to/xbow --variants variants.json
+XSEC bench run --integration cybergym \
   --cybergym-harness /path/to/cybergym \
   --cybergym-subset results/cybergym-fair-v1.subset.txt \
   --variants variants.json
@@ -37,12 +37,12 @@ keeps an explicit benchmark ledger at
 
 ## Windows research evidence ledger
 
-`pnpm --filter @0sec/benchmark windows-research` converts an input JSON or
+`pnpm --filter @xsec/benchmark windows-research` converts an input JSON or
 JSONL file of Windows research attempts into an append-only, hash-bound ledger
 and a summary with Wilson intervals:
 
 ```sh
-pnpm --filter @0sec/benchmark windows-research \
+pnpm --filter @xsec/benchmark windows-research \
   --input attempts.jsonl \
   --output results/windows-research-v1.jsonl \
   --summary results/windows-research-summary-v1.json
@@ -51,7 +51,7 @@ pnpm --filter @0sec/benchmark windows-research \
 The ledger retains every outcome, including no-candidate, not-reproduced,
 inconclusive, and safety-rejected attempts. Contract fixtures are reported
 separately and are never included in capability metrics. A live reproduced row
-is claim-eligible only when it is bound to a passing 0sec import verdict, the
+is claim-eligible only when it is bound to a passing XSEC import verdict, the
 exact receipt hash, distinct retained dump bytes, a pre-run sealed label, and
 all execution safety gates. Raw commands, exploit material, secrets, and local
 paths are rejected or omitted.
@@ -66,7 +66,7 @@ The Windows LPE benchmark uses a separate, strict corpus manifest so known
 regressions cannot be confused with novel bounty findings:
 
 ```sh
-pnpm --filter @0sec/benchmark windows-lpe-corpus \
+pnpm --filter @xsec/benchmark windows-lpe-corpus \
   --input fixtures/windows-lpe-corpus-contract-v1.json
 ```
 
@@ -227,7 +227,7 @@ All outputs remain evaluator-private and retain human promotion/report gates.
 ## XBOW runner
 
 The XBOW runner (`src/xbow-runner.ts`, exposed as `pnpm xbow`) executes
-0sec against the [XBOW validation benchmarks][xbow] — 104 Docker CTF
+XSEC against the [XBOW validation benchmarks][xbow] — 104 Docker CTF
 challenges covering SQLi, XSS, SSRF, deserialization, IDOR, auth bypass,
 command injection, and other classic web bug classes.
 
@@ -241,7 +241,7 @@ precedence (first match wins):
 1. `--benchmark-path <dir>` — use an existing local checkout as-is
 2. `XBOW_PATH` environment variable — use an existing local checkout as-is
 3. `--benchmark-repo <git-url>` — clone into a workspace cache dir
-   (`$TMPDIR/0sec-xbow-cache/<slug>`) and reuse the clone on subsequent
+   (`$TMPDIR/xsec-xbow-cache/<slug>`) and reuse the clone on subsequent
    runs
 4. Default `/tmp/xbow-benchmarks`
 
@@ -254,7 +254,7 @@ Use `--benchmark-ref <branch|tag|sha>` to pin a specific ref.
 Run against upstream XBOW (note: several Docker builds are broken upstream):
 
 ```sh
-pnpm --filter @0sec/benchmark xbow \
+pnpm --filter @xsec/benchmark xbow \
   --benchmark-repo xbow-engineering/validation-benchmarks \
   --agentic --limit 10
 ```
@@ -262,7 +262,7 @@ pnpm --filter @0sec/benchmark xbow \
 Run against the community patched fork (fixes all 104 Docker builds):
 
 ```sh
-pnpm --filter @0sec/benchmark xbow \
+pnpm --filter @xsec/benchmark xbow \
   --benchmark-repo 0ca/xbow-validation-benchmarks-patched \
   --agentic
 ```
@@ -272,7 +272,7 @@ filepaths, and rewrites Dockerfiles — the substrate Shannon used for
 their 96.15% result):
 
 ```sh
-pnpm --filter @0sec/benchmark xbow \
+pnpm --filter @xsec/benchmark xbow \
   --benchmark-repo KeygraphHQ/xbow-validation-benchmarks \
   --agentic
 ```
@@ -280,7 +280,7 @@ pnpm --filter @0sec/benchmark xbow \
 Use a local checkout without cloning:
 
 ```sh
-pnpm --filter @0sec/benchmark xbow \
+pnpm --filter @xsec/benchmark xbow \
   --benchmark-path /path/to/my/xbow-fork \
   --agentic --limit 5
 ```
@@ -323,7 +323,7 @@ approximation) because N is small and rates can be near 0 or 1, where
 Wald produces degenerate intervals like `[0, 0]` or extends outside
 `[0, 1]`.
 
-[#81]: https://github.com/0sec-labs/0sec/issues/81
+[#81]: https://github.com/uncesaii/xsec/issues/81
 
 #### Flags
 
@@ -346,7 +346,7 @@ Run the n=10 harness over the 8 unsolved XBEN challenges with the
 lean-scaffolding feature combo under investigation:
 
 ```sh
-pnpm --filter @0sec/benchmark xbow \
+pnpm --filter @xsec/benchmark xbow \
   --agentic \
   --only XBEN-010,XBEN-051,XBEN-061,XBEN-066,XBEN-080,XBEN-084,XBEN-099,XBEN-104 \
   --repeat 10 \
@@ -366,12 +366,12 @@ wrapper runs the baseline cell first, then the JIT-skills cell, and
 reports pass/flag deltas plus attack turns, token totals, and estimated cost.
 
 ```sh
-pnpm --filter @0sec/benchmark xbow:jit-skills-ab --limit 10
-pnpm --filter @0sec/benchmark xbow:jit-skills-ab \
+pnpm --filter @xsec/benchmark xbow:jit-skills-ab --limit 10
+pnpm --filter @xsec/benchmark xbow:jit-skills-ab \
   --only XBEN-010,XBEN-051,XBEN-061 --repeat 3 --json
 ```
 
-[#410]: https://github.com/0sec-labs/0sec/issues/410
+[#410]: https://github.com/uncesaii/xsec/issues/410
 
 #### JSON output schema
 
@@ -467,7 +467,7 @@ stratified subset from the bench-side corpus (the mask_map / HF dataset
 metadata, which is NOT in-repo — the corpus is always passed as input):
 
 ```sh
-pnpm --filter @0sec/benchmark cybergym:stratify \
+pnpm --filter @xsec/benchmark cybergym:stratify \
   --corpus /root/cybergym/mask_map.json \
   --target 175 --seed 0xc6f1a5ed \
   --stratify-by project,crashType \
@@ -499,7 +499,7 @@ appending to the stale `cybergym-v1.jsonl`. Defaults to
 `results/cybergym-v1.jsonl` (unchanged for existing callers):
 
 ```sh
-pnpm --filter @0sec/benchmark cybergym \
+pnpm --filter @xsec/benchmark cybergym \
   --subset results/cybergym-fair-v1.subset.txt \
   --corpus-path results/cybergym-fair-v1.jsonl \
   --harness-dir /root/cybergym --json
@@ -508,7 +508,7 @@ pnpm --filter @0sec/benchmark cybergym \
 ### CyberGym harness environment
 
 Every CyberGym coordinate is read from the environment — nothing is
-hardcoded (0sec#132):
+hardcoded (XSEC#132):
 
 | Env | Meaning | Default |
 |---|---|---|
@@ -618,5 +618,5 @@ The full fair-run protocol (firewall, one-container-per-task, relaunch
 policy, Wilson-CI reporting) lives in the
 [runbook](../../../docs/operations/runbooks/cybergym-harness.md) and
 issue [#1029]. The fairness fix itself is already in the engine
-(`0sec/packages/core/src/stages/craft-scan.ts`, commit 704b84b5) —
+(`XSEC/packages/core/src/stages/craft-scan.ts`, commit 704b84b5) —
 not a flag.

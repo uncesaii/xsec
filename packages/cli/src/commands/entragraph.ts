@@ -8,7 +8,7 @@ import {
   type EntraPathAnalysis,
   type EntraPathFinding,
   type IdentitySeverity,
-} from "@0sec/core";
+} from "@xsec/core";
 
 const DEFAULT_TIMEOUT_MS = "120000";
 

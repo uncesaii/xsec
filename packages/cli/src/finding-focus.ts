@@ -1,11 +1,11 @@
 import { resolve } from "node:path";
 import { existsSync } from "node:fs";
-import type { Finding } from "@0sec/shared";
+import type { Finding } from "@xsec/shared";
 import {
   listOsecRunDatabasePaths,
   osecDB,
   resolveOsecDbPath,
-} from "@0sec/db";
+} from "@xsec/db";
 import { findingSchema, formatZodError } from "./commands/schemas.js";
 
 

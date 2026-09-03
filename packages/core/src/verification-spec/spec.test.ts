@@ -1,5 +1,5 @@
 /**
- * 0sec#193 / 0sec-cloud#111 — VerificationSpec evaluator tests.
+ * xsec#193 / xsec-cloud#111 — VerificationSpec evaluator tests.
  *
  * Coverage:
  *   1. file-contains predicate: passes when pattern matches, fails when it
@@ -30,13 +30,13 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { VerificationSpec } from "@0sec/shared";
+import type { VerificationSpec } from "@xsec/shared";
 import { evaluateVerificationSpec } from "./spec.js";
 
 let repoRoot: string;
 
 beforeAll(() => {
-  repoRoot = mkdtempSync(join(tmpdir(), "0sec-verify-"));
+  repoRoot = mkdtempSync(join(tmpdir(), "xsec-verify-"));
   mkdirSync(join(repoRoot, "app"), { recursive: true });
   mkdirSync(join(repoRoot, "lib"), { recursive: true });
   writeFileSync(
@@ -84,7 +84,7 @@ function createGitDiffFixture(): {
   baseCommit: string;
   diff: string;
 } {
-  const root = mkdtempSync(join(tmpdir(), "0sec-verify-git-"));
+  const root = mkdtempSync(join(tmpdir(), "xsec-verify-git-"));
   try {
     writeFileSync(join(root, "proof.ts"), "export const vulnerable = true;\n");
     execFileSync("git", ["init", "--quiet"], { cwd: root });
@@ -93,9 +93,9 @@ function createGitDiffFixture(): {
       "git",
       [
         "-c",
-        "user.name=0sec Test",
+        "user.name=xsec Test",
         "-c",
-        "user.email=0sec-test@example.invalid",
+        "user.email=xsec-test@example.invalid",
         "commit",
         "--quiet",
         "-m",
@@ -342,9 +342,9 @@ describe("evaluateVerificationSpec — git-diff-applies", () => {
         "git",
         [
           "-c",
-          "user.name=0sec Test",
+          "user.name=xsec Test",
           "-c",
-          "user.email=0sec-test@example.invalid",
+          "user.email=xsec-test@example.invalid",
           "commit",
           "--allow-empty",
           "--quiet",
@@ -530,7 +530,7 @@ describe("evaluateVerificationSpec — path safety", () => {
 });
 
 /**
- * 0sec#193 follow-up — defence-in-depth against symlink traversal.
+ * xsec#193 follow-up — defence-in-depth against symlink traversal.
  *
  * `resolveRepoPath` rejects lexical escapes (`..`, absolute paths) but
  * cannot detect a symlink *inside* the repo whose real target is outside.
@@ -548,13 +548,13 @@ describe("evaluateVerificationSpec — symlink traversal guards", () => {
     // We need an outside directory we can point a symlink at. Use a
     // sibling of the repo root so the symlink target is real but outside
     // the verifier sandbox.
-    outsideDir = mkdtempSync(join(tmpdir(), "0sec-verify-outside-"));
+    outsideDir = mkdtempSync(join(tmpdir(), "xsec-verify-outside-"));
     writeFileSync(
       join(outsideDir, "secrets.env"),
       "SECRET_KEY=should-never-be-readable\n",
     );
 
-    symlinkRoot = mkdtempSync(join(tmpdir(), "0sec-verify-symlink-"));
+    symlinkRoot = mkdtempSync(join(tmpdir(), "xsec-verify-symlink-"));
     mkdirSync(join(symlinkRoot, "app"), { recursive: true });
     writeFileSync(
       join(symlinkRoot, "app", "real.ts"),
@@ -684,7 +684,7 @@ describe("evaluateVerificationSpec — symlink traversal guards", () => {
 });
 
 /**
- * 0sec#193 follow-up — ReDoS + oversized-input guards.
+ * xsec#193 follow-up — ReDoS + oversized-input guards.
  *
  * The verifier is the inner loop of cloud's canary watcher. An LLM-emitted
  * spec that contains a pathological regex like `(a+)+$` matched against a
@@ -715,7 +715,7 @@ describe("evaluateVerificationSpec — ReDoS + oversize guards", () => {
   it("refuses to read files larger than the byte cap", async () => {
     // Build a fresh repo with a >1MB file. We don't want to pollute the
     // shared repoRoot with multi-megabyte fixtures.
-    const big = mkdtempSync(join(tmpdir(), "0sec-verify-big-"));
+    const big = mkdtempSync(join(tmpdir(), "xsec-verify-big-"));
     try {
       writeFileSync(join(big, "huge.txt"), "x".repeat(1_000_001));
       const spec: VerificationSpec = {

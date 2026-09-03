@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { isAbsolute, resolve } from "node:path";
-import type { Finding, Severity } from "@0sec/shared";
+import type { Finding, Severity } from "@xsec/shared";
 import { derivePocStepsFromEvidence } from "./poc-steps.js";
 import { parseSanitizerLog, renderSanitizerVerdict } from "./review/sanitizer-log.js";
 
@@ -73,7 +73,7 @@ export function probeFileRefTarget(absPath: string): FileRefProbe {
 
 /**
  * Repo-relative path rule for review annotations. Mirrors the orchestrator's
- * zod schema (`@0cloud/cloud-contracts` finding.ts `reviewAnnotation.path`
+ * zod schema (`@xcloud/cloud-contracts` finding.ts `reviewAnnotation.path`
  * refine) EXACTLY — the cloud 400s the ENTIRE finding POST when any of these
  * fail, so every engine path that produces an annotation must pre-check with
  * this predicate:

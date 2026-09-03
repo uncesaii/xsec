@@ -1,4 +1,4 @@
-// `0sec h1` — read-only HackerOne hacker-API CLI.
+// `xsec h1` — read-only HackerOne hacker-API CLI.
 //
 // Subcommands implemented in this PR:
 //   - auth                      verify credentials
@@ -37,7 +37,7 @@ import {
   summariseScopes,
   toScopeFile,
   type H1Program,
-} from "@0sec/core";
+} from "@xsec/core";
 
 interface ProgramsListOptions {
   bounty?: boolean;
@@ -61,7 +61,7 @@ export function registerH1Command(program: Command): void {
     .command("h1")
     .description("HackerOne hacker-API helpers (read-only)");
 
-  // ── 0sec h1 auth ──
+  // ── xsec h1 auth ──
   h1.command("auth")
     .description("Verify HackerOne API credentials")
     .action(async () => {
@@ -77,7 +77,7 @@ export function registerH1Command(program: Command): void {
       }
     });
 
-  // ── 0sec h1 programs ──
+  // ── xsec h1 programs ──
   const programs = h1
     .command("programs")
     .description("List or inspect HackerOne programs");
@@ -150,14 +150,14 @@ export function registerH1Command(program: Command): void {
       }
     });
 
-  // ── 0sec h1 scope ──
+  // ── xsec h1 scope ──
   const scope = h1
     .command("scope")
-    .description("Export HackerOne scope into the 0sec scope file format");
+    .description("Export HackerOne scope into the xsec scope file format");
 
   scope
     .command("dump")
-    .description("Write a program's structured_scopes to ~/.0sec/scopes/<handle>.json")
+    .description("Write a program's structured_scopes to ~/.xsec/scopes/<handle>.json")
     .argument("<handle>", "Program handle")
     .option("--out <path>", "Override the output path")
     .action(async (handle: string, opts: ScopeDumpOptions) => {
@@ -273,7 +273,7 @@ function renderProgramTable(list: H1Program[]): void {
     bounty: p.attributes.offers_bounties ? "yes" : "no",
     // We don't know scope-count without a second request per program;
     // emit "?" rather than fan out N parallel requests for a list view.
-    // `0sec h1 programs show <handle>` is the right path for a real
+    // `xsec h1 programs show <handle>` is the right path for a real
     // count.
     scopes: "?",
   }));
@@ -296,7 +296,7 @@ function renderProgramTable(list: H1Program[]): void {
     );
   }
   console.log("");
-  console.log(chalk.dim(`${list.length} program(s). 'scopes' column is '?' here — run '0sec h1 programs show <handle>' for an exact count.`));
+  console.log(chalk.dim(`${list.length} program(s). 'scopes' column is '?' here — run 'xsec h1 programs show <handle>' for an exact count.`));
 }
 
 function renderProgramDetail(

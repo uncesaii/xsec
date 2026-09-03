@@ -24,12 +24,12 @@ import {
  * wrong and no amount of layout work reproduces the target.
  */
 const REFERENCE_BAR =
-  "GPT-5.6-Terra · max   ~/coding/0sec-labs/0sec   publish/main-integration *54 ?29   1.4%/1M  (sub)";
+  "GPT-5.6-Terra · max   ~/coding/uncesaii/xsec   publish/main-integration *54 ?29   1.4%/1M  (sub)";
 
 const REFERENCE_INPUT: StatusBarInput = {
   model: "GPT-5.6-Terra",
   effort: "max",
-  cwd: "/home/dev/coding/0sec-labs/0sec",
+  cwd: "/home/dev/coding/uncesaii/xsec",
   home: "/home/dev",
   branch: "publish/main-integration",
   modified: 54,
@@ -44,7 +44,7 @@ const RICH_INPUT: StatusBarInput = {
   model: "claude-opus-5[1m]",
   effort: "max",
   mode: "Standard",
-  cwd: "/home/dev/coding/0sec-labs/0sec",
+  cwd: "/home/dev/coding/uncesaii/xsec",
   home: "/home/dev",
   branch: "publish/main-integration",
   modified: 54,
@@ -247,7 +247,7 @@ describe("buildStatusSegments", () => {
   it("parenthesizes the plan and abbreviates the cwd", () => {
     const segments = buildStatusSegments(RICH_INPUT);
     expect(textOf(segments, "plan")).toBe("(sub)");
-    expect(textOf(segments, "cwd")).toBe("~/coding/0sec-labs/0sec");
+    expect(textOf(segments, "cwd")).toBe("~/coding/uncesaii/xsec");
   });
 
   it("marks the model as undroppable and the cwd as the first to go", () => {

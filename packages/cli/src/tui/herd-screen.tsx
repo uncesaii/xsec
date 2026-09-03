@@ -2,7 +2,7 @@
 /**
  * The agent-herd overview surface.
  *
- * A roster of every 0sec peer — sessions and subagents — working this project
+ * A roster of every xsec peer — sessions and subagents — working this project
  * directory, grouped by live status, with a detail pane for the selected peer
  * and its recent inbox activity. Modelled on the settings screen: a grouped
  * list on the left, a detail pane on the right, stacked when the terminal is
@@ -31,7 +31,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useKeyboard, useTerminalDimensions } from "@opentui/react";
 import { TextAttributes } from "@opentui/core";
-import { eventBus, peekInbox, sendOperatorMessage, type MessagingRuntime } from "@0sec/core";
+import { eventBus, peekInbox, sendOperatorMessage, type MessagingRuntime } from "@xsec/core";
 
 import { useTheme, type Theme } from "./theme-context.js";
 import { Cells } from "./primitives.js";
@@ -122,7 +122,7 @@ export interface HerdScreenProps {
   /**
    * The operator↔child channel toggle, mirrored onto the steering runtime.
    * Defaults to `true` — steering a running subagent is on by default, and the
-   * pure {@link import("@0sec/core").decideAddressing} still re-checks it.
+   * pure {@link import("@xsec/core").decideAddressing} still re-checks it.
    */
   operatorChannelEnabled?: boolean;
   /**

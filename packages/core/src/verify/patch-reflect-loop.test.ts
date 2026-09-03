@@ -13,7 +13,7 @@ import type {
   PatchValidateResult,
   PatchValidateStatus,
 } from "./patch-validate.js";
-import type { Finding } from "@0sec/shared";
+import type { Finding } from "@xsec/shared";
 
 function finding(overrides: Partial<Finding> = {}): Finding {
   return {

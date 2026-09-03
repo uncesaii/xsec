@@ -1,5 +1,5 @@
 /**
- * Vulnerability intelligence tool definitions (0sec#611 — split out of the monolithic
+ * Vulnerability intelligence tool definitions (xsec#611 — split out of the monolithic
  * agent/tools.ts registry).
  *
  * Live vulnerability-intelligence lookups (advisories, CVEs, similar bugs,
@@ -7,7 +7,7 @@
  *
  * The ./tools/index.ts barrel merges every per-domain definition map into the
  * canonical `TOOL_DEFINITIONS` registry. The runtime handler BODIES live here
- * too (0sec#1284) as free functions over the shared `ToolContext`; the
+ * too (xsec#1284) as free functions over the shared `ToolContext`; the
  * `ToolExecutor` class in agent/tools.ts keeps same-named thin delegates so the
  * dispatch table (tools/dispatch.ts) still resolves each tool to a method.
  */
@@ -22,7 +22,7 @@ import {
 import { resolveScopedPath } from "./scope-path.js";
 
 export const intelToolDefinitions: Record<string, ToolDefinition> = {
-  // One consolidated vuln-intelligence VERB (0sec#tool-curation): five uniform
+  // One consolidated vuln-intelligence VERB (xsec#tool-curation): five uniform
   // lookups behind `action`, instead of five near-identical top-level tools —
   // trims the advertised surface (Anthropic's "one verb, not many thin tools"
   // guidance) while keeping each lookup's args documented below.
@@ -56,11 +56,11 @@ export const intelToolDefinitions: Record<string, ToolDefinition> = {
   },
 };
 
-// Tool-name → ToolExecutor handler-method name (0sec#614). Co-located with
+// Tool-name → ToolExecutor handler-method name (xsec#614). Co-located with
 // this domain's definitions so a new tool adds its route here, not in a
 // shared dispatch switch. Assembled by ./dispatch.ts; resolved off the
 // executor instance in agent/tools.ts (the methods now delegate to the
-// free-function handlers below — 0sec#1284).
+// free-function handlers below — xsec#1284).
 export const intelDispatch: Record<string, string> = {
   intel: "intelTool",
 };
@@ -97,7 +97,7 @@ export async function executeIntel(
   }
 }
 
-// ── Runtime handlers (0sec#1284) ──
+// ── Runtime handlers (xsec#1284) ──
 // Extracted verbatim from the ToolExecutor private methods of the same name.
 // Only `intel_search_target_history` needs executor state (the scope path), so
 // it takes the `ToolContext`; the rest are pure over their args.

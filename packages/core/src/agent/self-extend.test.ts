@@ -27,12 +27,12 @@ import type { PluginCapability } from "../plugins/manifest.js";
 
 // The self-extension registry is pure in-memory and never touches disk, but the
 // native-loop integration tests boot the full loop, which enables hunt memory by
-// default — keep the suite from writing to the real ~/.0sec store.
+// default — keep the suite from writing to the real ~/.xsec store.
 beforeEach(() => {
-  process.env["0SEC_DISABLE_HUNT_MEMORY"] = "1";
+  process.env["XSEC_DISABLE_HUNT_MEMORY"] = "1";
 });
 afterEach(() => {
-  delete process.env["0SEC_DISABLE_HUNT_MEMORY"];
+  delete process.env["XSEC_DISABLE_HUNT_MEMORY"];
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────────────

@@ -64,7 +64,7 @@ describe("syncModelCatalog + cache", () => {
   let cachePath: string;
 
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "0sec-catalog-"));
+    dir = mkdtempSync(join(tmpdir(), "xsec-catalog-"));
     cachePath = join(dir, "model-catalog.json");
   });
   afterEach(() => {
@@ -126,7 +126,7 @@ describe("loadCatalogModels fallback order", () => {
   let dir: string;
   let cachePath: string;
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "0sec-catalog-"));
+    dir = mkdtempSync(join(tmpdir(), "xsec-catalog-"));
     cachePath = join(dir, "model-catalog.json");
   });
   afterEach(() => rmSync(dir, { recursive: true, force: true }));
@@ -159,7 +159,7 @@ describe("catalog merge (priced core + synced extras)", () => {
   let dir: string;
   let cachePath: string;
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "0sec-catalog-"));
+    dir = mkdtempSync(join(tmpdir(), "xsec-catalog-"));
     cachePath = join(dir, "model-catalog.json");
   });
   afterEach(() => rmSync(dir, { recursive: true, force: true }));

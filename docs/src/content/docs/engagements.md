@@ -1,9 +1,9 @@
 ---
 title: Authorized Engagements
-description: Running 0sec inside a client engagement — conservative posture, forensic timelines, and ATT&CK/ATLAS-mapped evidence.
+description: Running XSEC inside a client engagement — conservative posture, forensic timelines, and ATT&CK/ATLAS-mapped evidence.
 ---
 
-0sec is built for **authorized, announced testing**. Its rails make traffic
+XSEC is built for **authorized, announced testing**. Its rails make traffic
 identifiable, not hidden: attribution headers, per-engagement tokens,
 declared-scope enforcement, request counters. This page covers running inside a
 client engagement — controlling how loud the engine is, and producing evidence a
@@ -11,12 +11,12 @@ client's security team can act on.
 
 ## Engagement profile
 
-By default 0sec runs at 5 rps/host, no jitter, and escalates on WAF blocks —
+By default XSEC runs at 5 rps/host, no jitter, and escalates on WAF blocks —
 fine for your own infrastructure, wrong for a monitored production estate.
 `--engagement-profile conservative` applies one auditable posture:
 
 ```bash
-0sec scan --target https://app.example.com --mode web \
+xsec scan --target https://app.example.com --mode web \
   --scope ./engagement-scope.json \
   --engagement-profile conservative
 ```
@@ -41,13 +41,13 @@ escalation into encoding-mutated payloads, not detection or reporting of the
 block:
 
 ```bash
-0sec scan --target https://app.example.com --no-waf-evasion
+xsec scan --target https://app.example.com --no-waf-evasion
 # or
-env 0SEC_WAF_EVASION=0 0sec scan --target https://app.example.com
+env XSEC_WAF_EVASION=0 xsec scan --target https://app.example.com
 ```
 
-Env vars: `0SEC_ENGAGEMENT_PROFILE`, `0SEC_WAF_EVASION`,
-`0SEC_ENGAGEMENT_RATE_RPS`, `0SEC_ENGAGEMENT_JITTER_MS`. A scope file may carry an
+Env vars: `XSEC_ENGAGEMENT_PROFILE`, `XSEC_WAF_EVASION`,
+`XSEC_ENGAGEMENT_RATE_RPS`, `XSEC_ENGAGEMENT_JITTER_MS`. A scope file may carry an
 `engagement` block with the same fields.
 
 When a profile is active the report carries an `engagementPosture` record and
@@ -57,15 +57,15 @@ fact. Runs without a profile are unchanged.
 
 ## Forensic timeline
 
-`0sec timeline` builds a chronological record from the immutable pipeline-event
+`xsec timeline` builds a chronological record from the immutable pipeline-event
 audit trail:
 
 ```bash
-0sec timeline <scanId>                     # markdown, for a report appendix
-0sec timeline <scanId> --format json       # machine-readable
-0sec timeline <scanId> --format csv        # spreadsheet / SIEM import
-0sec timeline <scanId> --attack-only       # only events with a technique mapping
-0sec timeline <scanId> --since 2026-09-15T09:00:00Z --until 2026-09-15T17:00:00Z
+xsec timeline <scanId>                     # markdown, for a report appendix
+xsec timeline <scanId> --format json       # machine-readable
+xsec timeline <scanId> --format csv        # spreadsheet / SIEM import
+xsec timeline <scanId> --attack-only       # only events with a technique mapping
+xsec timeline <scanId> --since 2026-09-15T09:00:00Z --until 2026-09-15T17:00:00Z
 ```
 
 Every row carries a UTC ISO-8601 timestamp, stage, event type, agent role, an
@@ -94,14 +94,14 @@ left empty rather than approximated.
 
 :::note
 The current ATT&CK Enterprise matrix renamed tactic **TA0005** "Defense Evasion"
-to "Stealth" and **T1211** to "Exploitation for Stealth". 0sec uses the current
+to "Stealth" and **T1211** to "Exploitation for Stealth". XSEC uses the current
 names; if a client's tooling is pinned to an older release, remap at the
 presentation layer.
 :::
 
 ## Identity and token analysis
 
-`0sec identity` assesses an Entra ID tenant read-only — 27 posture checks across
+`xsec identity` assesses an Entra ID tenant read-only — 27 posture checks across
 privileged roles, conditional access, app registrations, service principals, and
 federation. Read-only is structural: every Graph request hard-codes `GET`.
 
@@ -130,31 +130,31 @@ personal data and handle custody accordingly.
 Two commands, same shape. The client's collector runs wherever the engagement
 puts it; analysis runs here. Both are offline — no collection, auth, or network.
 
-**Active Directory** — `0sec adgraph --input <path>` computes attack paths from a
+**Active Directory** — `xsec adgraph --input <path>` computes attack paths from a
 BloodHound CE / SharpHound export: paths to Domain Admin, kerberoastable
 principals, unconstrained delegation, DCSync rights, ACL abuse, and the ADCS
 escalation set (ESC1, ESC3–ESC7, ESC9, ESC10, ESC13). ~60 edge kinds each carry
 a written abuse technique.
 
-**Entra ID** — `0sec entragraph --input <path>` does the equivalent over an
+**Entra ID** — `xsec entragraph --input <path>` does the equivalent over an
 AzureHound export: paths to Global Administrator, service-principal escalation,
 consent-grant escalation, owner-chain abuse, and guest escalation.
 
 ```bash
-0sec entragraph --input ./azurehound-export/
-0sec entragraph --input ./azurehound-export/ --json
-0sec entragraph --input ./export --owned <objectId>,<objectId>   # start from known-compromised principals
-0sec entragraph --input ./export --max-depth 4
+xsec entragraph --input ./azurehound-export/
+xsec entragraph --input ./azurehound-export/ --json
+xsec entragraph --input ./export --owned <objectId>,<objectId>   # start from known-compromised principals
+xsec entragraph --input ./export --max-depth 4
 ```
 
 :::caution
 An AzureHound run without membership or ownership collections cannot produce
 those paths; `entragraph` says so explicitly rather than presenting an empty
 result as a clean tenant. AzureHound exports also carry no conditional-access,
-federation, or PIM data — run `0sec identity` against a live tenant for those.
+federation, or PIM data — run `xsec identity` against a live tenant for those.
 :::
 
-## What 0sec does not do
+## What XSEC does not do
 
 - No network sweep, host discovery, or CIDR enumeration
 - No non-HTTP service exploitation (no SMB, RDP, SSH, LDAP, SNMP)
@@ -170,7 +170,7 @@ for human operators.
 ## Data residency
 
 For engagements that need target-derived data to stay inside a defined
-perimeter, 0sec routes all model traffic through one configurable endpoint.
+perimeter, XSEC routes all model traffic through one configurable endpoint.
 Azure OpenAI works with no code change:
 
 ```bash
@@ -187,6 +187,6 @@ contract:
    providers."* Other enrichment paths still egress — GitHub API, OSV, package
    registries, Microsoft Graph, OAST. Air-gapping those is separate.
 2. Pin `--runtime api`. The `claude`, `codex`, and `gemini` runtimes shell out to
-   third-party binaries whose egress 0sec does not control.
+   third-party binaries whose egress XSEC does not control.
 
 See [API Keys](/api-keys/) for the full provider matrix.

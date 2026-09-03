@@ -3,10 +3,10 @@
   "compilerOptions": {
     "baseUrl": "..",
     "paths": {
-      "@0sec/core": ["packages/core/src/index.ts"],
-      "@0sec/db": ["packages/db/src/index.ts"],
-      "@0sec/shared": ["packages/shared/src/index.ts"],
-      "@0sec/templates": ["packages/templates/src/index.ts"]
+      "@xsec/core": ["packages/core/src/index.ts"],
+      "@xsec/db": ["packages/db/src/index.ts"],
+      "@xsec/shared": ["packages/shared/src/index.ts"],
+      "@xsec/templates": ["packages/templates/src/index.ts"]
     }
   }
 }

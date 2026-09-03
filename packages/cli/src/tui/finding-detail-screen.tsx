@@ -31,8 +31,8 @@
 import React, { useMemo, useState } from "react";
 import { useKeyboard, useTerminalDimensions } from "@opentui/react";
 import { TextAttributes } from "@opentui/core";
-import type { Finding } from "@0sec/shared";
-import { renderPlatformReport, renderCvssSection, redactSensitiveHeaders } from "@0sec/core";
+import type { Finding } from "@xsec/shared";
+import { renderPlatformReport, renderCvssSection, redactSensitiveHeaders } from "@xsec/core";
 
 import { useTheme, type Theme } from "./theme-context.js";
 import { Cells } from "./primitives.js";

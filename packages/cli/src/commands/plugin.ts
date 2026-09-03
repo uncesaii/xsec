@@ -1,4 +1,4 @@
-// `0sec plugin` — install, enable, and inspect third-party plugins.
+// `xsec plugin` — install, enable, and inspect third-party plugins.
 //
 // SCAFFOLD NOTICE (stage 4 + part of stage 5 of packages/core/src/plugins/DESIGN.md)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -25,7 +25,7 @@
 // and the loader's discovery helpers) are consumed through an injected {@link
 // CorePort} so the command is unit-testable with fakes and never spawns or
 // touches the real network in tests. The production port lazily imports
-// `@0sec/core`; the barrel must export the symbols listed at the bottom of this
+// `@xsec/core`; the barrel must export the symbols listed at the bottom of this
 // file for that import to resolve at runtime.
 
 import { chmodSync, mkdirSync, writeFileSync } from "node:fs";
@@ -166,7 +166,7 @@ export interface PluginHostView {
 }
 
 /**
- * Everything this command needs from `@0sec/core`. Injected so tests supply
+ * Everything this command needs from `@xsec/core`. Injected so tests supply
  * fakes; the default {@link defaultCorePort} lazily imports the real barrel.
  */
 export interface CorePort {
@@ -218,7 +218,7 @@ export interface CorePort {
 let cachedCore: CorePort | undefined;
 async function defaultCorePort(): Promise<CorePort> {
   if (cachedCore) return cachedCore;
-  const mod = (await import("@0sec/core")) as unknown as CorePort;
+  const mod = (await import("@xsec/core")) as unknown as CorePort;
   cachedCore = mod;
   return mod;
 }
@@ -254,7 +254,7 @@ export interface PluginCommandDeps {
   yes?: boolean;
   /** JSON object of tool arguments (merged under any `key=value` pairs). */
   jsonArgs?: string;
-  /** @0sec/core version, for the host's `minCoreVersion` enforcement. */
+  /** @xsec/core version, for the host's `minCoreVersion` enforcement. */
   coreVersion?: string;
   /** Per-call timeout override (ms). */
   callTimeoutMs?: number;
@@ -441,7 +441,7 @@ export async function runInstall(id: string, deps: PluginCommandDeps): Promise<v
   d.out("");
   d.out(chalk.yellow("This plugin is INSTALLED, NOT ENABLED. No plugin code has run."));
   d.out(`  It will not load in any project until you explicitly enable it:`);
-  d.out(chalk.cyan(`    0sec plugin enable ${entry.id}`));
+  d.out(chalk.cyan(`    xsec plugin enable ${entry.id}`));
   process.exitCode = EXIT_OK;
 }
 
@@ -497,7 +497,7 @@ export function runEnable(id: string, deps: PluginCommandDeps): void {
   const discovered = d.core.readInstalledPlugin(root, id);
   if (!discovered.ok || !discovered.plugin) {
     d.err(chalk.red(`Plugin "${id}" is not installed. Install it first:`));
-    d.err(chalk.cyan(`    0sec plugin install ${id}`));
+    d.err(chalk.cyan(`    xsec plugin install ${id}`));
     if (discovered.errors) for (const e of discovered.errors) d.err(chalk.dim(`  ${e}`));
     process.exitCode = EXIT_USER_ERROR;
     return;
@@ -585,7 +585,7 @@ export function runInfo(id: string, deps: PluginCommandDeps): void {
   const enabled = d.core.isEnabled(record, id);
 
   d.out(chalk.bold(`${m.name} (${m.id}@${m.version})`));
-  if (m.minCoreVersion) d.out(`  Requires @0sec/core >= ${m.minCoreVersion}`);
+  if (m.minCoreVersion) d.out(`  Requires @xsec/core >= ${m.minCoreVersion}`);
   d.out(`  Source: ${join(root, id)}`);
   d.out(`  Enabled for this project: ${enabled ? chalk.green("yes") : chalk.dim("no")}`);
   d.out(`  Aggregated capabilities: ${capSummary(d.core.aggregateCapabilities(m))}`);
@@ -679,7 +679,7 @@ export async function runRun(
   const record = d.core.readEnablement(d.projectPath, d.homeDir);
   if (!d.core.isEnabled(record, id)) {
     d.err(chalk.red(`Plugin "${id}" is not enabled for this project.`));
-    d.err(chalk.cyan(`    0sec plugin enable ${id}`));
+    d.err(chalk.cyan(`    xsec plugin enable ${id}`));
     process.exitCode = EXIT_USER_ERROR;
     return;
   }
@@ -689,7 +689,7 @@ export async function runRun(
     const r = reconciled.find((x) => x.pluginId === id);
     d.err(chalk.red(`Plugin "${id}" cannot run: it needs re-approval.`));
     if (r?.reason) d.err(chalk.yellow(`  ${r.reason}`));
-    d.err(chalk.cyan(`    0sec plugin enable ${id}`));
+    d.err(chalk.cyan(`    xsec plugin enable ${id}`));
     process.exitCode = EXIT_USER_ERROR;
     return;
   }

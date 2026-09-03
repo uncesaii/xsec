@@ -1,9 +1,9 @@
 /**
- * Coverage seed for `0sec-cli`'s `run.ts` entry point. The two files
+ * Coverage seed for `xsec-cli`'s `run.ts` entry point. The two files
  * (`run.ts` + `scan.ts`) are the on-ramp every CLI user hits, yet they
  * had zero tests prior to this seed.
  *
- * Strategy: mock `@0sec/core` at the module boundary (the same boundary
+ * Strategy: mock `@xsec/core` at the module boundary (the same boundary
  * `loadCoreModule` resolves), drive `runUnified` directly, and assert
  * on (a) which core entry point gets dispatched given `targetType`,
  * (b) how the runtime gate handles invalid runtime names, and
@@ -20,12 +20,12 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ScanReport } from "@0sec/shared";
+import type { ScanReport } from "@xsec/shared";
 
 // ── Module-level mocks ──────────────────────────────────────────────────────
 //
 // `runUnified` calls `loadCoreModule()` which does a dynamic
-// `import("@0sec/core")`. Vitest hoists `vi.mock` so both static and
+// `import("@xsec/core")`. Vitest hoists `vi.mock` so both static and
 // dynamic imports see the stub.
 //
 // We expose four shims:
@@ -55,7 +55,7 @@ const eventBusMock = {
   },
 };
 
-vi.mock("@0sec/core", () => ({
+vi.mock("@xsec/core", () => ({
   agenticScan: agenticScanMock,
   runPipeline: runPipelineMock,
   createRuntime: createRuntimeMock,
@@ -67,7 +67,7 @@ vi.mock("../deep-review.js", () => ({
   runDeepReview: runDeepReviewMock,
 }));
 
-vi.mock("@0sec/db", () => ({
+vi.mock("@xsec/db", () => ({
   resolveOsecRunStorage: resolveOsecRunStorageMock,
   writeOsecRunReport: writeOsecRunReportMock,
 }));
@@ -308,8 +308,8 @@ describe("runUnified — runtime gating", () => {
   });
 
   it("skips the Codex CLI availability probe when direct ChatGPT Codex auth is configured", async () => {
-    const oldRefreshToken = process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
-    process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"] = "fake-refresh-token";
+    const oldRefreshToken = process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
+    process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"] = "fake-refresh-token";
     try {
       agenticScanMock.mockResolvedValueOnce(cleanReport());
       await runUnified({
@@ -323,9 +323,9 @@ describe("runUnified — runtime gating", () => {
       });
     } finally {
       if (oldRefreshToken === undefined) {
-        delete process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
+        delete process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
       } else {
-        process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"] = oldRefreshToken;
+        process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"] = oldRefreshToken;
       }
     }
 
@@ -334,15 +334,15 @@ describe("runUnified — runtime gating", () => {
     expect(agenticScanMock.mock.calls[0]?.[0]?.config.runtime).toBe("codex");
   });
 
-  it("skips the Codex CLI availability probe when only 0SEC_CHATGPT_ACCESS_TOKEN is set (cloud sandbox path)", async () => {
-    // The 0sec-cloud worker forwards 0SEC_CHATGPT_ACCESS_TOKEN to
+  it("skips the Codex CLI availability probe when only XSEC_CHATGPT_ACCESS_TOKEN is set (cloud sandbox path)", async () => {
+    // The xsec-cloud worker forwards XSEC_CHATGPT_ACCESS_TOKEN to
     // sandboxes — NOT the refresh token — so the gate must accept the
     // access token alone, otherwise the CLI preflight tries to find a
     // Codex binary the sandbox image doesn't ship.
-    const oldRefreshToken = process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
-    const oldAccessToken = process.env["0SEC_CHATGPT_ACCESS_TOKEN"];
-    delete process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
-    process.env["0SEC_CHATGPT_ACCESS_TOKEN"] = "fake-access-token";
+    const oldRefreshToken = process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
+    const oldAccessToken = process.env["XSEC_CHATGPT_ACCESS_TOKEN"];
+    delete process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
+    process.env["XSEC_CHATGPT_ACCESS_TOKEN"] = "fake-access-token";
     try {
       agenticScanMock.mockResolvedValueOnce(cleanReport());
       await runUnified({
@@ -356,14 +356,14 @@ describe("runUnified — runtime gating", () => {
       });
     } finally {
       if (oldRefreshToken === undefined) {
-        delete process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
+        delete process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
       } else {
-        process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"] = oldRefreshToken;
+        process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"] = oldRefreshToken;
       }
       if (oldAccessToken === undefined) {
-        delete process.env["0SEC_CHATGPT_ACCESS_TOKEN"];
+        delete process.env["XSEC_CHATGPT_ACCESS_TOKEN"];
       } else {
-        process.env["0SEC_CHATGPT_ACCESS_TOKEN"] = oldAccessToken;
+        process.env["XSEC_CHATGPT_ACCESS_TOKEN"] = oldAccessToken;
       }
     }
 
@@ -373,10 +373,10 @@ describe("runUnified — runtime gating", () => {
   });
 
   it("still probes the Codex CLI when neither ChatGPT env var is set (no direct provider)", async () => {
-    const oldRefreshToken = process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
-    const oldAccessToken = process.env["0SEC_CHATGPT_ACCESS_TOKEN"];
-    delete process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
-    delete process.env["0SEC_CHATGPT_ACCESS_TOKEN"];
+    const oldRefreshToken = process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
+    const oldAccessToken = process.env["XSEC_CHATGPT_ACCESS_TOKEN"];
+    delete process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
+    delete process.env["XSEC_CHATGPT_ACCESS_TOKEN"];
     createRuntimeMock.mockReturnValueOnce({
       isAvailable: vi.fn().mockResolvedValue(false),
     });
@@ -394,10 +394,10 @@ describe("runUnified — runtime gating", () => {
       // expected — process.exit throws by design
     } finally {
       if (oldRefreshToken !== undefined) {
-        process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"] = oldRefreshToken;
+        process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"] = oldRefreshToken;
       }
       if (oldAccessToken !== undefined) {
-        process.env["0SEC_CHATGPT_ACCESS_TOKEN"] = oldAccessToken;
+        process.env["XSEC_CHATGPT_ACCESS_TOKEN"] = oldAccessToken;
       }
     }
 
@@ -622,10 +622,10 @@ describe("runUnified — emitResultLine env gate", () => {
     exitSpy = makeExitMock(tracker);
     errSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
     logSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
-    envSnapshot["0SEC_EMIT_RESULT_LINE"] = process.env["0SEC_EMIT_RESULT_LINE"];
-    envSnapshot["0SEC_CLOUD_SINK"] = process.env["0SEC_CLOUD_SINK"];
-    delete process.env["0SEC_EMIT_RESULT_LINE"];
-    delete process.env["0SEC_CLOUD_SINK"];
+    envSnapshot["XSEC_EMIT_RESULT_LINE"] = process.env["XSEC_EMIT_RESULT_LINE"];
+    envSnapshot["XSEC_CLOUD_SINK"] = process.env["XSEC_CLOUD_SINK"];
+    delete process.env["XSEC_EMIT_RESULT_LINE"];
+    delete process.env["XSEC_CLOUD_SINK"];
   });
 
   afterEach(() => {
@@ -638,7 +638,7 @@ describe("runUnified — emitResultLine env gate", () => {
     }
   });
 
-  it("does NOT emit 0SEC_RESULT line when neither env var is set", async () => {
+  it("does NOT emit XSEC_RESULT line when neither env var is set", async () => {
     agenticScanMock.mockResolvedValueOnce(cleanReport());
     await runUnified({
       target: "https://example.com",
@@ -650,11 +650,11 @@ describe("runUnified — emitResultLine env gate", () => {
       verbose: false,
     });
     const all = logSpy.mock.calls.map((c: unknown[]) => String(c[0])).join("\n");
-    expect(all).not.toMatch(/0SEC_RESULT=/);
+    expect(all).not.toMatch(/XSEC_RESULT=/);
   });
 
-  it("emits 0SEC_RESULT line when 0SEC_EMIT_RESULT_LINE=1", async () => {
-    process.env["0SEC_EMIT_RESULT_LINE"] = "1";
+  it("emits XSEC_RESULT line when XSEC_EMIT_RESULT_LINE=1", async () => {
+    process.env["XSEC_EMIT_RESULT_LINE"] = "1";
     agenticScanMock.mockResolvedValueOnce(cleanReport());
     await runUnified({
       target: "https://example.com",
@@ -667,9 +667,9 @@ describe("runUnified — emitResultLine env gate", () => {
     });
     const line = logSpy.mock.calls
       .map((c: unknown[]) => String(c[0]))
-      .find((s: string) => s.startsWith("0SEC_RESULT="));
+      .find((s: string) => s.startsWith("XSEC_RESULT="));
     expect(line).toBeTruthy();
-    const payload = JSON.parse(line!.slice("0SEC_RESULT=".length));
+    const payload = JSON.parse(line!.slice("XSEC_RESULT=".length));
     expect(payload.ok).toBe(true);
     expect(payload.exitCode).toBe(0);
     expect(payload.exit_reason).toBe("completed");
@@ -679,7 +679,7 @@ describe("runUnified — emitResultLine env gate", () => {
   });
 
   it("emits exit_reason=findings on the result line when findings raise exit 1", async () => {
-    process.env["0SEC_EMIT_RESULT_LINE"] = "1";
+    process.env["XSEC_EMIT_RESULT_LINE"] = "1";
     agenticScanMock.mockResolvedValueOnce(
       cleanReport({
         summary: { ...emptySummary(), totalFindings: 1, critical: 1 },
@@ -700,16 +700,16 @@ describe("runUnified — emitResultLine env gate", () => {
     }
     const line = logSpy.mock.calls
       .map((c: unknown[]) => String(c[0]))
-      .find((s: string) => s.startsWith("0SEC_RESULT="));
+      .find((s: string) => s.startsWith("XSEC_RESULT="));
     expect(line).toBeTruthy();
-    const payload = JSON.parse(line!.slice("0SEC_RESULT=".length));
+    const payload = JSON.parse(line!.slice("XSEC_RESULT=".length));
     expect(payload.exitCode).toBe(1);
     expect(payload.exit_reason).toBe("findings");
     expect(payload.summary.critical).toBe(1);
   });
 });
 
-describe("runUnified — cost summary (0sec#231)", () => {
+describe("runUnified — cost summary (xsec#231)", () => {
   let exitSpy: { mockRestore: () => void };
   let logSpy: ReturnType<typeof vi.spyOn>;
   let errSpy: ReturnType<typeof vi.spyOn>;
@@ -896,7 +896,7 @@ describe("runUnified — cross-validated leads (FoxGuard Phase 4)", () => {
   });
 });
 
-describe("runUnified — resume / branch (0sec#374)", () => {
+describe("runUnified — resume / branch (xsec#374)", () => {
   let exitSpy: { mockRestore: () => void };
   let errSpy: ReturnType<typeof vi.spyOn>;
   let logSpy: ReturnType<typeof vi.spyOn>;

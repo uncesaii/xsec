@@ -1,9 +1,9 @@
 ---
 title: Blind Verification
-description: How 0sec independently re-exploits every finding to kill false positives.
+description: How XSEC independently re-exploits every finding to kill false positives.
 ---
 
-Most scanners report what they find. 0sec kills what it can't prove.
+Most scanners report what they find. XSEC kills what it can't prove.
 
 Every finding that survives the attack stage enters blind verification: a second
 agent tries to reproduce the vulnerability with **zero access to the original
@@ -58,7 +58,7 @@ discovered -> FALSE_POSITIVE (killed)   -> dropped
 
 ### Agentic verification (with API key)
 
-With an API key, 0sec spins up a verification agent with its own tools:
+With an API key, XSEC spins up a verification agent with its own tools:
 `send_prompt` (re-send payloads), `bash` (reproduction scripts), `save_finding`
 (confirm with fresh evidence), `done`.
 
@@ -88,7 +88,7 @@ They're gone.
 
 ### Heuristic fallback (no API key)
 
-Without an API key, 0sec falls back to a statistical heuristic: did multiple
+Without an API key, XSEC falls back to a statistical heuristic: did multiple
 payloads from the same attack template trigger a vulnerable response?
 
 - **2+ payloads succeeded** → confirmed (convergent evidence).
@@ -119,14 +119,14 @@ traditional scanner would report and a human would have to triage by hand:
 
 ## Comparison
 
-Most tools find-and-report and leave triage to the operator. 0sec inverts this:
+Most tools find-and-report and leave triage to the operator. XSEC inverts this:
 a finding is "not real until proven otherwise," and verification is a **required
 stage**, not optional post-processing.
 
 | Approach | What happens to a finding |
 |----------|--------------------------|
 | Traditional scanner | Found → Reported → Human triages |
-| 0sec | Found → Blind re-exploitation → Confirmed or killed → Only confirmed reported |
+| XSEC | Found → Blind re-exploitation → Confirmed or killed → Only confirmed reported |
 
 The cost is time: another agent loop, more API calls, more latency (a scan with
 5 vulns spends ~15-20 extra turns). Worth it — every reported finding has been

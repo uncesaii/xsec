@@ -1,5 +1,5 @@
 /**
- * 0sec#193 — `restorePersistedFinding` round-trip for `verificationSpec`.
+ * xsec#193 — `restorePersistedFinding` round-trip for `verificationSpec`.
  *
  * CodeRabbit flagged that `Finding.verificationSpec` is part of the shared
  * model but the unified-pipeline reload path was dropping it on restore.
@@ -14,23 +14,23 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { osecDB } from "@0sec/db";
+import { osecDB } from "@xsec/db";
 import type {
   Finding,
   LayerVerdict,
   PocStep,
   ScanConfig,
   VerificationSpec,
-} from "@0sec/shared";
+} from "@xsec/shared";
 import { restorePersistedFinding } from "./unified-pipeline.js";
 
 const tempDirs: string[] = [];
 type PersistedFindingRestoreRow = Parameters<typeof restorePersistedFinding>[0];
 
 function makeDb(): { db: osecDB; scanId: string } {
-  const dir = mkdtempSync(join(tmpdir(), "0sec-restore-vspec-"));
+  const dir = mkdtempSync(join(tmpdir(), "xsec-restore-vspec-"));
   tempDirs.push(dir);
-  const db = new osecDB(join(dir, "0sec.db"));
+  const db = new osecDB(join(dir, "xsec.db"));
   const scanConfig: ScanConfig = {
     target: "http://example.test",
     depth: "default",
@@ -115,7 +115,7 @@ function makePersistedRow(
   };
 }
 
-describe("restorePersistedFinding (0sec#193 — verificationSpec round-trip)", () => {
+describe("restorePersistedFinding (xsec#193 — verificationSpec round-trip)", () => {
   afterEach(() => {
     for (const dir of tempDirs.splice(0)) {
       rmSync(dir, { recursive: true, force: true });
@@ -189,7 +189,7 @@ describe("restorePersistedFinding (0sec#193 — verificationSpec round-trip)", (
   });
 });
 
-// 0sec#414 — six additional persisted columns were being silently dropped
+// xsec#414 — six additional persisted columns were being silently dropped
 // on resume (pocSteps, layerVerdicts, pocExecution, workflowStatus,
 // workflowAssignee, score). These tests pin the round-trip so the next
 // regression fails loudly.
@@ -239,7 +239,7 @@ function makePocExecution() {
   };
 }
 
-describe("restorePersistedFinding (0sec#414 — six-field round-trip)", () => {
+describe("restorePersistedFinding (xsec#414 — six-field round-trip)", () => {
   afterEach(() => {
     for (const dir of tempDirs.splice(0)) {
       rmSync(dir, { recursive: true, force: true });
@@ -393,7 +393,7 @@ describe("restorePersistedFinding — impactAssessment round-trip", () => {
   });
 });
 
-describe("restorePersistedFinding \u2014 review fields (0sec#420)", () => {
+describe("restorePersistedFinding \u2014 review fields (xsec#420)", () => {
   it("threads a persisted verification_result back onto the finding", () => {
     const restored = restorePersistedFinding(
       makePersistedRow({

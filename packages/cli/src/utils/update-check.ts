@@ -4,9 +4,9 @@
  * is available, otherwise stays silent.
  *
  * Gated on:
- *   - 0SEC_UPDATE_CHECK=1 explicitly set by the user
+ *   - XSEC_UPDATE_CHECK=1 explicitly set by the user
  *   - stdout is a TTY (no log noise in CI / pipes)
- *   - CI / 0SEC_NO_UPDATE_CHECK / 0SEC_OFFLINE not set
+ *   - CI / XSEC_NO_UPDATE_CHECK / XSEC_OFFLINE not set
  *   - last successful check was > 24h ago (rate-limit GH API + avoid
  *     pestering users on every invocation)
  *
@@ -14,18 +14,18 @@
  * silently no-op — never blocks the actual command, never prints an
  * error. The whole feature is convenience, not correctness.
  *
- * Cache: `~/.0sec/last-update-check` is a tiny JSON file recording
+ * Cache: `~/.xsec/last-update-check` is a tiny JSON file recording
  * the last check timestamp + the latest version we saw. We update the
  * timestamp on every check (success or failure) so a transient outage
  * doesn't make us hammer the API.
  */
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
-import { homeStateDir } from "@0sec/shared";
+import { homeStateDir } from "@xsec/shared";
 import { join } from "node:path";
 import { homedir } from "node:os";
 
-const REPO = "0sec-labs/0sec";
+const REPO = "uncesaii/xsec";
 const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
 const CACHE_FILE = join(homeStateDir(), "last-update-check");
 const FETCH_TIMEOUT_MS = 4000;
@@ -42,10 +42,10 @@ export function shouldRunCheck(
   isTty = Boolean(process.stdout.isTTY),
 ): boolean {
   if (!isTty) return false;
-  if (env["0SEC_UPDATE_CHECK"] !== "1") return false;
+  if (env["XSEC_UPDATE_CHECK"] !== "1") return false;
   if (env.CI === "1" || env.CI === "true") return false;
-  if (env["0SEC_NO_UPDATE_CHECK"] === "1") return false;
-  if (env["0SEC_OFFLINE"] === "1") return false;
+  if (env["XSEC_NO_UPDATE_CHECK"] === "1") return false;
+  if (env["XSEC_OFFLINE"] === "1") return false;
   return true;
 }
 
@@ -91,7 +91,7 @@ async function fetchLatestTag(): Promise<string | null> {
     const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
       headers: {
         Accept: "application/vnd.github+json",
-        "User-Agent": `0sec-cli/update-check`,
+        "User-Agent": `xsec-cli/update-check`,
       },
       signal: ac.signal,
     });
@@ -110,8 +110,8 @@ function printNudge(currentVersion: string, latestVersion: string): void {
   const DIM = "\x1b[2m";
   const RESET = "\x1b[0m";
   process.stderr.write(
-    `${DIM}[0sec] update available: v${currentVersion} → ${ORANGE}${latestVersion}${RESET}${DIM}.` +
-      ` run \`0sec upgrade\` to update.${RESET}\n`,
+    `${DIM}[xsec] update available: v${currentVersion} → ${ORANGE}${latestVersion}${RESET}${DIM}.` +
+      ` run \`xsec upgrade\` to update.${RESET}\n`,
   );
 }
 

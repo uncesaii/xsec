@@ -1,6 +1,6 @@
-# Contributing to 0sec
+# Contributing to XSEC
 
-Thanks for helping improve 0sec.
+Thanks for helping improve XSEC.
 
 ## Before you start
 
@@ -19,11 +19,11 @@ pnpm install --frozen-lockfile
 pnpm build
 ```
 
-The bundled CLI is `dist/0sec.js`:
+The bundled CLI is `dist/xsec.js`:
 
 ```bash
-node dist/0sec.js --version
-node dist/0sec.js doctor
+node dist/xsec.js --version
+node dist/xsec.js doctor
 ```
 
 ## Checks
@@ -41,7 +41,7 @@ For test-target work, start the local fixtures in separate terminals:
 ```bash
 pnpm vulnerable
 pnpm safe
-pnpm --filter @0sec/test-targets test
+pnpm --filter @xsec/test-targets test
 ```
 
 ## Attack templates

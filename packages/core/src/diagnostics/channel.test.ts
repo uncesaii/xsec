@@ -46,18 +46,18 @@ function stderrText(spy: ReturnType<typeof stderrSpy>): string {
 }
 
 const ESC = "\u001B";
-const origDiagLevel = process.env["0SEC_DIAG_LEVEL"];
+const origDiagLevel = process.env["XSEC_DIAG_LEVEL"];
 
 beforeEach(() => {
   _resetDiagnosticsForTests();
-  delete process.env["0SEC_DIAG_LEVEL"];
+  delete process.env["XSEC_DIAG_LEVEL"];
 });
 
 afterEach(() => {
   vi.restoreAllMocks();
   _resetDiagnosticsForTests();
-  if (origDiagLevel === undefined) delete process.env["0SEC_DIAG_LEVEL"];
-  else process.env["0SEC_DIAG_LEVEL"] = origDiagLevel;
+  if (origDiagLevel === undefined) delete process.env["XSEC_DIAG_LEVEL"];
+  else process.env["XSEC_DIAG_LEVEL"] = origDiagLevel;
 });
 
 // ── Structured fields ───────────────────────────────────────────────────────
@@ -170,7 +170,7 @@ describe("structured fields", () => {
     claimDiagnostics(sink);
     diag.info("bare", "just prose");
     expect(events[0]!.fields).toEqual({});
-    expect(formatDiagnosticLine(events[0]!)).toBe("[0sec] just prose");
+    expect(formatDiagnosticLine(events[0]!)).toBe("[xsec] just prose");
   });
 });
 
@@ -354,7 +354,7 @@ describe("sanitization", () => {
     const written = stderrText(spy);
     // Exactly one line: the trailing newline the sink adds, and nothing else.
     expect(written.split("\n").filter((l) => l.length > 0)).toHaveLength(1);
-    expect(written).toBe("[0sec] bad news (detail=also bad)\n");
+    expect(written).toBe("[xsec] bad news (detail=also bad)\n");
     expect(written).not.toContain(ESC);
   });
 });
@@ -374,7 +374,7 @@ describe("default delivery when nothing has subscribed", () => {
     // it would mean the scan produces nothing and they never learn why.
     expect(spy).toHaveBeenCalledTimes(1);
     expect(stderrText(spy)).toBe(
-      "[0sec] Anthropic plan quota exhausted (plan=pro)\n",
+      "[xsec] Anthropic plan quota exhausted (plan=pro)\n",
     );
   });
 
@@ -408,7 +408,7 @@ describe("default delivery when nothing has subscribed", () => {
       attempt: 3,
     });
     expect(stderrText(spy)).toBe(
-      "[0sec] OpenRouter HTTP 429 — backoff 250ms (status=429 delay_ms=250 attempt=3)\n",
+      "[xsec] OpenRouter HTTP 429 — backoff 250ms (status=429 delay_ms=250 attempt=3)\n",
     );
   });
 
@@ -430,17 +430,17 @@ describe("default delivery when nothing has subscribed", () => {
     expect(recent[recent.length - 1]!.message).toBe(`m${MAX_BUFFERED + 39}`);
   });
 
-  it("honours 0SEC_DIAG_LEVEL as an at-source filter", () => {
+  it("honours XSEC_DIAG_LEVEL as an at-source filter", () => {
     const spy = stderrSpy();
 
-    process.env["0SEC_DIAG_LEVEL"] = "error";
+    process.env["XSEC_DIAG_LEVEL"] = "error";
     diag.info("i", "info line");
     diag.warn("w", "warn line");
     diag.error("e", "error line");
-    expect(stderrText(spy)).toBe("[0sec] error line\n");
+    expect(stderrText(spy)).toBe("[xsec] error line\n");
 
     spy.mockClear();
-    process.env["0SEC_DIAG_LEVEL"] = "off";
+    process.env["XSEC_DIAG_LEVEL"] = "off";
     diag.error("e", "error line");
     expect(spy).not.toHaveBeenCalled();
     // Filtered at the source: nothing was buffered either.
@@ -492,7 +492,7 @@ describe("a claimed channel", () => {
     diag.warn("b", "after release");
 
     expect(events.map((e) => e.message)).toEqual(["while claimed"]);
-    expect(stderrText(spy)).toBe("[0sec] after release\n");
+    expect(stderrText(spy)).toBe("[xsec] after release\n");
   });
 
   it("release is idempotent and does not resurrect a superseded claim", () => {
@@ -644,8 +644,8 @@ describe("migrated llm-api quota path", () => {
   beforeEach(() => {
     // A fallback chain in the ambient environment would turn the quota error
     // into a silent failover, which is a different code path.
-    delete process.env["0SEC_LLM_FALLBACK"];
-    process.env["0SEC_SKIP_PROVIDER_BANNER"] = "1";
+    delete process.env["XSEC_LLM_FALLBACK"];
+    process.env["XSEC_SKIP_PROVIDER_BANNER"] = "1";
   });
 
   afterEach(() => {

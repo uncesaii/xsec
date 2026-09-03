@@ -22,7 +22,7 @@ async function exists(path) {
 }
 
 test("public source export contains build inputs and excludes private material", async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), "0sec-public-source-"));
+  const tempDir = await mkdtemp(join(tmpdir(), "xsec-public-source-"));
   const outputDir = join(tempDir, "export");
 
   try {
@@ -42,8 +42,8 @@ test("public source export contains build inputs and excludes private material",
       "scripts/ci-runner-bootstrap.sh",
       ".github/workflows/main.yml",
       ".github/workflows/docker-publish.yml",
-      "assets/0sec-aperture-ink.svg",
-      "assets/0sec-aperture-white.svg",
+      "assets/xsec-aperture-ink.svg",
+      "assets/xsec-aperture-white.svg",
     ]) {
       assert.equal(await exists(join(outputDir, required)), true, `${required} is missing`);
     }
@@ -78,7 +78,7 @@ test("public source export contains build inputs and excludes private material",
       "packages/benchmark/README.md",
     ]) {
       const text = await readFile(join(outputDir, sourcePath), "utf8");
-      assert.doesNotMatch(text, /peaktwilight|github\.com\/0sec-labs\/0cloud/i, `${sourcePath} leaks private source references`);
+      assert.doesNotMatch(text, /peaktwilight|github\.com\/uncesaii\/xcloud/i, `${sourcePath} leaks private source references`);
     }
 
     const publicGitignore = await readFile(join(outputDir, ".gitignore"), "utf8");
@@ -116,7 +116,7 @@ test("public source export contains build inputs and excludes private material",
     );
     assert.doesNotMatch(
       publicPrWorkflow,
-      /actions\/checkout|pnpm (?:install|build|test)|node dist\/0sec\.js/,
+      /actions\/checkout|pnpm (?:install|build|test)|node dist\/xsec\.js/,
       "public PR policy must not check out or execute contributor code",
     );
 

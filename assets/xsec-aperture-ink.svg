@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 104 20" fill="none" role="img" aria-label="Xsec">
+  <path fill="#1A1815" d="M0 0 H3 L20 17 V20 H17 L0 3 Z" />
+  <path fill="#DC2626" d="M0 20 H3 L20 3 V0 H17 L0 17 Z" />
+  <path fill="#1A1815" transform="translate(28,0)" d="M0 0 H20 V4 H0 Z M0 4 H4 V8 H0 Z M0 8 H20 V12 H0 Z M16 12 H20 V16 H16 Z M0 16 H20 V20 H0 Z" />
+  <path fill="#1A1815" transform="translate(56,0)" d="M0 0 H20 V4 H0 Z M0 0 H4 V20 H0 Z M0 8 H16 V12 H0 Z M0 16 H20 V20 H0 Z" />
+  <path fill="#1A1815" transform="translate(84,0)" d="M0 0 H20 V4 H0 Z M0 0 H4 V20 H0 Z M0 16 H20 V20 H0 Z" />
+</svg>

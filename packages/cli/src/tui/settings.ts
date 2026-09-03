@@ -1,6 +1,6 @@
 /**
  * User-configurable display settings for the interactive console, persisted
- * to `~/.0sec/tui-settings.json`.
+ * to `~/.xsec/tui-settings.json`.
  *
  * The trigger was "let me hide the status bar", but a single boolean would
  * have been the wrong shape: every chrome element in the TUI (logo, hints,
@@ -25,7 +25,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import { homeStateDir } from "@0sec/shared";
+import { homeStateDir } from "@xsec/shared";
 
 import {
   DEFAULT_THEME_NAME,
@@ -55,7 +55,7 @@ export interface TuiSettings {
   showStatusBar: boolean;
   /** Keyboard-hint line under the composer input. */
   showComposerHints: boolean;
-  /** Block "0SEC" mark on the empty transcript. */
+  /** Block "xsec" mark on the empty transcript. */
   showLogo: boolean;
   /** Surface runtime stdout/stderr as transcript notices. */
   showRuntimeNotices: boolean;
@@ -149,10 +149,10 @@ export interface TuiSettings {
    */
   modelDisplay: "statusbar" | "message" | "off";
   /**
-   * Intro animation style for the "0SEC" logo. One-shot reveals: "glitch" (a
+   * Intro animation style for the "xsec" logo. One-shot reveals: "glitch" (a
    * neon-flecked scramble that resolves — the default), "matrix" (a green
    * matrix-rain cascade), "wave" (a rippling cyan wavefront), "neon" (a
-   * neon-sign warm-up flicker), "strike" (a red slash strikes through the 0),
+    * neon-sign warm-up flicker), "strike" (a red slash strikes through the X),
    * "draw" (letters draw in L→R behind a bright pen tip), "fade" (a centre-out
    * bloom), "typein" (per-cell reveal with a purple glow), "sweep" (a bright bar
    * wipes across). Looping idle effects: "rainbow" (a hue sweep cycling colours
@@ -263,7 +263,7 @@ const DEFS: readonly TuiSettingDef[] = [
   {
     key: "showLogo",
     label: "Logo",
-    description: 'Block "0SEC" mark shown on an empty transcript.',
+    description: 'Block "xsec" mark shown on an empty transcript.',
     kind: "boolean",
     default: true,
     group: "Display",
@@ -429,7 +429,7 @@ const DEFS: readonly TuiSettingDef[] = [
     key: "theme",
     label: "Theme",
     description:
-      "Colour palette. Midnight (deep blue-black, default) and Carbon (warm dark), Standard/Paper (light), plus Contrast, Slate, Mono Dim and ANSI 16 for 16-colour terminals. Drop validated palettes in ~/.0sec/themes to add your own.",
+      "Colour palette. Midnight (deep blue-black, default) and Carbon (warm dark), Standard/Paper (light), plus Contrast, Slate, Mono Dim and ANSI 16 for 16-colour terminals. Drop validated palettes in ~/.xsec/themes to add your own.",
     kind: "enum",
     default: DEFAULT_THEME_NAME,
     choices: THEME_CHOICES,
@@ -448,7 +448,7 @@ const DEFS: readonly TuiSettingDef[] = [
     key: "autoEvolveFinderLenses",
     label: "Auto-evolve finder lenses",
     description:
-      "Start the TUI watcher for ~/.0sec/lens-synthesis/miss-input.json (or OSEC_TUI_LENS_SYNTH_INPUT) so each new curated revision can invoke the configured model.",
+      "Start the TUI watcher for ~/.xsec/lens-synthesis/miss-input.json (or OSEC_TUI_LENS_SYNTH_INPUT) so each new curated revision can invoke the configured model.",
     kind: "boolean",
     default: false,
     group: "Security",
@@ -499,7 +499,7 @@ const DEFS: readonly TuiSettingDef[] = [
     key: "logoAnimation",
     label: "Logo animation",
     description:
-      'Intro animation for the "0SEC" logo: glitch (a neon-flecked scramble that resolves — the default), rainbow (a looping hue sweep), matrix (a green matrix-rain cascade), wave (a rippling cyan wavefront), neon (a neon-sign warm-up flicker), shimmer (a bright comet with a gradient tail), pulse (the slash breathes), strike (a red slash strikes through the 0), draw (letters draw in behind a pen tip), fade (a centre-out bloom), typein (per-cell reveal), sweep (a bright bar wipes across) or off (static).',
+      'Intro animation for the "xsec" logo: glitch (a neon-flecked scramble that resolves — the default), rainbow (a looping hue sweep), matrix (a green matrix-rain cascade), wave (a rippling cyan wavefront), neon (a neon-sign warm-up flicker), shimmer (a bright comet with a gradient tail), pulse (the slash breathes), strike (a red slash strikes through the X), draw (letters draw in behind a pen tip), fade (a centre-out bloom), typein (per-cell reveal), sweep (a bright bar wipes across) or off (static).',
     kind: "enum",
     default: "glitch",
     choices: [
@@ -569,13 +569,13 @@ export const DEFAULT_SETTINGS: TuiSettings = {
   reduceMotion: false,
 };
 
-/** Basename of the settings file inside the 0sec state directory. */
+/** Basename of the settings file inside the xsec state directory. */
 const SETTINGS_FILENAME = "tui-settings.json";
 
 /**
  * Settings live beside the rest of the per-user engine state (scan DB,
  * journals, credentials) rather than in a TUI-specific directory, so
- * `homeStateDir` from `@0sec/shared` — not a local `".0sec"` literal — decides
+ * `homeStateDir` from `@xsec/shared` — not a local `".xsec"` literal — decides
  * where that is. One definition of the state root means a future relocation or
  * an `$XDG_STATE_HOME` migration happens in one place.
  */
@@ -586,8 +586,8 @@ export function settingsFilePath(homeDir?: string): string {
 /**
  * Two-level configuration: a per-user GLOBAL file and a per-project OVERRIDE.
  *
- * The global file (`~/.0sec/tui-settings.json`) is the base. A project may add a
- * local `<cwd>/.0sec/tui-settings.json` whose SET keys override the global ones;
+ * The global file (`~/.xsec/tui-settings.json`) is the base. A project may add a
+ * local `<cwd>/.xsec/tui-settings.json` whose SET keys override the global ones;
  * a key absent from the project file falls through to global, and a key absent
  * from both falls through to the built-in default. Precedence, highest first:
  *
@@ -600,9 +600,9 @@ export function settingsFilePath(homeDir?: string): string {
  */
 export type SettingLayer = "default" | "global" | "project";
 
-/** The `.0sec` directory inside a project working tree. */
+/** The `.xsec` directory inside a project working tree. */
 export function projectStateDir(projectDir: string = process.cwd()): string {
-  return join(projectDir, ".0sec");
+  return join(projectDir, ".xsec");
 }
 
 /** The per-project override settings file (may not exist; that is the norm). */

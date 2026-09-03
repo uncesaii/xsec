@@ -3,7 +3,7 @@
  *
  * Turns a disclosed finding's `disclosure/<package>-<vector>-<date>.md`
  * (YAML frontmatter + markdown body) into a *sanitised* narrative draft
- * destined for `research/output/writeups/`. The draft reuses the 0sec
+ * destined for `research/output/writeups/`. The draft reuses the xsec
  * disclose template's section spine (Summary / PoC / Timeline / Remediation)
  * and runs every emitted body through the same {@link redactSensitiveHeaders}
  * pass the advisory renderer uses, plus a PII (email) sweep.
@@ -305,8 +305,7 @@ export function generateWriteup(
 
   out.push("## Credits", "");
   out.push(
-    "Found by 0sec's automated security-research tooling " +
-      "([0sec.ai](https://0sec.ai)).",
+    "Found by XSEC's automated security-research tooling.",
     "",
   );
 

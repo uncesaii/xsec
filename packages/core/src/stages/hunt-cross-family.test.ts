@@ -21,7 +21,7 @@
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { Finding } from "@0sec/shared";
+import type { Finding } from "@xsec/shared";
 import {
   availableRefuterCandidates,
   crossFamilyRefuteEnabled,
@@ -58,14 +58,14 @@ function mkFinding(id: string, title: string): Finding {
 const AUTH_VARS = [
   "ANTHROPIC_API_KEY",
   "OPENAI_API_KEY",
-  "0SEC_CHATGPT_ACCESS_TOKEN",
-  "0SEC_CHATGPT_OAUTH_REFRESH_TOKEN",
+  "XSEC_CHATGPT_ACCESS_TOKEN",
+  "XSEC_CHATGPT_OAUTH_REFRESH_TOKEN",
   "Z_AI_API_KEY",
   "KIMI_API_KEY",
   "QWEN_API_KEY",
   "XAI_API_KEY",
-  "0SEC_HUNT_REFUTER_CANDIDATES",
-  "0SEC_HUNT_CROSS_FAMILY",
+  "XSEC_HUNT_REFUTER_CANDIDATES",
+  "XSEC_HUNT_CROSS_FAMILY",
 ] as const;
 
 const savedEnv = new Map<string, string | undefined>();
@@ -91,16 +91,16 @@ afterEach(() => {
 });
 
 describe("crossFamilyRefuteEnabled", () => {
-  it("is ON by default and OFF only for an explicit falsey 0SEC_HUNT_CROSS_FAMILY", () => {
+  it("is ON by default and OFF only for an explicit falsey XSEC_HUNT_CROSS_FAMILY", () => {
     withProviders({});
     expect(crossFamilyRefuteEnabled()).toBe(true);
-    process.env["0SEC_HUNT_CROSS_FAMILY"] = "0";
+    process.env["XSEC_HUNT_CROSS_FAMILY"] = "0";
     expect(crossFamilyRefuteEnabled()).toBe(false);
-    process.env["0SEC_HUNT_CROSS_FAMILY"] = "no";
+    process.env["XSEC_HUNT_CROSS_FAMILY"] = "no";
     expect(crossFamilyRefuteEnabled()).toBe(false);
-    process.env["0SEC_HUNT_CROSS_FAMILY"] = "";
+    process.env["XSEC_HUNT_CROSS_FAMILY"] = "";
     expect(crossFamilyRefuteEnabled()).toBe(false);
-    process.env["0SEC_HUNT_CROSS_FAMILY"] = "1";
+    process.env["XSEC_HUNT_CROSS_FAMILY"] = "1";
     expect(crossFamilyRefuteEnabled()).toBe(true);
   });
 });
@@ -175,8 +175,8 @@ describe("availableRefuterCandidates", () => {
     expect(availableRefuterCandidates()).toEqual(["claude-sonnet-4-6", "glm-5.3"]);
   });
 
-  it("honours the 0SEC_HUNT_REFUTER_CANDIDATES override verbatim", () => {
-    withProviders({ ANTHROPIC_API_KEY: "sk-ant-x", "0SEC_HUNT_REFUTER_CANDIDATES": "gpt-5.5, glm-5.2" });
+  it("honours the XSEC_HUNT_REFUTER_CANDIDATES override verbatim", () => {
+    withProviders({ ANTHROPIC_API_KEY: "sk-ant-x", "XSEC_HUNT_REFUTER_CANDIDATES": "gpt-5.5, glm-5.2" });
     expect(availableRefuterCandidates()).toEqual(["gpt-5.5", "glm-5.2"]);
   });
 });
@@ -277,7 +277,7 @@ describe("selectCrossFamilyRefuter", () => {
 
 describe("makeSkepticVerifier — cross-family wiring", () => {
   it("gate explicitly OFF: the finder model and reason string are byte-identical to the pre-#661 path", async () => {
-    withProviders({ ANTHROPIC_API_KEY: "sk-ant-x", OPENAI_API_KEY: "sk-x", "0SEC_HUNT_CROSS_FAMILY": "0" });
+    withProviders({ ANTHROPIC_API_KEY: "sk-ant-x", OPENAI_API_KEY: "sk-x", "XSEC_HUNT_CROSS_FAMILY": "0" });
     agenticScanMock.mockReset();
     let capturedModel: string | undefined = "sentinel";
     agenticScanMock.mockImplementation(async ({ config }: { config: { model?: string } }) => {

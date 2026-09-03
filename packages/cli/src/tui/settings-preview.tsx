@@ -318,7 +318,7 @@ function speechTurnBlock(
   };
 }
 
-/** The transcript sample: an operator turn and a 0sec turn in the chosen frame. */
+/** The transcript sample: an operator turn and a xsec turn in the chosen frame. */
 function transcriptBlocks(
   value: string,
   width: number,
@@ -327,7 +327,7 @@ function transcriptBlocks(
   const style = value as TranscriptStyle;
   return [
     speechTurnBlock("turn-user", "user", style, settings.roleLabelStyle, width),
-    speechTurnBlock("turn-0sec", "assistant", style, settings.roleLabelStyle, width),
+    speechTurnBlock("turn-xsec", "assistant", style, settings.roleLabelStyle, width),
   ];
 }
 
@@ -414,7 +414,7 @@ function densityBlocks(value: string, width: number): PreviewBlock[] {
     line("density-a", width, "✓ run_command · complete", (t) => t.SUCCESS),
   ];
   if (comfortable) blocks.push(line("density-gap", width, "", (t) => t.MUTED));
-  blocks.push(line("density-b", width, "▌ 0sec  Finding confirmed", (t) => t.PRIMARY));
+  blocks.push(line("density-b", width, "▌ xsec  Finding confirmed", (t) => t.PRIMARY));
   return blocks;
 }
 
@@ -452,7 +452,7 @@ function modelDisplayBlocks(value: string, width: number): PreviewBlock[] {
           available={width}
           gap={1}
           columns={[
-            { content: "▌ 0sec", fg: theme.PRIMARY, key: "label" },
+            { content: "▌ xsec", fg: theme.PRIMARY, key: "label" },
             { content: MODEL, fg: theme.MUTED, key: "model" },
           ]}
         />
@@ -482,7 +482,7 @@ function logoAnimationBlocks(value: string, width: number): PreviewBlock[] {
     neon: "neon — a neon-sign warm-up flicker, then it settles",
     shimmer: "shimmer — a bright comet with a gradient tail sweeps",
     pulse: "pulse — the red slash breathes red↔purple",
-    strike: "strike — the red slash strikes through the 0",
+    strike: "strike — the red slash strikes through the X",
     draw: "draw — the letters draw in behind a bright pen tip",
     fade: "fade — the mark blooms in from the centre",
     typein: "typein — cells reveal one by one, purple leading glow",
@@ -526,12 +526,12 @@ function transcriptDetailBlocks(value: string, width: number): PreviewBlock[] {
       line("td-think", width, "▸ thinking", (t) => t.MUTED),
       line("td-a", width, "✓ run_command · nmap -sV", (t) => t.SUCCESS),
       line("td-b", width, "✓ read_file · report.md", (t) => t.SUCCESS),
-      line("td-ans", width, "▌ 0sec  Two services exposed.", (t) => t.PRIMARY),
+      line("td-ans", width, "▌ xsec  Two services exposed.", (t) => t.PRIMARY),
     ];
   }
   return [
     line("td-fold", width, "▸ 3 steps · thinking, run_command, read_file", (t) => t.MUTED),
-    line("td-ans", width, "▌ 0sec  Two services exposed.", (t) => t.PRIMARY),
+    line("td-ans", width, "▌ xsec  Two services exposed.", (t) => t.PRIMARY),
   ];
 }
 
@@ -599,7 +599,7 @@ function themeBlocks(width: number): PreviewBlock[] {
         available={width}
         gap={1}
         columns={[
-          { content: "0sec", fg: theme.PRIMARY, key: "primary" },
+          { content: "xsec", fg: theme.PRIMARY, key: "primary" },
           { content: "operator", fg: theme.ACCENT, key: "accent" },
           { content: "warn", fg: theme.WARNING, key: "warn" },
           { content: "error", fg: theme.ERROR, key: "error" },

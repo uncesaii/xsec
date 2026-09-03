@@ -1,10 +1,10 @@
-// 0sec-cloud HTTP client. Bearer-auth, JSON, scaffolding.
+// xsec-cloud HTTP client. Bearer-auth, JSON, scaffolding.
 //
 // Scope:
 //   - One method: `pingHealth()` — hits the configured health endpoint to
 //     verify cloud reachability.
 //
-// The hosted 0cloud dashboard serves health under `/api/health`; generic
+// The hosted xcloud dashboard serves health under `/api/health`; generic
 // self-hosted receivers retain the original `/health` convention.
 //
 // Out of scope:
@@ -16,10 +16,10 @@
 //   - The Authorization header value is built from the token but never
 //     emitted back to the caller. Errors include status + path + host,
 //     never headers or the token itself.
-//   - `User-Agent` includes `0sec-cli/<version>` so server-side ops can
+//   - `User-Agent` includes `xsec-cli/<version>` so server-side ops can
 //     identify CLI traffic if it looks anomalous.
 
-import { VERSION } from "@0sec/shared";
+import { VERSION } from "@xsec/shared";
 
 export class CloudError extends Error {
   constructor(
@@ -35,14 +35,14 @@ export class CloudError extends Error {
 /** 401 — token rejected. Distinct from CloudAuthMissingError, which means no token was configured. */
 export class CloudUnauthorizedError extends CloudError {
   constructor(path: string) {
-    super(`0sec-cloud auth rejected (HTTP 401) on ${path}. Run \`0sec auth login\` to refresh.`, 401, path);
+    super(`xsec-cloud auth rejected (HTTP 401) on ${path}. Run \`xsec auth login\` to refresh.`, 401, path);
     this.name = "CloudUnauthorizedError";
   }
 }
 export class CloudForbiddenError extends CloudError {
   constructor(path: string) {
     super(
-      `0sec-cloud forbidden (HTTP 403) on ${path}. Token lacks scope for this resource.`,
+      `xsec-cloud forbidden (HTTP 403) on ${path}. Token lacks scope for this resource.`,
       403,
       path,
     );
@@ -51,7 +51,7 @@ export class CloudForbiddenError extends CloudError {
 }
 export class CloudNetworkError extends CloudError {
   constructor(message: string, path: string) {
-    super(`0sec-cloud network error on ${path}: ${message}`, undefined, path);
+    super(`xsec-cloud network error on ${path}: ${message}`, undefined, path);
     this.name = "CloudNetworkError";
   }
 }
@@ -71,14 +71,6 @@ export interface CloudHealthResponse {
   status: string;
 }
 function healthPath(host: string): string {
-  try {
-    const hostname = new URL(host).hostname.toLowerCase();
-    if (hostname === "cloud.0sec.ai" || hostname === "cloud.0.security") {
-      return "/api/health";
-    }
-  } catch {
-    // Preserve the generic path and let getJson surface the malformed host.
-  }
   return "/health";
 }
 
@@ -133,7 +125,7 @@ export class CloudClient {
     if (res.status === 401) throw new CloudUnauthorizedError(path);
     if (res.status === 403) throw new CloudForbiddenError(path);
     throw new CloudError(
-      `0sec-cloud request failed (HTTP ${res.status}) on ${path}.`,
+      `xsec-cloud request failed (HTTP ${res.status}) on ${path}.`,
       res.status,
       path,
     );
@@ -145,7 +137,7 @@ export class CloudClient {
     return {
       Authorization: `Bearer ${this.token}`,
       Accept: "application/json",
-      "User-Agent": `0sec-cli/${VERSION}`,
+      "User-Agent": `xsec-cli/${VERSION}`,
     };
   }
 

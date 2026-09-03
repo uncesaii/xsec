@@ -212,7 +212,7 @@ export type {
 
 // Weaponization pipeline — engine bricks (ADR-055 Phase 1). Escalation ladder,
 // primitive strategy library + C templates, deterministic success oracle,
-// kernel-VM harness, and the control-demo probe. P2 (0cloud dispatch) and P3
+// kernel-VM harness, and the control-demo probe. P2 (xcloud dispatch) and P3
 // (autonomy) build on this surface.
 export * from "./exploit/index.js";
 

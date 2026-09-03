@@ -1,5 +1,5 @@
 /**
- * 0sec#416 — verify-resume cluster fixes.
+ * xsec#416 — verify-resume cluster fixes.
  *
  * Three sibling bugs in the verify phase of `unified-pipeline.ts`:
  *
@@ -34,8 +34,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { Finding } from "@0sec/shared";
-import { osecDB } from "@0sec/db";
+import type { Finding } from "@xsec/shared";
+import { osecDB } from "@xsec/db";
 
 type PipelineEvent = {
   type: string;
@@ -58,9 +58,9 @@ const runFoxguardScanMock = vi.fn();
 vi.mock("./shared-analysis.js", () => ({
   runFoxguardScan: runFoxguardScanMock,
   runSemgrepScan: runSemgrepScanMock,
-  selectedStaticScanner: () => process.env["0SEC_STATIC"] === "semgrep" ? "semgrep" : "foxguard",
+  selectedStaticScanner: () => process.env["XSEC_STATIC"] === "semgrep" ? "semgrep" : "foxguard",
   runSelectedStaticScan: (...args: unknown[]) =>
-    process.env["0SEC_STATIC"] === "semgrep"
+    process.env["XSEC_STATIC"] === "semgrep"
       ? runSemgrepScanMock(...args)
       : runFoxguardScanMock(...args),
 }));
@@ -123,13 +123,13 @@ const { runPipeline } = await import("./unified-pipeline.js");
 const tempDirs: string[] = [];
 
 function freshTmpDir(prefix: string): string {
-  const dir = mkdtempSync(join(tmpdir(), `0sec-verify-resume-${prefix}-`));
+  const dir = mkdtempSync(join(tmpdir(), `xsec-verify-resume-${prefix}-`));
   tempDirs.push(dir);
   return dir;
 }
 
 function freshDbPath(): string {
-  return join(freshTmpDir("db"), "0sec.db");
+  return join(freshTmpDir("db"), "xsec.db");
 }
 
 function fakeInstalledPackage(name: string, version: string) {
@@ -186,23 +186,23 @@ beforeEach(() => {
     providerLabel: "Anthropic",
   };
 
-  originalPerItemEnv = process.env["0SEC_FEATURE_PER_ITEM_ORCHESTRATION"];
-  process.env["0SEC_FEATURE_PER_ITEM_ORCHESTRATION"] = "0";
+  originalPerItemEnv = process.env["XSEC_FEATURE_PER_ITEM_ORCHESTRATION"];
+  process.env["XSEC_FEATURE_PER_ITEM_ORCHESTRATION"] = "0";
 
-  originalStaticAnalyzer = process.env["0SEC_STATIC"];
-  delete process.env["0SEC_STATIC"];
+  originalStaticAnalyzer = process.env["XSEC_STATIC"];
+  delete process.env["XSEC_STATIC"];
 });
 
 afterEach(() => {
   if (originalPerItemEnv === undefined) {
-    delete process.env["0SEC_FEATURE_PER_ITEM_ORCHESTRATION"];
+    delete process.env["XSEC_FEATURE_PER_ITEM_ORCHESTRATION"];
   } else {
-    process.env["0SEC_FEATURE_PER_ITEM_ORCHESTRATION"] = originalPerItemEnv;
+    process.env["XSEC_FEATURE_PER_ITEM_ORCHESTRATION"] = originalPerItemEnv;
   }
   if (originalStaticAnalyzer === undefined) {
-    delete process.env["0SEC_STATIC"];
+    delete process.env["XSEC_STATIC"];
   } else {
-    process.env["0SEC_STATIC"] = originalStaticAnalyzer;
+    process.env["XSEC_STATIC"] = originalStaticAnalyzer;
   }
   for (const dir of tempDirs.splice(0)) {
     rmSync(dir, { recursive: true, force: true });

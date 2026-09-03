@@ -6,5 +6,5 @@ export {
   priceRun,
   PRICING_SNAPSHOT_DATE,
   splitCost,
-} from "@0sec/shared";
-export type { CostSplit, ModelRates, TokenUsageForPricing } from "@0sec/shared";
+} from "@xsec/shared";
+export type { CostSplit, ModelRates, TokenUsageForPricing } from "@xsec/shared";

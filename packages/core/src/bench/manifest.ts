@@ -1,5 +1,5 @@
 /**
- * Bench manifest — scan-level pass@k corpus definition (0sec#556).
+ * Bench manifest — scan-level pass@k corpus definition (xsec#556).
  *
  * The bench harness turns our per-finding verification oracles into a
  * scan-level, third-party-defensible capability/FP number. A manifest is a
@@ -150,7 +150,7 @@ export type BenchObjectiveType = BenchObjective["type"];
 
 export const WebTargetSchema = z.object({
   kind: z.literal("web"),
-  /** Docker image ref, e.g. "ghcr.io/0sec-labs/bench-web-001:pinned-sha". */
+  /** Docker image ref, e.g. "ghcr.io/xsec-labs/bench-web-001:pinned-sha". */
   image: z.string().optional(),
   /** Alternatively, a docker-compose directory (relative to corpusRoot). */
   composeDir: z.string().optional(),

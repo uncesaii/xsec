@@ -1,17 +1,16 @@
 ---
 title: XBOW Analysis
-description: Where 0sec's XBOW score comes from, its caveats, and what the benchmark does and doesn't tell you.
+description: Where XSEC's XBOW score comes from, its caveats, and what the benchmark does and doesn't tell you.
 ---
 
 XBOW is a useful web-CTF substrate, but a benchmark score is not the product. The
-proof we care about is real, disclosed CVEs — see **[0.security](https://0.security)**.
-This page explains how 0sec's XBOW number is built and where its limits are, so the
+proof we care about is real, disclosed CVEs. This page explains how XSEC's XBOW number is built and where its limits are, so the
 figure can be read honestly rather than as a leaderboard trophy.
 
-## How 0sec scores on XBOW, and the caveats
+## How XSEC scores on XBOW, and the caveats
 
 **Headline: 93 / 95 = 97.9% black-box on the gpt-5.4 model-specific cohort.**
-Across the 95 XBOW challenges where 0sec has a retained gpt-5.4 attempt within the
+Across the 95 XBOW challenges where XSEC has a retained gpt-5.4 attempt within the
 live CI window, 93 are solved, at ~$0.48/run and $5.20/flag. We lead with the
 per-model number because it is a stable single-model solve rate, not a best-of-N
 union over an aging artifact window.
@@ -59,7 +58,7 @@ real-target scanning:
 - **Turn budget.** Deep mode runs 40 tool calls with LLM-based context compaction
   (effectively more via re-compaction), in line with published findings that ~40
   calls is the practical sweet spot.
-- **Concurrent subagents.** 0sec now ships `spawn_agents`: the lead agent can fan
+- **Concurrent subagents.** XSEC now ships `spawn_agents`: the lead agent can fan
   out focused children concurrently (bounded fan-out, default concurrency 4) and a
   child can coordinate with its parent. This is a real capability the harness uses.
 - **White-box mode.** `--repo <path>` gives the agent source alongside `bash`, which
@@ -78,9 +77,9 @@ more on a real target than on a CTF flag hunt.
 
 ## Other benchmarks in scope
 
-Beyond XBOW, these are relevant to 0sec's capabilities and are wired or planned:
+Beyond XBOW, these are relevant to XSEC's capabilities and are wired or planned:
 
-| Benchmark | Domain | Scale | 0sec relevance |
+| Benchmark | Domain | Scale | XSEC relevance |
 |-----------|--------|-------|----------------|
 | [Cybench](https://github.com/andyzorigin/cybench) | Broad CTF (web/crypto/pwn/rev) | 40 challenges | Scored: 36/40 = 90.0% single-config |
 | [AutoPenBench](https://github.com/lucagioacchini/auto-pen-bench) | Network / CVE pentesting | 33 Docker tasks | Harness built; shell-first maps to its `execute_bash` |
@@ -89,7 +88,6 @@ Beyond XBOW, these are relevant to 0sec's capabilities and are wired or planned:
 
 ## Related
 
-- **[0.security](https://0.security)**
 - [Benchmark](/benchmark/) — the compact score view and caveats
 - [Methodology](/methodology/) — per-attempt rate, Wilson CI, single-model caveats
 - [Competitive Landscape](/research/competitive-landscape/) — where other agents sit

@@ -19,7 +19,7 @@ import { PROVIDERS } from "./provider-status.js";
 const tempHomes: string[] = [];
 
 function makeHome(): string {
-  const dir = mkdtempSync(join(tmpdir(), "0sec-credential-store-"));
+  const dir = mkdtempSync(join(tmpdir(), "xsec-credential-store-"));
   tempHomes.push(dir);
   return dir;
 }
@@ -37,12 +37,12 @@ afterEach(() => {
 });
 
 describe("credentialsFilePath", () => {
-  it("places the file inside the shared 0sec state directory", () => {
-    expect(credentialsFilePath("/home/someone")).toBe("/home/someone/.0sec/credentials.json");
+  it("places the file inside the shared xsec state directory", () => {
+    expect(credentialsFilePath("/home/someone")).toBe("/home/someone/.xsec/credentials.json");
   });
 
   it("defaults the home directory when none is given", () => {
-    expect(credentialsFilePath().endsWith(join(".0sec", "credentials.json"))).toBe(true);
+    expect(credentialsFilePath().endsWith(join(".xsec", "credentials.json"))).toBe(true);
   });
 });
 
@@ -138,12 +138,12 @@ describe("saveCredentials / loadCredentials", () => {
 
     const path = credentialsFilePath(home);
     expect(permissionsOf(path)).toBe(0o600);
-    expect(permissionsOf(join(home, ".0sec"))).toBe(0o700);
+    expect(permissionsOf(join(home, ".xsec"))).toBe(0o700);
   });
 
   it("tightens a pre-existing world-readable file instead of leaving it alone", () => {
     const home = makeHome();
-    const dir = join(home, ".0sec");
+    const dir = join(home, ".xsec");
     const path = join(dir, "credentials.json");
     // An older build, a restored backup or a hand-edit can leave the secret
     // readable by every local account; `mode` on writeFileSync does nothing
@@ -166,7 +166,7 @@ describe("saveCredentials / loadCredentials", () => {
 
   it("returns an empty map for invalid JSON rather than throwing", () => {
     const home = makeHome();
-    mkdirSync(join(home, ".0sec"), { recursive: true });
+    mkdirSync(join(home, ".xsec"), { recursive: true });
     writeFileSync(credentialsFilePath(home), "{ not json,,, ", "utf8");
 
     expect(() => loadCredentials(home)).not.toThrow();
@@ -175,7 +175,7 @@ describe("saveCredentials / loadCredentials", () => {
 
   it("returns an empty map for well-formed JSON of the wrong shape", () => {
     const home = makeHome();
-    mkdirSync(join(home, ".0sec"), { recursive: true });
+    mkdirSync(join(home, ".xsec"), { recursive: true });
     writeFileSync(credentialsFilePath(home), '["anthropic","sk-ant-secret"]', "utf8");
 
     expect(loadCredentials(home)).toEqual({});
@@ -240,7 +240,7 @@ describe("credentialEnvPatch", () => {
     expect(
       credentialEnvPatch(
         { "chatgpt-codex": "stored-access-token" },
-        { "0SEC_CHATGPT_OAUTH_REFRESH_TOKEN": "shell-refresh-token" },
+        { "XSEC_CHATGPT_OAUTH_REFRESH_TOKEN": "shell-refresh-token" },
       ),
     ).toEqual({});
   });

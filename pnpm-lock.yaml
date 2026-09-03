@@ -71,13 +71,13 @@ importers:
 
   packages/benchmark:
     dependencies:
-      '@0sec/core':
+      '@xsec/core':
         specifier: workspace:*
         version: link:../core
-      '@0sec/shared':
+      '@xsec/shared':
         specifier: workspace:*
         version: link:../shared
-      '@0sec/test-targets':
+      '@xsec/test-targets':
         specifier: workspace:*
         version: link:../../test-targets
       express:
@@ -102,27 +102,6 @@ importers:
 
   packages/cli:
     dependencies:
-      '@0sec/benchmark':
-        specifier: workspace:*
-        version: link:../benchmark
-      '@0sec/core':
-        specifier: workspace:*
-        version: link:../core
-      '@0sec/db':
-        specifier: workspace:*
-        version: link:../db
-      '@0sec/llm-redteam':
-        specifier: workspace:*
-        version: link:../llm-redteam
-      '@0sec/shared':
-        specifier: workspace:*
-        version: link:../shared
-      '@0sec/templates':
-        specifier: workspace:*
-        version: link:../templates
-      '@0sec/test-targets':
-        specifier: workspace:*
-        version: link:../../test-targets
       '@modelcontextprotocol/sdk':
         specifier: ^1.30.0
         version: 1.30.0(zod@3.25.76)
@@ -132,6 +111,27 @@ importers:
       '@opentui/react':
         specifier: 0.5.4
         version: 0.5.4(react-devtools-core@7.0.1)(react@19.2.6)(typescript@5.9.3)(web-tree-sitter@0.25.10)(ws@8.21.0)
+      '@xsec/benchmark':
+        specifier: workspace:*
+        version: link:../benchmark
+      '@xsec/core':
+        specifier: workspace:*
+        version: link:../core
+      '@xsec/db':
+        specifier: workspace:*
+        version: link:../db
+      '@xsec/llm-redteam':
+        specifier: workspace:*
+        version: link:../llm-redteam
+      '@xsec/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@xsec/templates':
+        specifier: workspace:*
+        version: link:../templates
+      '@xsec/test-targets':
+        specifier: workspace:*
+        version: link:../../test-targets
       chalk:
         specifier: ^5.3.0
         version: 5.6.2
@@ -175,21 +175,21 @@ importers:
 
   packages/core:
     dependencies:
-      '@0sec/db':
-        specifier: workspace:*
-        version: link:../db
-      '@0sec/llm-redteam':
-        specifier: workspace:*
-        version: link:../llm-redteam
-      '@0sec/shared':
-        specifier: workspace:*
-        version: link:../shared
-      '@0sec/templates':
-        specifier: workspace:*
-        version: link:../templates
       '@modelcontextprotocol/sdk':
         specifier: ^1.30.0
         version: 1.30.0(zod@3.25.76)
+      '@xsec/db':
+        specifier: workspace:*
+        version: link:../db
+      '@xsec/llm-redteam':
+        specifier: workspace:*
+        version: link:../llm-redteam
+      '@xsec/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@xsec/templates':
+        specifier: workspace:*
+        version: link:../templates
       tree-sitter:
         specifier: 0.21.1
         version: 0.21.1
@@ -216,9 +216,6 @@ importers:
 
   packages/dashboard:
     dependencies:
-      '@0sec/shared':
-        specifier: workspace:*
-        version: link:../shared
       '@dnd-kit/core':
         specifier: ^6.3.1
         version: 6.3.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -255,6 +252,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.90.6
         version: 5.100.14(react@19.2.6)
+      '@xsec/shared':
+        specifier: workspace:*
+        version: link:../shared
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -310,7 +310,7 @@ importers:
 
   packages/db:
     dependencies:
-      '@0sec/shared':
+      '@xsec/shared':
         specifier: workspace:*
         version: link:../shared
       drizzle-orm:
@@ -329,7 +329,7 @@ importers:
 
   packages/llm-redteam:
     dependencies:
-      '@0sec/shared':
+      '@xsec/shared':
         specifier: workspace:*
         version: link:../shared
     devDependencies:
@@ -355,7 +355,7 @@ importers:
 
   packages/templates:
     dependencies:
-      '@0sec/shared':
+      '@xsec/shared':
         specifier: workspace:*
         version: link:../shared
       yaml:

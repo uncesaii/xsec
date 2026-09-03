@@ -1,7 +1,7 @@
 import type { Command } from "commander";
 import chalk from "chalk";
-import type { OutputFormat, RuntimeMode, ScanDepth, ScanMode } from "@0sec/shared";
-import { osecDB, resolveOsecRunStorage } from "@0sec/db";
+import type { OutputFormat, RuntimeMode, ScanDepth, ScanMode } from "@xsec/shared";
+import { osecDB, resolveOsecRunStorage } from "@xsec/db";
 import { runUnified } from "./run.js";
 
 function parseScanTarget(target: string): {

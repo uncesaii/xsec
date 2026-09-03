@@ -101,31 +101,31 @@ describe("providerStates", () => {
   });
 
   it("is satisfied by EITHER of a multi-var provider's accepted vars", () => {
-    const viaAccess = stateFor("chatgpt-codex", { "0SEC_CHATGPT_ACCESS_TOKEN": "at-1" });
+    const viaAccess = stateFor("chatgpt-codex", { "XSEC_CHATGPT_ACCESS_TOKEN": "at-1" });
     expect(viaAccess.configured).toBe(true);
-    expect(viaAccess.via).toBe("0SEC_CHATGPT_ACCESS_TOKEN");
+    expect(viaAccess.via).toBe("XSEC_CHATGPT_ACCESS_TOKEN");
 
-    const viaRefresh = stateFor("chatgpt-codex", { "0SEC_CHATGPT_OAUTH_REFRESH_TOKEN": "rt-1" });
+    const viaRefresh = stateFor("chatgpt-codex", { "XSEC_CHATGPT_OAUTH_REFRESH_TOKEN": "rt-1" });
     expect(viaRefresh.configured).toBe(true);
-    expect(viaRefresh.via).toBe("0SEC_CHATGPT_OAUTH_REFRESH_TOKEN");
+    expect(viaRefresh.via).toBe("XSEC_CHATGPT_OAUTH_REFRESH_TOKEN");
   });
 
   it("reports the most-preferred var in `via` when several are set", () => {
     const state = stateFor("chatgpt-codex", {
-      "0SEC_CHATGPT_ACCESS_TOKEN": "at-1",
-      "0SEC_CHATGPT_OAUTH_REFRESH_TOKEN": "rt-1",
+      "XSEC_CHATGPT_ACCESS_TOKEN": "at-1",
+      "XSEC_CHATGPT_OAUTH_REFRESH_TOKEN": "rt-1",
     });
     expect(state.via).toBe(PROVIDERS.find((provider) => provider.id === "chatgpt-codex")?.envVars[0]);
-    expect(state.via).toBe("0SEC_CHATGPT_ACCESS_TOKEN");
+    expect(state.via).toBe("XSEC_CHATGPT_ACCESS_TOKEN");
   });
 
   it("skips a blank preferred var and falls through to the next one", () => {
     const state = stateFor("chatgpt-codex", {
-      "0SEC_CHATGPT_ACCESS_TOKEN": "  ",
-      "0SEC_CHATGPT_OAUTH_REFRESH_TOKEN": "rt-1",
+      "XSEC_CHATGPT_ACCESS_TOKEN": "  ",
+      "XSEC_CHATGPT_OAUTH_REFRESH_TOKEN": "rt-1",
     });
     expect(state.configured).toBe(true);
-    expect(state.via).toBe("0SEC_CHATGPT_OAUTH_REFRESH_TOKEN");
+    expect(state.via).toBe("XSEC_CHATGPT_OAUTH_REFRESH_TOKEN");
   });
 
   it("configures each provider from its own documented var", () => {

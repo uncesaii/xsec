@@ -14,7 +14,7 @@ import type {
 import { appendFileSync, existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { VERSION } from "@0sec/shared";
+import { VERSION } from "@xsec/shared";
 import { features } from "../agent/features.js";
 import { diag } from "../diagnostics/channel.js";
 import {
@@ -90,7 +90,7 @@ const azureRegionCache = new Map<string, string>();
  * missing header) the function resolves to "unknown" so startup logging
  * stays a no-op in adverse conditions.
  *
- * Test hook: `0SEC_REGION_OVERRIDE` short-circuits the probe entirely.
+ * Test hook: `XSEC_REGION_OVERRIDE` short-circuits the probe entirely.
  * Set it to force a specific region string without hitting the network —
  * this keeps unit tests and air-gapped CI runs deterministic.
  */
@@ -99,9 +99,9 @@ export async function probeAzureRegion(
   apiKey: string,
   fetchImpl: typeof fetch = fetch,
 ): Promise<string> {
-  // 0SEC_REGION_OVERRIDE: lets tests (and operators running offline)
+  // XSEC_REGION_OVERRIDE: lets tests (and operators running offline)
   // force a specific region string without touching the network.
-  const override = process.env["0SEC_REGION_OVERRIDE"];
+  const override = process.env["XSEC_REGION_OVERRIDE"];
   if (override && override.trim().length > 0) {
     return override.trim();
   }
@@ -188,7 +188,7 @@ export function __resetAzureRegionCacheForTests(): void {
  * the banner then fires once per importer instead of once per process.
  * Keying on a shared global process-wide Set closes that hole.
  */
-const PROVIDER_BANNER_KEY = Symbol.for("0sec.core.loggedProviderStartup");
+const PROVIDER_BANNER_KEY = Symbol.for("xsec.core.loggedProviderStartup");
 type GlobalWithBannerGuard = typeof globalThis & { [PROVIDER_BANNER_KEY]?: Set<string> };
 const loggedProviderStartup: Set<string> = ((): Set<string> => {
   const g = globalThis as GlobalWithBannerGuard;
@@ -197,7 +197,7 @@ const loggedProviderStartup: Set<string> = ((): Set<string> => {
 })();
 
 function appendNativeTrace(record: Record<string, unknown>): void {
-  const file = process.env["0SEC_TRACE_NATIVE_RESPONSES"];
+  const file = process.env["XSEC_TRACE_NATIVE_RESPONSES"];
   if (!file) return;
   try {
     appendFileSync(file, `${JSON.stringify({ ts: new Date().toISOString(), ...record })}\n`, "utf8");
@@ -207,7 +207,7 @@ function appendNativeTrace(record: Record<string, unknown>): void {
 }
 
 function shouldLogProviderStartup(): boolean {
-  return process.env["0SEC_SUPPRESS_PROVIDER_STARTUP_LOG"] !== "1";
+  return process.env["XSEC_SUPPRESS_PROVIDER_STARTUP_LOG"] !== "1";
 }
 
 // ── Transient-failure retry (429 rate-limit + transient 5xx) ────────────
@@ -245,17 +245,17 @@ function isRetryableTransportCode(code: string): boolean {
   ].includes(code);
 }
 
-/** Max retries after the initial attempt. `0SEC_LLM_MAX_RETRIES` (default 6). */
+/** Max retries after the initial attempt. `XSEC_LLM_MAX_RETRIES` (default 6). */
 function llmMaxRetries(): number {
-  const raw = process.env["0SEC_LLM_MAX_RETRIES"];
+  const raw = process.env["XSEC_LLM_MAX_RETRIES"];
   if (raw == null || raw.trim() === "") return 6;
   const n = Number.parseInt(raw, 10);
   return Number.isFinite(n) && n >= 0 ? n : 6;
 }
 
-/** Cumulative backoff cap in ms. `0SEC_LLM_MAX_RETRY_WAIT_MS` (default 60s). */
+/** Cumulative backoff cap in ms. `XSEC_LLM_MAX_RETRY_WAIT_MS` (default 60s). */
 function llmMaxRetryWaitMs(): number {
-  const raw = process.env["0SEC_LLM_MAX_RETRY_WAIT_MS"];
+  const raw = process.env["XSEC_LLM_MAX_RETRY_WAIT_MS"];
   if (raw == null || raw.trim() === "") return 60_000;
   const n = Number.parseInt(raw, 10);
   return Number.isFinite(n) && n > 0 ? n : 60_000;
@@ -263,7 +263,7 @@ function llmMaxRetryWaitMs(): number {
 
 /**
  * Max retries after the initial attempt for 429 rate-limits specifically.
- * `0SEC_LLM_429_MAX_RETRIES` → `0SEC_LLM_MAX_RETRIES` → default 12.
+ * `XSEC_LLM_429_MAX_RETRIES` → `XSEC_LLM_MAX_RETRIES` → default 12.
  *
  * ChatGPT/Codex per-minute rate limits reset every ~60s; the generic 6-retry
  * budget exhausts in ~14s (verified in prod raw_logs 2026-07-15: "HTTP 429 —
@@ -273,7 +273,7 @@ function llmMaxRetryWaitMs(): number {
  */
 function llm429MaxRetries(): number {
   const raw =
-    process.env["0SEC_LLM_429_MAX_RETRIES"] ?? process.env["0SEC_LLM_MAX_RETRIES"];
+    process.env["XSEC_LLM_429_MAX_RETRIES"] ?? process.env["XSEC_LLM_MAX_RETRIES"];
   if (raw == null || raw.trim() === "") return 12;
   const n = Number.parseInt(raw, 10);
   return Number.isFinite(n) && n >= 0 ? n : 12;
@@ -281,14 +281,14 @@ function llm429MaxRetries(): number {
 
 /**
  * Cumulative 429 backoff cap in ms.
- * `0SEC_LLM_429_MAX_RETRY_WAIT_MS` → `0SEC_LLM_MAX_RETRY_WAIT_MS` →
+ * `XSEC_LLM_429_MAX_RETRY_WAIT_MS` → `XSEC_LLM_MAX_RETRY_WAIT_MS` →
  * default 5 min. Bounds server-guided (`Retry-After`) waits; the per-call
  * abort timer (`config.timeout`) still applies as the outer bound.
  */
 function llm429MaxRetryWaitMs(): number {
   const raw =
-    process.env["0SEC_LLM_429_MAX_RETRY_WAIT_MS"] ??
-    process.env["0SEC_LLM_MAX_RETRY_WAIT_MS"];
+    process.env["XSEC_LLM_429_MAX_RETRY_WAIT_MS"] ??
+    process.env["XSEC_LLM_MAX_RETRY_WAIT_MS"];
   if (raw == null || raw.trim() === "") return 300_000;
   const n = Number.parseInt(raw, 10);
   return Number.isFinite(n) && n > 0 ? n : 300_000;
@@ -528,7 +528,7 @@ export function parseUsageLimitReached(
 
 /**
  * Idle watchdog for STREAMING (SSE) calls, in ms.
- * `0SEC_LLM_STREAM_IDLE_TIMEOUT_MS` (default 120s).
+ * `XSEC_LLM_STREAM_IDLE_TIMEOUT_MS` (default 120s).
  *
  * The streaming (responses-wireApi) branch disarms the overall call timer once
  * response HEADERS arrive so a long generation isn't killed mid-stream — but
@@ -543,7 +543,7 @@ export function parseUsageLimitReached(
  * applies, then the run exits loudly via errorExit instead of hanging.
  */
 function llmStreamIdleTimeoutMs(): number {
-  const raw = process.env["0SEC_LLM_STREAM_IDLE_TIMEOUT_MS"];
+  const raw = process.env["XSEC_LLM_STREAM_IDLE_TIMEOUT_MS"];
   if (raw == null || raw.trim() === "") return 120_000;
   const n = Number.parseInt(raw, 10);
   return Number.isFinite(n) && n > 0 ? n : 120_000;
@@ -691,7 +691,7 @@ const QWEN_TOKEN_PLAN_DEEPSEEK_MODEL = "deepseek-v4-flash-0731";
 // xAI ships an OpenAI-compatible `/v1/chat/completions` endpoint (Bearer +
 // standard body), so xai rides the same wire the openai/deepseek/qwen
 // providers use — it is NOT on the Anthropic Messages path z-ai/kimi take.
-// Override base URL via XAI_BASE_URL, model via 0SEC_MODEL / --model.
+// Override base URL via XAI_BASE_URL, model via XSEC_MODEL / --model.
 //
 // Added so the cross-family refuter roster can reach a fifth model family:
 // Grok scored the highest run-to-run CONSISTENCY of any model in Aikido's
@@ -704,7 +704,7 @@ const XAI_DEFAULT_MODEL = "grok-4.6";
 type ApiProvider = "openrouter" | "anthropic" | "openai" | "azure" | "deepseek" | "chatgpt-codex" | "z-ai" | "kimi" | "qwen" | "xai";
 type WireApi = "chat_completions" | "responses";
 /**
- * Azure Foundry deployment ids used by 0cloud. The worker can inject both
+ * Azure Foundry deployment ids used by xcloud. The worker can inject both
  * the Azure primary key and a direct-DeepSeek fallback key; route a Foundry
  * deployment to Azure before the env-priority fallback sees that second key.
  *
@@ -722,14 +722,14 @@ const AZURE_FOUNDRY_DEPLOYMENT_IDS: Record<string, true> = {
 };
 
 
-// ── Cross-provider failover (429 / quota-exhausted → 0SEC_LLM_FALLBACK) ──
+// ── Cross-provider failover (429 / quota-exhausted → XSEC_LLM_FALLBACK) ──
 //
 // When a provider exhausts its 429 retry budget or reports a plan quota
 // exhaustion, the engine can fail over to a configured ordered chain of backup
 // providers instead of surfacing a terminal error. Each entry is
 // <providerId>:<model>, separated by commas:
 //
-//   0SEC_LLM_FALLBACK=deepseek:deepseek-v4-flash,azure:gpt-5-deployment,openrouter:qwen/qwen-2.5-coder-32b-instruct
+//   XSEC_LLM_FALLBACK=deepseek:deepseek-v4-flash,azure:gpt-5-deployment,openrouter:qwen/qwen-2.5-coder-32b-instruct
 //
 // Parsed once at module load; empty / unset → no failover (today's behaviour).
 
@@ -739,12 +739,12 @@ interface FallbackEntry {
 }
 
 /**
- * Parse the `0SEC_LLM_FALLBACK` env var into an ordered chain. Returns
+ * Parse the `XSEC_LLM_FALLBACK` env var into an ordered chain. Returns
  * the empty array when the env var is absent, empty, or every entry is
  * malformed (logged to stderr as a warning).
  */
 export function parseLlmFallbackChain(): FallbackEntry[] {
-  const raw = process.env["0SEC_LLM_FALLBACK"];
+  const raw = process.env["XSEC_LLM_FALLBACK"];
   if (!raw || raw.trim().length === 0) return [];
   const entries: FallbackEntry[] = [];
   const VALID_PROVIDERS: Record<string, true> = {
@@ -758,7 +758,7 @@ export function parseLlmFallbackChain(): FallbackEntry[] {
     if (colonIdx < 1 || colonIdx === trimmed.length - 1) {
       diag.warn(
         "fallback_chain_malformed_entry",
-        `0SEC_LLM_FALLBACK: malformed entry "${trimmed}" (expected provider:model)`,
+        `XSEC_LLM_FALLBACK: malformed entry "${trimmed}" (expected provider:model)`,
         { entry: trimmed, expected: "provider:model" },
       );
       continue;
@@ -768,7 +768,7 @@ export function parseLlmFallbackChain(): FallbackEntry[] {
     if (!VALID_PROVIDERS[provider]) {
       diag.warn(
         "fallback_chain_unknown_provider",
-        `0SEC_LLM_FALLBACK: unknown provider "${provider}" in "${trimmed}"`,
+        `XSEC_LLM_FALLBACK: unknown provider "${provider}" in "${trimmed}"`,
         { entry: trimmed, provider },
       );
       continue;
@@ -776,7 +776,7 @@ export function parseLlmFallbackChain(): FallbackEntry[] {
     if (!model) {
       diag.warn(
         "fallback_chain_empty_model",
-        `0SEC_LLM_FALLBACK: empty model in "${trimmed}"`,
+        `XSEC_LLM_FALLBACK: empty model in "${trimmed}"`,
         { entry: trimmed, provider },
       );
       continue;
@@ -825,7 +825,7 @@ export function resolveFailoverProvider(
     }
     case "chatgpt-codex": {
       // Codex uses OAuth, not an api key — presence of refresh/access token = available.
-      if (!process.env["0SEC_CHATGPT_ACCESS_TOKEN"] && !process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"]) return undefined;
+      if (!process.env["XSEC_CHATGPT_ACCESS_TOKEN"] && !process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"]) return undefined;
       return { apiKey: "", baseUrl: CODEX_API_ENDPOINT, wireApi: "responses" };
     }
     case "z-ai": {
@@ -870,7 +870,7 @@ function getFallbackChain(): FallbackEntry[] {
 // GLM ships an Anthropic-compatible Messages endpoint, so z-ai rides the
 // exact same `/v1/messages` wire + parser the `anthropic` provider uses —
 // it is NOT OpenAI-compatible. The only z-ai-specific behaviour is:
-//   - default base URL + model below (override via Z_AI_BASE_URL / 0SEC_MODEL)
+//   - default base URL + model below (override via Z_AI_BASE_URL / XSEC_MODEL)
 //   - GLM's hybrid reasoning is OFF by default on this endpoint; we turn it
 //     ON via the Anthropic `thinking` body field (a hacking engine wants the
 //     model thinking). GLM is lenient about NOT echoing `thinking` blocks on
@@ -883,7 +883,7 @@ const ZAI_DEFAULT_MODEL = "glm-5.3";
 const ZAI_DEFAULT_THINKING_BUDGET = 2048;
 
 function zaiThinkingBudget(): number {
-  const raw = process.env["0SEC_ZAI_THINKING_BUDGET"];
+  const raw = process.env["XSEC_ZAI_THINKING_BUDGET"];
   if (raw == null || raw.trim().length === 0) return ZAI_DEFAULT_THINKING_BUDGET;
   const n = Number.parseInt(raw, 10);
   return Number.isFinite(n) && n >= 0 ? n : ZAI_DEFAULT_THINKING_BUDGET;
@@ -898,7 +898,7 @@ function zaiThinkingBudget(): number {
 // `thinking` blocks on the Anthropic wire with no special body param, so
 // the z-ai-only thinking-budget fragment is deliberately NOT applied here.
 // The only kimi-specific config is the default base URL + model below
-// (override via KIMI_BASE_URL / 0SEC_MODEL); note the base URL differs
+// (override via KIMI_BASE_URL / XSEC_MODEL); note the base URL differs
 // from z.ai so kimi requests never hit api.z.ai.
 const KIMI_DEFAULT_BASE_URL = "https://api.kimi.com/coding";
 const KIMI_DEFAULT_MODEL = "k3";
@@ -912,7 +912,7 @@ const KIMI_DEFAULT_MODEL = "k3";
 // subscription catalog). The default base URL is the Token Plan endpoint
 // (credit-billed, nightly off-peak discounts); a workspace PAYG endpoint
 // can be substituted via QWEN_BASE_URL. Default model is the Qwen3.8-Max
-// flagship (2.4T MoE); override with 0SEC_MODEL.
+// flagship (2.4T MoE); override with XSEC_MODEL.
 const QWEN_DEFAULT_BASE_URL = "https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1";
 const QWEN_DEFAULT_MODEL = "qwen3.8-max";
 
@@ -920,14 +920,14 @@ const QWEN_DEFAULT_MODEL = "qwen3.8-max";
 //
 // Opt-in OAuth-bearer provider that calls OpenAI's internal Codex
 // backend on the user's ChatGPT Plus/Pro subscription instead of the
-// public Platform API. Activated when 0SEC_CHATGPT_OAUTH_REFRESH_TOKEN
+// public Platform API. Activated when XSEC_CHATGPT_OAUTH_REFRESH_TOKEN
 // is set (the worker-controller plumbs this from ~/.codex/auth.json or
-// the operator can set it directly for `0sec` CLI usage on a host
+// the operator can set it directly for `xsec` CLI usage on a host
 // that has run `codex login`).
 //
 // The endpoint and OAuth issuer below are the same ones the official
 // Codex CLI uses; we are NOT a different client. Originator header is
-// set to `0sec` so server-side observability can distinguish our
+// set to `xsec` so server-side observability can distinguish our
 // traffic from raw Codex CLI traffic.
 const CODEX_API_ENDPOINT = "https://chatgpt.com/backend-api/codex/responses";
 const CODEX_OAUTH_ISSUER = "https://auth.openai.com";
@@ -960,12 +960,12 @@ export const LOOP_SERVER_COMPACTION_TOKENS = 150_000;
 /**
  * Process-lifetime session id used as the `session_id` header for the
  * chatgpt-codex provider when no scan-specific id is in scope (e.g.
- * the local CLI's `0sec audit foo --runtime api` path without a
+ * the local CLI's `xsec audit foo --runtime api` path without a
  * cloud scan context). Per-scan ids are still preferred — this is
  * just the fallback. Randomised once per process to keep concurrent
- * 0sec invocations from sharing a session bucket on OpenAI's side.
+ * xsec invocations from sharing a session bucket on OpenAI's side.
  */
-const PROCESS_SESSION_ID = `0sec-${Math.random().toString(36).slice(2, 10)}-${Date.now().toString(36)}`;
+const PROCESS_SESSION_ID = `xsec-${Math.random().toString(36).slice(2, 10)}-${Date.now().toString(36)}`;
 
 interface CodexTokenResponse {
   id_token?: string;
@@ -999,7 +999,7 @@ interface ChatGptCodexAuthState {
  * One refresh cycle per ~hour amortised across every LlmApiRuntime
  * instance — the alternative (per-instance refresh) would burn a
  * refresh call on every CLI invocation and rapidly hit the OAuth
- * provider's rate-limit. Initialised lazily so `0sec audit` runs
+ * provider's rate-limit. Initialised lazily so `xsec audit` runs
  * on hosts WITHOUT the env var pay zero startup cost.
  */
 let chatGptCodexAuthState: ChatGptCodexAuthState | undefined;
@@ -1007,12 +1007,12 @@ let chatGptCodexAuthState: ChatGptCodexAuthState | undefined;
 function readChatGptCodexEnv():
   | { accessToken?: string; refreshToken?: string; accountId?: string }
   | undefined {
-  const access = process.env["0SEC_CHATGPT_ACCESS_TOKEN"];
-  const refresh = process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
+  const access = process.env["XSEC_CHATGPT_ACCESS_TOKEN"];
+  const refresh = process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
   if ((!access || access.length === 0) && (!refresh || refresh.length === 0)) {
     return undefined;
   }
-  const accountId = process.env["0SEC_CHATGPT_ACCOUNT_ID"];
+  const accountId = process.env["XSEC_CHATGPT_ACCOUNT_ID"];
   return {
     accessToken: access && access.length > 0 ? access : undefined,
     refreshToken: refresh && refresh.length > 0 ? refresh : undefined,
@@ -1023,7 +1023,7 @@ function readChatGptCodexEnv():
 function readChatGptCodexAuthFile():
   | { accessToken?: string; refreshToken?: string; accountId?: string }
   | undefined {
-  const authPath = process.env["0SEC_CHATGPT_AUTH_FILE"] ?? join(homedir(), ".codex", "auth.json");
+  const authPath = process.env["XSEC_CHATGPT_AUTH_FILE"] ?? join(homedir(), ".codex", "auth.json");
   if (!existsSync(authPath)) return undefined;
   try {
     const auth = JSON.parse(readFileSync(authPath, "utf8")) as {
@@ -1057,7 +1057,7 @@ function readChatGptCodexAuthFile():
 /**
  * Pull the `exp` (seconds since epoch) claim out of an OpenAI-issued
  * JWT and return it as ms-since-epoch. Used when a pre-issued
- * access_token arrives via `0SEC_CHATGPT_ACCESS_TOKEN` so we know
+ * access_token arrives via `XSEC_CHATGPT_ACCESS_TOKEN` so we know
  * when it stops working — typically ~1h from issuance.
  *
  * Falls back to a default-1h-from-now estimate when the token isn't a
@@ -1132,7 +1132,7 @@ function extractChatGptAccountId(tokens: CodexTokenResponse): string | undefined
 /**
  * Return a fresh access_token for the chatgpt-codex provider. Caches the
  * token until ~60s before expiry, refreshing on demand. Throws if the
- * refresh fails OR if 0SEC_CHATGPT_OAUTH_REFRESH_TOKEN is unset.
+ * refresh fails OR if XSEC_CHATGPT_OAUTH_REFRESH_TOKEN is unset.
  *
  * Exported so callers outside the runtime (e.g. one-off cli probes)
  * can bootstrap a token with the same logic.
@@ -1145,8 +1145,8 @@ export async function getChatGptCodexAccessToken(): Promise<{
     const fromEnv = readChatGptCodexEnv() ?? readChatGptCodexAuthFile();
     if (!fromEnv) {
       throw new Error(
-        "ChatGPT Codex auth: neither 0SEC_CHATGPT_ACCESS_TOKEN nor " +
-          "0SEC_CHATGPT_OAUTH_REFRESH_TOKEN is set. Run `codex login` and " +
+        "ChatGPT Codex auth: neither XSEC_CHATGPT_ACCESS_TOKEN nor " +
+          "XSEC_CHATGPT_OAUTH_REFRESH_TOKEN is set. Run `codex login` and " +
           "either forward the access token via worker-controller (preferred " +
           "for multi-sandbox dispatch — avoids the OAuth refresh-token " +
           "rotation race) or keep a valid ~/.codex/auth.json on this host.",
@@ -1205,7 +1205,7 @@ export async function getChatGptCodexAccessToken(): Promise<{
           // refreshes 401. Note: we don't write back to disk here —
           // that's the worker-controller's job for the cloud path,
           // and the CLI path keeps the env-loaded token in-memory only
-          // for the lifetime of the process (acceptable since 0sec-cli
+          // for the lifetime of the process (acceptable since xsec-cli
           // is short-lived).
           if (tokens.refresh_token) {
             state.refreshToken = tokens.refresh_token;
@@ -1322,7 +1322,7 @@ function providerForModel(model: string | undefined): ApiProvider | undefined {
   }
   // OpenAI GPT-5 / o-series → ChatGPT-Codex subscription if present, else OpenAI.
   if (/^gpt-|^o[1-4](?:[-_]|$)/.test(m)) {
-    if (process.env["0SEC_CHATGPT_ACCESS_TOKEN"] || process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"]) return "chatgpt-codex";
+    if (process.env["XSEC_CHATGPT_ACCESS_TOKEN"] || process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"]) return "chatgpt-codex";
     if (process.env.OPENAI_API_KEY) return "openai";
     return undefined;
   }
@@ -1338,7 +1338,7 @@ function providerForModel(model: string | undefined): ApiProvider | undefined {
 /**
  * Detect which API provider to use based on available keys.
  * When `preferredModel` maps to a provider whose auth is present, that wins
- * (per-call routing). Otherwise priority: 0SEC_CHATGPT_OAUTH_REFRESH_TOKEN ->
+ * (per-call routing). Otherwise priority: XSEC_CHATGPT_OAUTH_REFRESH_TOKEN ->
  * ANTHROPIC_API_KEY -> DEEPSEEK_API_KEY -> Z_AI_API_KEY -> AZURE_OPENAI_API_KEY ->
  * OPENAI_API_KEY -> OPENROUTER_API_KEY (last-resort)
  */
@@ -1384,22 +1384,22 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
   // wins over ambient credential precedence: fallback credentials must never
   // become the primary merely because their key is also present. The older
   // FORCE variant remains for controlled benchmark manifests.
-  const selectedProviderRaw = process.env["0SEC_SELECTED_PROVIDER"]?.trim();
-  const forcedProviderRaw = process.env["0SEC_FORCE_PROVIDER"]?.trim();
+  const selectedProviderRaw = process.env["XSEC_SELECTED_PROVIDER"]?.trim();
+  const forcedProviderRaw = process.env["XSEC_FORCE_PROVIDER"]?.trim();
   if (
     selectedProviderRaw &&
     forcedProviderRaw &&
     selectedProviderRaw !== forcedProviderRaw
   ) {
     throw new Error(
-      "0SEC_SELECTED_PROVIDER conflicts with 0SEC_FORCE_PROVIDER",
+      "XSEC_SELECTED_PROVIDER conflicts with XSEC_FORCE_PROVIDER",
     );
   }
   // The worker pin chooses the primary scan provider. A hunt's refuter creates
   // a runtime with a different explicit model; honoring the primary pin there
   // would route that model through the wrong credential and defeat cross-family
-  // refutation. 0SEC_FORCE_PROVIDER remains an unconditional benchmark guard.
-  const primaryModel = process.env["0SEC_MODEL"]?.trim();
+  // refutation. XSEC_FORCE_PROVIDER remains an unconditional benchmark guard.
+  const primaryModel = process.env["XSEC_MODEL"]?.trim();
   const selectedProviderApplies =
     !preferredModel || !primaryModel || preferredModel === primaryModel;
   const pinnedProviderRaw =
@@ -1407,8 +1407,8 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
     (selectedProviderApplies ? selectedProviderRaw : undefined);
   if (pinnedProviderRaw) {
     const source = pinnedProviderRaw === forcedProviderRaw
-      ? "0SEC_FORCE_PROVIDER"
-      : "0SEC_SELECTED_PROVIDER";
+      ? "XSEC_FORCE_PROVIDER"
+      : "XSEC_SELECTED_PROVIDER";
     const supported: readonly ApiProvider[] = [
       "openrouter",
       "anthropic",
@@ -1424,7 +1424,7 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
     if (!supported.includes(pinnedProviderRaw as ApiProvider)) {
       throw new Error(`${source} is unsupported: ${pinnedProviderRaw}`);
     }
-    const model = preferredModel ?? process.env["0SEC_MODEL"];
+    const model = preferredModel ?? process.env["XSEC_MODEL"];
     if (!model) {
       throw new Error(`${source} requires an explicit model`);
     }
@@ -1486,7 +1486,7 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
         baseUrl: process.env.XAI_BASE_URL ?? XAI_DEFAULT_BASE_URL, defaultModel: XAI_DEFAULT_MODEL, wireApi: "chat_completions" };
     case "chatgpt-codex":
       return { provider: "chatgpt-codex", apiKey: "", baseUrl: CODEX_API_ENDPOINT,
-        defaultModel: process.env["0SEC_MODEL"] ?? CODEX_DEFAULT_MODEL, wireApi: "responses" };
+        defaultModel: process.env["XSEC_MODEL"] ?? CODEX_DEFAULT_MODEL, wireApi: "responses" };
     case "anthropic":
       return { provider: "anthropic", apiKey: process.env.ANTHROPIC_API_KEY as string,
         baseUrl: process.env.ANTHROPIC_BASE_URL ?? "https://api.anthropic.com", defaultModel: DEFAULT_ANTHROPIC_MODEL, wireApi: "chat_completions" };
@@ -1503,7 +1503,7 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
   // Check env vars in priority order. ChatGPT subscription auth wins
   // when present — it's a deliberate operator opt-in via either:
   //
-  //   - 0SEC_CHATGPT_ACCESS_TOKEN — pre-issued access token. The
+  //   - XSEC_CHATGPT_ACCESS_TOKEN — pre-issued access token. The
   //     worker-controller refreshes once at dispatch time, persists the
   //     rotated refresh_token back to auth.json, and forwards just the
   //     access_token to each sandbox. This is the multi-sandbox path
@@ -1511,7 +1511,7 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
   //     (every sandbox refreshing in parallel against a refresh_token
   //     that gets invalidated on first use).
   //
-  //   - 0SEC_CHATGPT_OAUTH_REFRESH_TOKEN — refresh token only. The
+  //   - XSEC_CHATGPT_OAUTH_REFRESH_TOKEN — refresh token only. The
   //     in-process provider refreshes on demand. Suitable for local CLI
   //     use (one process at a time); not safe for parallel sandbox
   //     dispatch.
@@ -1519,8 +1519,8 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
   // Either env present → use the chatgpt-codex provider; we skip the
   // api-key providers entirely because the operator has explicitly told
   // us to use the subscription path.
-  const chatGptAccess = process.env["0SEC_CHATGPT_ACCESS_TOKEN"];
-  const chatGptRefresh = process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
+  const chatGptAccess = process.env["XSEC_CHATGPT_ACCESS_TOKEN"];
+  const chatGptRefresh = process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
   const chatGptAuthFile = !chatGptAccess && !chatGptRefresh
     ? readChatGptCodexAuthFile()
     : undefined;
@@ -1539,7 +1539,7 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
       // baseUrl is informational only — the runtime hardcodes
       // CODEX_API_ENDPOINT for this provider.
       baseUrl: CODEX_API_ENDPOINT,
-      defaultModel: process.env["0SEC_MODEL"] ?? CODEX_DEFAULT_MODEL,
+      defaultModel: process.env["XSEC_MODEL"] ?? CODEX_DEFAULT_MODEL,
       wireApi: "responses",
     };
   }
@@ -1676,14 +1676,14 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
  * Runtime that calls LLM APIs directly.
  *
  * Supports multiple providers with automatic detection:
- * - ChatGPT Codex (0SEC_CHATGPT_OAUTH_REFRESH_TOKEN) — subscription-backed Codex access
+ * - ChatGPT Codex (XSEC_CHATGPT_OAUTH_REFRESH_TOKEN) — subscription-backed Codex access
  * - OpenRouter (OPENROUTER_API_KEY) — access many models through one API
  * - Anthropic (ANTHROPIC_API_KEY) — direct Claude API access
  * - OpenAI (OPENAI_API_KEY) — direct OpenAI API access
  *
- * Priority: 0SEC_CHATGPT_OAUTH_REFRESH_TOKEN -> ANTHROPIC_API_KEY -> Z_AI_API_KEY -> AZURE_OPENAI_API_KEY -> OPENAI_API_KEY -> OPENROUTER_API_KEY (last-resort)
+ * Priority: XSEC_CHATGPT_OAUTH_REFRESH_TOKEN -> ANTHROPIC_API_KEY -> Z_AI_API_KEY -> AZURE_OPENAI_API_KEY -> OPENAI_API_KEY -> OPENROUTER_API_KEY (last-resort)
  *
- * Model can be overridden with 0SEC_MODEL env var or --model flag.
+ * Model can be overridden with XSEC_MODEL env var or --model flag.
  *
  * Supports two modes:
  * - Legacy: single-prompt execute() for backward compat with existing agent loop
@@ -1700,7 +1700,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
   private reasoningEffort?: string;
   private azureConfig: ReturnType<typeof parseCodexAzureConfig>;
   private serverCompactionTokens?: number;
-  /** Ordered fallback chain (0SEC_LLM_FALLBACK). Empty = no failover. */
+  /** Ordered fallback chain (XSEC_LLM_FALLBACK). Empty = no failover. */
   private fallbackChain: FallbackEntry[];
   /** Index into fallbackChain — which entry to try next. */
   private fallbackIndex: number;
@@ -1712,18 +1712,18 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
     this.fallbackIndex = 0;
     // Thread the requested model into detection so provider follows the model
     // per-call (per-call multi-provider routing) when its auth is available.
-    const detected = detectProvider(config.apiKey, config.model ?? process.env["0SEC_MODEL"]);
+    const detected = detectProvider(config.apiKey, config.model ?? process.env["XSEC_MODEL"]);
     this.provider = detected.provider;
     this.apiKey = detected.apiKey;
     this.baseUrl = detected.baseUrl;
     this.wireApi = detected.wireApi;
-    this.reasoningEffort = process.env["0SEC_REASONING_EFFORT"] ?? detected.reasoningEffort;
+    this.reasoningEffort = process.env["XSEC_REASONING_EFFORT"] ?? detected.reasoningEffort;
     // `compact_threshold` has an API minimum of 1000; clamp rather than send a
     // value the server will reject on the hot path of every request.
     this.serverCompactionTokens = config.serverCompactionTokens !== undefined
       ? Math.max(1000, config.serverCompactionTokens)
       : undefined;
-    const requestedModel = config.model ?? process.env["0SEC_MODEL"];
+    const requestedModel = config.model ?? process.env["XSEC_MODEL"];
     // "free" is a special alias for the free OpenRouter model
     if (requestedModel === "free" && this.provider === "openrouter") {
       this.model = FREE_OPENROUTER_MODEL;
@@ -1749,7 +1749,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
     // is cached and tolerant of failures — never blocks the main path.
     // Skip entirely when no key is configured (the diagnostics path will
     // surface the missing-key error to the user instead).
-    if (this.apiKey && !process.env["0SEC_SKIP_PROVIDER_BANNER"]) {
+    if (this.apiKey && !process.env["XSEC_SKIP_PROVIDER_BANNER"]) {
       void logProviderStartup(
         this.provider,
         this.providerLabel,
@@ -1840,12 +1840,12 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
       // `originator` + `User-Agent` mirror opencode's chat.headers hook
       // (codex.ts:610-614): originator identifies the client to
       // OpenAI's server-side analytics (Codex CLI uses `codex_cli_rs`,
-      // we ship `0sec`), and User-Agent gives them a way to
+      // we ship `xsec`), and User-Agent gives them a way to
       // distinguish our version + platform in their access logs.
       return {
         "Content-Type": "application/json",
-        originator: "0sec",
-        "User-Agent": `0sec/${VERSION}`,
+        originator: "xsec",
+        "User-Agent": `xsec/${VERSION}`,
       };
     }
     if (this.isOpenAICompat) {
@@ -1859,8 +1859,8 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
         headers["Authorization"] = `Bearer ${this.apiKey}`;
       }
       if (this.provider === "openrouter") {
-        headers["HTTP-Referer"] = "https://0sec.ai";
-        headers["X-Title"] = "0sec Security Scanner";
+        headers["HTTP-Referer"] = "https://xsec.dev";
+        headers["X-Title"] = "XSEC Security Scanner";
       }
       return headers;
     }
@@ -1889,7 +1889,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
    * happens.
    *
    * session_id is process-stable (PROCESS_SESSION_ID, randomised
-   * once at module load). A 0sec-cli invocation = one scan = one
+   * once at module load). A xsec-cli invocation = one scan = one
    * session, so the process-lifetime constant is the right
    * granularity. If we ever want per-scan ids inside a long-lived
    * controller process, add a setter on the runtime; for now this
@@ -1902,7 +1902,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
     base["Authorization"] = `Bearer ${accessToken}`;
     if (accountId) base["ChatGPT-Account-Id"] = accountId;
     base["session_id"] = PROCESS_SESSION_ID;
-    // SSE accept header — 0sec's existing code uses fetch with raw
+    // SSE accept header — xsec's existing code uses fetch with raw
     // body so the AI SDK doesn't set this for us. Codex backend
     // streams via SSE; without an explicit Accept header some
     // intermediate CDN can downgrade to non-streaming + buffer the
@@ -1975,7 +1975,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
   /**
    * Per-turn prompt-cache accounting line, so a run can be shown to actually
    * be hitting cache rather than assumed to be. Off unless
-   * `0SEC_DEBUG_PROMPT_CACHE` is set — this fires once per agent turn, and an
+   * `XSEC_DEBUG_PROMPT_CACHE` is set — this fires once per agent turn, and an
    * unconditional line would interleave with the TUI on every scan.
    *
    * The same numbers reach the cloud without this flag: `cachedInputTokens`
@@ -1983,7 +1983,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
    * is the durable, queryable proof. This is the local fast path.
    */
   private logCacheUsage(usage: NativeRuntimeResult["usage"]): void {
-    if (!usage || !process.env["0SEC_DEBUG_PROMPT_CACHE"]) return;
+    if (!usage || !process.env["XSEC_DEBUG_PROMPT_CACHE"]) return;
     const read = usage.cachedInputTokens ?? 0;
     const write = usage.cacheWriteTokens ?? 0;
     const hitRate = usage.inputTokens > 0
@@ -2018,7 +2018,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
   private noKeyError(): string {
     return (
       "No provider credential found. Set one of:\n" +
-      "  env 0SEC_CHATGPT_OAUTH_REFRESH_TOKEN=... 0sec <command> (ChatGPT Codex subscription auth)\n" +
+      "  env XSEC_CHATGPT_OAUTH_REFRESH_TOKEN=... xsec <command> (ChatGPT Codex subscription auth)\n" +
       "  export OPENROUTER_API_KEY=sk-or-...   (OpenRouter — many models, one key)\n" +
       "  export DEEPSEEK_API_KEY=...           (DeepSeek — direct Flash 0731 inference)\n" +
       "  export ANTHROPIC_API_KEY=sk-ant-...    (Anthropic — direct Claude access)\n" +
@@ -2060,7 +2060,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
     );
     const hasConfiguredModel = !!(
       this.config.model ||
-      process.env["0SEC_MODEL"] ||
+      process.env["XSEC_MODEL"] ||
       process.env.AZURE_OPENAI_MODEL ||
       this.azureConfig.model
     );
@@ -2082,7 +2082,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
         fatalError:
           "Azure OpenAI runtime is selected, but the configuration is incomplete.\n" +
           `Missing: ${missing.join("; ")}\n` +
-          "0sec will not guess Azure defaults because that can silently route to the wrong endpoint or deployment.",
+          "xsec will not guess Azure defaults because that can silently route to the wrong endpoint or deployment.",
       };
     }
 
@@ -2102,15 +2102,15 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
    *
    * Two 429 classes are handled differently:
    * - per-minute rate limit → retry with the wider 429 budget
-   *   (0SEC_LLM_429_MAX_RETRIES attempts / 0SEC_LLM_429_MAX_RETRY_WAIT_MS
+   *   (XSEC_LLM_429_MAX_RETRIES attempts / XSEC_LLM_429_MAX_RETRY_WAIT_MS
    *   cumulative, defaults 12 / 5min) since the limiter resets every ~60s;
    *   `Retry-After` / `retry-after-ms` headers are honored up to a 120s cap.
    * - plan-quota exhaustion (`usage_limit_reached`, resets in hours/days) →
-   *   skips retries and immediately advances `0SEC_LLM_FALLBACK`; if no
+   *   skips retries and immediately advances `XSEC_LLM_FALLBACK`; if no
    *   configured fallback has credentials, it throws QuotaExhaustedError.
    *
    * Other retryable statuses (transient 5xx) keep the generic budget:
-   * 0SEC_LLM_MAX_RETRIES (attempts) and 0SEC_LLM_MAX_RETRY_WAIT_MS
+   * XSEC_LLM_MAX_RETRIES (attempts) and XSEC_LLM_MAX_RETRY_WAIT_MS
    * (cumulative backoff). On exhaustion it returns the last still-failing
    * Response with its body intact, so the caller's existing `!res.ok` branch
    * surfaces the clear "API error <status>" message — a rate-limit never
@@ -2121,7 +2121,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
    * is fixed across attempts.
    */
   /**
-   * Try the next fallback provider in the chain (0SEC_LLM_FALLBACK).
+   * Try the next fallback provider in the chain (XSEC_LLM_FALLBACK).
    * Updates `this.provider`, `this.model`, `this.apiKey`, `this.baseUrl`,
    * `this.wireApi` to match the next valid provider. Returns `true` when a
    * valid next provider was found and switched to, `false` when the chain is
@@ -2137,7 +2137,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
       if (!cfg) {
         diag.warn(
           "failover_provider_skipped",
-          `0SEC_LLM_FALLBACK: skipping ${entry.provider} (auth env missing)`,
+          `XSEC_LLM_FALLBACK: skipping ${entry.provider} (auth env missing)`,
           { provider: entry.provider, model: entry.model, cause: "auth-env-missing" },
         );
         continue;
@@ -2188,7 +2188,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
       // every caller that passes no operator signal, making this a no-op.
       abort?.throwIfCancelled();
       // buildUrl() is the configured LLM provider endpoint (operator-set via
-      // provider config / 0SEC_* env), never user/attacker input; same
+      // provider config / XSEC_* env), never user/attacker input; same
       // trusted endpoint the client already POSTed to, now wrapped in retry.
       // foxguard: ignore[js/no-ssrf]
       let res: Response;
@@ -2674,7 +2674,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
         };
 
         // reasoning_effort on the chat_completions wire — only when the
-        // operator set it explicitly (0SEC_REASONING_EFFORT / Azure config).
+        // operator set it explicitly (XSEC_REASONING_EFFORT / Azure config).
         // DeepSeek direct honors it (measured 4x reasoning-token separation,
         // 2026-08-12); endpoints that don't know the field (Alibaba
         // compatible-mode) silently ignore it. Never apply the gpt-5/o1
@@ -3663,7 +3663,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
     // chatgpt-codex uses an OAuth refresh token (env-supplied) rather
     // than an api key; treat presence of the env var as availability.
     if (this.provider === "chatgpt-codex") {
-      const refresh = process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
+      const refresh = process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
       return typeof refresh === "string" && refresh.length > 0;
     }
     return !!this.apiKey;

@@ -26,10 +26,10 @@ const savedApiEnv = {
   KIMI_API_KEY: process.env.KIMI_API_KEY,
   QWEN_API_KEY: process.env.QWEN_API_KEY,
   DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY,
-  "0SEC_CHATGPT_ACCESS_TOKEN": process.env["0SEC_CHATGPT_ACCESS_TOKEN"],
-  "0SEC_CHATGPT_OAUTH_REFRESH_TOKEN": process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"],
-  "0SEC_CHATGPT_ACCOUNT_ID": process.env["0SEC_CHATGPT_ACCOUNT_ID"],
-  "0SEC_CHATGPT_AUTH_FILE": process.env["0SEC_CHATGPT_AUTH_FILE"],
+  "XSEC_CHATGPT_ACCESS_TOKEN": process.env["XSEC_CHATGPT_ACCESS_TOKEN"],
+  "XSEC_CHATGPT_OAUTH_REFRESH_TOKEN": process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"],
+  "XSEC_CHATGPT_ACCOUNT_ID": process.env["XSEC_CHATGPT_ACCOUNT_ID"],
+  "XSEC_CHATGPT_AUTH_FILE": process.env["XSEC_CHATGPT_AUTH_FILE"],
 };
 
 function restoreApiEnv(): void {
@@ -77,10 +77,10 @@ beforeAll(async () => {
   process.env.KIMI_API_KEY = "";
   process.env.QWEN_API_KEY = "";
   process.env.DEEPSEEK_API_KEY = "";
-  process.env["0SEC_CHATGPT_ACCESS_TOKEN"] = "";
-  process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"] = "";
-  process.env["0SEC_CHATGPT_ACCOUNT_ID"] = "";
-  process.env["0SEC_CHATGPT_AUTH_FILE"] = join(tmpdir(), "0sec-scan-test-no-codex-auth.json");
+  process.env["XSEC_CHATGPT_ACCESS_TOKEN"] = "";
+  process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"] = "";
+  process.env["XSEC_CHATGPT_ACCOUNT_ID"] = "";
+  process.env["XSEC_CHATGPT_AUTH_FILE"] = join(tmpdir(), "xsec-scan-test-no-codex-auth.json");
 
   const vulnMod = await import("./vulnerable-server.js");
   const safeMod = await import("./safe-server.js");
@@ -305,7 +305,7 @@ describe("Safe server responses", () => {
   });
 });
 
-describe("0sec scan integration", () => {
+describe("xsec scan integration", () => {
   it("completes a scan against the vulnerable target without errors", async () => {
     const report = await runScan({
       target: vulnTarget,
@@ -396,7 +396,7 @@ describe("0sec scan integration", () => {
   }, 30_000);
 
   it("lists findings from the parent findings command", async () => {
-    const dbPath = join(tmpdir(), `0sec-findings-${Date.now()}.db`);
+    const dbPath = join(tmpdir(), `xsec-findings-${Date.now()}.db`);
 
     await runScan(
       {

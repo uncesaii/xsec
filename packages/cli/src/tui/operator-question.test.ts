@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { OperatorQuestionRequest } from "@0sec/core";
+import type { OperatorQuestionRequest } from "@xsec/core";
 import {
   buildOperatorAnswer,
   createOperatorQuestionState,

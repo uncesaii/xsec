@@ -2,7 +2,7 @@
  * The single source of truth for every keyboard shortcut the chat console
  * (`chat-screen.tsx`) binds.
  *
- * This module is PURE DATA — no React, no OpenTUI, no `@0sec/core` — so it can
+ * This module is PURE DATA — no React, no OpenTUI, no `@xsec/core` — so it can
  * be imported by the reference view, the settings surface, and a future
  * remapping layer alike, and unit-tested without a terminal.
  *

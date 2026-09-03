@@ -27,8 +27,8 @@
 import type {
   VerificationResult,
   ResearchNoveltyReceipt,
-} from "@0sec/shared";
-import { normalizeResearchNovelty } from "@0sec/shared";
+} from "@xsec/shared";
+import { normalizeResearchNovelty } from "@xsec/shared";
 import type {
   RankSinkReachabilityResult,
   SinkLocation,

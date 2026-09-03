@@ -6,7 +6,7 @@ import { TERMINAL_BLOCK_LOGO_WIDTH, logoRunStyle } from "./logo.js";
 import type { Theme } from "../theme-context.js";
 
 /**
- * The centered empty-state hero: a muted EYEBROW (the lab name) above the 0sec
+ * The centered empty-state hero: a muted EYEBROW (the lab name) above the xsec
  * block mark, then the tagline. Extracted verbatim from ChatScreen's hero so
  * placement and every width/flex invariant is unchanged; the caller still gates
  * the whole unit behind `showMasthead`.
@@ -28,13 +28,13 @@ export function Masthead({
   return (
     <>
       {showTerminalMark ? (
-        <text fg={MUTED} marginBottom={1}>{fitTuiText("Swiss Applied AI Cybersecurity Research Lab", contentWidth, { mode: "middle" })}</text>
+        <text fg={MUTED} marginBottom={1}></text>
       ) : null}
       {showTerminalMark ? (
         <box flexDirection="column" width={TERMINAL_BLOCK_LOGO_WIDTH} minWidth={TERMINAL_BLOCK_LOGO_WIDTH} flexShrink={0}>
           {/*
-            * 0sec brand mark: a slashed zero — a white "0" outline with a
-            * red diagonal slash through its hollow — then white "SEC".
+            * xsec brand mark: a red "X" — white outline with red diagonal
+            * strokes — then white "SEC".
             * The per-cell frame comes from computeLogoFrame (the intro
             * animation, or the settled final frame under reduceMotion/"off");
             * logoRowRuns coalesces each row into (tone,visible) runs whose
@@ -62,7 +62,7 @@ export function Masthead({
         </box>
       ) : (
         <box flexDirection="row" flexShrink={0}>
-          <text fg={TEXT}>0SEC · OPERATOR CONSOLE</text>
+          <text fg={TEXT}>xsec · OPERATOR CONSOLE</text>
         </box>
       )}
       {showTagline ? (

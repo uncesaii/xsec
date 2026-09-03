@@ -1,24 +1,19 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/0sec-aperture-white.svg">
-    <img src="assets/0sec-aperture-ink.svg" alt="0sec" width="176">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/xsec-aperture-white.svg">
+    <img src="assets/xsec-aperture-ink.svg" alt="XSEC" width="176">
   </picture>
 </p>
 
 <p align="center">
   <strong>[RESEARCH PREVIEW] Your open & extensible AI cybersecurity team.</strong><br/>
-  0sec finds vulnerabilities, creates working exploits, and writes the fix.
+  XSEC finds vulnerabilities, creates working exploits, and writes the fix.
   Multi-model, multi-agent, but most importantly: yours.
 </p>
 
 <p align="center">
-  <sub>🇨🇭 Maintained by the Swiss Applied AI & Cybersecurity Research Lab · <a href="https://0.security">0.security</a></sub>
-</p>
-
-<p align="center">
   <img src="https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-3fb950" alt="license" />
-  <img src="https://img.shields.io/github/v/release/0sec-labs/0sec?color=2563eb" alt="release" />
-  <img src="https://img.shields.io/badge/docs-0.security-6366f1" alt="docs" />
+  <img src="https://img.shields.io/github/v/release/uncesaii/xsec?color=2563eb" alt="release" />
   <img src="https://img.shields.io/badge/status-research%20preview-f0883e" alt="status: research preview" />
 </p>
 
@@ -27,28 +22,28 @@
 </p>
 
 <p align="center">
-  <img src="assets/demo-intro.gif" alt="0sec — finds, proves, and reports vulnerabilities" width="840">
+  <img src="assets/demo-intro.gif" alt="XSEC — finds, proves, and reports vulnerabilities" width="840">
 </p>
 
 ## Install & Quick Start
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/0sec-labs/0sec/main/install.sh | bash
-export PATH="$HOME/.0sec/bin:$PATH"
+curl -fsSL https://raw.githubusercontent.com/uncesaii/xsec/main/install.sh | bash
+export PATH="$HOME/.xsec/bin:$PATH"
 0 --help
 ```
-The verified binary is installed to `~/.0sec/bin` with no Node/Bun dependency.
+The verified binary is installed to `~/.xsec/bin` with no Node/Bun dependency.
 Add the `export` line to your shell profile to make `0` available in future shells.
 
 <p align="center">
-  <img src="assets/0sec-demo.gif" alt="0sec quickstart — a scan from start to finish" width="820">
+  <img src="assets/xsec-demo.gif" alt="XSEC quickstart — a scan from start to finish" width="820">
 </p>
 
-## What 0sec aims to cover
+## What XSEC aims to cover
 
 Most AI pentesting harnesses and tools stop at the web app layer to find and chain vulnerabilities. However research suggests that supply chain and other infrastructure level exploits are more common, and cheaper to exploit than ever before.
 
-0sec's core philosophy is to be a single, extensible and transparent tool to tackle all the remaining layers as security changes from point-in-time tests towards continuous security.
+XSEC's core philosophy is to be a single, extensible and transparent tool to tackle all the remaining layers as security changes from point-in-time tests towards continuous security.
 
 | Layer | Finds |
 | --- | --- |
@@ -74,7 +69,7 @@ Most AI pentesting harnesses and tools stop at the web app layer to find and cha
 | Identity / AD (read-only) | `identity`, `adgraph`, `entragraph` |
 | Integrate | `mcp-server`, `console`, `tui`, `dashboard` |
 
-Run `0 --help` for the rest. Full docs: **[docs.0.security](https://docs.0.security)**.
+Run `0 --help` for the rest.
 
 ### Primary workflow
 
@@ -86,7 +81,7 @@ finder-lens strategy. Specialized CLI commands remain available for automation
 and research, but they are not separate primary TUI modes.
 
 <p align="center">
-  <img src="assets/demo-commands.gif" alt="0sec console command palette" width="820"><br/>
+  <img src="assets/demo-commands.gif" alt="XSEC console command palette" width="820"><br/>
   <sub>The interactive console — <code>/</code> opens the command palette.</sub>
 </p>
 
@@ -99,16 +94,16 @@ It proves the bug before it reports it.
 - **Triage before verify.** Class oracles and a second scanner cut noise before the expensive step.
 - **Bring your own model.** Anthropic, OpenAI, Azure, OpenRouter, or local Ollama — you hold the key.
 
-Every run keeps its own evidence under `~/.0sec/runs/<id>/`, so you can `resume`, `replay`, or `disclose` it later.
+Every run keeps its own evidence under `~/.xsec/runs/<id>/`, so you can `resume`, `replay`, or `disclose` it later.
 
 <p align="center">
-  <img src="assets/demo-verify.gif" alt="0sec blind verification" width="820"><br/>
+  <img src="assets/demo-verify.gif" alt="XSEC blind verification" width="820"><br/>
   <sub>Blind verification — every finding is re-exploited before it ships.</sub>
 </p>
 
 ## Track record
 
-0sec has landed real, maintainer-reviewed fixes in the **mainline Linux kernel** and other open source. The verified list lives at **[0.security](https://0.security)**. Benchmarks are secondary evidence — caveats in the [benchmark docs](docs/src/content/docs/benchmark.md).
+XSEC has landed real, maintainer-reviewed fixes in the **mainline Linux kernel** and other open source. Benchmarks are secondary evidence — caveats in the [benchmark docs](docs/src/content/docs/benchmark.md).
 
 ## Supported by
 
@@ -154,7 +149,7 @@ With special thanks to the startup and research programs supporting our work:
 ## Honest limitations
 
 - Kernel/IOKit findings stay hypotheses until a real oracle reproduces them (the `linux-kernel` profile is static).
-- Verification depth varies: `verificationSpec` covers file/diff predicates. The replay runner isolates PoCs in fresh, unprivileged, read-only Docker containers (no network by default; scoped HTTP opts into a bridge/custom network via `verify --docker-network` + `--scope`) and offline QEMU initramfs guests (`--qemu-kernel` / `--qemu-busybox`, or `0SEC_REPLAY_QEMU_*`) — but a finding still has to ship executable `pocSteps` for any of it to run; without them the finding is `skipped`.
+- Verification depth varies: `verificationSpec` covers file/diff predicates. The replay runner isolates PoCs in fresh, unprivileged, read-only Docker containers (no network by default; scoped HTTP opts into a bridge/custom network via `verify --docker-network` + `--scope`) and offline QEMU initramfs guests (`--qemu-kernel` / `--qemu-busybox`, or `XSEC_REPLAY_QEMU_*`) — but a finding still has to ship executable `pocSteps` for any of it to run; without them the finding is `skipped`.
 - The false-positive-moat layers are off by default and slice-dependent.
 - Benchmarks are single-model/config/trial; the 10/10 AI-suite is self-authored, not independent.
 - `fix` is narrow: source-only, single-file, ≤3 attempts.
@@ -163,13 +158,13 @@ With special thanks to the startup and research programs supporting our work:
 ## Build from source
 
 ```bash
-git clone https://github.com/0sec-labs/0sec.git && cd 0sec
+git clone https://github.com/uncesaii/xsec.git && cd xsec
 corepack enable && pnpm install --frozen-lockfile && pnpm build && node packages/cli/dist/index.js --help
 ```
 
 ## Contributing & security
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) — synthetic or authorized targets only. Report vulnerabilities privately via [SECURITY.md](SECURITY.md) (security@0sec.ai), not public issues.
+See [CONTRIBUTING.md](CONTRIBUTING.md) — synthetic or authorized targets only. Report vulnerabilities privately via [SECURITY.md](SECURITY.md), not public issues.
 
 ## License
 

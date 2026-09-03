@@ -38,7 +38,7 @@
  * process access; the one function that reads the environment takes it as an
  * argument. The single exception is the clearly-fenced "Installed themes"
  * section at the foot of the file, which reads validated theme palettes off disk
- * (`~/.0sec/themes/`). That I/O is total and fail-soft — an unreadable dir or a
+ * (`~/.xsec/themes/`). That I/O is total and fail-soft — an unreadable dir or a
  * corrupt file is skipped, never thrown — so it cannot take a session down, and
  * the pure functions above it never call into it.
  */
@@ -46,7 +46,7 @@
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import { homeStateDir } from "@0sec/shared";
+import { homeStateDir } from "@xsec/shared";
 
 import type { SettingDef } from "./settings.js";
 import { loadUserThemes } from "./user-themes.js";
@@ -224,7 +224,7 @@ export const MIN_SEMANTIC_CONTRAST = 1.15;
 /* ----------------------------------------------------------------- palettes */
 
 /**
- * `0sec Dark` ("Carbon") — the palette shipped originally, byte-for-byte from
+ * `xsec Dark` ("Carbon") — the palette shipped originally, byte-for-byte from
  * `ui/theme.ts`.
  *
  * No longer the default (Midnight is), but preserved exactly so an operator who
@@ -470,8 +470,7 @@ const MONO_DIM: Theme = {
 };
 
 /**
- * `Swiss` — a red-forward Swiss-flag palette for the Swiss Applied AI
- * Cybersecurity Research Lab: Swiss red framing crisp white over a near-black
+ * `Swiss` — a red-forward Swiss-flag palette: Swiss red framing crisp white over a near-black
  * red-tinted ground.
  *
  * Red is structural here, not just an accent. `BORDER` is a mid Swiss red, so
@@ -614,7 +613,7 @@ export const THEMES: Readonly<Record<ThemeName, ThemeEntry>> = {
   swiss: {
     name: "swiss",
     label: "Swiss",
-    description: "Swiss-flag red on near-black, crisp white text. For the Swiss Applied AI Cybersecurity Research Lab.",
+    description: "Swiss-flag red on near-black, crisp white text.",
     mode: "dark",
     palette: SWISS,
   },
@@ -1104,14 +1103,14 @@ export const THEME_SETTING_DEF: SettingDef<ThemeName> & {
 /* ----------------------------------------------------- installed themes (I/O) */
 //
 // Themes become shareable artifacts by living as validated JSON palettes under
-// the per-user state dir (`~/.0sec/themes/<id>.json`). This is the ONLY part of
+// the per-user state dir (`~/.xsec/themes/<id>.json`). This is the ONLY part of
 // the module that touches the filesystem. Every read is total and fail-soft: a
 // missing dir, an unreadable file, malformed JSON, or a palette that fails
 // `validateTheme` is skipped, never thrown. Installed themes carry NO code and
 // NO capabilities — they are a palette plus display metadata, nothing more, so
 // loading one can never reach the tool loader or a capability gate.
 
-/** Directory name for installed themes inside the 0sec state dir. */
+/** Directory name for installed themes inside the xsec state dir. */
 export const INSTALLED_THEMES_DIRNAME = "themes";
 
 /** On-disk shape of an installed theme file. `id` is authoritative (the file's

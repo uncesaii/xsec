@@ -1,10 +1,10 @@
 {
-  "name": "0sec-cli",
+  "name": "xsec-cli",
   "version": "0.15.0",
   "description": "Open-source agentic AI pentest framework. Autonomously discover, exploit, and verify vulnerabilities in web apps, AI/LLM apps, source code, and npm/PyPI/Cargo/OCI packages.",
   "type": "module",
   "bin": {
-    "0sec": "dist/index.js",
+    "xsec": "dist/index.js",
     "0": "dist/index.js"
   },
   "files": [
@@ -21,13 +21,13 @@
     "@modelcontextprotocol/sdk": "^1.30.0",
     "@opentui/core": "0.5.4",
     "@opentui/react": "0.5.4",
-    "@0sec/benchmark": "workspace:*",
-    "@0sec/core": "workspace:*",
-    "@0sec/llm-redteam": "workspace:*",
-    "@0sec/db": "workspace:*",
-    "@0sec/shared": "workspace:*",
-    "@0sec/templates": "workspace:*",
-    "@0sec/test-targets": "workspace:*",
+    "@xsec/benchmark": "workspace:*",
+    "@xsec/core": "workspace:*",
+    "@xsec/llm-redteam": "workspace:*",
+    "@xsec/db": "workspace:*",
+    "@xsec/shared": "workspace:*",
+    "@xsec/templates": "workspace:*",
+    "@xsec/test-targets": "workspace:*",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
     "pdfkit": "^0.15.2",

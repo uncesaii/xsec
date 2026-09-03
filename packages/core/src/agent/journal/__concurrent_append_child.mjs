@@ -5,12 +5,12 @@
 import { closeSync, fsyncSync, mkdirSync, openSync, writeSync } from "node:fs";
 import { join } from "node:path";
 
-const runDir = process.env["0SEC_TEST_RUN_DIR"];
-const writerId = process.env["0SEC_TEST_WRITER_ID"];
-const iterations = Number.parseInt(process.env["0SEC_TEST_ITERATIONS"] ?? "100", 10);
+const runDir = process.env["XSEC_TEST_RUN_DIR"];
+const writerId = process.env["XSEC_TEST_WRITER_ID"];
+const iterations = Number.parseInt(process.env["XSEC_TEST_ITERATIONS"] ?? "100", 10);
 
 if (!runDir || !writerId || !Number.isFinite(iterations)) {
-  console.error("missing 0SEC_TEST_RUN_DIR / 0SEC_TEST_WRITER_ID / 0SEC_TEST_ITERATIONS");
+  console.error("missing XSEC_TEST_RUN_DIR / XSEC_TEST_WRITER_ID / XSEC_TEST_ITERATIONS");
   process.exit(2);
 }
 

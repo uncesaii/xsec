@@ -1,9 +1,9 @@
 ---
 title: Commands
-description: Complete reference for all 0sec CLI commands.
+description: Complete reference for all XSEC CLI commands.
 ---
 
-Run any command as `0sec <command>` (or `0`). Skip the subcommand to let
+Run any command as `xsec <command>`. Skip the subcommand to let
 auto-detect pick one (see [Getting Started](/getting-started/)).
 
 ## scan
@@ -16,36 +16,36 @@ before making a request. Local source review and package audits don't.
 
 ```bash
 # Scan an LLM API
-0sec scan --target https://api.example.com/chat --scope ./scope.json
+xsec scan --target https://api.example.com/chat --scope ./scope.json
 
 # Scan a traditional web app
-0sec scan --target https://example.com --mode web --scope ./scope.json
+xsec scan --target https://example.com --mode web --scope ./scope.json
 
 # Deep scan with Claude Code CLI
-0sec scan --target https://api.example.com/chat --scope ./scope.json --depth deep --runtime claude
+xsec scan --target https://api.example.com/chat --scope ./scope.json --depth deep --runtime claude
 
 # Authenticated scan using a bearer token
-0sec scan --target https://api.example.com --scope ./scope.json \
+xsec scan --target https://api.example.com --scope ./scope.json \
   --auth '{"type":"bearer","token":"eyJhbGciOi..."}'
 
 # Scan an API with an OpenAPI spec pre-loaded
-0sec scan --target https://api.example.com --scope ./scope.json --api-spec ./openapi.yaml
+xsec scan --target https://api.example.com --scope ./scope.json --api-spec ./openapi.yaml
 
 # Run 5 attack strategies in parallel — first to succeed wins
-0sec scan --target https://example.com --mode web --scope ./scope.json --race
+xsec scan --target https://example.com --mode web --scope ./scope.json --race
 
 # Evidence-Gated Attack Tree Search (EGATS)
-0sec scan --target https://example.com --mode web --scope ./scope.json --egats
+xsec scan --target https://example.com --mode web --scope ./scope.json --egats
 
 # Abort cleanly if the scan exceeds a USD ceiling
-0sec scan --target https://example.com --mode web --scope ./scope.json --cost-ceiling 5
+xsec scan --target https://example.com --mode web --scope ./scope.json --cost-ceiling 5
 
 # Export findings to GitHub Issues
-0sec scan --target https://example.com --mode web --scope ./scope.json \
+xsec scan --target https://example.com --mode web --scope ./scope.json \
   --export github:myorg/myrepo
 
 # Generate an HTML report (auto-opens in browser)
-0sec scan --target https://example.com --mode web --scope ./scope.json \
+xsec scan --target https://example.com --mode web --scope ./scope.json \
   --format html
 ```
 
@@ -68,7 +68,7 @@ before making a request. Local source review and package audits don't.
 | `--race` | Best-of-N: run 5 attack strategies in parallel, first-to-succeed wins | `false` |
 | `--egats` | Evidence-Gated Attack Tree Search (beam search over hypothesis tree) | `false` |
 | `--cost-ceiling <usd>` | Hard USD ceiling; aborts cleanly with partial findings preserved if exceeded | (none) |
-| `--db-path <path>` | Path to SQLite database | `~/.0sec/0sec.db` |
+| `--db-path <path>` | Path to SQLite database | `~/.xsec/xsec.db` |
 | `--verbose` | Show detailed output | `false` |
 | `--replay` | Replay the last scan's results without re-running | `false` |
 
@@ -95,12 +95,12 @@ Pass inline JSON or a path to a JSON file. Four types:
 
 ### `--api-spec` — OpenAPI / Swagger import
 
-Point at an OpenAPI 3.x or Swagger 2.0 doc (JSON or YAML). 0sec parses every
+Point at an OpenAPI 3.x or Swagger 2.0 doc (JSON or YAML). XSEC parses every
 endpoint, its parameter schema, and auth requirements, then seeds recon so the
 agent starts with full endpoint awareness instead of crawling.
 
 ```bash
-0sec scan --target https://api.example.com --scope ./scope.json --api-spec ./openapi.yaml
+xsec scan --target https://api.example.com --scope ./scope.json --api-spec ./openapi.yaml
 ```
 
 ### `--race` — best-of-N strategy racing
@@ -115,7 +115,7 @@ checks. Slower than `--race`, more thorough.
 
 ### `--cost-ceiling` — hard spend guardrail
 
-Set a per-scan USD ceiling; the flag overrides `0SEC_COST_CEILING_USD`. See
+Set a per-scan USD ceiling; the flag overrides `XSEC_COST_CEILING_USD`. See
 [Cost ceiling](/configuration/#cost-ceiling) for the exit code and result-line
 behaviour.
 
@@ -132,12 +132,12 @@ dependency advisories, then reviewed by an agent that traces data flow for
 supply-chain issues.
 
 ```bash
-0sec audit express --package-version 4.18.2
-0sec audit requests --ecosystem pypi
-0sec audit serde --ecosystem cargo
-0sec audit alpine:3.20 --ecosystem oci
-0sec audit react --depth deep --runtime claude
-0sec audit left-pad --format html
+xsec audit express --package-version 4.18.2
+xsec audit requests --ecosystem pypi
+xsec audit serde --ecosystem cargo
+xsec audit alpine:3.20 --ecosystem oci
+xsec audit react --depth deep --runtime claude
+xsec audit left-pad --format html
 ```
 
 **Key flags:**
@@ -154,7 +154,7 @@ supply-chain issues.
 | `--api-key <key>` | API key for the LLM provider | (from env) |
 | `--model <model>` | Specific LLM model to use | provider default |
 | `--cost-ceiling <usd>` | Hard USD ceiling; aborts cleanly with partial findings preserved if exceeded | (none) |
-| `--db-path <path>` | Path to SQLite database | `~/.0sec/0sec.db` |
+| `--db-path <path>` | Path to SQLite database | `~/.xsec/xsec.db` |
 | `--verbose` | Detailed agent output | `false` |
 
 ## review
@@ -163,22 +163,22 @@ Deep source code security review of a local repo or GitHub URL.
 
 ```bash
 # Review a local directory
-0sec review ./my-ai-app
+xsec review ./my-ai-app
 
 # Review a GitHub repo (cloned automatically)
-0sec review https://github.com/user/repo
+xsec review https://github.com/user/repo
 
 # Diff-aware review against a base branch
-0sec review ./my-repo --diff-base origin/main --changed-only
+xsec review ./my-repo --diff-base origin/main --changed-only
 
 # Profile a userspace C/C++ library for memory-safety + integer bugs
-0sec review --target c-library ./libfoo
+xsec review --target c-library ./libfoo
 
 # Equivalent backward-compatible profile form
-0sec review ./libfoo --profile c-library
+xsec review ./libfoo --profile c-library
 
 # Profile a Linux kernel source tree for kernel-aware static review
-0sec review --target linux-kernel ./linux
+xsec review --target linux-kernel ./linux
 ```
 
 **Key flags:**
@@ -197,7 +197,7 @@ Deep source code security review of a local repo or GitHub URL.
 | `--api-key <key>` | API key for LLM provider | (from env) |
 | `--model <model>` | Specific LLM model to use | provider default |
 | `--cost-ceiling <usd>` | Hard USD ceiling; aborts cleanly with partial findings preserved if exceeded | (none) |
-| `--db-path <path>` | Path to SQLite database | `~/.0sec/0sec.db` |
+| `--db-path <path>` | Path to SQLite database | `~/.xsec/xsec.db` |
 | `--verbose` | Detailed agent output | `false` |
 
 ### Review profiles
@@ -243,21 +243,21 @@ remediation guidance:
   the regression run.
 
 ```bash
-# Start from a finding already stored by 0sec; no JSON export or copy/paste.
-0sec fix ./my-app \
+# Start from a finding already stored by XSEC; no JSON export or copy/paste.
+xsec fix ./my-app \
   --finding-id NF-001 \
   --test-command "pnpm test" \
   --output ./candidate-fix.patch
 
 # Generate and validate a candidate; keep the original checkout unchanged.
-0sec fix ./my-app \
+xsec fix ./my-app \
   --finding ./finding.json \
   --test-command "pnpm test" \
   --verification-result ./verification.json \
   --output ./candidate-fix.patch
 
 # Apply only a candidate that passed the isolated re-check and regression run.
-0sec fix ./my-app \
+xsec fix ./my-app \
   --finding ./finding.json \
   --test-command "pnpm test" \
   --verification-result ./verification.json \
@@ -274,7 +274,7 @@ proof that a deployed target is remediated.
 | `--finding <path>` | External finding JSON with a code-only `verificationSpec` | one of this or `--finding-id` |
 | `--finding-id <id>` | Persisted finding ID or unique prefix | one of this or `--finding` |
 | `--db-path <path>` | Database containing `--finding-id` | |
-| `--verification-result <path>` | Optional `0sec verify` JSON when the finding does not already carry a reproduced result | |
+| `--verification-result <path>` | Optional `xsec verify` JSON when the finding does not already carry a reproduced result | |
 | `--test-command <command>` | Explicit regression command run in the candidate worktree | required |
 | `--runtime <runtime>` | `auto` or `api` | `auto` |
 | `--model <model>` | Model identifier for the selected runtime | provider default |
@@ -290,19 +290,19 @@ Run foxguard-backed kernel advisory variant hunting against a Linux source tree.
 
 ```bash
 # Scan a kernel tree with a foxguard rule family
-0sec kernel variant-hunt \
+xsec kernel variant-hunt \
   --tree ./linux \
   --advisory dirty-frag.md \
   --rules ./foxguard/rules/kernel/dirty-frag-class \
   --output json
 
-# Render an existing foxguard SARIF file as 0sec findings
-0sec kernel variant-hunt --tree ./linux --sarif-input ./foxguard.sarif
+# Render an existing foxguard SARIF file as XSEC findings
+xsec kernel variant-hunt --tree ./linux --sarif-input ./foxguard.sarif
 ```
 
-Orchestration only: foxguard owns the structural rules; 0sec maps SARIF hits into
+Orchestration only: foxguard owns the structural rules; XSEC maps SARIF hits into
 `Finding` objects with subsystem labels, confidence, and evidence. A hit is a
-candidate, not a confirmed crash — use `0sec ingest --verify` (or triage /
+candidate, not a confirmed crash — use `xsec ingest --verify` (or triage /
 Coccinelle / CodeQL / fuzzing) when crash evidence exists.
 
 **Key flags:**
@@ -323,11 +323,11 @@ Coccinelle / CodeQL / fuzzing) when crash evidence exists.
 Mine and adversarially rerank syzbot's abandoned queue:
 
 ```bash
-0sec kernel syzbot-mine --subsystems net,xfrm,crypto,vsock,nfc --limit 30 --details 15 --detail-delay 750
+xsec kernel syzbot-mine --subsystems net,xfrm,crypto,vsock,nfc --limit 30 --details 15 --detail-delay 750
 ```
 
 `--details` bounds the reproducer-enrichment pass; `--detail-delay` paces
-requests to the public dashboard (throttling fails closed). 0sec inspects each
+requests to the public dashboard (throttling fails closed). XSEC inspects each
 syz program for mounts, TUN/qdisc/XFRM setup, synthetic devices, BPF, and fault
 injection before reranking privileged, one-shot, stale, and incomplete leads.
 Missing enrichment is recorded explicitly, never treated as evidence of
@@ -344,22 +344,22 @@ Import kernel crash reports and optionally verify them against attached reproduc
 
 ```bash
 # Parse one crash report into findings
-0sec ingest ./crashes/report.log
+xsec ingest ./crashes/report.log
 
 # Parse a directory of syzbot-style reports and reproducers
-0sec ingest ./crashes --output json
+xsec ingest ./crashes --output json
 
 # Validate reports against attached reproducers
-0sec ingest ./crashes --verify --output json
+xsec ingest ./crashes --verify --output json
 
 # Run a standalone C reproducer through the kernel VM oracle
-0sec ingest --reproducer ./poc.c --kernel-tree ~/src/linux --kernel-config kasan --output json
+xsec ingest --reproducer ./poc.c --kernel-tree ~/src/linux --kernel-config kasan --output json
 
 # Run a raw syzkaller program when the guest image provides syz-execprog
-0sec ingest --syz ./program.syz --kernel-tree ~/src/linux --kernel-config kasan --output json
+xsec ingest --syz ./program.syz --kernel-tree ~/src/linux --kernel-config kasan --output json
 
 # Pivot each known-subsystem crash into source review for sibling bugs
-0sec ingest ./crashes --review-subsystem --tree ~/src/linux --output json
+xsec ingest ./crashes --review-subsystem --tree ~/src/linux --output json
 ```
 
 For directory ingest, reproducers attach by filename prefix (`crash001.log` +
@@ -371,7 +371,7 @@ back to static consistency and reproducer analysis only.
 
 `--reproducer` or `--syz` skips crash-report parsing and runs the program
 directly through the kernel VM oracle. `--kernel-tree` resolves a KASAN VM
-build/cache entry; prebuilt `0SEC_KERNEL_QEMU_KERNEL`/`0SEC_KERNEL_QEMU_DISK`
+build/cache entry; prebuilt `XSEC_KERNEL_QEMU_KERNEL`/`XSEC_KERNEL_QEMU_DISK`
 artifacts are reused as the fastest cache hit.
 
 `--review-subsystem` keeps the crash finding and appends review-derived siblings,
@@ -391,7 +391,7 @@ unresolved subsystems land in the JSON `skipped` list.
 | `--kernel-tree <path>` | Linux source tree for kernel VM build/cache resolution | (none) |
 | `--kernel-config <name>` | Kernel build config for `--kernel-tree`, e.g. `kasan`, `defconfig+kasan` (deprecated alias: `--config`) | (none) |
 | `--expected-signature <pattern>` | Expected dmesg signature substring for verify | (none) |
-| `--kernel-cache-dir <path>` | Override kernel build cache directory | `~/.0sec/kernel-cache` |
+| `--kernel-cache-dir <path>` | Override kernel build cache directory | `~/.xsec/kernel-cache` |
 | `--force-kernel-build` | Rebuild kernel VM artifacts even if a cache entry exists | `false` |
 | `--review-subsystem` | Run linux-kernel source review against each crash subsystem | `false` |
 | `--tree <path>` | Linux source tree required by `--review-subsystem` | (none) |
@@ -402,9 +402,9 @@ unresolved subsystems land in the JSON `skipped` list.
 
 ### Real kernel VM verification
 
-Set `0SEC_KERNEL_QEMU=1` to enable VM-backed execution. The runner expects a bootable guest image with:
+Set `XSEC_KERNEL_QEMU=1` to enable VM-backed execution. The runner expects a bootable guest image with:
 
-- a boot path that mounts the `osecshare` 9p share and executes `/mnt/0sec/runner.sh`
+- a boot path that mounts the `xsecshare` 9p share and executes `/mnt/xsec/runner.sh`
 - a working C toolchain (`gcc`)
 - a linker toolchain (`ld`, provided by `binutils`)
 - permission to read kernel logs via `dmesg`
@@ -412,51 +412,51 @@ Set `0SEC_KERNEL_QEMU=1` to enable VM-backed execution. The runner expects a boo
 For the maintained Docker build recipe, exact guest contract, and troubleshooting
 steps, see [Kernel VM Verification](/kernel-vm/).
 
-Required environment variables are passed with `env` because `0SEC_*` names
+Required environment variables are passed with `env` because `XSEC_*` names
 cannot be exported by POSIX shells:
 
 ```bash
 env \
-  0SEC_KERNEL_QEMU=1 \
-  0SEC_KERNEL_QEMU_KERNEL=/path/to/bzImage \
-  0SEC_KERNEL_QEMU_DISK=/path/to/rootfs.img \
-  0sec ingest --verify ./crashes
+  XSEC_KERNEL_QEMU=1 \
+  XSEC_KERNEL_QEMU_KERNEL=/path/to/bzImage \
+  XSEC_KERNEL_QEMU_DISK=/path/to/rootfs.img \
+  xsec ingest --verify ./crashes
 ```
 
 Useful optional variables follow the same pattern:
 
 ```bash
 env \
-  0SEC_KERNEL_QEMU_APPEND='console=ttyS0 root=/dev/vda rw nokaslr panic=-1 init=/sbin/0sec-init' \
-  0SEC_KERNEL_QEMU_BOOT_TIMEOUT_SEC=120 \
-  0SEC_KERNEL_QEMU_TIMEOUT_SEC=60 \
-  0SEC_KERNEL_QEMU_ACCEL=kvm \
-  0SEC_KERNEL_QEMU_SHARE_TAG=osecshare \
-  0SEC_KERNEL_QEMU_ARTIFACT_DIR=/tmp/0sec-kvm-runs \
-  0sec ingest --verify ./crashes
+  XSEC_KERNEL_QEMU_APPEND='console=ttyS0 root=/dev/vda rw nokaslr panic=-1 init=/sbin/xsec-init' \
+  XSEC_KERNEL_QEMU_BOOT_TIMEOUT_SEC=120 \
+  XSEC_KERNEL_QEMU_TIMEOUT_SEC=60 \
+  XSEC_KERNEL_QEMU_ACCEL=kvm \
+  XSEC_KERNEL_QEMU_SHARE_TAG=xsecshare \
+  XSEC_KERNEL_QEMU_ARTIFACT_DIR=/tmp/xsec-kvm-runs \
+  xsec ingest --verify ./crashes
 ```
 
-If the VM is not configured, 0sec does **not** claim a reproduced crash; it reports static-only verification with capped confidence.
+If the VM is not configured, XSEC does **not** claim a reproduced crash; it reports static-only verification with capped confidence.
 
 ## triage
 
 Triage findings and manage learned false-positive memories. Mark a finding as a
-false positive and 0sec stores a pattern future verify passes consult — like
+false positive and XSEC stores a pattern future verify passes consult — like
 Semgrep's `nosemgrep`, learned automatically.
 
 ```bash
 # Create a memory from an existing finding
-0sec triage memory add --finding NF-001 --reason "test fixture, not reachable in prod"
+xsec triage memory add --finding NF-001 --reason "test fixture, not reachable in prod"
 
 # List all memories
-0sec triage memory list
-0sec triage memory list --scope target --category xss
+xsec triage memory list
+xsec triage memory list --scope target --category xss
 
 # Delete a memory
-0sec triage memory remove <memory-id>
+xsec triage memory remove <memory-id>
 
 # Mark a finding as FP and auto-create a memory
-0sec triage mark-fp NF-042 --reason "known sandbox echo endpoint"
+xsec triage mark-fp NF-042 --reason "known sandbox echo endpoint"
 ```
 
 **`triage memory add`**
@@ -487,7 +487,7 @@ Semgrep's `nosemgrep`, learned automatically.
 | `--scope <scope>` | Memory scope | `target` |
 | `--scope-value <v>` | Scope identifier | (inferred) |
 
-Enable memory injection into the verify pipeline with `0SEC_FEATURE_TRIAGE_MEMORIES=1` (see [Configuration](/configuration/#feature-flags)).
+Enable memory injection into the verify pipeline with `XSEC_FEATURE_TRIAGE_MEMORIES=1` (see [Configuration](/configuration/#feature-flags)).
 
 ## console
 
@@ -498,28 +498,28 @@ it explicitly.
 
 ```bash
 # Full console — bare invocation launches straight into chat
-0sec
+xsec
 0
 
 # Explicit, with an engagement target and a scope file
-0sec console --target https://api.example.com --scope ./scope.json
+xsec console --target https://api.example.com --scope ./scope.json
 
 # Continue from a finding with its target and evidence in the same chat turn.
 # The focused request investigates or plans only; it never applies a patch.
-0sec console --finding NF-001 --finding-intent draft_fix
+xsec console --finding NF-001 --finding-intent draft_fix
 
 # Start in Co-pilot: approve every non-read-only tool call
-0sec console --autonomy copilot --scope ./scope.json
+xsec console --autonomy copilot --scope ./scope.json
 
 # Run one prompt without opening the TUI; accept an argument or piped stdin
-0sec console -p "Summarize the saved findings"
+xsec console -p "Summarize the saved findings"
 
 # Reopen the newest console session, or a specific saved session
-0sec -c
-0sec -r 8d4c2a
+xsec -c
+xsec -r 8d4c2a
 
 # Expose the generic-scanner wrappers (sqlmap/nikto/…)
-0sec console --scope ./scope.json --allow-scanners
+xsec console --scope ./scope.json --allow-scanners
 
 | Flag | Description | Default |
 |------|-------------|---------|
@@ -559,14 +559,14 @@ as an operator message.
 | `/scope` | — | Panel: target, mode, and the in-scope rules. With no scope it says so explicitly rather than reading as permissive. |
 | `/mode [standard\|copilot\|yolo]` | — | With no argument, **opens a picker**. With an argument, switches directly. Refused while a turn is in flight; YOLO is refused — and shown greyed in the picker — when no scope is configured. |
 | `/model [id]` | `/models` | With no argument, **opens a model picker** whose header names the providers that currently hold credentials. With an id, rebuilds the session on that model and carries the conversation across; a failed rebuild leaves you on the old one. Refused mid-turn. |
-| `/providers` | `/login`, `/auth` | **Opens a picker** of the providers 0sec can detect, each marked configured (and via which env var) or not, with the exact env var to set. Selecting one prompts for a key, which is stored `0600` in `~/.0sec/credentials.json` and exported into the running process. The value is never echoed back into the transcript. |
+| `/providers` | `/login`, `/auth` | **Opens a picker** of the providers XSEC can detect, each marked configured (and via which env var) or not, with the exact env var to set. Selecting one prompts for a key, which is stored `0600` in `~/.xsec/credentials.json` and exported into the running process. The value is never echoed back into the transcript. |
 | `/settings` | `/config`, `/prefs` | **Opens a picker** of console display settings. Enter flips a boolean or cycles an enum, then reopens against the new values. Writes global settings; a project override can layer individual keys. |
 | `/resume` | `/sessions` | **Opens a picker** of saved transcripts for the current working directory (newest first, up to 20). See [Session persistence](#session-persistence). Refused mid-turn. |
 | `/transcript` | `/review` | Opens the virtualized transcript review. |
 | `/explain [topic]` | `/eli5` | Sends a real turn asking for a plain-language explanation of the previous result, or of `topic`. It is a normal model call and costs tokens. |
-| `/feedback <message>` | — | Appends the message, with a timestamp, version, model and mode, to `~/.0sec/feedback.md`. **Nothing is transmitted anywhere.** |
+| `/feedback <message>` | — | Appends the message, with a timestamp, version, model and mode, to `~/.xsec/feedback.md`. **Nothing is transmitted anywhere.** |
 | `/feedback submit <message>` | — | Persists locally and shows a preview of the exact HTTPS endpoint, body, headers and credential warnings. Does **not** transmit. Use `/feedback send` to transmit or `/feedback cancel` to discard. |
-| `/feedback send` | — | Transmits the previewed payload to the authenticated 0cloud feedback channel after `0sec auth login`, or to an explicit `0SEC_FEEDBACK_URL` relay. Refused when submission is blocked. |
+| `/feedback send` | — | Transmits the previewed payload to the authenticated xcloud feedback channel after `xsec auth login`, or to an explicit `XSEC_FEEDBACK_URL` relay. Refused when submission is blocked. |
 | `/feedback cancel` | — | Clears the pending feedback without transmitting. The local copy remains saved. |
 | `/clear` | `/new` | Clears the conversation. Readline fallback only — see the caveat below. |
 | `/history` | — | Opens the scan-history screen. |
@@ -627,7 +627,7 @@ engine enforces the same floor for API sessions. It lifts the scoped-source-audi
 allow-list without prompting, but never the network-scope check, the
 local-filesystem check, or per-handler tool guards.
 
-0sec does not sandbox tool execution. The gates below are approval gates, not
+XSEC does not sandbox tool execution. The gates below are approval gates, not
 containment.
 
 ### Approval prompts
@@ -662,8 +662,8 @@ display-only card metadata is intentionally not retained.
 ### Console settings
 
 `/settings` opens a picker of console display settings. It writes the global
-`~/.0sec/tui-settings.json`; a project-level
-`<project>/.0sec/tui-settings.json` can override individual keys. The full table
+`~/.xsec/tui-settings.json`; a project-level
+`<project>/.xsec/tui-settings.json` can override individual keys. The full table
 of keys, values, and defaults is documented under
 [Console display settings](/configuration/#console-display-settings).
 
@@ -672,7 +672,7 @@ of keys, values, and defaults is documented under
 Resume a persisted review or audit scan by its scan ID.
 
 ```bash
-0sec resume <scan-id>
+xsec resume <scan-id>
 ```
 
 Useful when a long-running deep scan was interrupted or when you want to continue where a previous run left off.
@@ -686,9 +686,9 @@ Local findings workspace for evidence, triage, and a context-preserving handoff
 to the scoped terminal chat. Runs entirely on loopback.
 
 ```bash
-0sec dashboard
-0sec dashboard --port 48123
-0sec dashboard --host ::1
+xsec dashboard
+xsec dashboard --port 48123
+xsec dashboard --host ::1
 ```
 
 **Key flags:**
@@ -698,19 +698,19 @@ to the scoped terminal chat. Runs entirely on loopback.
 | `--port <port>` | Port to bind | `48123` |
 | `--host <host>` | Loopback host only: `127.0.0.0/8` or `::1` | `127.0.0.1` |
 | `--no-open` | Do not auto-open a browser | (opens by default) |
-| `--db-path <path>` | Path to SQLite database | `~/.0sec/0sec.db` |
+| `--db-path <path>` | Path to SQLite database | `~/.xsec/xsec.db` |
 
 To inspect a run-local database, pass its path explicitly:
 
 ```bash
-0sec dashboard --db-path ~/.0sec/runs/<run-id>/state.db
+xsec dashboard --db-path ~/.xsec/runs/<run-id>/state.db
 ```
 
 The dashboard only binds loopback addresses; it refuses `0.0.0.0`, LAN, and
 public hosts. For remote access, keep it on loopback and use SSH port
 forwarding or an authenticated reverse proxy that connects locally. The live
 integration feed is `GET /api/v1/presentation/events`, a same-origin
-Server-Sent Events stream of `0sec.presentation/v1` records. Clients may send
+Server-Sent Events stream of `xsec.presentation/v1` records. Clients may send
 the last received event ID in `Last-Event-ID` to resume persisted records.
 
 ## history
@@ -718,8 +718,8 @@ the last received event ID in `Last-Event-ID` to resume persisted records.
 Browse past scans with status, depth, findings count, and duration.
 
 ```bash
-0sec history
-0sec history --limit 20
+xsec history
+xsec history --limit 20
 ```
 
 | Flag | Description | Default |
@@ -733,11 +733,11 @@ technique-mapped forensic record. Built for handing to a client's security team
 to cross-reference against their own detections.
 
 ```bash
-0sec timeline <scanId>
-0sec timeline <scanId> --format json
-0sec timeline <scanId> --format csv
-0sec timeline <scanId> --attack-only
-0sec timeline <scanId> --since 2026-09-15T09:00:00Z --until 2026-09-15T17:00:00Z
+xsec timeline <scanId>
+xsec timeline <scanId> --format json
+xsec timeline <scanId> --format csv
+xsec timeline <scanId> --attack-only
+xsec timeline <scanId> --since 2026-09-15T09:00:00Z --until 2026-09-15T17:00:00Z
 ```
 
 | Flag | Description | Default |
@@ -760,8 +760,8 @@ federation, and token analysis. Every Graph request is hard-coded `GET`.
 
 ```bash
 # Access token comes from the environment, never a command-line argument.
-env 0SEC_ENTRA_ACCESS_TOKEN=... 0sec identity --tenant <tenant-guid>
-env 0SEC_ENTRA_ACCESS_TOKEN=... 0sec identity --tenant <tenant-guid> --json
+env XSEC_ENTRA_ACCESS_TOKEN=... xsec identity --tenant <tenant-guid>
+env XSEC_ENTRA_ACCESS_TOKEN=... xsec identity --tenant <tenant-guid> --json
 ```
 
 ## adgraph
@@ -770,9 +770,9 @@ Offline Active Directory attack-path analysis over a BloodHound CE / SharpHound
 JSON export. Never collects, never authenticates, never touches the network.
 
 ```bash
-0sec adgraph --input ./bloodhound-export/
-0sec adgraph --input ./export.json --json
-0sec adgraph --input ./export --domain corp.example.com
+xsec adgraph --input ./bloodhound-export/
+xsec adgraph --input ./export.json --json
+xsec adgraph --input ./export --domain corp.example.com
 ```
 
 | Flag | Description | Default |
@@ -792,10 +792,10 @@ The Entra ID equivalent — offline attack-path analysis over an AzureHound
 export. Same discipline: files only, no network, no authentication.
 
 ```bash
-0sec entragraph --input ./azurehound-export/
-0sec entragraph --input ./export --json
-0sec entragraph --input ./export --owned <objectId>,<objectId>
-0sec entragraph --input ./export --max-depth 4
+xsec entragraph --input ./azurehound-export/
+xsec entragraph --input ./export --json
+xsec entragraph --input ./export --owned <objectId>,<objectId>
+xsec entragraph --input ./export --max-depth 4
 ```
 
 | Flag | Description | Default |
@@ -816,30 +816,30 @@ result as a clean tenant. See [Authorized Engagements](/engagements/).
 ## findings
 
 Query, filter, and inspect verified findings. Fresh scans store findings in
-`~/.0sec/runs/<scan-id>/state.db`; `findings list` aggregates all local runs,
+`~/.xsec/runs/<scan-id>/state.db`; `findings list` aggregates all local runs,
 while `--scan <scan-id>` or `--db-path <path>` selects one. Managed findings live
 in the control plane, not this local store.
 
 ```bash
 # List all findings
-0sec findings list
+xsec findings list
 
 # Filter by severity
-0sec findings list --severity critical
+xsec findings list --severity critical
 
 # Filter by category and status
-0sec findings list --category prompt-injection --status confirmed
+xsec findings list --category prompt-injection --status confirmed
 
 # Inspect a specific finding with full evidence
-0sec findings show NF-001
+xsec findings show NF-001
 
 # Continue the same finding in the scoped interactive chat.
-0sec console --finding NF-001
+xsec console --finding NF-001
 
 # Triage findings
-0sec findings accept <finding-id> --note "confirmed and tracked"
-0sec findings suppress <finding-id> --note "known test fixture"
-0sec findings reopen <finding-id>
+xsec findings accept <finding-id> --note "confirmed and tracked"
+xsec findings suppress <finding-id> --note "known test fixture"
+xsec findings reopen <finding-id>
 ```
 
 **Finding lifecycle:** `discovered` -> `verified` -> `confirmed` -> `scored` -> `reported` -> `fixed` (or `false-positive` if verification fails).
@@ -863,14 +863,14 @@ schema.
 
 ```bash
 # Replay PoC steps from a finding JSON
-0sec verify --finding finding.json
+xsec verify --finding finding.json
 
 # Run the deterministic CLI path traversal fixture against the CLI under test
-0sec verify --fixture cli-path-traversal \
+xsec verify --fixture cli-path-traversal \
   --fixture-command '["paperclip","company","export","--api","{{apiUrl}}","--output","{{exportDir}}"]'
 
 # Keep the sandbox, harness metadata, and stdout/stderr logs
-0sec verify --fixture cli-path-traversal \
+xsec verify --fixture cli-path-traversal \
   --fixture-command '["paperclip","company","export","--api","{{apiUrl}}","--output","{{exportDir}}"]' \
   --retain-artifacts
 ```
@@ -893,26 +893,26 @@ the export root while staying inside the sandbox.
 
 ## h1
 
-Read-only HackerOne hacker-API helpers — verify credentials, browse programs, and export a program's scope into the 0sec scope-file format.
+Read-only HackerOne hacker-API helpers — verify credentials, browse programs, and export a program's scope into the XSEC scope-file format.
 
-Credentials live at `~/.0sec/h1.env` (or `~/.0sec/h1/<identifier>.env`) with format `H1_IDENTIFIER=<token-name>` and `H1_TOKEN=<44-char-value>`. The token is used as the password and the identifier as the username over HTTP Basic auth; nothing is ever written to logs.
+Credentials live at `~/.xsec/h1.env` (or `~/.xsec/h1/<identifier>.env`) with format `H1_IDENTIFIER=<token-name>` and `H1_TOKEN=<44-char-value>`. The token is used as the password and the identifier as the username over HTTP Basic auth; nothing is ever written to logs.
 
 ```bash
 # Verify credentials
-0sec h1 auth
+xsec h1 auth
 
 # List visible programs (bounty-paying only)
-0sec h1 programs list --bounty --limit 50
+xsec h1 programs list --bounty --limit 50
 
 # List public-mode VDP programs as JSON
-0sec h1 programs list --vdp --state public_mode --json
+xsec h1 programs list --vdp --state public_mode --json
 
 # Show one program with scope summary
-0sec h1 programs show flutteruki
+xsec h1 programs show flutteruki
 
-# Export structured_scopes to ~/.0sec/scopes/<handle>.json
-# (consumed by `0sec scan --scope <path>`)
-0sec h1 scope dump flutteruki
+# Export structured_scopes to ~/.xsec/scopes/<handle>.json
+# (consumed by `xsec scan --scope <path>`)
+xsec h1 scope dump flutteruki
 ```
 
 **Subcommands:**
@@ -922,7 +922,7 @@ Credentials live at `~/.0sec/h1.env` (or `~/.0sec/h1/<identifier>.env`) with for
 | `auth` | Verify HackerOne API credentials against `/v1/hackers/payments/balance` |
 | `programs list` | List visible programs. Flags: `--bounty`, `--vdp` (mutually exclusive), `--state <s>`, `--limit <n>` (max 1000), `--json` |
 | `programs show <handle>` | Show a single program's details with a structured-scope summary |
-| `scope dump <handle>` | Write the program's `structured_scopes` to `~/.0sec/scopes/<handle>.json` (override with `--out`); non-network asset types and malformed identifiers are dropped with a warning |
+| `scope dump <handle>` | Write the program's `structured_scopes` to `~/.xsec/scopes/<handle>.json` (override with `--out`); non-network asset types and malformed identifiers are dropped with a warning |
 
 **Exit codes:** `0` ok · `1` user/data error · `2` auth failure (missing creds or HTTP 401) · `3` rate-limit / network error.
 
@@ -933,22 +933,22 @@ variant-hunt context.
 
 ```bash
 # Build a package intel dossier with risk summary, advisories, prior-vuln playbooks, variants, and graph
-0sec intel dossier formidable --ecosystem npm --package-version 3.5.2 --json
+xsec intel dossier formidable --ecosystem npm --package-version 3.5.2 --json
 
 # Search package advisories through OSV/GitHub, enriched with NVD/CISA KEV
-0sec intel search formidable --ecosystem npm --package-version 3.5.2
+xsec intel search formidable --ecosystem npm --package-version 3.5.2
 
 # Look up a CVE with NVD + CISA KEV context
-0sec intel cve CVE-2024-1086
+xsec intel cve CVE-2024-1086
 
 # Find related CVEs/advisories for variant-hunt context
-0sec intel similar --cwe CWE-22 --keywords "zip slip,path traversal" --json
+xsec intel similar --cwe CWE-22 --keywords "zip slip,path traversal" --json
 
 # Search CVEs/GHSAs already reported against the same target/project
-0sec intel target-history --repository expressjs/express --ecosystem npm --package express --json
+xsec intel target-history --repository expressjs/express --ecosystem npm --package express --json
 
 # Infer target-history hints from a local source checkout
-0sec intel target-history --repo-path ./my-project --json
+xsec intel target-history --repo-path ./my-project --json
 ```
 
 Audit and review agents get the same lookups as tools (`intel_build_dossier`,
@@ -971,31 +971,31 @@ source/sink/guard/verification steps.
 
 ## auth
 
-0sec-cloud authentication — login, logout, and verify a scoped CLI token against the cloud `/health` endpoint.
+xsec-cloud authentication — login, logout, and verify a scoped CLI token against the cloud `/health` endpoint.
 
-> **Scaffold notice (issue [#303](https://github.com/0sec-labs/0sec/issues/303)):** this command is the CLI half of cloud auth. The server-side mint endpoint that issues scoped tokens after the browser-based better-auth flow lives in 0sec-cloud and is shipped in a separate PR. Until that lands, the browser flow (`0sec auth login` without `--token`) will time out. Use `0sec auth login --token <value>` to paste a token directly — this is the only working path for now.
+> **Scaffold notice (issue [#303](https://github.com/uncesaii/xsec/issues/303)):** this command is the CLI half of cloud auth. The server-side mint endpoint that issues scoped tokens after the browser-based better-auth flow lives in xsec-cloud and is shipped in a separate PR. Until that lands, the browser flow (`xsec auth login` without `--token`) will time out. Use `xsec auth login --token <value>` to paste a token directly — this is the only working path for now.
 
-Credentials live at `~/.0sec/cloud.env` (chmod 600) with format:
+Credentials live at `~/.xsec/cloud.env` (chmod 600) with format:
 
 ```
-0SEC_CLOUD_HOST=https://cloud.0sec.ai
-0SEC_CLOUD_TOKEN=<scoped-cli-token>
+XSEC_CLOUD_HOST=https://cloud.xsec.ai
+XSEC_CLOUD_TOKEN=<scoped-cli-token>
 ```
 
-`0SEC_CLOUD_HOST` is optional and defaults to `https://cloud.0sec.ai`. Both keys may also be set as environment variables (`0SEC_CLOUD_HOST` / `0SEC_CLOUD_TOKEN`), which take precedence over the file.
+`XSEC_CLOUD_HOST` is optional and defaults to `https://cloud.xsec.ai`. Both keys may also be set as environment variables (`XSEC_CLOUD_HOST` / `XSEC_CLOUD_TOKEN`), which take precedence over the file.
 
 ```bash
 # Paste a token directly (the only path that works today)
-0sec auth login --token <value>
+xsec auth login --token <value>
 
 # Browser flow (will time out until #303 server-side ships)
-0sec auth login --host https://cloud.0sec.ai
+xsec auth login --host https://cloud.xsec.ai
 
 # Verify the configured token against /health
-0sec auth status
+xsec auth status
 
-# Delete ~/.0sec/cloud.env
-0sec auth logout
+# Delete ~/.xsec/cloud.env
+xsec auth logout
 ```
 
 **Subcommands:**
@@ -1003,27 +1003,27 @@ Credentials live at `~/.0sec/cloud.env` (chmod 600) with format:
 | Subcommand | Description |
 |------------|-------------|
 | `login` | Open a browser at `<host>/cli-auth?session=…` and poll for a minted token. Flags: `--host <url>`, `--token <value>` (escape hatch — skips the browser). |
-| `logout` | Delete `~/.0sec/cloud.env`. Returns 0 even if no file was present. |
+| `logout` | Delete `~/.xsec/cloud.env`. Returns 0 even if no file was present. |
 | `status` | Load credentials and `GET <host>/health` to verify the token is accepted. |
 
 **Exit codes:** `0` ok · `1` user/data error · `2` auth failure (missing creds or HTTP 401/403) · `3` network error / login timeout.
 
 ## XBOW benchmark runner
 
-The XBOW benchmark runner lives in `packages/benchmark` and is invoked with `pnpm --filter @0sec/benchmark xbow`. It runs 0sec against the 104 XBOW validation challenges and reports pass/fail with evidence.
+The XBOW benchmark runner lives in `packages/benchmark` and is invoked with `pnpm --filter @xsec/benchmark xbow`. It runs XSEC against the 104 XBOW validation challenges and reports pass/fail with evidence.
 
 ```bash
 # Run the whole benchmark
-pnpm --filter @0sec/benchmark xbow
+pnpm --filter @xsec/benchmark xbow
 
 # Run a specific subset of challenges
-pnpm --filter @0sec/benchmark xbow --only XBEN-010,XBEN-051,XBEN-066
+pnpm --filter @xsec/benchmark xbow --only XBEN-010,XBEN-051,XBEN-066
 
 # Skip the first 20 challenges (useful for resuming)
-pnpm --filter @0sec/benchmark xbow --start 20
+pnpm --filter @xsec/benchmark xbow --start 20
 
 # Include full finding objects in results JSON (for offline analysis)
-pnpm --filter @0sec/benchmark xbow --save-findings
+pnpm --filter @xsec/benchmark xbow --save-findings
 ```
 
 | Flag | Description | Default |

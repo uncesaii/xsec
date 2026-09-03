@@ -164,16 +164,16 @@ describe("HttpCollaborator", () => {
 
 describe("createCollaborator", () => {
   it("returns undefined when nothing is configured", () => {
-    const prev = process.env["0SEC_OAST_URL"];
-    delete process.env["0SEC_OAST_URL"];
+    const prev = process.env["XSEC_OAST_URL"];
+    delete process.env["XSEC_OAST_URL"];
     expect(createCollaborator()).toBeUndefined();
-    if (prev !== undefined) process.env["0SEC_OAST_URL"] = prev;
+    if (prev !== undefined) process.env["XSEC_OAST_URL"] = prev;
   });
 
   it("builds an HttpCollaborator when a server URL is given", () => {
-    const c = createCollaborator({ serverUrl: "https://oast.0sec.ai", baseDomain: "oast.0sec.ai" });
+    const c = createCollaborator({ serverUrl: "https://oast.xsec.dev", baseDomain: "oast.xsec.dev" });
     expect(c).toBeInstanceOf(HttpCollaborator);
-    expect(c?.baseDomain).toBe("oast.0sec.ai");
+    expect(c?.baseDomain).toBe("oast.xsec.dev");
   });
 });
 

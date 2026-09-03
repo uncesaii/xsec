@@ -1,24 +1,24 @@
 # Changelog
 
-All notable changes to 0sec (the open-source CLI + agent harness) are tracked
+All notable changes to XSEC (the open-source CLI + agent harness) are tracked
 here. The history before v0.11.0 lives in the git log and on the GitHub
 Releases page; this file starts the human-readable summary from v0.11.0
-onwards. Entries before v0.13.0 predate the pwnkit → 0sec rename and keep the
+onwards. Entries before v0.13.0 predate the pwnkit → XSEC rename and keep the
 old product name as written.
 
 The format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and 0sec adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
+and XSEC adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 on the published npm package and the GitHub Release tag.
 
 ## [Unreleased]
 
 ### Added
 
-- `0sec lens-synth --watch --promote` now evolves additive appsec finder lenses
+- `xsec lens-synth --watch --promote` now evolves additive appsec finder lenses
   from curated, corpus-gated misses into a user-owned registry. Promotions and
   rollbacks are hash-linked and hot-load only for future source engagements;
   active engagements remain pinned.
-- `0` and `0sec tui` retain chat as the primary OpenTUI surface. Chat-owned
+- `0` and `xsec tui` retain chat as the primary OpenTUI surface. Chat-owned
   `/run` opens one explicit-target engagement pane rather than separate
   scan/audit/review/deep-review launch modes; a deep source engagement uses the
   current validated finder-lens strategy through the shared unified runner.
@@ -33,7 +33,7 @@ on the published npm package and the GitHub Release tag.
 
 ### Added
 
-- A versioned `0sec.presentation/v1` contract now carries canonical reports,
+- A versioned `xsec.presentation/v1` contract now carries canonical reports,
   renderer-neutral console transcripts, and semantic events across the CLI,
   browser dashboard, and output adapters.
 - The console can open a virtualized transcript review with `/transcript` (or
@@ -57,7 +57,7 @@ on the published npm package and the GitHub Release tag.
   framebuffer corruption.
 - Console defaults now use the Midnight theme; transcript, tool-card, composer,
   sidebar, and focused-subagent surfaces were refined for legibility.
-- The optional `0sec-cli` npm launcher downloads the matching platform-specific
+- The optional `xsec-cli` npm launcher downloads the matching platform-specific
   release asset on first invocation when published to npm.
 
 ### Fixed
@@ -78,7 +78,7 @@ on the published npm package and the GitHub Release tag.
 - `/settings` is now a tabbed screen (one tab per category) instead of one long
   scroll; a `/shortcuts` reference lists every keybinding (also reachable from
   settings via `?`).
-- `0sec console` gains `--yolo` / `--mode <standard|recon|copilot|yolo>` launch
+- `xsec console` gains `--yolo` / `--mode <standard|recon|copilot|yolo>` launch
   flags (YOLO still requires `--scope`).
 
 - `bench improvement-assess` binds sealed improvement results to champion and
@@ -86,15 +86,15 @@ on the published npm package and the GitHub Release tag.
   create-once decision plus hash-chained ledger snapshot. Generic artifacts
   require human approval; the command never executes or deploys a candidate.
 - The stdio MCP server accepts `--tools <comma-separated-names>` to limit the
-  model-visible 0sec tool set. The source-checkout DSH runner defaults to the
+  model-visible XSEC tool set. The source-checkout DSH runner defaults to the
   bounded recon profile rather than exposing every live tool schema.
 
 ### Changed
 
 - Fresh `scan`, `audit`, `review`, legacy scanner, MCP, and persisted-ingest
-  executions now own `~/.0sec/runs/<run-id>/state.db` rather than contending
-  on one user-global SQLite file. `0sec history` and `0sec findings list`
-  aggregate run-local state; `0sec resume` resolves an unambiguous abbreviated
+  executions now own `~/.xsec/runs/<run-id>/state.db` rather than contending
+  on one user-global SQLite file. `xsec history` and `xsec findings list`
+  aggregate run-local state; `xsec resume` resolves an unambiguous abbreviated
   run id.
 - Managed workers bind the local run directory, database, and final report to
   their managed scan id. The worker controller retrieves that report after the
@@ -120,29 +120,29 @@ on the published npm package and the GitHub Release tag.
 
 ## [0.13.0] - 2026-08-19
 
-### Changed — pwnkit is now 0sec
+### Changed — pwnkit is now XSEC
 
-The engine and CLI are renamed from pwnkit to 0sec, matching the public
-repository (`0sec-labs/0sec`):
+The engine and CLI are renamed from pwnkit to XSEC, matching the public
+repository (`uncesaii/xsec`):
 
-- **Package identity:** the root bundle is `0sec`. The workspace CLI package is
-  `0sec-cli`; the binary shipped by both is **`0sec`**, with **`0`** as a
+- **Package identity:** the root bundle is `xsec`. The workspace CLI package is
+  `xsec-cli`; the binary shipped by both is **`xsec`**, with **`0`** as a
   short shell alias (`0 scan ...`). Neither package is published to npm yet.
-- **Container image**: `ghcr.io/0sec-labs/0sec` (was `ghcr.io/0sec-labs/pwnkit`).
+- **Container image**: `ghcr.io/uncesaii/xsec` (was `ghcr.io/0sec-labs/pwnkit`).
 - **Standalone distribution:** GitHub Releases ship verified binaries for Apple
   Silicon macOS, Linux x64 and arm64, and Windows x64. Install with
-  `curl -fsSL https://raw.githubusercontent.com/0sec-labs/0sec/main/install.sh | bash`
+  `curl -fsSL https://raw.githubusercontent.com/uncesaii/xsec/main/install.sh | bash`
   on supported Unix hosts, or download the matching release asset directly.
 - **Environment variables**: the public env contract moved from `PWNKIT_*` to
-  `0SEC_*` (e.g. `0SEC_MODEL`, `0SEC_CLOUD_TOKEN`). At CLI startup, any legacy
-  `PWNKIT_*` value is copied onto its `0SEC_*` equivalent when the new name is
+  `XSEC_*` (e.g. `XSEC_MODEL`, `XSEC_CLOUD_TOKEN`). At CLI startup, any legacy
+  `PWNKIT_*` value is copied onto its `XSEC_*` equivalent when the new name is
   unset, so existing deployments keep working; the new name always wins
   (`packages/cli/src/env-legacy.ts`).
-  Note: POSIX shells reject digit-leading variable names, so `0SEC_*` vars
-  cannot be set or expanded in bash/sh directly — use `env 0SEC_FOO=... 0sec
+  Note: POSIX shells reject digit-leading variable names, so `XSEC_*` vars
+  cannot be set or expanded in bash/sh directly — use `env XSEC_FOO=... 0
   ...`, or keep using the permanently supported `PWNKIT_*` names in shell
   contexts. Docker `-e`, CI env blocks, and systemd units are unaffected.
-- **Workspace packages** moved from the `@pwnkit/*` scope to `@0sec/*`.
+- **Workspace packages** moved from the `@pwnkit/*` scope to `@xsec/*`.
 - Internal canary/marker strings (`PWNKIT-CANARY:`, `PWNKIT-INITRAMFS-*`,
   `PWNKIT-INJ-OK`) are wire protocol tokens between generated exploits and the
   verifier; they are unchanged and not part of the public interface.

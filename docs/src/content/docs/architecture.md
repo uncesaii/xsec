@@ -3,16 +3,16 @@ title: Architecture
 description: "One harness, two evidence engines, and one rule: reproduce before trusting."
 ---
 
-0sec is an open cybersecurity harness built on one rule: **reproduce before
+XSEC is an open cybersecurity harness built on one rule: **reproduce before
 trusting.** Models propose findings; only reproducible evidence decides what is
 real.
 
 Two engines produce that evidence:
 
-- **0sec** runs the agentic hunt against source and live targets — repos,
+- **XSEC** runs the agentic hunt against source and live targets — repos,
   packages, web apps, AI endpoints, MCP servers. A team of agents explores in
   parallel and chains exploits together.
-- **0verse** produces evidence for compiled programs when no source is
+- **xverse** produces evidence for compiled programs when no source is
   available.
 
 ```mermaid
@@ -95,13 +95,13 @@ contract.
 | XNU IOKit | Selector discovery, reachability hints, deterministic programs; panic promotion off | Partial, fail-closed |
 | Unified web/AI/source/package/on-chain pipeline | Native findings wrapped without rerunning the pipeline | Connected |
 
-### 0verse evidence engine
+### xverse evidence engine
 
-`0verse` is an in-repo Python evidence producer (the `0verse/` directory), not
-an `@0sec/*` package. It handles compiled-program evidence with its own Ghidra,
-angr, AFL++, PoV, and notary contracts. 0sec consumes only explicit, versioned
-interfaces — the opt-in `0verse` binary/NDJSON contract and verified external
-receipts. It never bundles 0verse into `@0sec/*`, schedules it as a generic
+`xverse` is an in-repo Python evidence producer (the `xverse/` directory), not
+an `@xsec/*` package. It handles compiled-program evidence with its own Ghidra,
+angr, AFL++, PoV, and notary contracts. XSEC consumes only explicit, versioned
+interfaces — the opt-in `xverse` binary/NDJSON contract and verified external
+receipts. It never bundles xverse into `@xsec/*`, schedules it as a generic
 scan worker, or promotes a hypothesis without the matching proof gate.
 
 A shared differential runner can run identical input against two versions,
@@ -118,12 +118,12 @@ assume every older finding has an envelope.
 Two import paths handle kernel proofs the generic VM runner can't safely
 rebuild:
 
-- `0sec research linux-matrix` imports externally executed boots. The versioned
+- `xsec research linux-matrix` imports externally executed boots. The versioned
   manifest binds build IDs, literal crash/completion oracles, per-boot markers,
-  thresholds, and log paths; 0sec hashes the manifest, every log, and its
-  verdict. The envelope says `executionOrigin: external` and never claims 0sec
+  thresholds, and log paths; XSEC hashes the manifest, every log, and its
+  verdict. The envelope says `executionOrigin: external` and never claims XSEC
   ran the boots.
-- `0sec research linux` runs natively, bound to a required literal crash oracle
+- `xsec research linux` runs natively, bound to a required literal crash oracle
   (`--expected-signature`). A different KASAN/oops/GPF is recorded but can't
   satisfy the N-boot gate. Each boot contributes its own hashed dmesg artifact,
   so a 2-of-3 claim carries the full three-boot audit trail.
@@ -138,7 +138,7 @@ triage and blind validation before they reach a report.
 ```mermaid
 flowchart TB
     subgraph Entry[Entry points]
-        CLI[0sec]
+        CLI[XSEC]
         API[Node SDK / CI]
     end
 
@@ -236,10 +236,10 @@ token is spent. Full detail: [Finding Triage](/triage/).
 
 > **EGATS caveat.** The 2026-04-11 ablation found `egatsTreeSearch` regresses
 > solve rate on hard challenges at ~10× the cost of the next-worst layer. It's
-> removed from the default moat aliases and opt-in only ([0sec#116](https://github.com/0sec-labs/0sec/issues/116)).
+> removed from the default moat aliases and opt-in only ([XSEC#116](https://github.com/uncesaii/xsec/issues/116)).
 > The moat's effect is mode-dependent — a win on XBOW black-box, a Pareto
 > tradeoff on white-box, a no-op on npm-bench — which is why routing is being
-> learned rather than fixed ([0sec#113](https://github.com/0sec-labs/0sec/issues/113)).
+> learned rather than fixed ([XSEC#113](https://github.com/uncesaii/xsec/issues/113)).
 
 ### 3. Verify agent (blind validation)
 
@@ -258,7 +258,7 @@ severity score, category, PoC, and remediation.
 
 Every UI and output surface consumes a renderer-neutral document or event rather
 than another renderer's terminal text. The versioned contract is
-`0sec.presentation/v1`: reports retain their existing schemas, while interactive
+`xsec.presentation/v1`: reports retain their existing schemas, while interactive
 sessions use typed transcript entries and live producers emit ordered semantic
 events with a local source, sequence, timestamp, type, payload, and optional scan
 or session correlation.
@@ -291,7 +291,7 @@ Mode is auto-detected from the target when possible, or set with `--mode`.
 
 ## Runtime adapters
 
-0sec decouples the pipeline from the LLM backend. Each adapter implements one
+XSEC decouples the pipeline from the LLM backend. Each adapter implements one
 interface over a different provider:
 
 | Adapter | Backend | How |
@@ -309,14 +309,14 @@ classification).
 
 ## MCP integration
 
-0sec speaks MCP three ways:
+XSEC speaks MCP three ways:
 
 - **As a client** — `McpRuntime` connects to MCP servers and uses their tools as
   the LLM backend.
-- **As a server** — `0sec mcp-server` exposes a scoped subset of tools over
+- **As a server** — `xsec mcp-server` exposes a scoped subset of tools over
   stdio to an external host. `--tools` is an allowlist, not a capability grant:
-  every exposed tool still runs through 0sec's execution and engagement guards,
-  and 0sec keeps ownership of scope, rate limiting, persistence, and verifier
+  every exposed tool still runs through XSEC's execution and engagement guards,
+  and XSEC keeps ownership of scope, rate limiting, persistence, and verifier
   state. External hosts (DSH, Codex, Claude Code) are optional clients; they
   don't replace the native scan loop. See
   [Improvement Plane](/improvement-plane/) for the separate future-worker
@@ -325,7 +325,7 @@ classification).
   abuse, and permission escalation.
 
 ```bash
-0sec mcp-server \
+xsec mcp-server \
   --target https://example.com \
   --scan-id engagement-001 \
   --scope ./scope.json \
@@ -336,18 +336,18 @@ classification).
 
 Two surfaces, split on purpose:
 
-- **0sec CLI** — the execution surface for local runs, CI, replay, exports.
+- **XSEC CLI** — the execution surface for local runs, CI, replay, exports.
 - **Managed control plane** — a separate hosted product for scoped, multi-worker
   engagements (not in this repo).
 
-Every fresh local run owns `~/.0sec/runs/<scan-id>/state.db`, its journal, and
+Every fresh local run owns `~/.xsec/runs/<scan-id>/state.db`, its journal, and
 its report. The local dashboard can inspect one run via `--db-path`; it is not a
 shared worker database. Managed findings, verification state, budgets, and org
 ownership live in the managed store.
 
 ## Shell-first web mode
 
-For web pentesting, 0sec gives the agent a minimal tool set — `bash`,
+For web pentesting, XSEC gives the agent a minimal tool set — `bash`,
 `save_finding`, `done` — instead of routing it through structured tools. This
 works because the model already knows curl, bash pipelines, and standard tools
 from training. One `curl -c cookies.txt … | jq` replaces several structured

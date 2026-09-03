@@ -1,10 +1,10 @@
 // Live eval (#802): does our LLM correctly apply the intended-use gate?
 // Runs the 7 ground-truth cases (5 verified-by-design npm duds + 2 genuinely-
-// real injections) through OUR LLM service (@0cloud/llm callLlm), credential
+// real injections) through OUR LLM service (@xcloud/llm callLlm), credential
 // resolved from the `codex login` token — the same path the verify runners use.
 // No raw vendor key (see AGENTS.md "Use the unified LLM service, never raw keys").
 //
-// Run from the repo root: node 0sec/packages/core/eval/intended-use.eval.mjs
+// Run from the repo root: node xsec/packages/core/eval/intended-use.eval.mjs
 // Requires `codex login` (~/.codex/auth.json). Last result: 7/7 (gpt-5.5, 2026-06-03).
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";

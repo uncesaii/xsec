@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { Finding, PocStep, LayerVerdict } from "@0sec/shared";
+import type { Finding, PocStep, LayerVerdict } from "@xsec/shared";
 import {
   assembleEvidencePack,
   renderVendorNotificationMarkdown,

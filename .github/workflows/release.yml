@@ -1,6 +1,6 @@
-name: "0sec: Release"
+name: "XSEC: Release"
 
-# Build the standalone `0sec` binary natively on each target OS and publish all
+# Build the standalone `xsec` binary natively on each target OS and publish all
 # four (+ checksums) to the GitHub Release. Native builds avoid `bun --compile`
 # cross-compilation, which cannot resolve @opentui/core's per-platform native
 # packages from a single host. Each binary is smoke-tested on its own runner
@@ -28,13 +28,13 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-            asset: 0sec-darwin-arm64
+            asset: xsec-darwin-arm64
           - os: ubuntu-latest
-            asset: 0sec-linux-x64
+            asset: xsec-linux-x64
           - os: ubuntu-24.04-arm
-            asset: 0sec-linux-arm64
+            asset: xsec-linux-arm64
           - os: windows-latest
-            asset: 0sec-windows-x64.exe
+            asset: xsec-windows-x64.exe
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     env:
@@ -61,10 +61,10 @@ jobs:
         # compiled binary has a .node to load at runtime (arm64 has no prebuilt).
         run: pnpm install --no-frozen-lockfile
       - name: Build the CLI dependency closure
-        # Only the 0sec-cli closure is needed for the binary. Building the whole
-        # workspace (pnpm -r) also builds @0sec/docs, whose astro site 404s on
+        # Only the xsec-cli closure is needed for the binary. Building the whole
+        # workspace (pnpm -r) also builds @xsec/docs, whose astro site 404s on
         # Windows and has nothing to do with the release binary.
-        run: pnpm --filter "0sec-cli..." build
+        run: pnpm --filter "xsec-cli..." build
       - name: Compile native binary
         shell: bash
         run: bash scripts/bun-compile.sh "" "dist-bin/${{ matrix.asset }}"
@@ -77,11 +77,11 @@ jobs:
           smoke_dir="$(mktemp -d)"
           mv node_modules node_modules.release-build
           trap 'mv node_modules.release-build node_modules; rm -rf "$smoke_dir"' EXIT
-          cp "dist-bin/${{ matrix.asset }}" "$smoke_dir/0sec"
+          cp "dist-bin/${{ matrix.asset }}" "$smoke_dir/xsec"
           (
             cd "$smoke_dir"
-            ./0sec --version
-            ./0sec --help | grep -q "security research harness"
+            ./xsec --version
+            ./xsec --help | grep -q "security research harness"
           )
       - uses: actions/upload-artifact@v4
         with:
@@ -115,7 +115,7 @@ jobs:
           else
             gh release create "$TAG" dist-bin/* \
               --repo "${{ github.repository }}" \
-              --title "0sec $TAG" \
+              --title "XSEC $TAG" \
               --notes "Automated multi-platform release. See CHANGELOG.md for changes." \
               --verify-tag
           fi

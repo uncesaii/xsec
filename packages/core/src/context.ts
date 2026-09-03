@@ -4,7 +4,7 @@ import type {
   TargetInfo,
   Finding,
   AttackResult,
-} from "@0sec/shared";
+} from "@xsec/shared";
 
 export function createScanContext(config: ScanConfig): ScanContext {
   return {

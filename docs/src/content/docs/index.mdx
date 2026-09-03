@@ -1,5 +1,5 @@
 ---
-title: 0sec
+title: XSEC
 description: The open cybersecurity harness — a team of AI agents that finds, proves, and reports vulnerabilities. Evidence-first.
 template: splash
 hero:
@@ -9,12 +9,8 @@ hero:
       link: /getting-started/
       icon: right-arrow
       variant: primary
-    - text: CVEs found in the wild
-      link: https://0.security
-      icon: external
-      variant: secondary
     - text: GitHub
-      link: https://github.com/0sec-labs/0sec
+      link: https://github.com/uncesaii/xsec
       icon: external
       variant: minimal
 ---
@@ -29,16 +25,16 @@ import { Card, CardGrid } from "@astrojs/starlight/components";
     A separate, blind agent re-exploits each finding seeing only the PoC. Anything it can't reproduce is dropped — never shipped as "low confidence."
   </Card>
   <Card title="Real CVEs, not leaderboards" icon="star">
-    0sec's research loop has disclosed real bugs in the Linux kernel and widely-used open source, with maintainer review from Intel, NVIDIA, Red Hat, Google, and more. The live track record lives at <a href="https://0.security">0.security</a>.
+    XSEC's research loop has disclosed real bugs in the Linux kernel and widely-used open source, with maintainer review from Intel, NVIDIA, Red Hat, Google, and more.
   </Card>
   <Card title="Binary analysis, no source" icon="document">
-    When there's only a compiled binary, the in-repo <a href="https://github.com/0sec-labs/0sec/tree/main/0verse">0verse</a> engine runs a find → prove → patch → verify loop and confirms a bug only with a reproducing proof-of-vulnerability.
+    When there's only a compiled binary, the in-repo <a href="https://github.com/uncesaii/xsec/tree/main/xverse">xverse</a> engine runs a find → prove → patch → verify loop and confirms a bug only with a reproducing proof-of-vulnerability.
   </Card>
   <Card title="Bring your own model" icon="setting">
     Anthropic, OpenAI, Azure (EU regions), OpenRouter, DeepSeek, Z.ai GLM, Moonshot Kimi, Qwen, a ChatGPT-Codex subscription, or local Ollama — with a hard per-run cost ceiling.
   </Card>
   <Card title="Evidence you can inspect" icon="list-format">
-    Every run keeps its own SQLite state, an append-only journal, and artifacts under <code>~/.0sec/runs/</code> — so you can <code>resume</code>, <code>replay</code>, or <code>disclose</code> it later.
+    Every run keeps its own SQLite state, an append-only journal, and artifacts under <code>~/.xsec/runs/</code> — so you can <code>resume</code>, <code>replay</code>, or <code>disclose</code> it later.
   </Card>
 </CardGrid>
 
@@ -57,5 +53,4 @@ import { Card, CardGrid } from "@astrojs/starlight/components";
 
 ## Proof
 
-- [Found in the wild](https://0.security) — the running, verified CVE track record
-- [Benchmarks](/benchmark/) — where 0sec sits on public CTF benchmarks, with honest caveats (we treat these as secondary to real disclosures)
+- [Benchmarks](/benchmark/) — where XSEC sits on public CTF benchmarks, with honest caveats (we treat these as secondary to real disclosures)

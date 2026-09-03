@@ -1,4 +1,4 @@
-import type { Finding } from "@0sec/shared";
+import type { Finding } from "@xsec/shared";
 
 export type SanitizerName = "asan" | "ubsan";
 export type SanitizerPrimitive = "read" | "write" | "both" | "unknown";

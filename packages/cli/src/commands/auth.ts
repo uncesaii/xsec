@@ -1,17 +1,17 @@
-// `0sec auth` — 0sec-cloud authentication (CLI half of #303).
+// `xsec auth` — xsec-cloud authentication (CLI half of #303).
 //
 // Subcommands:
 //   - login        opens a browser at <host>/cli-auth?session=… and polls
 //                  for the mint endpoint to drop a scoped token in
-//   - logout       deletes ~/.0sec/cloud.env
+//   - logout       deletes ~/.xsec/cloud.env
 //   - status       loads creds, hits CloudClient.pingHealth(), reports
 //
-// The browser flow is backed by the 0cloud session-mint endpoint:
-//   - `0sec auth login` opens `<host>/cli-auth?session=…` and polls the
+// The browser flow is backed by the xcloud session-mint endpoint:
+//   - `xsec auth login` opens `<host>/cli-auth?session=…` and polls the
 //     session URL until browser confirmation makes a scoped token ready.
-//   - `0sec auth login --token <value>` remains a manual credential path for
+//   - `xsec auth login --token <value>` remains a manual credential path for
 //     self-hosted or recovery use.
-//   - `0sec auth status` works against any reachable cloud host that answers
+//   - `xsec auth status` works against any reachable cloud host that answers
 //     GET /health with a 2xx and `{status: "ok"}`-shaped body.
 //
 // DIVERGENCE FROM h1.ts
@@ -20,14 +20,14 @@
 // on the H1 site, so there's no `login` flow there at all — the loader
 // just reads what the operator put in h1.env. Cloud uses Bearer auth
 // with a scoped token minted by the server after a browser-based
-// better-auth flow, so `0sec auth login` is the one extra surface.
+// better-auth flow, so `xsec auth login` is the one extra surface.
 //
-// SECURITY: the token is never printed. `0sec auth status` echoes the
+// SECURITY: the token is never printed. `xsec auth status` echoes the
 // host on success; on auth failure we surface the status code + path,
 // never the token or the Authorization header.
 
 import { spawn } from "node:child_process";
-import { homeStateDir } from "@0sec/shared";
+import { homeStateDir } from "@xsec/shared";
 import { mkdirSync, writeFileSync, chmodSync, unlinkSync, existsSync } from "node:fs";
 import { homedir, platform } from "node:os";
 import { join } from "node:path";
@@ -44,7 +44,7 @@ import {
   CloudNetworkError,
   CloudError,
   DEFAULT_CLOUD_HOST,
-} from "@0sec/core";
+} from "@xsec/core";
 
 const EXIT_OK = 0;
 const EXIT_USER_ERROR = 1;
@@ -80,30 +80,30 @@ interface StatusOptions {
 export function registerAuthCommand(program: Command): void {
   const auth = program
     .command("auth")
-    .description("0sec-cloud authentication")
+    .description("xsec-cloud authentication")
 
-  // ── 0sec auth login ──
+  // ── xsec auth login ──
   auth
     .command("login")
-    .description("Log in to 0sec-cloud (opens browser; --token to paste directly)")
+    .description("Log in to xsec-cloud (opens browser; --token to paste directly)")
     .option("--host <url>", `Cloud host (default ${DEFAULT_CLOUD_HOST})`)
     .option("--token <value>", "Skip the browser flow and persist this token directly")
     .action(async (opts: { host?: string; token?: string }) => {
       await runLogin(opts);
     });
 
-  // ── 0sec auth logout ──
+  // ── xsec auth logout ──
   auth
     .command("logout")
-    .description("Delete ~/.0sec/cloud.env")
+    .description("Delete ~/.xsec/cloud.env")
     .action(() => {
       runLogout({});
     });
 
-  // ── 0sec auth status ──
+  // ── xsec auth status ──
   auth
     .command("status")
-    .description("Verify 0sec-cloud credentials against /health")
+    .description("Verify xsec-cloud credentials against /health")
     .action(async () => {
       await runStatus({});
     });
@@ -115,7 +115,7 @@ export function registerAuthCommand(program: Command): void {
 
 export async function runLogin(opts: LoginOptions): Promise<void> {
   // Validate --host even when --token is also passed; persisting an
-  // invalid host now would just cause `0sec auth status` to fail
+  // invalid host now would just cause `xsec auth status` to fail
   // later with a less actionable error.
   let host: string;
   if (opts.host) {
@@ -219,7 +219,7 @@ export async function runLogin(opts: LoginOptions): Promise<void> {
 
   consolePresentationOutput.stderr(chalk.red(
     `Login timed out after ${Math.round((attempts * intervalMs) / 1000)}s. ` +
-      "Retry the browser flow or use `0sec auth login --token <value>`.",
+      "Retry the browser flow or use `xsec auth login --token <value>`.",
   ), "auth.login.timed-out");
   process.exitCode = EXIT_NET;
 }
@@ -227,10 +227,10 @@ export async function runLogin(opts: LoginOptions): Promise<void> {
 export function runLogout(opts: LogoutOptions): void {
   const home = opts.homeDir ?? homedir();
   const osecPath = join(homeStateDir(opts.homeDir), "cloud.env");
-  const cloudCredsPath = join(home, ".0cloud", "credentials.json");
+  const cloudCredsPath = join(home, ".xsec", "credentials.json");
   let deletedAny = false;
 
-  // Delete 0sec credential file
+  // Delete xsec credential file
   try {
     unlinkSync(osecPath);
     deletedAny = true;
@@ -243,7 +243,7 @@ export function runLogout(opts: LogoutOptions): void {
     }
   }
 
-  // Also clean up 0cloud-compatible credential file
+  // Also clean up xsec-compatible credential file
   try {
     unlinkSync(cloudCredsPath);
     deletedAny = true;
@@ -335,10 +335,10 @@ function persistCredentials(host: string, token: string, homeDirOverride?: strin
   mkdirSync(dir, { recursive: true, mode: 0o700 });
   const path = join(dir, "cloud.env");
   const body =
-    `# 0sec-cloud credentials. Managed by \`0sec auth\`.\n` +
+    `# xsec-cloud credentials. Managed by \`xsec auth\`.\n` +
     `# DO NOT commit this file or share its contents.\n` +
-    `0SEC_CLOUD_HOST=${host}\n` +
-    `0SEC_CLOUD_TOKEN=${token}\n`;
+    `XSEC_CLOUD_HOST=${host}\n` +
+    `XSEC_CLOUD_TOKEN=${token}\n`;
   writeFileSync(path, body, { mode: 0o600 });
   // writeFileSync's `mode` is honoured on create but POSIX semantics
   // mean an existing file keeps its old perms — so re-chmod explicitly.
@@ -351,17 +351,14 @@ function persistCredentials(host: string, token: string, homeDirOverride?: strin
     return;
   }
 
-  // Write 0cloud-compatible credential file for unified auth.
-  // Best-effort: don't fail the 0sec login if this secondary write fails.
+  // Write xsec-compatible credential file for unified auth.
+  // Best-effort: don't fail the xsec login if this secondary write fails.
   try {
-    const cloudDir = join(home, ".0cloud");
+    const cloudDir = join(home, ".xsec");
     mkdirSync(cloudDir, { recursive: true });
     const cloudCredsPath = join(cloudDir, "credentials.json");
-    // 0sec only knows the dashboard host (cloud.0sec.ai); the 0cloud
-    // orchestrator API lives under /api on it. `api.0sec.ai` has no DNS
-    // (#508), so derive the API base as `${host}/api` for 0cloud's
-    // endpoint. orgId stays empty — 0cloud resolves org from its own
-    // config / --org.
+    // Derive the API base as `${host}/api`.
+    // orgId stays empty — xsec resolves org from its own config / --org.
     const trimmedHost = host.replace(/\/+$/, "");
     const apiEndpoint = trimmedHost.endsWith("/api")
       ? trimmedHost
@@ -380,7 +377,7 @@ function persistCredentials(host: string, token: string, homeDirOverride?: strin
     writeFileSync(cloudCredsPath, cloudCreds, { mode: 0o600 });
     chmodSync(cloudCredsPath, 0o600);
   } catch {
-    // Silently ignore — the primary 0sec credential write succeeded.
+    // Silently ignore — the primary xsec credential write succeeded.
   }
 }
 
@@ -421,7 +418,7 @@ function extractToken(body: unknown): string | null {
  *
  * JUDGMENT CALL: we avoided the `opener` package even though it's ~30
  * LoC because (a) MIT, (b) zero transitive deps, and (c) we already
- * have a working no-dep implementation in `0sec doctor`-style code
+ * have a working no-dep implementation in `xsec doctor`-style code
  * elsewhere. Adding a dep for a 12-line function loses on the
  * dependency-cost calculus.
  */

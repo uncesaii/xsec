@@ -16,7 +16,7 @@ draft: true
 ## Why
 
 Foxguard is now the default source-code static lead generator, with
-Semgrep preserved as `0SEC_STATIC=semgrep` for compatibility and
+Semgrep preserved as `XSEC_STATIC=semgrep` for compatibility and
 comparison. Foxguard claims 5–22× speed-up on framework-sized repos
 and ships 170+ built-in rules across 11 languages. Before removing any
 additional Semgrep runtime path, we measure.
@@ -43,8 +43,8 @@ Three slices, all reproducible locally via
 
 | Slice | Why this slice | Target |
 |---|---|---|
-| `self-scan` | TS/JS in the language families 0sec ships in. Catches regressions from our own dogfood. | 0sec repo itself. |
-| `xbow-bb-wave` | PHP-heavy black-box wave. PHP/Java sink coverage in Foxguard's built-ins is the open question from 0sec#254. | `0ca/xbow-validation-benchmarks-patched` BB wave. |
+| `self-scan` | TS/JS in the language families XSEC ships in. Catches regressions from our own dogfood. | XSEC repo itself. |
+| `xbow-bb-wave` | PHP-heavy black-box wave. PHP/Java sink coverage in Foxguard's built-ins is the open question from XSEC#254. | `0ca/xbow-validation-benchmarks-patched` BB wave. |
 | `npm-bench-wave` | JS taint focus on a known-truth corpus. | First 9 packages of npm-bench (3 malicious, 3 vulnerable, 3 safe). |
 
 The sample sizes are small on purpose — this is a *validation gate*, not a
@@ -79,7 +79,7 @@ conditions hold on the source-code slice**:
    speed-up Foxguard sells; anything less makes the default risky).
 
 If either condition fails, we revert the default to Semgrep, close
-0sec#254 as **evaluated, not defaulted**, and document the failure
+XSEC#254 as **evaluated, not defaulted**, and document the failure
 mode in a dated artifact.
 
 If conditions pass on `self-scan` but the XBOW BB or npm-bench
@@ -112,7 +112,7 @@ When a dated artifact is published, it must fill these slots:
 
 **Decision:** <keep foxguard default | revert to semgrep default | further investigation>
 
-**Follow-up issue (if applicable):** 0sec#<number>
+**Follow-up issue (if applicable):** XSEC#<number>
 ```
 
 ## How to re-run
@@ -125,7 +125,7 @@ node packages/benchmark/scripts/foxguard-ablation.mjs --slice all --dry-run
 node packages/benchmark/scripts/foxguard-ablation.mjs \
   --slice all \
   --xbow-path ../xbow-validation-benchmarks-patched \
-  --npm-bench-cache /tmp/0sec-npm-bench-cache
+  --npm-bench-cache /tmp/xsec-npm-bench-cache
 ```
 
 The harness writes
@@ -135,7 +135,7 @@ the relevant numbers into a new dated `.md` file in this folder.
 ## Pinned Foxguard version
 
 `FOXGUARD_PINNED_TAG` in
-[`packages/core/src/shared-analysis.ts`](https://github.com/0sec-labs/0sec/blob/main/packages/core/src/shared-analysis.ts)
+[`packages/core/src/shared-analysis.ts`](https://github.com/uncesaii/xsec/blob/main/packages/core/src/shared-analysis.ts)
 is the single source of truth. If you bump it, document the bump in a
 new dated artifact and re-run the gate.
 
@@ -143,11 +143,11 @@ new dated artifact and re-run the gate.
 
 This gate is the first proof point for the hybrid architecture described
 in [TypeScript/Rust Boundary](/research/typescript-rust-boundary/):
-0sec keeps orchestration in TypeScript, while deterministic engines
+XSEC keeps orchestration in TypeScript, while deterministic engines
 such as FoxGuard move to Rust behind stable JSON/SARIF contracts.
 
 ## Related issues
 
-- 0sec#254 — sibling runner + ablation (this work)
-- 0sec#116 — prior ablation pattern (egats removal) — informs how
+- XSEC#254 — sibling runner + ablation (this work)
+- XSEC#116 — prior ablation pattern (egats removal) — informs how
   we structure dated artifacts and the decision-recording slots above

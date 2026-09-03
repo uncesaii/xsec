@@ -1,6 +1,6 @@
 ---
 title: Roadmap
-description: Where 0sec is going next. Opinionated, prioritised by leverage, dated by what already shipped.
+description: Where XSEC is going next. Opinionated, prioritised by leverage, dated by what already shipped.
 ---
 
 This roadmap prioritises product leverage over surface-area creep, and stays
@@ -21,7 +21,7 @@ security team running a continuous campaign.
 
 ## August 2026 product-discovery checkpoint
 
-**No commercial vertical has been selected yet.** 0sec is deliberately an
+**No commercial vertical has been selected yet.** XSEC is deliberately an
 open-source, evidence-backed cyber reasoning system: given an authorized
 objective, a scoped target, tools, and a verifier, it plans, investigates, tests,
 and returns replayable evidence. That's a platform thesis — it doesn't by itself
@@ -66,7 +66,7 @@ The decision is deliberately reversible until then.
 ## May 2026 strategy addendum
 
 FoxGuard is now the default static lead source and the stepping stone away from
-Semgrep. The direction is not "delete Semgrep immediately" or "rewrite 0sec in
+Semgrep. The direction is not "delete Semgrep immediately" or "rewrite XSEC in
 Rust." It's:
 
 1. keep the TypeScript control plane for agent orchestration, provider
@@ -156,10 +156,10 @@ methodology page on best-of-N (what XBOW reports) vs per-attempt success rate
 restarting.
 
 **Why:** the repo already persists `agent_sessions` and `pipeline_events`;
-restarting long agentic workflows is expensive. This is what makes 0sec feel like
+restarting long agentic workflows is expensive. This is what makes XSEC feel like
 infrastructure.
 
-**Deliverables:** `0sec resume <scan-id>`; stage-level checkpointing;
+**Deliverables:** `xsec resume <scan-id>`; stage-level checkpointing;
 partial-result recovery after crash/timeout; resume-safe report generation.
 
 ### 4. Finding inbox + triage workflow
@@ -260,7 +260,7 @@ automated policy promotion. See [Improvement Plane](/improvement-plane/).
 
 ## Product direction
 
-The best version of 0sec is a sharp local CLI for one-off deep work; a reliable
+The best version of XSEC is a sharp local CLI for one-off deep work; a reliable
 CI primitive for PRs and repos; a persistent evidence store for findings and
 agent runs; a local operations shell on that state; and eventually a separate
 distributed agentic security control plane for campaigns and remote workers. That

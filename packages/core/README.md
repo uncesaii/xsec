@@ -1,17 +1,17 @@
-# @0sec/core
+# @xsec/core
 
-Engine package for 0sec: tool definitions, agent loop, playbooks, runtimes,
-audit pipeline, and triage filters. Consumed by `@0sec/cli`.
+Engine package for XSEC: tool definitions, agent loop, playbooks, runtimes,
+audit pipeline, and triage filters. Consumed by `@xsec/cli`.
 
 ## Feature flags
 
 Feature flags are declared in `src/agent/features.ts`. Each flag maps to a
-`0SEC_FEATURE_<NAME>` environment variable. The `@0sec/cli` `scan` command
+`0SEC_FEATURE_<NAME>` environment variable. The `@xsec/cli` `scan` command
 also accepts a `--features` flag that sets those env vars automatically:
 
 ```bash
-pnpm 0sec scan --target https://example.com --features wp_fingerprint
-pnpm 0sec scan --target https://example.com --features wp_fingerprint,web_search
+pnpm xsec scan --target https://example.com --features wp_fingerprint
+pnpm xsec scan --target https://example.com --features wp_fingerprint,web_search
 ```
 
 Any token passed to `--features` is upcased, non-alphanumeric chars are
@@ -64,7 +64,7 @@ Opt-in tool exposed behind the `wp_fingerprint` feature flag. Implemented in
 ### CLI usage
 
 ```bash
-pnpm 0sec scan \
+pnpm xsec scan \
   --target https://wordpress-target.example.com \
   --features wp_fingerprint
 ```
@@ -126,7 +126,7 @@ pnpm 0sec scan \
 ### Tests
 
 ```bash
-pnpm --filter @0sec/core test -- wp-fingerprint
+pnpm --filter @xsec/core test -- wp-fingerprint
 ```
 
 The test suite (`src/agent/wp-fingerprint.test.ts`) mocks `fetch` with an
@@ -179,12 +179,12 @@ sometimes plant decoy flags in obvious locations to catch script kiddies."*
 ### Configuration
 
 - Env var: `0SEC_FEATURE_DECOY_DETECTION=0` to disable.
-- CLI flag: `0sec scan --no-decoy-detection <target>`.
+- CLI flag: `xsec scan --no-decoy-detection <target>`.
 
 ### Tests
 
 ```bash
-pnpm --filter @0sec/core test -- flag-validator
+pnpm --filter @xsec/core test -- flag-validator
 ```
 
 The test suite (`src/agent/flag-validator.test.ts`) covers the XBEN-079

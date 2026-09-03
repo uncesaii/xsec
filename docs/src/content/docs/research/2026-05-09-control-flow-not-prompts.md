@@ -1,12 +1,12 @@
 ---
 title: "We took the control-flow audit seriously — here are the 5 fixes"
 date: "2026-05-09"
-description: "A bear-blog post argued that agents need deterministic code at chokepoints, not 'MUST' prompts. We audited 0sec's agent loop, found 5 places we were doing it wrong, and shipped fixes in 24 hours. Here's the diff."
+description: "A bear-blog post argued that agents need deterministic code at chokepoints, not 'MUST' prompts. We audited XSEC's agent loop, found 5 places we were doing it wrong, and shipped fixes in 24 hours. Here's the diff."
 ---
 
-> **Historical research log (2026-05-09).** A dated lab note kept for transparency. It reflects 0sec's state at the time and is not current product guidance.
+> **Historical research log (2026-05-09).** A dated lab note kept for transparency. It reflects XSEC's state at the time and is not current product guidance.
 
-*Published 2026-05-09. PRs #287–#291 land the fixes; closes [#280](https://github.com/0sec-labs/0sec/issues/280).*
+*Published 2026-05-09. PRs #287–#291 land the fixes; closes [#280](https://github.com/uncesaii/xsec/issues/280).*
 
 ## The post that started it
 
@@ -143,7 +143,7 @@ for (const finding of findings) {
 
 `unified-pipeline.ts:915 runPerFileResearch` and `audit.ts:668 runPerFileAudit` mirror the shape for research and npm/PyPI/cargo/OCI audits — one agent session per source file, focused per-file system prompt, deterministic outer loop. The reference implementation already lived in the repo: `triage/pov-gate.ts buildPovSystemPrompt` was doing this years ago for evidence-judge agents. We just generalized the pattern.
 
-Feature-flagged via `0SEC_FEATURE_PER_ITEM_ORCHESTRATION` (default on) — set to `0` if you need to revert to the shared-session shape for cost-bounded benchmarks. Default-on because per-item is the correct shape; the flag exists to let benchmark sweeps measure the delta.
+Feature-flagged via `XSEC_FEATURE_PER_ITEM_ORCHESTRATION` (default on) — set to `0` if you need to revert to the shared-session shape for cost-bounded benchmarks. Default-on because per-item is the correct shape; the flag exists to let benchmark sweeps measure the delta.
 
 ## The 11 patterns we didn't change
 
@@ -164,20 +164,20 @@ The triage layer in particular is more deterministic than the audit expected to 
 
 The first-pass audit flagged a sixth pattern (H6): verify-pipeline JSON parsing was supposedly fragile because the prompt said "MUST respond with ONLY a JSON object" and we couldn't see fence-stripping in the parser. Second-pass review verified that fences are already stripped at `verify-pipeline.ts:676`, `adversarial.ts:220`, and `hybrid-router.ts:132` — three different parsers, all tolerant of markdown fences and surrounding prose. The "MUST" prompts there are belt-and-suspenders; the parsers handle whatever the model emits.
 
-We closed [issue #284](https://github.com/0sec-labs/0sec/issues/284) on second-pass review and filed [#286](https://github.com/0sec-labs/0sec/issues/286) for path-existence in its place. Honest second pass is the difference between a useful audit and a witch hunt.
+We closed [issue #284](https://github.com/uncesaii/xsec/issues/284) on second-pass review and filed [#286](https://github.com/uncesaii/xsec/issues/286) for path-existence in its place. Honest second pass is the difference between a useful audit and a witch hunt.
 
 ## What this is and isn't
 
-This is not a claim that 0sec's agent loop is now deterministic-everywhere. The agent still has lots of LLM-driven steps — tactical action selection inside the attack stage, finding-content generation, exploit-payload construction, source-file comprehension. Those are search-space exploration and don't deterministically encode. 0sec's edge has always been hybrid: code-determined orchestration, LLM-determined tactics.
+This is not a claim that XSEC's agent loop is now deterministic-everywhere. The agent still has lots of LLM-driven steps — tactical action selection inside the attack stage, finding-content generation, exploit-payload construction, source-file comprehension. Those are search-space exploration and don't deterministically encode. XSEC's edge has always been hybrid: code-determined orchestration, LLM-determined tactics.
 
 What did change is that the chokepoints — the spots where one bad model output corrupts everything downstream of it — are now code-gated, not prompt-suggested. Empty PoCs can't be saved. Duplicate findings can't be saved. Fabricated `file:line` references can't be parsed. Unauthenticated curl can't reach in-scope targets when auth is configured. Verify and audit walk per-item instead of asking the model to walk N items inside one session.
 
 Test count went from 1185 to 1204 (19 new tests). All five PRs ship behind file-level changes you can read end-to-end:
 
-- [#287](https://github.com/0sec-labs/0sec/pull/287) — empty-PoC gate at `tools.ts:2360`
-- [#288](https://github.com/0sec-labs/0sec/pull/288) — fuzzy-title dedup at `tools.ts:2467` + `tools-helpers.ts:33 levenshtein`
-- [#289](https://github.com/0sec-labs/0sec/pull/289) — path-existence validation at `findings-parser.ts:39 validateFileRef`
-- [#290](https://github.com/0sec-labs/0sec/pull/290) — bash auth injection at `tools.ts:856 injectAuthIntoBashCommand`
-- [#291](https://github.com/0sec-labs/0sec/pull/291) — per-item loops in `agentic-scanner.ts:2552`, `unified-pipeline.ts:915`, `audit.ts:668`
+- [#287](https://github.com/uncesaii/xsec/pull/287) — empty-PoC gate at `tools.ts:2360`
+- [#288](https://github.com/uncesaii/xsec/pull/288) — fuzzy-title dedup at `tools.ts:2467` + `tools-helpers.ts:33 levenshtein`
+- [#289](https://github.com/uncesaii/xsec/pull/289) — path-existence validation at `findings-parser.ts:39 validateFileRef`
+- [#290](https://github.com/uncesaii/xsec/pull/290) — bash auth injection at `tools.ts:856 injectAuthIntoBashCommand`
+- [#291](https://github.com/uncesaii/xsec/pull/291) — per-item loops in `agentic-scanner.ts:2552`, `unified-pipeline.ts:915`, `audit.ts:668`
 
 Credit to bsuh for the framing. We didn't invent it; we read a thoughtful post and ran it against our own codebase. The audit found things. The fixes were small. The interesting move was looking — and then doing the second pass on what we found, so the witch-hunt count stayed at zero and the real-fix count was five.

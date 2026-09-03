@@ -1,7 +1,7 @@
 /**
  * The verify funnel — one verdict contract + one disclosure predicate.
  *
- * Verification in 0sec happens on two separate scan loops that stay separate
+ * Verification in xsec happens on two separate scan loops that stay separate
  * by design (different domains):
  *   - the agentic/web path (`agentic-scanner.ts` → structured verify +
  *     self-consistency, then `runNativeVerify`), and
@@ -17,15 +17,15 @@
  *
  * The two scan loops still run independently; only their *verdicts* are unified.
  *
- * SINGLE SOURCE / PARITY (#650): the 0cloud orchestrator keeps the same
- * predicate in `@0cloud/cloud-contracts` `disclosure-worthiness.ts` (the engine
+ * SINGLE SOURCE / PARITY (#650): the xcloud orchestrator keeps the same
+ * predicate in `@xcloud/cloud-contracts` `disclosure-worthiness.ts` (the engine
  * and orchestrator are decoupled — neither can import the other's package). This
  * module is the engine's authoritative copy; the guard data is parity-checked in
  * `can-auto-suppress.parity.test.ts`. Keep the two `isDisclosureWorthy`
  * implementations behaviour-compatible.
  */
 
-import type { Finding } from "@0sec/shared";
+import type { Finding } from "@xsec/shared";
 import {
   canAutoSuppressDetailed,
   type AutoSuppressGuard,
@@ -52,8 +52,8 @@ export type VerifyOutcome = "confirmed" | "rejected" | "inconclusive";
  * never enough. `source-only` confirmations stay held (needs_verify), never
  * silently dropped (#518).
  *
- * SINGLE SOURCE / PARITY (#650): the 0cloud side keeps the same union in
- * `@0cloud/cloud-contracts` (`VerifyEvidenceKind`, PR #681). The engine and
+ * SINGLE SOURCE / PARITY (#650): the xcloud side keeps the same union in
+ * `@xcloud/cloud-contracts` (`VerifyEvidenceKind`, PR #681). The engine and
  * orchestrator are decoupled — neither imports the other — so the strings are
  * parity-checked in `verify-evidence-kind.parity.test.ts` against the locked
  * cloud table. Keep the two in lockstep.
@@ -62,7 +62,7 @@ export type VerifyOutcome = "confirmed" | "rejected" | "inconclusive";
  * has a value to assert, mirroring the `AUTO_SUPPRESS_*` arrays in
  * `can-auto-suppress.ts`.
  *
- * NOTE: this tuple is the 0cloud-PARITY-LOCKED set — it is asserted verbatim in
+ * NOTE: this tuple is the xcloud-PARITY-LOCKED set — it is asserted verbatim in
  * `verify-evidence-kind.parity.test.ts` against the cloud-contracts table. Do
  * NOT add a kind here until the SAME string has been added to the cloud-contracts
  * `VERIFY_EVIDENCE_KINDS` table in the same coordinated change (#701), or the
@@ -114,7 +114,7 @@ const REPRODUCING_LAYERS = new Set(["poc_gen", "pov_gate", "oracle"]);
 
 /**
  * Classify a finding's evidence basis from what the engine already emits —
- * the same predicate the 0cloud worker derives, kept identical so native
+ * the same predicate the xcloud worker derives, kept identical so native
  * emission and cloud derivation never diverge:
  *
  *   `reproduced-poc` ⇔ the finding carries a non-empty `pocSteps` graph AND a
@@ -181,8 +181,8 @@ export interface VerifyVerdict {
    * verdicts. When the disclosure gate is run with `requireNbootStable`, a
    * kernel finding must carry `nbootStable === true` to be disclosure-eligible.
    *
-   * SINGLE SOURCE / PARITY (#650): mirrored on the 0cloud side in
-   * `@0cloud/cloud-contracts` (`DisclosureVerdictLike`). Keep the two in
+ * SINGLE SOURCE / PARITY (#650): mirrored on the xcloud side in
+ * `@xcloud/cloud-contracts` (`DisclosureVerdictLike`). Keep the two in
    * lockstep.
    */
   nbootStable?: boolean;

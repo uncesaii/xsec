@@ -1,5 +1,5 @@
 /**
- * Marketplace registry client (0sec plugin system, part of DESIGN.md §5).
+ * Marketplace registry client (xsec plugin system, part of DESIGN.md §5).
  *
  * ── What this is, and what it is NOT ──────────────────────────────────────────
  *

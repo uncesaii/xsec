@@ -12,7 +12,7 @@
  * on conflict.
  */
 
-import type { Finding, DeploymentContext, Severity } from "@0sec/shared";
+import type { Finding, DeploymentContext, Severity } from "@xsec/shared";
 
 // ── Path patterns ────────────────────────────────────────────────────────────
 

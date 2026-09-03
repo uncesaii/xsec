@@ -36,7 +36,7 @@
  * `shellChromeRows` and `wrapCells` are imported from `settings-layout.ts`
  * (re-exported here) exactly as `model-layout.ts` does, and the numeric-hygiene
  * helpers mirror that module. The registry shapes are declared LOCALLY as
- * structural views so this pure module type-checks against `@0sec/core`'s
+ * structural views so this pure module type-checks against `@xsec/core`'s
  * published surface without importing its in-flight `d.ts`.
  */
 
@@ -907,7 +907,7 @@ export function marketEmptyLines(
   if (!configured) {
     push("No marketplace registry configured.", "title");
     blank();
-    push("Set 0SEC_REGISTRY_URL to a registry index URL you trust, then reopen this screen.", "text");
+    push("Set XSEC_REGISTRY_URL to a registry index URL you trust, then reopen this screen.", "text");
     blank();
     push("No endpoint ships by default — the marketplace is opt-in.", "muted");
     push("Installing writes files and runs nothing; it never enables a plugin.", "muted");

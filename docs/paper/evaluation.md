@@ -1,6 +1,6 @@
-# Evaluation Notes for 0sec Paper Draft
+# Evaluation Notes for XSEC Paper Draft
 
-This file is a paper-support companion for `docs/paper/0sec.md`.
+This file is a paper-support companion for `docs/paper/xsec.md`.
 
 It consolidates the current measured numbers and their source paths so the
 submission draft can quote one canonical table set.

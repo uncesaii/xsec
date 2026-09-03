@@ -1,5 +1,5 @@
 /**
- * 0sec#193 — VerificationResult schema (zod).
+ * xsec#193 — VerificationResult schema (zod).
  *
  * Canonical, machine-checkable shape of the JSON payload the deterministic
  * replay verifier emits after running a finding's PoC. Cloud, the CLI, the
@@ -14,7 +14,7 @@
  * the result is self-describing across local/docker/qemu runners.
  *
  * This module is the SHAPE contract; the runner skeleton that produces it
- * lives in `@0sec/core/verify/replay-runner`. The two are deliberately
+ * lives in `@xsec/core/verify/replay-runner`. The two are deliberately
  * decoupled — cloud's ingest can consume the schema without pulling in any
  * runner dependency.
  */
@@ -183,8 +183,8 @@ export const VerificationResultSchema = z.object({
   summary: z.string().optional(),
   // #659 / #1278 — evidence provenance surfaced to the cloud verify writeback.
   //
-  // `evidence_kind` mirrors the cloud contract's VerifyEvidenceKind (0cloud
-  // `@0cloud/cloud-contracts`): a reproduced kind promotes the finding to
+  // `evidence_kind` mirrors the cloud contract's VerifyEvidenceKind (xcloud
+  // `@xcloud/cloud-contracts`): a reproduced kind promotes the finding to
   // in_scope, `source-only` never does. Producers that actually reproduced a
   // PoC set it; leave it undefined to let the consumer keep its own default
   // (the cloud maps a `reproduced` replay to `reproduced-poc` on its own, so

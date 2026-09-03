@@ -217,7 +217,7 @@ export function FindingsPage({ dashboard }: { dashboard: DashboardResponse }) {
   const { openPanel, clearPanel } = useDashboardPanel();
   const [dismissedFingerprint, setDismissedFingerprint] = useState<string | null>(null);
   const [consoleState, setConsoleState] = usePersistentState<ThreadConsoleState>(
-    "0sec:threads:console-state",
+    "xsec:threads:console-state",
     DEFAULT_THREAD_CONSOLE_STATE,
   );
   const {

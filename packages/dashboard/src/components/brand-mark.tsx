@@ -1,4 +1,4 @@
-import iconUrl from "../../../../assets/0sec-icon.gif";
+import iconUrl from "../../../../assets/xsec-icon.gif";
 import { cn } from "@/lib/utils";
 
 export function BrandMark({
@@ -13,7 +13,7 @@ export function BrandMark({
   if (compact) {
     return (
       <img
-        alt="0sec"
+        alt="xsec"
         src={iconUrl}
         className={cn("size-9 object-contain", className)}
       />
@@ -23,15 +23,15 @@ export function BrandMark({
   return (
     <div className={cn("flex items-center gap-3", className)}>
       <img
-        alt="0sec"
+        alt="xsec"
         src={iconUrl}
         className="size-10 object-contain"
       />
       <div className="space-y-0.5">
         <div className="text-[10px] font-semibold uppercase tracking-[0.24em] text-primary">
-          0sec
+          xsec
         </div>
-        <div className="text-sm font-medium text-foreground">0sec operator shell</div>
+        <div className="text-sm font-medium text-foreground">xsec operator shell</div>
       </div>
     </div>
   );

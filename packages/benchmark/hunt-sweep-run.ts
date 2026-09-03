@@ -9,7 +9,7 @@
  * testing (the file-size guard, per-archetype aggregation) live in
  * `src/hunt-sweep.ts`, tested in `src/hunt-sweep.test.ts`.
  *
- * Gated by `0SEC_ARCHETYPE_SWEEP=1` (via `planArchetypeSweep` ->
+ * Gated by `XSEC_ARCHETYPE_SWEEP=1` (via `planArchetypeSweep` ->
  * `archetypeSweepEnabled()`, default OFF) — running this without the env set
  * is a clean, logged no-op, not an error.
  */
@@ -25,7 +25,7 @@ import {
   planArchetypeSweep,
   type ArchetypeDomain,
   type ArchetypeRoute,
-} from "@0sec/core";
+} from "@xsec/core";
 import { resolveHuntCorpusPath } from "./src/hunt-corpus.js";
 import { runArchetypeSweep } from "./src/hunt-sweep.js";
 
@@ -114,8 +114,8 @@ console.log(
 
 if (!archetypeSweepEnabled()) {
   console.log(
-    "[hunt-sweep] 0SEC_ARCHETYPE_SWEEP is not set to 1 — sweep disabled (this is the default). " +
-      "Run with `env 0SEC_ARCHETYPE_SWEEP=1 0sec ...` to enable it. Exiting cleanly.",
+    "[hunt-sweep] XSEC_ARCHETYPE_SWEEP is not set to 1 — sweep disabled (this is the default). " +
+      "Run with `env XSEC_ARCHETYPE_SWEEP=1 xsec ...` to enable it. Exiting cleanly.",
   );
   process.exit(0);
 }

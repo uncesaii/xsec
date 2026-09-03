@@ -26,7 +26,7 @@
  * runtime (LlmApiRuntime) and tests stub it with a fake — no network, no keys.
  */
 
-import type { Finding, RuntimeMode } from "@0sec/shared";
+import type { Finding, RuntimeMode } from "@xsec/shared";
 import type {
   NativeMessage,
   NativeRuntimeResult,

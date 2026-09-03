@@ -43,18 +43,18 @@ describe("LlmApiRuntime provider detection", () => {
     delete process.env.Z_AI_BASE_URL;
     delete process.env.XAI_API_KEY;
     delete process.env.XAI_BASE_URL;
-    delete process.env["0SEC_MODEL"];
-    delete process.env["0SEC_SELECTED_PROVIDER"];
-    delete process.env["0SEC_FORCE_PROVIDER"];
-    delete process.env["0SEC_REGION_OVERRIDE"];
-    delete process.env["0SEC_CHATGPT_ACCESS_TOKEN"];
-    delete process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
-    delete process.env["0SEC_CHATGPT_ACCOUNT_ID"];
+    delete process.env["XSEC_MODEL"];
+    delete process.env["XSEC_SELECTED_PROVIDER"];
+    delete process.env["XSEC_FORCE_PROVIDER"];
+    delete process.env["XSEC_REGION_OVERRIDE"];
+    delete process.env["XSEC_CHATGPT_ACCESS_TOKEN"];
+    delete process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
+    delete process.env["XSEC_CHATGPT_ACCOUNT_ID"];
     // Provider-selection tests must not inherit the operator's Codex login.
-    process.env["0SEC_CHATGPT_AUTH_FILE"] = "/tmp/0sec-provider-test-no-auth.json";
+    process.env["XSEC_CHATGPT_AUTH_FILE"] = "/tmp/xsec-provider-test-no-auth.json";
     // Suppress the startup banner so provider-detection tests don't
     // spew log lines or attempt real network probes.
-    process.env["0SEC_SKIP_PROVIDER_BANNER"] = "1";
+    process.env["XSEC_SKIP_PROVIDER_BANNER"] = "1";
   });
   afterEach(() => {
     for (const key of Object.keys(process.env)) {
@@ -74,7 +74,7 @@ describe("LlmApiRuntime provider detection", () => {
   it("selects direct DeepSeek Flash 0731 before Azure for its exact API model", async () => {
     process.env.DEEPSEEK_API_KEY = "deepseek-key-123";
     process.env.AZURE_OPENAI_API_KEY = "azure-key-should-not-win";
-    process.env["0SEC_MODEL"] = "deepseek-v4-flash";
+    process.env["XSEC_MODEL"] = "deepseek-v4-flash";
 
     const rt = new LlmApiRuntime({ type: "api", timeout: 5000 });
 
@@ -93,7 +93,7 @@ describe("LlmApiRuntime provider detection", () => {
     process.env.AZURE_OPENAI_API_KEY = "azure-primary-key";
     process.env.AZURE_OPENAI_BASE_URL = "https://example-resource.openai.azure.com/openai/v1";
     process.env.AZURE_OPENAI_MODEL = "DeepSeek-V4-Pro";
-    process.env["0SEC_MODEL"] = "DeepSeek-V4-Pro";
+    process.env["XSEC_MODEL"] = "DeepSeek-V4-Pro";
 
     const rt = new LlmApiRuntime({ type: "api", timeout: 5000 });
     const diagnostics = rt.getConfigurationDiagnostics();
@@ -112,7 +112,7 @@ describe("LlmApiRuntime provider detection", () => {
     process.env.AZURE_OPENAI_API_KEY = "azure-primary-key";
     process.env.AZURE_OPENAI_BASE_URL = "https://example-resource.openai.azure.com/openai/v1";
     process.env.AZURE_OPENAI_MODEL = "DeepSeek-V4-Pro";
-    process.env["0SEC_MODEL"] = "gpt-5.4";
+    process.env["XSEC_MODEL"] = "gpt-5.4";
 
     const rt = new LlmApiRuntime({ type: "api", timeout: 5000 });
     const diagnostics = rt.getConfigurationDiagnostics();
@@ -131,8 +131,8 @@ describe("LlmApiRuntime provider detection", () => {
     process.env.AZURE_OPENAI_API_KEY = "azure-primary-key";
     process.env.AZURE_OPENAI_BASE_URL = "https://example-resource.openai.azure.com/openai/v1";
     process.env.AZURE_OPENAI_MODEL = "DeepSeek-V4-Pro";
-    process.env["0SEC_MODEL"] = "future-foundry-deployment";
-    process.env["0SEC_SELECTED_PROVIDER"] = "azure";
+    process.env["XSEC_MODEL"] = "future-foundry-deployment";
+    process.env["XSEC_SELECTED_PROVIDER"] = "azure";
 
     const rt = new LlmApiRuntime({ type: "api", timeout: 5000 });
 
@@ -147,8 +147,8 @@ describe("LlmApiRuntime provider detection", () => {
     process.env.AZURE_OPENAI_BASE_URL = "https://azure.example/openai/v1";
     // foxguard: ignore[js/no-hardcoded-secret]
     process.env.ANTHROPIC_API_KEY = "sk-ant-refuter-key";
-    process.env["0SEC_MODEL"] = "gpt-5.5";
-    process.env["0SEC_SELECTED_PROVIDER"] = "azure";
+    process.env["XSEC_MODEL"] = "gpt-5.5";
+    process.env["XSEC_SELECTED_PROVIDER"] = "azure";
 
     const rt = new LlmApiRuntime({
       type: "api",
@@ -187,7 +187,7 @@ describe("LlmApiRuntime provider detection", () => {
   });
 
   it("reports Azure config as invalid when only the key is set", () => {
-    process.env.HOME = "/tmp/0sec-no-codex-config";
+    process.env.HOME = "/tmp/xsec-no-codex-config";
     process.env.AZURE_OPENAI_API_KEY = "azure-key-123";
     const rt = new LlmApiRuntime({ type: "api", timeout: 5000 });
     const diagnostics = rt.getConfigurationDiagnostics();
@@ -227,8 +227,8 @@ describe("LlmApiRuntime provider detection", () => {
     // Test fixture, literal non-secret key.
     // foxguard: ignore[js/no-hardcoded-secret]
     process.env.OPENAI_API_KEY = "openai-key-123";
-    process.env["0SEC_MODEL"] = "gpt-5.6-luna";
-    process.env["0SEC_SELECTED_PROVIDER"] = "openai";
+    process.env["XSEC_MODEL"] = "gpt-5.6-luna";
+    process.env["XSEC_SELECTED_PROVIDER"] = "openai";
 
     const luna = new LlmApiRuntime({ type: "api", timeout: 5000 });
     // Provider-selection tests inspect stable private runtime state directly.
@@ -255,9 +255,9 @@ describe("LlmApiRuntime provider detection", () => {
     expect((rt3 as any).provider).toBe("openai");
   });
 
-  it("respects 0SEC_MODEL env var", () => {
+  it("respects XSEC_MODEL env var", () => {
     process.env.OPENAI_API_KEY = "sk-test";
-    process.env["0SEC_MODEL"] = "gpt-4-turbo";
+    process.env["XSEC_MODEL"] = "gpt-4-turbo";
     const rt = new LlmApiRuntime({ type: "api", timeout: 5000 });
     expect((rt as any).model).toBe("gpt-4-turbo");
   });
@@ -287,7 +287,7 @@ describe("LlmApiRuntime provider detection", () => {
     // foxguard: ignore[js/no-hardcoded-secret]
     process.env.QWEN_API_KEY = "sk-sp-test";
     process.env.QWEN_BASE_URL = "https://qwen.example/v1";
-    process.env["0SEC_MODEL"] = "qwen3.7-max";
+    process.env["XSEC_MODEL"] = "qwen3.7-max";
     const rt = new LlmApiRuntime({ type: "api", timeout: 5000 });
     expect((rt as any).provider).toBe("qwen");
     expect((rt as any).model).toBe("qwen3.7-max");
@@ -315,7 +315,7 @@ describe("LlmApiRuntime provider detection", () => {
     // foxguard: ignore[js/no-hardcoded-secret]
     process.env.XAI_API_KEY = "sk-xai-test";
     process.env.XAI_BASE_URL = "https://xai.example/v1";
-    process.env["0SEC_MODEL"] = "grok-4.3";
+    process.env["XSEC_MODEL"] = "grok-4.3";
     const rt = new LlmApiRuntime({ type: "api", timeout: 5000 });
     expect((rt as any).provider).toBe("xai");
     expect((rt as any).model).toBe("grok-4.3");
@@ -345,7 +345,7 @@ describe("LlmApiRuntime provider detection", () => {
     process.env.QWEN_API_KEY = "sk-sp-test";
     // foxguard: ignore[js/no-hardcoded-secret]
     process.env.DEEPSEEK_API_KEY = "sk-ds-test"; // present but must NOT win
-    process.env["0SEC_MODEL"] = "deepseek-v4-flash-0731";
+    process.env["XSEC_MODEL"] = "deepseek-v4-flash-0731";
     const rt = new LlmApiRuntime({ type: "api", timeout: 5000 });
     expect((rt as any).provider).toBe("qwen");
     expect((rt as any).model).toBe("deepseek-v4-flash-0731");
@@ -353,8 +353,8 @@ describe("LlmApiRuntime provider detection", () => {
 
   it("binds a controlled run to its declared API-key provider over ChatGPT OAuth", async () => {
     process.env.OPENAI_API_KEY = "sk-openai-test";
-    process.env["0SEC_CHATGPT_ACCESS_TOKEN"] = "oauth-test";
-    process.env["0SEC_FORCE_PROVIDER"] = "openai";
+    process.env["XSEC_CHATGPT_ACCESS_TOKEN"] = "oauth-test";
+    process.env["XSEC_FORCE_PROVIDER"] = "openai";
 
     const rt = new LlmApiRuntime({ type: "api", timeout: 5000, model: "gpt-5.5" });
 
@@ -884,8 +884,8 @@ describe("LlmApiRuntime response parsing", () => {
         }),
       } as Response);
     vi.stubGlobal("fetch", fetchMock);
-    vi.stubEnv("0SEC_LLM_MAX_RETRIES", "1");
-    vi.stubEnv("0SEC_LLM_MAX_RETRY_WAIT_MS", "500");
+    vi.stubEnv("XSEC_LLM_MAX_RETRIES", "1");
+    vi.stubEnv("XSEC_LLM_MAX_RETRY_WAIT_MS", "500");
     vi.spyOn(Math, "random").mockReturnValue(0);
 
     try {
@@ -903,7 +903,7 @@ describe("LlmApiRuntime response parsing", () => {
 // ── Live Azure Integration (only runs when AZURE_OPENAI_API_KEY is set) ──
 
 const hasAzureKey = !!process.env.AZURE_OPENAI_API_KEY;
-const shouldRunAzureLiveTest = hasAzureKey && process.env["0SEC_RUN_AZURE_LIVE_TEST"] === "1";
+const shouldRunAzureLiveTest = hasAzureKey && process.env["XSEC_RUN_AZURE_LIVE_TEST"] === "1";
 
 // Capture the real Azure key before any test mutates process.env.
 const realAzureKey = process.env.AZURE_OPENAI_API_KEY;
@@ -926,13 +926,13 @@ describe("probeAzureRegion", () => {
   beforeEach(() => {
     __resetAzureRegionCacheForTests();
     __resetProviderStartupLogForTests();
-    delete process.env["0SEC_REGION_OVERRIDE"];
+    delete process.env["XSEC_REGION_OVERRIDE"];
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
-    delete process.env["0SEC_REGION_OVERRIDE"];
+    delete process.env["XSEC_REGION_OVERRIDE"];
   });
 
   it("parses x-ms-region header and pretty-prints the region", async () => {
@@ -998,8 +998,8 @@ describe("probeAzureRegion", () => {
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
-  it("honors 0SEC_REGION_OVERRIDE without hitting the network", async () => {
-    process.env["0SEC_REGION_OVERRIDE"] = "East US 2 (forced)";
+  it("honors XSEC_REGION_OVERRIDE without hitting the network", async () => {
+    process.env["XSEC_REGION_OVERRIDE"] = "East US 2 (forced)";
     const mockFetch = vi.fn();
     const region = await probeAzureRegion(
       "https://any-resource.openai.azure.com/openai/v1",
@@ -1042,9 +1042,9 @@ describe.skipIf(!shouldRunAzureLiveTest)("Azure Responses API live integration",
     delete process.env.KIMI_API_KEY;
     delete process.env.QWEN_API_KEY;
     delete process.env.Z_AI_API_KEY;
-    delete process.env["0SEC_CHATGPT_ACCESS_TOKEN"];
-    delete process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
-    process.env["0SEC_CHATGPT_AUTH_FILE"] = "/tmp/0sec-azure-live-test-no-auth.json";
+    delete process.env["XSEC_CHATGPT_ACCESS_TOKEN"];
+    delete process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
+    process.env["XSEC_CHATGPT_AUTH_FILE"] = "/tmp/xsec-azure-live-test-no-auth.json";
   });
 
   it("completes a tool call and continuation round-trip", async () => {
@@ -1284,7 +1284,7 @@ describe("LlmApiRuntime 429 backoff + retry", () => {
   const origEnv = { ...process.env };
 
   beforeEach(() => {
-    process.env["0SEC_SKIP_PROVIDER_BANNER"] = "1";
+    process.env["XSEC_SKIP_PROVIDER_BANNER"] = "1";
   });
 
   afterEach(() => {
@@ -1293,10 +1293,10 @@ describe("LlmApiRuntime 429 backoff + retry", () => {
     vi.restoreAllMocks();
     Object.assign(process.env, origEnv);
     for (const k of [
-      "0SEC_LLM_MAX_RETRIES",
-      "0SEC_LLM_MAX_RETRY_WAIT_MS",
-      "0SEC_LLM_429_MAX_RETRIES",
-      "0SEC_LLM_429_MAX_RETRY_WAIT_MS",
+      "XSEC_LLM_MAX_RETRIES",
+      "XSEC_LLM_MAX_RETRY_WAIT_MS",
+      "XSEC_LLM_429_MAX_RETRIES",
+      "XSEC_LLM_429_MAX_RETRY_WAIT_MS",
     ]) {
       if (!(k in origEnv)) delete process.env[k];
     }
@@ -1369,7 +1369,7 @@ describe("LlmApiRuntime 429 backoff + retry", () => {
   });
 
   it("surfaces a clear terminal error after retries are exhausted", async () => {
-    process.env["0SEC_LLM_MAX_RETRIES"] = "2";
+    process.env["XSEC_LLM_MAX_RETRIES"] = "2";
     const fetchMock = vi.fn(async () => rateLimited("0"));
     vi.stubGlobal("fetch", fetchMock);
 
@@ -1522,7 +1522,7 @@ describe("LlmApiRuntime 429 backoff + retry", () => {
     const rt = mkRuntime();
     const result = await rt.executeNative("sys", userMsg, []);
 
-    // 1 initial + 12 retries (default 0SEC_LLM_429_MAX_RETRIES).
+    // 1 initial + 12 retries (default XSEC_LLM_429_MAX_RETRIES).
     expect(fetchMock).toHaveBeenCalledTimes(13);
     expect(result.stopReason).toBe("error");
     expect(result.error).toContain("429");
@@ -1530,8 +1530,8 @@ describe("LlmApiRuntime 429 backoff + retry", () => {
     expect(result.error).toContain("rate limit exceeded");
   });
 
-  it("respects 0SEC_LLM_429_MAX_RETRIES when set", async () => {
-    process.env["0SEC_LLM_429_MAX_RETRIES"] = "3";
+  it("respects XSEC_LLM_429_MAX_RETRIES when set", async () => {
+    process.env["XSEC_LLM_429_MAX_RETRIES"] = "3";
     const fetchMock = vi.fn(async () => rateLimited("0"));
     vi.stubGlobal("fetch", fetchMock);
 
@@ -1567,7 +1567,7 @@ describe("LlmApiRuntime 429 backoff + retry", () => {
 // ── SSE stream idle watchdog (the silent-stall kill) ──
 
 describe("LlmApiRuntime stream idle watchdog", () => {
-  const IDLE_ENV = "0SEC_LLM_STREAM_IDLE_TIMEOUT_MS";
+  const IDLE_ENV = "XSEC_LLM_STREAM_IDLE_TIMEOUT_MS";
 
   afterEach(() => {
     delete process.env[IDLE_ENV];
@@ -1687,34 +1687,34 @@ describe("LlmApiRuntime stream idle watchdog", () => {
   });
 });
 
-// ── 0SEC_LLM_FALLBACK ──────────────────────────────────────────────────────
+// ── XSEC_LLM_FALLBACK ──────────────────────────────────────────────────────
 
 describe("parseLlmFallbackChain", () => {
-  const origVal = process.env["0SEC_LLM_FALLBACK"];
+  const origVal = process.env["XSEC_LLM_FALLBACK"];
   afterEach(() => {
-    if (origVal === undefined) delete process.env["0SEC_LLM_FALLBACK"];
-    else process.env["0SEC_LLM_FALLBACK"] = origVal;
+    if (origVal === undefined) delete process.env["XSEC_LLM_FALLBACK"];
+    else process.env["XSEC_LLM_FALLBACK"] = origVal;
   });
 
   it("returns empty when unset", () => {
-    delete process.env["0SEC_LLM_FALLBACK"];
+    delete process.env["XSEC_LLM_FALLBACK"];
     expect(parseLlmFallbackChain()).toEqual([]);
   });
 
   it("returns empty for empty string", () => {
-    process.env["0SEC_LLM_FALLBACK"] = "";
+    process.env["XSEC_LLM_FALLBACK"] = "";
     expect(parseLlmFallbackChain()).toEqual([]);
   });
 
   it("parses a single entry", () => {
-    process.env["0SEC_LLM_FALLBACK"] = "azure:gpt-5-deployment";
+    process.env["XSEC_LLM_FALLBACK"] = "azure:gpt-5-deployment";
     expect(parseLlmFallbackChain()).toEqual([
       { provider: "azure", model: "gpt-5-deployment" },
     ]);
   });
 
   it("parses multiple entries in order", () => {
-    process.env["0SEC_LLM_FALLBACK"] = "deepseek:deepseek-v4-flash,azure:gpt-5-deployment,openrouter:qwen/qwen-2.5-coder-32b-instruct";
+    process.env["XSEC_LLM_FALLBACK"] = "deepseek:deepseek-v4-flash,azure:gpt-5-deployment,openrouter:qwen/qwen-2.5-coder-32b-instruct";
     expect(parseLlmFallbackChain()).toEqual([
       { provider: "deepseek", model: "deepseek-v4-flash" },
       { provider: "azure", model: "gpt-5-deployment" },
@@ -1724,7 +1724,7 @@ describe("parseLlmFallbackChain", () => {
 
   it("skips unknown providers with a warning", () => {
     const stderrSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
-    process.env["0SEC_LLM_FALLBACK"] = "unknown:foo,openai:gpt-4o";
+    process.env["XSEC_LLM_FALLBACK"] = "unknown:foo,openai:gpt-4o";
     expect(parseLlmFallbackChain()).toEqual([
       { provider: "openai", model: "gpt-4o" },
     ]);
@@ -1734,7 +1734,7 @@ describe("parseLlmFallbackChain", () => {
 
   it("skips malformed entries with a warning", () => {
     const stderrSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
-    process.env["0SEC_LLM_FALLBACK"] = "justprovider,openai:gpt-4o";
+    process.env["XSEC_LLM_FALLBACK"] = "justprovider,openai:gpt-4o";
     expect(parseLlmFallbackChain()).toEqual([
       { provider: "openai", model: "gpt-4o" },
     ]);
@@ -1797,7 +1797,7 @@ describe("resolveFailoverProvider", () => {
   });
 });
 
-describe("LlmApiRuntime cross-provider failover (0SEC_LLM_FALLBACK)", () => {
+describe("LlmApiRuntime cross-provider failover (XSEC_LLM_FALLBACK)", () => {
   const origEnv = { ...process.env };
 
   function rateOnly429(): Response {
@@ -1861,16 +1861,16 @@ describe("LlmApiRuntime cross-provider failover (0SEC_LLM_FALLBACK)", () => {
       "OPENROUTER_API_KEY", "DEEPSEEK_API_KEY", "ANTHROPIC_API_KEY",
       "AZURE_OPENAI_API_KEY", "AZURE_OPENAI_BASE_URL", "OPENAI_API_KEY",
       "KIMI_API_KEY", "QWEN_API_KEY", "Z_AI_API_KEY",
-      "0SEC_CHATGPT_ACCESS_TOKEN", "0SEC_CHATGPT_OAUTH_REFRESH_TOKEN",
-      "0SEC_CHATGPT_ACCOUNT_ID", "0SEC_MODEL",
-      "0SEC_LLM_MAX_RETRIES", "0SEC_LLM_MAX_RETRY_WAIT_MS",
-      "0SEC_LLM_429_MAX_RETRIES", "0SEC_LLM_429_MAX_RETRY_WAIT_MS",
-      "0SEC_LLM_FALLBACK",
+      "XSEC_CHATGPT_ACCESS_TOKEN", "XSEC_CHATGPT_OAUTH_REFRESH_TOKEN",
+      "XSEC_CHATGPT_ACCOUNT_ID", "XSEC_MODEL",
+      "XSEC_LLM_MAX_RETRIES", "XSEC_LLM_MAX_RETRY_WAIT_MS",
+      "XSEC_LLM_429_MAX_RETRIES", "XSEC_LLM_429_MAX_RETRY_WAIT_MS",
+      "XSEC_LLM_FALLBACK",
     ]) {
       if (!(k in origEnv)) delete process.env[k];
     }
-    process.env["0SEC_CHATGPT_AUTH_FILE"] = "/tmp/0sec-provider-test-no-auth.json";
-    process.env["0SEC_SKIP_PROVIDER_BANNER"] = "1";
+    process.env["XSEC_CHATGPT_AUTH_FILE"] = "/tmp/xsec-provider-test-no-auth.json";
+    process.env["XSEC_SKIP_PROVIDER_BANNER"] = "1";
     __resetFallbackChainForTests();
   });
 
@@ -1886,10 +1886,10 @@ describe("LlmApiRuntime cross-provider failover (0SEC_LLM_FALLBACK)", () => {
     // Primary: OpenAI. Fallback: OpenRouter with a different model.
     process.env.OPENAI_API_KEY = "sk-openai-primary";
     process.env.OPENROUTER_API_KEY = "sk-or-fallback";
-    // Urgent: 0SEC_LLM_FALLBACK entries and 12 429s for the primary.
+    // Urgent: XSEC_LLM_FALLBACK entries and 12 429s for the primary.
     // Tune 429 budget so it exhausts quickly: 1 retry then failover.
-    process.env["0SEC_LLM_429_MAX_RETRIES"] = "1";
-    process.env["0SEC_LLM_FALLBACK"] = "openrouter:qwen/qwen-2.5-coder-32b-instruct";
+    process.env["XSEC_LLM_429_MAX_RETRIES"] = "1";
+    process.env["XSEC_LLM_FALLBACK"] = "openrouter:qwen/qwen-2.5-coder-32b-instruct";
 
     let fetchCalls = 0;
     const fetchMock = vi.fn(async () => {
@@ -1925,7 +1925,7 @@ describe("LlmApiRuntime cross-provider failover (0SEC_LLM_FALLBACK)", () => {
     process.env.OPENAI_API_KEY = "sk-openai-primary";
     // foxguard: ignore[js/no-hardcoded-secret]
     process.env.OPENROUTER_API_KEY = "sk-or-fallback";
-    process.env["0SEC_LLM_FALLBACK"] =
+    process.env["XSEC_LLM_FALLBACK"] =
       "openrouter:qwen/qwen-2.5-coder-32b-instruct";
 
     let fetchCalls = 0;
@@ -1962,7 +1962,7 @@ describe("LlmApiRuntime cross-provider failover (0SEC_LLM_FALLBACK)", () => {
     // foxguard: ignore[js/no-hardcoded-secret]
     process.env.AZURE_OPENAI_API_KEY = "azure-fallback";
     process.env.AZURE_OPENAI_BASE_URL = "https://azure.example/openai/v1";
-    process.env["0SEC_LLM_FALLBACK"] = "kimi:k3,azure:DeepSeek-V4-Pro";
+    process.env["XSEC_LLM_FALLBACK"] = "kimi:k3,azure:DeepSeek-V4-Pro";
 
     let fetchCalls = 0;
     const fetchMock = vi.fn(async () => {
@@ -1994,8 +1994,8 @@ describe("LlmApiRuntime cross-provider failover (0SEC_LLM_FALLBACK)", () => {
   it("surfaces the terminal error when the fallback chain is exhausted", async () => {
     process.env.OPENAI_API_KEY = "sk-openai-primary";
     process.env.OPENROUTER_API_KEY = "sk-or-fallback";
-    process.env["0SEC_LLM_429_MAX_RETRIES"] = "0";
-    process.env["0SEC_LLM_FALLBACK"] = "openrouter:qwen/qwen-2.5-coder-32b-instruct";
+    process.env["XSEC_LLM_429_MAX_RETRIES"] = "0";
+    process.env["XSEC_LLM_FALLBACK"] = "openrouter:qwen/qwen-2.5-coder-32b-instruct";
 
     let callCount = 0;
     const fetchMock = vi.fn(async () => {
@@ -2027,7 +2027,7 @@ describe("LlmApiRuntime cross-provider failover (0SEC_LLM_FALLBACK)", () => {
     process.env.OPENAI_API_KEY = "sk-openai-primary";
     // foxguard: ignore[js/no-hardcoded-secret]
     process.env.OPENROUTER_API_KEY = "sk-or-fallback";
-    process.env["0SEC_LLM_FALLBACK"] =
+    process.env["XSEC_LLM_FALLBACK"] =
       "openrouter:qwen/qwen-2.5-coder-32b-instruct";
     const fetchMock = vi.fn(async () => alibabaTokenPlanQuotaLimited());
     vi.stubGlobal("fetch", fetchMock);
@@ -2050,7 +2050,7 @@ describe("LlmApiRuntime cross-provider failover (0SEC_LLM_FALLBACK)", () => {
   it("does NOT fail over for non-429 errors", async () => {
     process.env.OPENAI_API_KEY = "sk-openai-primary";
     process.env.OPENROUTER_API_KEY = "sk-or-fallback";
-    process.env["0SEC_LLM_FALLBACK"] = "openrouter:qwen/qwen-2.5-coder-32b-instruct";
+    process.env["XSEC_LLM_FALLBACK"] = "openrouter:qwen/qwen-2.5-coder-32b-instruct";
 
     const fetchMock = vi.fn(
       async () =>
@@ -2090,10 +2090,10 @@ describe("LlmApiRuntime cross-provider failover (0SEC_LLM_FALLBACK)", () => {
 
 describe("LlmApiRuntime operator cancellation", () => {
   const origEnv = { ...process.env };
-  const IDLE_ENV = "0SEC_LLM_STREAM_IDLE_TIMEOUT_MS";
+  const IDLE_ENV = "XSEC_LLM_STREAM_IDLE_TIMEOUT_MS";
 
   beforeEach(() => {
-    process.env["0SEC_SKIP_PROVIDER_BANNER"] = "1";
+    process.env["XSEC_SKIP_PROVIDER_BANNER"] = "1";
     __resetFallbackChainForTests();
   });
 
@@ -2268,8 +2268,8 @@ describe("LlmApiRuntime operator cancellation", () => {
     process.env.OPENAI_API_KEY = "sk-openai-primary";
     // foxguard: ignore[js/no-hardcoded-secret]
     process.env.OPENROUTER_API_KEY = "sk-or-fallback";
-    process.env["0SEC_LLM_429_MAX_RETRIES"] = "0"; // next stop would be failover
-    process.env["0SEC_LLM_FALLBACK"] = "openrouter:qwen/qwen-2.5-coder-32b-instruct";
+    process.env["XSEC_LLM_429_MAX_RETRIES"] = "0"; // next stop would be failover
+    process.env["XSEC_LLM_FALLBACK"] = "openrouter:qwen/qwen-2.5-coder-32b-instruct";
     __resetFallbackChainForTests();
 
     const operator = new AbortController();

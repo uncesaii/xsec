@@ -36,7 +36,7 @@ import {
   sendOperatorMessage,
   type MessagingRuntime,
   type McpHost,
-} from "@0sec/core";
+} from "@xsec/core";
 import type { ScrollBoxRenderable } from "@opentui/core";
 import {
   useSettings,
@@ -45,7 +45,7 @@ import {
   reloadSettings,
 } from "./settings-store.js";
 import { useTheme, type Theme } from "./theme-context.js";
-import { createTranscriptDocument, modelProvider } from "@0sec/shared";
+import { createTranscriptDocument, modelProvider } from "@xsec/shared";
 import { homedir } from "node:os";
 import {
   createPresentationEmitter,
@@ -117,7 +117,7 @@ import {
   connectionRecoveryForError,
   type ConnectionRecovery,
 } from "./connection-recovery.js";
-import { VERSION } from "@0sec/shared";
+import { VERSION } from "@xsec/shared";
 import {
   type TuiSettings,
 } from "./settings.js";
@@ -473,7 +473,7 @@ export interface ChatScreenOptions {
    * (network-gated, `mcp__`-fenced as untrusted). The CLI connects it before
    * launching the TUI and threads it down here, so the session build stays
    * synchronous — no async connect inside React. The session closes the host on
-   * cleanup. Absent when no `0SEC_MCP` servers are configured.
+   * cleanup. Absent when no `XSEC_MCP` servers are configured.
    */
   mcpHost?: McpHost;
 }
@@ -1423,13 +1423,13 @@ export function ChatScreen({
     if (provider.auth === "api-key") {
       for (const envVar of provider.envVars) delete process.env[envVar];
     }
-    process.env["0SEC_SELECTED_PROVIDER"] = provider.id;
+    process.env["XSEC_SELECTED_PROVIDER"] = provider.id;
 
     const previous = sessionRef.current;
     let built: { session: ConsoleSession; model: string };
     try {
       built = buildSession({
-        model: modelIdRef.current ?? options?.model ?? process.env["0SEC_MODEL"],
+        model: modelIdRef.current ?? options?.model ?? process.env["XSEC_MODEL"],
         ...(previous ? { initialMessages: previous.messages } : {}),
       });
     } catch (error) {
@@ -1531,7 +1531,7 @@ export function ChatScreen({
     });
   }, [appendEntry]);
 
-  // Tell herdr when 0sec is parked on a human decision, so the pane joins
+  // Tell herdr when xsec is parked on a human decision, so the pane joins
   // its attention queue instead of looking busy. No-op outside herdr.
   useEffect(() => {
     reportOperatorGate(Boolean(pendingScope || pendingLocalScope || pendingEscalation || pendingToolApproval || secretPrompt));
@@ -2596,7 +2596,7 @@ export function ChatScreen({
           text: agents.length > 0 ? `${agents.length} active subagent${agents.length === 1 ? "" : "s"}` : "No active subagents",
           detail: agents.length > 0
             ? agents.map((agent) => agent.task).join(" · ")
-            : "Subagents appear here when 0sec delegates work.",
+            : "Subagents appear here when xsec delegates work.",
           turn: turn.current,
         });
         return true;
@@ -3810,7 +3810,7 @@ export function ChatScreen({
   // paddingX (folded into the sidebar layout), which an entry's own border must
   // live within. Shrinks to make room when a sidebar is shown.
   const transcriptWidth = sidebars.transcriptWidth;
-  // "0sec" is 4 cells. The optional objective sits at the top-right; target,
+  // "xsec" is 4 cells. The optional objective sits at the top-right; target,
   // scope, and readiness take the remaining header cells. Autonomy mode lives
   // in the bottom status bar rather than competing with engagement posture.
   const headerObjective = !compact && settings.showObjective ? objective.trim() : "";
@@ -4262,7 +4262,7 @@ export function ChatScreen({
         <text fg={TEXT}>{fitTuiText(`${"•".repeat(Math.min(secretPrompt.value.length, 40))}█`, approvalWidth)}</text>
       </box>
       <box width={approvalWidth} flexShrink={0} minWidth={0}>
-        <text fg={MUTED}>{fitTuiText(`Stored owner-only in your 0sec state dir and exported as ${secretPrompt.envVar}. Never transmitted by 0sec.`, approvalWidth, { mode: "middle" })}</text>
+        <text fg={MUTED}>{fitTuiText(`Stored owner-only in your xsec state dir and exported as ${secretPrompt.envVar}. Never transmitted by xsec.`, approvalWidth, { mode: "middle" })}</text>
       </box>
       <box width={approvalWidth} flexShrink={0} minWidth={0}>
         <text fg={MUTED}>{fitTuiText("enter save · esc cancel", approvalWidth)}</text>
@@ -4877,7 +4877,7 @@ export function ChatScreen({
         * flexShrink is disabled because this box is two stacked rows with
         * no explicit height: when the column is over-subscribed Yoga
         * collapses it to one row and the two lines overlap, which is how
-        * "0sec / chat" bled into "target: none" as "target:cnone".
+        * "xsec / chat" bled into "target: none" as "target:cnone".
         */}
       {/*
         * ONE header row. It carries identity plus the two facts that are
@@ -4888,14 +4888,14 @@ export function ChatScreen({
         */}
       <box flexDirection="row" width="100%" minWidth={0} flexShrink={0} marginBottom={1} gap={1}>
         <box flexDirection="row" flexShrink={0} minWidth={0}>
-          <text fg={PRIMARY}>0sec</text>
+          <text fg={PRIMARY}>xsec</text>
         </box>
         <box width={headerEngagementWidth} flexShrink={0} minWidth={0}>
           <text fg={MUTED}>{fitTuiText(headerEngagement, headerEngagementWidth, { mode: "middle" })}</text>
         </box>
         {headerObjectiveWidth > 0 ? (
           // The async AI objective summary, right-aligned at the top-right in the
-          // 0sec voice (BRAND). Empty/compact hides it and the engagement
+          // xsec voice (BRAND). Empty/compact hides it and the engagement
           // summary reclaims the cells.
           <box width={headerObjectiveWidth} flexShrink={0} minWidth={0} flexDirection="row" justifyContent="flex-end">
             <text fg={BRAND}>{fitTuiText(headerObjective, headerObjectiveWidth, { mode: "end" })}</text>

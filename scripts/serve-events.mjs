@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// SSE bridge for the live dashboard (0sec#370).
+// SSE bridge for the live dashboard (xsec#370).
 //
 // Two modes, mutually compatible — pass either or both:
 //
@@ -9,12 +9,12 @@
 //      to anyone connected at `/events`. The dashboard's Probe + Lead
 //      lanes consume this stream (`?events=http://localhost:8765/events`).
 //
-//   2. 0sec hunt feed (`/hunt-events`):
-//        node scripts/serve-events.mjs --0sec-log <0sec-stdout.log>
-//      Tails a file containing `0SEC_EVENT_<TYPE> {json}` lines (what
+//   2. xsec hunt feed (`/hunt-events`):
+//        node scripts/serve-events.mjs --xsec-log <xsec-stdout.log>
+//      Tails a file containing `XSEC_EVENT_<TYPE> {json}` lines (what
 //      core/src/events/bus.ts:cloudEventSink writes when
-//      0SEC_CLOUD_EVENTS=1) and translates each into the unified
-//      `0sec.events/v1` JSON shape the Hunt lane renders. The
+//      XSEC_CLOUD_EVENTS=1) and translates each into the unified
+//      `xsec.events/v1` JSON shape the Hunt lane renders. The
 //      dashboard's Hunt lane consumes this stream
 //      (`?huntEvents=http://localhost:8765/hunt-events`).
 //
@@ -33,24 +33,24 @@ import { resolve } from "node:path";
 
 const argv = process.argv.slice(2);
 if (argv.length === 0 || argv[0] === "--help") {
-  console.error("usage: serve-events.mjs [<events.ndjson>] [--0sec-log <path>] [--port 8765]");
-  console.error("  at least one of <events.ndjson> or --0sec-log must be provided");
+  console.error("usage: serve-events.mjs [<events.ndjson>] [--xsec-log <path>] [--port 8765]");
+  console.error("  at least one of <events.ndjson> or --xsec-log must be provided");
   process.exit(1);
 }
 
 const portIdx = argv.indexOf("--port");
 const port = portIdx >= 0 ? Number(argv[portIdx + 1]) : 8765;
-const osecIdx = argv.indexOf("--0sec-log");
-const osecLog = osecIdx >= 0 ? resolve(argv[osecIdx + 1]) : null;
+const xsecIdx = argv.indexOf("--xsec-log");
+const xsecLog = xsecIdx >= 0 ? resolve(argv[xsecIdx + 1]) : null;
 const positional = argv.filter((arg, idx) => {
   if (arg.startsWith("--")) return false;
-  if (idx > 0 && (argv[idx - 1] === "--port" || argv[idx - 1] === "--0sec-log")) return false;
+  if (idx > 0 && (argv[idx - 1] === "--port" || argv[idx - 1] === "--xsec-log")) return false;
   return true;
 });
 const gemmaFile = positional[0] ? resolve(positional[0]) : null;
 
-if (!gemmaFile && !osecLog) {
-  console.error("error: provide a gemmaforge events file and/or --0sec-log <path>");
+if (!gemmaFile && !xsecLog) {
+  console.error("error: provide a gemmaforge events file and/or --xsec-log <path>");
   process.exit(1);
 }
 
@@ -108,28 +108,28 @@ if (gemmaFile) {
   tail(gemmaFile, (line) => broadcast("events", line));
 }
 
-if (osecLog) {
-  tail(osecLog, (line) => {
-    const translated = translateOsecLine(line);
+if (xsecLog) {
+  tail(xsecLog, (line) => {
+    const translated = translateXsecLine(line);
     if (translated) broadcast("hunt-events", translated);
   });
 }
 
 /**
- * Convert one `0SEC_EVENT_<TYPE> {…}` line into a `0sec.events/v1`
+ * Convert one `XSEC_EVENT_<TYPE> {…}` line into a `xsec.events/v1`
  * JSON string. Returns null for unrecognised / unmapped event types so
  * we don't spam the Hunt lane with token-level deltas, planner pings,
  * etc. Mirrors the translator in `dashboard/src/lib/hunt-stream.ts`.
  */
-function translateOsecLine(line) {
-  const match = /^0SEC_EVENT_([A-Z_]+)\s+(\{.*\})\s*$/.exec(line);
+function translateXsecLine(line) {
+  const match = /^XSEC_EVENT_([A-Z_]+)\s+(\{.*\})\s*$/.exec(line);
   if (!match) return null;
   const type = match[1].toLowerCase();
   let payload;
   try { payload = JSON.parse(match[2]); } catch { return null; }
   if (!payload || typeof payload !== "object") return null;
 
-  // Best-effort wall-clock timestamp. 0sec's eventBus payloads don't
+  // Best-effort wall-clock timestamp. Xsec's eventBus payloads don't
   // currently carry one; the dashboard treats this as fractional seconds.
   const ts = Date.now() / 1000;
 
@@ -137,7 +137,7 @@ function translateOsecLine(line) {
     const argsPreview = typeof payload.args_preview === "string" ? payload.args_preview : undefined;
     const fileLine = extractFileLine(argsPreview);
     return JSON.stringify({
-      schema: "0sec.events/v1",
+      schema: "xsec.events/v1",
       kind: "tool_use",
       ts,
       tool: typeof payload.tool === "string" ? payload.tool : "?",
@@ -154,7 +154,7 @@ function translateOsecLine(line) {
 
   if (type === "finding_ingested") {
     return JSON.stringify({
-      schema: "0sec.events/v1",
+      schema: "xsec.events/v1",
       kind: "finding",
       ts,
       finding_id: payload.finding_id,
@@ -169,7 +169,7 @@ function translateOsecLine(line) {
 
   if (type === "step_started" || type === "step_completed") {
     return JSON.stringify({
-      schema: "0sec.events/v1",
+      schema: "xsec.events/v1",
       kind: "stage",
       ts,
       stage: typeof payload.step === "string" ? payload.step : "stage",
@@ -180,7 +180,7 @@ function translateOsecLine(line) {
 
   if (type === "agent_turn_started" || type === "agent_turn_completed") {
     return JSON.stringify({
-      schema: "0sec.events/v1",
+      schema: "xsec.events/v1",
       kind: "stage",
       ts,
       stage: `turn ${typeof payload.turn === "number" ? payload.turn : "?"}`,
@@ -224,7 +224,7 @@ const server = createServer((req, res) => {
     "Connection": "keep-alive",
     "Access-Control-Allow-Origin": "*",
   });
-  const source = channel === "events" ? (gemmaFile ?? "(no file)") : (osecLog ?? "(no file)");
+  const source = channel === "events" ? (gemmaFile ?? "(no file)") : (xsecLog ?? "(no file)");
   res.write(`: connected to ${source}\n\n`);
   channels.get(channel).add(res);
   req.on("close", () => channels.get(channel).delete(res));
@@ -234,7 +234,7 @@ server.listen(port, () => {
   if (gemmaFile) {
     console.error(`serve-events: tailing ${gemmaFile} → http://localhost:${port}/events`);
   }
-  if (osecLog) {
-    console.error(`serve-events: tailing ${osecLog} → http://localhost:${port}/hunt-events`);
+  if (xsecLog) {
+    console.error(`serve-events: tailing ${xsecLog} → http://localhost:${port}/hunt-events`);
   }
 });

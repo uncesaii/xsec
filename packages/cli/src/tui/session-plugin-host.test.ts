@@ -53,7 +53,7 @@ function makeHostFactory(opts: FakeHostOpts = {}): {
 }
 
 // ---------------------------------------------------------------------------
-// A fake @0sec/core whose "on disk" enabled/installed set is mutable, so a test
+// A fake @xsec/core whose "on disk" enabled/installed set is mutable, so a test
 // can change what enablement.ts would report between refreshes.
 // ---------------------------------------------------------------------------
 

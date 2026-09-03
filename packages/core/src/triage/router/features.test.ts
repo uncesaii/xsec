@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import type { Finding, LayerVerdict } from "@0sec/shared";
+import type { Finding, LayerVerdict } from "@xsec/shared";
 import {
   classifySubsystem,
   extractRoutingFeatures,

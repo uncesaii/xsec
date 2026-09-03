@@ -3,7 +3,7 @@ title: Configuration
 description: Runtime modes, scan modes, depth settings, and environment options.
 ---
 
-0sec runs zero-config, but every default can be overridden via CLI flags or
+XSEC runs zero-config, but every default can be overridden via CLI flags or
 environment variables.
 
 ## Runtime modes
@@ -15,7 +15,7 @@ counts. `--runtime` selects the LLM backend.
 |---------|------|-------------|
 | `api` | `--runtime api` | Uses your configured direct provider (ChatGPT Codex subscription auth, OpenRouter, Anthropic, Azure OpenAI, or OpenAI). Best for CI and quick scans. **Default.** |
 | `claude` | `--runtime claude` | Spawns the Claude Code CLI with your existing subscription. Best for deep analysis. |
-| `codex` | `--runtime codex` | Uses the Codex CLI for source review. For live target scans, routes to the direct ChatGPT Codex provider when `0SEC_CHATGPT_OAUTH_REFRESH_TOKEN` is configured. |
+| `codex` | `--runtime codex` | Uses the Codex CLI for source review. For live target scans, routes to the direct ChatGPT Codex provider when `XSEC_CHATGPT_OAUTH_REFRESH_TOKEN` is configured. |
 | `gemini` | `--runtime gemini` | Spawns the Gemini CLI. Best for large-context source analysis. |
 | `auto` | `--runtime auto` | Auto-detects installed CLIs and picks the best one per pipeline stage. |
 
@@ -30,20 +30,20 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 export AZURE_OPENAI_API_KEY="..."
 export OPENAI_API_KEY="sk-..."
 
-# `0SEC_*` names begin with a digit; pass a Codex token with env.
-env 0SEC_CHATGPT_OAUTH_REFRESH_TOKEN="..." 0sec doctor
+# `XSEC_*` env vars are passed with env for portability.
+env XSEC_CHATGPT_OAUTH_REFRESH_TOKEN="..." xsec doctor
 ```
 
 See [API Keys](/api-keys/) for the full priority order and provider details.
 
-For Azure, also set `AZURE_OPENAI_BASE_URL` and `AZURE_OPENAI_MODEL` unless 0sec
+For Azure, also set `AZURE_OPENAI_BASE_URL` and `AZURE_OPENAI_MODEL` unless XSEC
 can read them from an Azure-backed `~/.codex/config.toml`. For the Responses API,
-the base URL must include `/openai/v1`. 0sec fails fast on incomplete Azure config
+the base URL must include `/openai/v1`. XSEC fails fast on incomplete Azure config
 rather than guessing defaults.
 
 For ChatGPT Codex, run `codex login`, then either rely on
 `~/.codex/auth.json` or use
-`env 0SEC_CHATGPT_OAUTH_REFRESH_TOKEN=... 0sec <command>`. An explicit token
+`env XSEC_CHATGPT_OAUTH_REFRESH_TOKEN=... xsec <command>`. An explicit token
 takes priority over API-key providers.
 
 ### CLI runtimes (claude, codex, gemini)
@@ -65,36 +65,36 @@ npm i -g @google/gemini-cli
 Then use them:
 
 ```bash
-0sec scan --target https://api.example.com/chat --runtime claude
-0sec review ./my-repo --runtime codex --depth deep
+xsec scan --target https://api.example.com/chat --runtime claude
+xsec review ./my-repo --runtime codex --depth deep
 ```
 
 The Codex CLI isn't used as a live-target wrapper. For live scans on a Codex
 subscription, configure the direct provider instead:
 
 ```bash
-env 0SEC_CHATGPT_OAUTH_REFRESH_TOKEN="..." \
-  0sec scan --target https://example.com --runtime codex
+env XSEC_CHATGPT_OAUTH_REFRESH_TOKEN="..." \
+  xsec scan --target https://example.com --runtime codex
 ```
 
 ### Codex runtime parity matrix
 
 `--runtime codex` works across every entry point as long as either the local
 `codex` binary is installed or the direct ChatGPT Codex provider is configured
-(`0SEC_CHATGPT_ACCESS_TOKEN` / `0SEC_CHATGPT_OAUTH_REFRESH_TOKEN`). With no binary
-but subscription env set, 0sec routes through the API runtime against
+(`XSEC_CHATGPT_ACCESS_TOKEN` / `XSEC_CHATGPT_OAUTH_REFRESH_TOKEN`). With no binary
+but subscription env set, XSEC routes through the API runtime against
 `chatgpt.com/backend-api/codex/responses`.
 
 | Surface                                | Command                                                      | Supported via direct provider |
 |----------------------------------------|--------------------------------------------------------------|--------------------------------|
-| Web / URL scan                         | `0sec scan --target https://… --runtime codex`             | yes                            |
-| npm package audit                      | `0sec audit lodash --ecosystem npm --runtime codex`        | yes                            |
-| PyPI package audit                     | `0sec audit requests --ecosystem pypi --runtime codex`     | yes                            |
-| crates.io package audit                | `0sec audit tokio --ecosystem cargo --runtime codex`       | yes                            |
-| OCI image audit                        | `0sec audit nginx:1.25 --ecosystem oci --runtime codex`    | yes                            |
-| Default source-code review             | `0sec review ./repo --runtime codex`                       | yes                            |
-| Linux kernel review                    | `0sec review ./linux --profile linux-kernel --runtime codex` | yes                          |
-| C/C++ library review                   | `0sec review ./lib --profile c-library --runtime codex`    | yes                            |
+| Web / URL scan                         | `xsec scan --target https://… --runtime codex`             | yes                            |
+| npm package audit                      | `xsec audit lodash --ecosystem npm --runtime codex`        | yes                            |
+| PyPI package audit                     | `xsec audit requests --ecosystem pypi --runtime codex`     | yes                            |
+| crates.io package audit                | `xsec audit tokio --ecosystem cargo --runtime codex`       | yes                            |
+| OCI image audit                        | `xsec audit nginx:1.25 --ecosystem oci --runtime codex`    | yes                            |
+| Default source-code review             | `xsec review ./repo --runtime codex`                       | yes                            |
+| Linux kernel review                    | `xsec review ./linux --profile linux-kernel --runtime codex` | yes                          |
+| C/C++ library review                   | `xsec review ./lib --profile c-library --runtime codex`    | yes                            |
 
 (Cloud sandbox dispatch still gates codex on `target_ecosystem === "web"`, tracked
 as a separate follow-up.)
@@ -112,10 +112,10 @@ as a separate follow-up.)
 
 ```bash
 # LLM API scan (default)
-0sec scan --target https://api.example.com/chat
+xsec scan --target https://api.example.com/chat
 
 # Web app scan
-0sec scan --target https://example.com --mode web
+xsec scan --target https://example.com --mode web
 ```
 
 ## Depth settings
@@ -129,9 +129,9 @@ as a separate follow-up.)
 | `deep` | ~150 | ~10 min | Pre-launch audits, thorough review |
 
 ```bash
-0sec scan --target https://api.example.com/chat --depth quick
-0sec audit express --depth deep
-0sec review ./my-repo --depth deep --runtime claude
+xsec scan --target https://api.example.com/chat --depth quick
+xsec audit express --depth deep
+xsec review ./my-repo --depth deep --runtime claude
 ```
 
 ## Output formats
@@ -150,7 +150,7 @@ Set with `--format`:
 In CI (GitHub Action), set `format: sarif` to populate the Security tab:
 
 ```yaml
-- uses: 0sec-labs/0sec@main
+- uses: uncesaii/xsec@main
   with:
     mode: review
     path: .
@@ -163,7 +163,7 @@ Review only changed files against a base branch — handy in CI to skip scanning
 the whole codebase on every PR:
 
 ```bash
-0sec review ./my-repo --diff-base origin/main --changed-only
+xsec review ./my-repo --diff-base origin/main --changed-only
 ```
 
 ## Verbose output
@@ -171,14 +171,14 @@ the whole codebase on every PR:
 `--verbose` shows detailed agent output:
 
 ```bash
-0sec scan --target https://api.example.com/chat --verbose
+xsec scan --target https://api.example.com/chat --verbose
 ```
 
 ## Feedback delivery
 
 `/feedback <message>` is local-only and appends to
-`~/.0sec/feedback.md`. After `0sec auth login`, staged feedback defaults to the
-authenticated `cloud.0.security/api/cli-feedback` receiver; it attributes the
+`~/.xsec/feedback.md`. After `xsec auth login`, staged feedback defaults to the
+authenticated receiver; it attributes the
 message to the signed-in organization and delivers through the existing
 team-feedback channel. Re-authenticate after upgrading if an older CLI token
 lacks the `feedback:submit` scope.
@@ -188,28 +188,28 @@ JSON body, headers, and secret-shaped-content warnings. Only a second
 `/feedback send` transmits that exact staged payload; `/feedback cancel` drops
 the pending network action while retaining the local file.
 
-`0SEC_FEEDBACK_URL` overrides the cloud receiver for a self-hosted HTTPS relay:
+`XSEC_FEEDBACK_URL` overrides the cloud receiver for a self-hosted HTTPS relay:
 
 ```bash
-env 0SEC_FEEDBACK_URL="https://feedback.example.org/v1/feedback" 0sec console
+env XSEC_FEEDBACK_URL="https://feedback.example.org/v1/feedback" xsec console
 ```
 
 Do **not** place an incoming Slack webhook URL directly in the CLI environment:
-it is a bearer secret and does not accept 0sec's feedback wire schema.
-`0SEC_OFFLINE`, `0SEC_NO_TELEMETRY`, and `DO_NOT_TRACK` block every submission
+it is a bearer secret and does not accept XSEC's feedback wire schema.
+`XSEC_OFFLINE`, `XSEC_NO_TELEMETRY`, and `DO_NOT_TRACK` block every submission
 before any connection is made.
 
 ## State directory
 
 All per-user state — scan database, journals, caches, stored credentials, console
-settings, and session transcripts — lives under `~/.0sec`. Everything joins onto
+settings, and session transcripts — lives under `~/.xsec`. Everything joins onto
 that one root, so a future relocation (e.g. `$XDG_STATE_HOME`) moves it all
 together. Paths below are relative to it.
 
 ## Console display settings
 
-The console loads `~/.0sec/tui-settings.json`, then layers
-`<project>/.0sec/tui-settings.json` over it when present. Change values from
+The console loads `~/.xsec/tui-settings.json`, then layers
+`<project>/.xsec/tui-settings.json` over it when present. Change values from
 `/settings`, or hand-edit either plain JSON file; the project file overrides
 only the keys it contains.
 
@@ -217,7 +217,7 @@ only the keys it contains.
 |-----|------|---------|-------------|
 | `showStatusBar` | boolean | `true` | Bottom bar with model, working directory, git state and counters |
 | `showComposerHints` | boolean | `true` | Keyboard-hint line under the input |
-| `showLogo` | boolean | `true` | Block `0SEC` mark on an empty transcript |
+| `showLogo` | boolean | `true` | Block `XSEC` mark on an empty transcript |
 | `showLeftSidebar` | boolean | `false` | Recent sessions and this run's findings; hidden on narrow terminals |
 | `showRightSidebar` | boolean | `false` | Live agents and context strip; hidden on narrow terminals |
 | `showObjective` | boolean | `true` | Bottom-bar objective derived from the first message |
@@ -237,7 +237,7 @@ only the keys it contains.
 | `allowSubagentPeerMessaging` | boolean | `true` | Allow direct sibling-subagent messages |
 | `allowSubagentOperatorMessaging` | boolean | `true` | Allow sanitized child-to-operator transcript messages |
 | `allowModelSelfExtension` | boolean | `false` | Allow the model to add tools to its own session |
-| `theme` | built-in or installed theme ID | `midnight` | Colour palette; installed themes live in `~/.0sec/themes` |
+| `theme` | built-in or installed theme ID | `midnight` | Colour palette; installed themes live in `~/.xsec/themes` |
 | `showTokenUsage` | boolean | `false` | Per-turn input/output token line |
 | `showCost` | boolean | `false` | Estimated dollar cost, per turn and in the status bar |
 | `showContextMeter` | boolean | `false` | Context-usage bar in the status bar |
@@ -275,63 +275,63 @@ test and opt in/out per run. Each is read at process start: set `<FLAG>=0` or
 
 | Flag | Default | What it enables |
 |------|---------|-----------------|
-| `0SEC_FEATURE_EARLY_STOP` | **on** | Early-stop at 50% budget if no findings, then retry with a different strategy. |
-| `0SEC_FEATURE_LOOP_DETECTION` | **on** | Detects A-A-A and A-B-A-B action loops, injects a warning to break the cycle. |
-| `0SEC_FEATURE_CONTEXT_COMPACTION` | **on** | Compresses middle-of-conversation messages when the context exceeds 30k tokens. |
-| `0SEC_FEATURE_SCRIPT_TEMPLATES` | **on** | Adds exploit-script templates (blind SQLi, SSTI, auth chain) to the shell prompt. |
-| `0SEC_FEATURE_DYNAMIC_PLAYBOOKS` | off | Injects technology-specific vulnerability playbooks after the recon phase. |
-| `0SEC_FEATURE_AGENT_PLAN` | off | Exposes a typed `plan` tool: the agent tracks its own TODO items, re-injected each turn so they survive compaction. Off by default because it adds a tool, a system-prompt block and a per-turn block to every scan — behaviour-changing, so it must be A/B'd before shipping on. |
-| `0SEC_FEATURE_DRIFT_DETECTION` | off | Warns when the agent stops working the assigned objective. Distinct from the loop detector, which catches repetition; a drifting agent produces a novel action every turn and never trips it. |
-| `0SEC_FEATURE_JIT_SKILLS` | off | Exposes `list_skills` and `load_skill` so agents can pull narrow methodology prompts only when needed. |
-| `0SEC_FEATURE_EXTERNAL_MEMORY` | off | Agent writes plan/creds to disk, re-injected at reflection checkpoints. |
-| `0SEC_FEATURE_PROGRESS_HANDOFF` | off | Injects prior-attempt findings when retrying, so retries don't restart from zero. |
-| `0SEC_FEATURE_WEB_SEARCH` | off | Lets the agent search the web for CVE details, vendor docs, and technique references. |
-| `0SEC_FEATURE_TARGET_HISTORY_PRESEED` | **on** | Preloads source-review prompts with prior target CVE/GHSA audit graph leads inferred from repo metadata. |
-| `0SEC_FEATURE_DOCKER_EXECUTOR` | off | Runs every bash command inside a Kali Linux container with the full pentesting toolchain. |
-| `0SEC_FEATURE_CLOUD_SINK` | on | Allows opt-in streaming of findings/final reports to a remote scan sink when the cloud env vars are set. |
-| `0SEC_FEATURE_PTY_SESSION` | off | Interactive PTY sessions for exploits requiring interactivity (reverse shells, DB clients, SSH). |
-| `0SEC_FEATURE_EGATS` | off | Evidence-Gated Attack Tree Search — beam search over a hypothesis tree. Also toggled by `--egats`. |
-| `0SEC_FEATURE_CONSENSUS_VERIFY` | off | Self-consistency voting: runs the verify pipeline N times and takes the majority vote. |
-| `0SEC_FEATURE_DEBATE` | _n/a_ | **Planned — not implemented.** The flag is not read by the engine today. Adversarial debate: prosecutor vs. defender agents argue each finding, a skeptical judge decides. |
-| `0SEC_FEATURE_MULTIMODAL` | off | Cross-validates findings against foxguard (Rust pattern scanner). |
-| `0SEC_FEATURE_REACHABILITY_GATE` | off | Suppresses findings whose sink is not reachable from an application entry point. |
-| `0SEC_FEATURE_POV_GATE` | off | Requires a working executable PoC per finding, otherwise downgrades to `info`. |
-| `0SEC_FEATURE_TRIAGE_MEMORIES` | off | Injects Semgrep-style per-target persistent FP memories into the verify pipeline. Pairs with `0sec triage`. |
+| `XSEC_FEATURE_EARLY_STOP` | **on** | Early-stop at 50% budget if no findings, then retry with a different strategy. |
+| `XSEC_FEATURE_LOOP_DETECTION` | **on** | Detects A-A-A and A-B-A-B action loops, injects a warning to break the cycle. |
+| `XSEC_FEATURE_CONTEXT_COMPACTION` | **on** | Compresses middle-of-conversation messages when the context exceeds 30k tokens. |
+| `XSEC_FEATURE_SCRIPT_TEMPLATES` | **on** | Adds exploit-script templates (blind SQLi, SSTI, auth chain) to the shell prompt. |
+| `XSEC_FEATURE_DYNAMIC_PLAYBOOKS` | off | Injects technology-specific vulnerability playbooks after the recon phase. |
+| `XSEC_FEATURE_AGENT_PLAN` | off | Exposes a typed `plan` tool: the agent tracks its own TODO items, re-injected each turn so they survive compaction. Off by default because it adds a tool, a system-prompt block and a per-turn block to every scan — behaviour-changing, so it must be A/B'd before shipping on. |
+| `XSEC_FEATURE_DRIFT_DETECTION` | off | Warns when the agent stops working the assigned objective. Distinct from the loop detector, which catches repetition; a drifting agent produces a novel action every turn and never trips it. |
+| `XSEC_FEATURE_JIT_SKILLS` | off | Exposes `list_skills` and `load_skill` so agents can pull narrow methodology prompts only when needed. |
+| `XSEC_FEATURE_EXTERNAL_MEMORY` | off | Agent writes plan/creds to disk, re-injected at reflection checkpoints. |
+| `XSEC_FEATURE_PROGRESS_HANDOFF` | off | Injects prior-attempt findings when retrying, so retries don't restart from zero. |
+| `XSEC_FEATURE_WEB_SEARCH` | off | Lets the agent search the web for CVE details, vendor docs, and technique references. |
+| `XSEC_FEATURE_TARGET_HISTORY_PRESEED` | **on** | Preloads source-review prompts with prior target CVE/GHSA audit graph leads inferred from repo metadata. |
+| `XSEC_FEATURE_DOCKER_EXECUTOR` | off | Runs every bash command inside a Kali Linux container with the full pentesting toolchain. |
+| `XSEC_FEATURE_CLOUD_SINK` | on | Allows opt-in streaming of findings/final reports to a remote scan sink when the cloud env vars are set. |
+| `XSEC_FEATURE_PTY_SESSION` | off | Interactive PTY sessions for exploits requiring interactivity (reverse shells, DB clients, SSH). |
+| `XSEC_FEATURE_EGATS` | off | Evidence-Gated Attack Tree Search — beam search over a hypothesis tree. Also toggled by `--egats`. |
+| `XSEC_FEATURE_CONSENSUS_VERIFY` | off | Self-consistency voting: runs the verify pipeline N times and takes the majority vote. |
+| `XSEC_FEATURE_DEBATE` | _n/a_ | **Planned — not implemented.** The flag is not read by the engine today. Adversarial debate: prosecutor vs. defender agents argue each finding, a skeptical judge decides. |
+| `XSEC_FEATURE_MULTIMODAL` | off | Cross-validates findings against foxguard (Rust pattern scanner). |
+| `XSEC_FEATURE_REACHABILITY_GATE` | off | Suppresses findings whose sink is not reachable from an application entry point. |
+| `XSEC_FEATURE_POV_GATE` | off | Requires a working executable PoC per finding, otherwise downgrades to `info`. |
+| `XSEC_FEATURE_TRIAGE_MEMORIES` | off | Injects Semgrep-style per-target persistent FP memories into the verify pipeline. Pairs with `xsec triage`. |
 
 ## Static analyzer selection
 
 Source reviews and package source scans use Foxguard by default for pre-agent
-static leads. Set `0SEC_STATIC=semgrep` to route them through Semgrep instead;
+static leads. Set `XSEC_STATIC=semgrep` to route them through Semgrep instead;
 `--changed-only` narrowing works with either. Dependency advisory checks (`npm
 audit`, OSV, OCI inventory) run separately for package targets regardless.
 
 ```bash
-env 0SEC_STATIC=semgrep 0sec review ./repo --depth quick
+env XSEC_STATIC=semgrep xsec review ./repo --depth quick
 ```
 
 ### Docker executor overrides
 
-When `0SEC_FEATURE_DOCKER_EXECUTOR=1` is enabled, these extra env vars
+When `XSEC_FEATURE_DOCKER_EXECUTOR=1` is enabled, these extra env vars
 control the container image, networking, and bootstrap behavior:
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `0SEC_DOCKER_IMAGE` | `ghcr.io/0sec-labs/0sec:latest` | Override the executor image |
-| `0SEC_DOCKER_NETWORK` | `bridge` | Docker network mode for the executor container |
-| `0SEC_DOCKER_BOOTSTRAP_TOOLS` | auto | Force or disable apt-based tool bootstrap inside the container |
+| `XSEC_DOCKER_IMAGE` | `ghcr.io/uncesaii/xsec:latest` | Override the executor image |
+| `XSEC_DOCKER_NETWORK` | `bridge` | Docker network mode for the executor container |
+| `XSEC_DOCKER_BOOTSTRAP_TOOLS` | auto | Force or disable apt-based tool bootstrap inside the container |
 
 Bootstrap rules:
 
 - default GHCR image -> no bootstrap, use the pre-baked toolchain
 - `kalilinux/kali-rolling` -> bootstrap tools on first start
-- `0SEC_DOCKER_BOOTSTRAP_TOOLS=1` -> always bootstrap
-- `0SEC_DOCKER_BOOTSTRAP_TOOLS=0` -> never bootstrap
+- `XSEC_DOCKER_BOOTSTRAP_TOOLS=1` -> always bootstrap
+- `XSEC_DOCKER_BOOTSTRAP_TOOLS=0` -> never bootstrap
 
 Networking rules:
 
 - `bridge` (default) gives the container its own network stack — safe, and fine
   for public targets.
-- `0SEC_DOCKER_NETWORK=host` when the target runs on the same host (local XBOW
+- `XSEC_DOCKER_NETWORK=host` when the target runs on the same host (local XBOW
   challenges, a `docker-compose` service), so the container can reach
   `host.docker.internal` / `localhost`.
 - any valid `docker run --network <name>` value works — e.g. a compose network
@@ -339,17 +339,17 @@ Networking rules:
 
 ### Cost ceiling
 
-Bound API spend per scan, audit, or review. If exceeded, 0sec preserves partial
+Bound API spend per scan, audit, or review. If exceeded, XSEC preserves partial
 findings, exits with code `4`, and emits `exit_reason: "cost_ceiling_exceeded"`
 in the machine-readable result line. The `--cost-ceiling` flag overrides the env
 var.
 
 ```bash
-env 0SEC_COST_CEILING_USD=5 \
-  0sec scan --target https://example.com --mode web
+env XSEC_COST_CEILING_USD=5 \
+  xsec scan --target https://example.com --mode web
 
-0sec audit lodash --cost-ceiling 2
-0sec review ./my-repo --cost-ceiling 10
+xsec audit lodash --cost-ceiling 2
+xsec review ./my-repo --cost-ceiling 10
 ```
 
 ### LLM runtime resilience
@@ -358,9 +358,9 @@ The runtime layers that keep a provider failure from silently corrupting a scan:
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `0SEC_LLM_STREAM_IDLE_TIMEOUT_MS` | `120000` | SSE idle watchdog. Streaming calls disarm the overall timer once headers arrive; if the server then holds the stream open emitting no bytes, the call aborts after this window as a transient error (bounded retry, then loud failure). Prevents a held stream hanging the scan silently. |
-| `0SEC_LLM_MAX_RETRIES` | `6` | Max retries for retryable statuses (429 + transient 5xx), with exponential backoff and `Retry-After` honored. |
-| `0SEC_LLM_MAX_RETRY_WAIT_MS` | `60000` | Cumulative backoff cap (ms) for the wire-layer retry loop. |
+| `XSEC_LLM_STREAM_IDLE_TIMEOUT_MS` | `120000` | SSE idle watchdog. Streaming calls disarm the overall timer once headers arrive; if the server then holds the stream open emitting no bytes, the call aborts after this window as a transient error (bounded retry, then loud failure). Prevents a held stream hanging the scan silently. |
+| `XSEC_LLM_MAX_RETRIES` | `6` | Max retries for retryable statuses (429 + transient 5xx), with exponential backoff and `Retry-After` honored. |
+| `XSEC_LLM_MAX_RETRY_WAIT_MS` | `60000` | Cumulative backoff cap (ms) for the wire-layer retry loop. |
 
 Auth errors (**401/403**) are never retried: the agent loop exits immediately, and
 the pipeline surfaces an **honest failure** — `warnings[]` carries the provider
@@ -374,20 +374,20 @@ Stream findings and the final report to an orchestration layer:
 
 ```bash
 env \
-  0SEC_CLOUD_SINK=https://api.example.com \
-  0SEC_CLOUD_SCAN_ID=scan_123 \
-  0SEC_CLOUD_TOKEN=secret-token \
-  0sec scan --target https://example.com --mode web
+  XSEC_CLOUD_SINK=https://api.example.com \
+  XSEC_CLOUD_SCAN_ID=scan_123 \
+  XSEC_CLOUD_TOKEN=secret-token \
+  xsec scan --target https://example.com --mode web
 ```
 
-0sec then POSTs each finding as `{ "finding": ... }` and the final report as
+XSEC then POSTs each finding as `{ "finding": ... }` and the final report as
 `{ "report": ..., "final": true }` to
-`${0SEC_CLOUD_SINK}/scans/${0SEC_CLOUD_SCAN_ID}/findings`. Set
-`0SEC_FEATURE_CLOUD_SINK=0` to disable even when the env vars are present.
+`${XSEC_CLOUD_SINK}/scans/${XSEC_CLOUD_SCAN_ID}/findings`. Set
+`XSEC_FEATURE_CLOUD_SINK=0` to disable even when the env vars are present.
 
 ### Machine-readable result line
 
-Set `0SEC_EMIT_RESULT_LINE=1` to print one final `0SEC_RESULT=...` JSON line with
+Set `XSEC_EMIT_RESULT_LINE=1` to print one final `XSEC_RESULT=...` JSON line with
 success/failure, exit code and reason, target type, finding counts, and estimated
 cost/token usage. Useful for wrappers, CI parsers, and the cloud path.
 
@@ -397,27 +397,27 @@ Every false-positive reduction feature on, for a client-ready scan:
 
 ```bash
 env \
-  0SEC_FEATURE_CONSENSUS_VERIFY=1 \
-  0SEC_FEATURE_REACHABILITY_GATE=1 \
-  0SEC_FEATURE_POV_GATE=1 \
-  0SEC_FEATURE_TRIAGE_MEMORIES=1 \
-  0SEC_FEATURE_MULTIMODAL=1 \
-  0sec scan --target https://example.com --mode web --depth deep
+  XSEC_FEATURE_CONSENSUS_VERIFY=1 \
+  XSEC_FEATURE_REACHABILITY_GATE=1 \
+  XSEC_FEATURE_POV_GATE=1 \
+  XSEC_FEATURE_TRIAGE_MEMORIES=1 \
+  XSEC_FEATURE_MULTIMODAL=1 \
+  xsec scan --target https://example.com --mode web --depth deep
 ```
 
 ### Example: Kali toolchain + web search
 
 ```bash
-env 0SEC_FEATURE_DOCKER_EXECUTOR=1 0SEC_FEATURE_WEB_SEARCH=1 \
-  0sec scan --target https://example.com --mode web
+env XSEC_FEATURE_DOCKER_EXECUTOR=1 XSEC_FEATURE_WEB_SEARCH=1 \
+  xsec scan --target https://example.com --mode web
 ```
 
 ### Example: raw Kali fallback
 
 ```bash
 env \
-  0SEC_FEATURE_DOCKER_EXECUTOR=1 \
-  0SEC_DOCKER_IMAGE=kalilinux/kali-rolling \
-  0SEC_DOCKER_BOOTSTRAP_TOOLS=1 \
-  0sec scan --target https://example.com --mode web
+  XSEC_FEATURE_DOCKER_EXECUTOR=1 \
+  XSEC_DOCKER_IMAGE=kalilinux/kali-rolling \
+  XSEC_DOCKER_BOOTSTRAP_TOOLS=1 \
+  xsec scan --target https://example.com --mode web
 ```

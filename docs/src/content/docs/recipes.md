@@ -1,6 +1,6 @@
 ---
 title: Recipes
-description: Real-world 0sec recipes for common scanning scenarios.
+description: Real-world XSEC recipes for common scanning scenarios.
 ---
 
 Copy-paste recipes for common scenarios. Each assumes an `OPENROUTER_API_KEY` (or
@@ -12,7 +12,7 @@ Point at your OpenAPI 3.x / Swagger 2.0 doc so recon starts with every endpoint,
 parameter, and auth requirement already known — no crawl needed.
 
 ```bash
-0sec scan \
+xsec scan \
   --target https://api.example.com \
   --api-spec ./openapi.yaml \
   --mode web \
@@ -29,12 +29,12 @@ from `readme.txt`/`style.css`, and returns CVE hints before the attack loop
 crawls.
 
 `wp_fingerprint` queries the no-key WPVulnerability API by slug. Set
-`WPSCAN_API_TOKEN` or `0SEC_WPSCAN_API_TOKEN` to merge WPScan API data too — still
+`WPSCAN_API_TOKEN` or `XSEC_WPSCAN_API_TOKEN` to merge WPScan API data too — still
 without running the `wpscan` CLI or sending generic scanner traffic.
 
 ```bash
-env 0SEC_FEATURE_DYNAMIC_PLAYBOOKS=1 \
-  0sec scan \
+env XSEC_FEATURE_DYNAMIC_PLAYBOOKS=1 \
+  xsec scan \
   --target https://blog.example.com \
   --mode web \
   --depth deep \
@@ -47,8 +47,8 @@ When the program explicitly allows scanner traffic, add the Docker executor and
 scoped HackerOne/Bugcrowd targets unless the policy permits generic scanners.
 
 ```bash
-env 0SEC_FEATURE_DOCKER_EXECUTOR=1 \
-  0sec scan \
+env XSEC_FEATURE_DOCKER_EXECUTOR=1 \
+  xsec scan \
   --target https://blog.example.com \
   --mode web \
   --depth deep \
@@ -60,16 +60,16 @@ env 0SEC_FEATURE_DOCKER_EXECUTOR=1 \
 
 ```bash
 # Latest npm version
-0sec audit express
+xsec audit express
 
 # Pin a version
-0sec audit express --package-version 4.18.2
+xsec audit express --package-version 4.18.2
 
 # PyPI package
-0sec audit requests --ecosystem pypi
+xsec audit requests --ecosystem pypi
 
 # Deep audit with the Claude Code CLI
-0sec audit left-pad --depth deep --runtime claude
+xsec audit left-pad --depth deep --runtime claude
 ```
 
 The package is installed into a temp dir (never executed), scanned, checked
@@ -82,7 +82,7 @@ Use the C-library workflow for userspace C/C++ when a finding needs more than
 static reasoning.
 
 ```bash
-0sec review \
+xsec review \
   --target c-library \
   ./libfoo \
   --depth deep \
@@ -103,19 +103,19 @@ escalate to tier-2/tier-3 rather than reporting a static-only finding.
 
 The Tier-1 verify path (issue #271) builds a kernel from a local tree, boots it in
 QEMU, runs your reproducer, and matches dmesg against an expected signature.
-Artifacts cache at `~/.0sec/kernel-cache/` — a second run against the same tree +
+Artifacts cache at `~/.xsec/kernel-cache/` — a second run against the same tree +
 config skips the slow rebuild and logs `[kernel-cache] hit`.
 
 ```bash
 # Run a syzkaller .syz program against a freshly built kasan kernel
-0sec ingest \
+xsec ingest \
   --syz ./program.syz \
   --kernel-tree ~/src/linux \
   --kernel-config kasan \
   --output json
 
 # Run a C reproducer with a custom config name and an explicit signature
-0sec ingest \
+xsec ingest \
   --reproducer ./poc.c \
   --kernel-tree ~/src/linux \
   --kernel-config defconfig+kasan \
@@ -136,13 +136,13 @@ produces client-ready findings.
 
 ```bash
 env \
-  0SEC_FEATURE_CONSENSUS_VERIFY=1 \
-  0SEC_FEATURE_REACHABILITY_GATE=1 \
-  0SEC_FEATURE_POV_GATE=1 \
-  0SEC_FEATURE_TRIAGE_MEMORIES=1 \
-  0SEC_FEATURE_MULTIMODAL=1 \
-  0SEC_FEATURE_DOCKER_EXECUTOR=1 \
-  0sec scan \
+  XSEC_FEATURE_CONSENSUS_VERIFY=1 \
+  XSEC_FEATURE_REACHABILITY_GATE=1 \
+  XSEC_FEATURE_POV_GATE=1 \
+  XSEC_FEATURE_TRIAGE_MEMORIES=1 \
+  XSEC_FEATURE_MULTIMODAL=1 \
+  XSEC_FEATURE_DOCKER_EXECUTOR=1 \
+  xsec scan \
   --target https://example.com \
   --mode web \
   --depth deep \
@@ -158,7 +158,7 @@ When a linear attack plan keeps getting stuck, spawn 5 parallel strategies and l
 the fastest win.
 
 ```bash
-0sec scan \
+xsec scan \
   --target https://hard-target.example.com \
   --mode web \
   --race \
@@ -172,7 +172,7 @@ Push every confirmed finding to a GitHub repo as a labelled issue with evidence 
 ```bash
 export GITHUB_TOKEN="ghp_..."
 
-0sec scan \
+xsec scan \
   --target https://example.com \
   --mode web \
   --export github:myorg/security-findings
@@ -185,21 +185,21 @@ category (`cat:xss`, …) so you can triage from the GitHub UI.
 
 ```bash
 # HTML (auto-opens in browser and saves to a temp file)
-0sec scan \
+xsec scan \
   --target https://example.com \
   --mode web \
   --depth deep \
   --format html
 
 # Markdown (printed to stdout; redirect to a file)
-0sec scan \
+xsec scan \
   --target https://example.com \
   --mode web \
   --depth deep \
   --format md > example-pentest.md
 
 # PDF (auto-opens in your default viewer and saves to a temp file)
-0sec scan \
+xsec scan \
   --target https://example.com \
   --mode web \
   --depth deep \
@@ -213,7 +213,7 @@ Each report has an executive summary, severity breakdown, per-finding evidence
 
 ```bash
 # Inline
-0sec scan \
+xsec scan \
   --target https://api.example.com \
   --api-spec ./openapi.yaml \
   --auth '{"type":"bearer","token":"eyJhbGciOi..."}'
@@ -223,7 +223,7 @@ cat > auth.json <<'EOF'
 {"type":"bearer","token":"eyJhbGciOi..."}
 EOF
 
-0sec scan \
+xsec scan \
   --target https://api.example.com \
   --api-spec ./openapi.yaml \
   --auth ./auth.json
@@ -244,20 +244,20 @@ Other auth types:
 
 ## Track learned false positives across runs
 
-Mark noisy findings as false positives and 0sec remembers the pattern next time.
+Mark noisy findings as false positives and XSEC remembers the pattern next time.
 
 ```bash
 # Mark a single finding as FP (auto-creates a memory)
-0sec triage mark-fp NF-042 --reason "test fixture echo endpoint, not reachable in prod"
+xsec triage mark-fp NF-042 --reason "test fixture echo endpoint, not reachable in prod"
 
 # Add a memory from an existing finding without suppressing it
-0sec triage memory add --finding NF-017 --reason "intentional CORS config for public API"
+xsec triage memory add --finding NF-017 --reason "intentional CORS config for public API"
 
-# List what 0sec has learned
-0sec triage memory list
+# List what XSEC has learned
+xsec triage memory list
 
 # Remove a memory that's no longer accurate
-0sec triage memory remove <memory-id>
+xsec triage memory remove <memory-id>
 ```
 
-Enable memory injection into the verify pipeline with `0SEC_FEATURE_TRIAGE_MEMORIES=1`.
+Enable memory injection into the verify pipeline with `XSEC_FEATURE_TRIAGE_MEMORIES=1`.

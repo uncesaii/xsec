@@ -5,7 +5,7 @@ import type {
   Finding,
   Severity,
   AttackCategory,
-} from "@0sec/shared";
+} from "@xsec/shared";
 import type { Runtime, RuntimeContext } from "../runtime/types.js";
 import { buildSourceAnalysisPrompt } from "../prompts.js";
 

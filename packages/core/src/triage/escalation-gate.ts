@@ -39,7 +39,7 @@
  * above it; it never lowers a primitive the splat already proved.
  */
 
-import type { CrashReport } from "@0sec/shared";
+import type { CrashReport } from "@xsec/shared";
 import type {
   NativeRuntime,
   NativeMessage,

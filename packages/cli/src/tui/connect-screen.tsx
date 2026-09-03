@@ -14,7 +14,7 @@
  *
  * 1. **A credential leaves this screen only through the credential store.** The
  *    input sub-step writes the pasted secret with `saveCredentials`, which
- *    persists it owner-only to `~/.0sec/credentials.json`. Nothing is sent
+ *    persists it owner-only to `~/.xsec/credentials.json`. Nothing is sent
  *    anywhere else, and the raw value is never rendered — the input echoes a
  *    fixed, length-capped dot run, never the secret.
  *

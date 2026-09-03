@@ -1,4 +1,4 @@
-import type { AttackCategory } from "@0sec/shared";
+import type { AttackCategory } from "@xsec/shared";
 
 export interface FoxguardFinding {
   ruleId: string;
@@ -7,7 +7,7 @@ export interface FoxguardFinding {
   startLine?: number;
   endLine?: number;
   level?: string;
-  /** Our best guess at a 0sec AttackCategory, derived from the rule id / message. */
+  /** Our best guess at a xsec AttackCategory, derived from the rule id / message. */
   category?: AttackCategory;
 }
 

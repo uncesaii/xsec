@@ -1,6 +1,6 @@
 import { join } from "node:path";
 
-import { homeStateDir } from "@0sec/shared";
+import { homeStateDir } from "@xsec/shared";
 
 import { watchLensSynthCommand } from "../commands/lens-synth.js";
 import type {

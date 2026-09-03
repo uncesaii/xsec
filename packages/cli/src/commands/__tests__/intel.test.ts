@@ -7,8 +7,8 @@ const searchSimilarMock = vi.fn();
 const buildIntelDossierMock = vi.fn();
 const searchTargetHistoryMock = vi.fn();
 
-vi.mock("@0sec/core", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@0sec/core")>();
+vi.mock("@xsec/core", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@xsec/core")>();
   return {
     ...actual,
     searchAdvisories: searchAdvisoriesMock,
@@ -44,10 +44,10 @@ async function runCli(argv: string[]): Promise<void> {
   const program = new Command();
   program.exitOverride();
   registerIntelCommand(program);
-  await program.parseAsync(["node", "0sec-cli", ...argv]);
+  await program.parseAsync(["node", "xsec-cli", ...argv]);
 }
 
-describe("0sec intel", () => {
+describe("xsec intel", () => {
   let io: ReturnType<typeof captureIO>;
 
   beforeEach(() => {

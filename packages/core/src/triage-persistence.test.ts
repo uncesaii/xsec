@@ -3,15 +3,15 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { osecDB } from "@0sec/db";
-import type { Finding, PocStep, ScanConfig } from "@0sec/shared";
+import { osecDB } from "@xsec/db";
+import type { Finding, PocStep, ScanConfig } from "@xsec/shared";
 
 const tempDirs: string[] = [];
 
 function makeDb(): { db: osecDB; scanId: string } {
-  const dir = mkdtempSync(join(tmpdir(), "0sec-triage-persist-"));
+  const dir = mkdtempSync(join(tmpdir(), "xsec-triage-persist-"));
   tempDirs.push(dir);
-  const db = new osecDB(join(dir, "0sec.db"));
+  const db = new osecDB(join(dir, "xsec.db"));
   const scanConfig: ScanConfig = {
     target: "http://example.test",
     depth: "default",
@@ -74,7 +74,7 @@ describe("triage persistence", () => {
     }
   });
 
-  // 0sec#170 — PoC step graph DB round-trip.
+  // xsec#170 — PoC step graph DB round-trip.
   //
   // Findings can carry an optional `pocSteps` field. The DB persists it as a
   // JSON-stringified blob in a new `pocSteps` text column. Round-trip must be

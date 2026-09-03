@@ -1,7 +1,7 @@
 import type {
   PresentationTranscriptDocument,
   PresentationTranscriptEntry,
-} from "@0sec/shared";
+} from "@xsec/shared";
 import {
   renderMarkdown,
   spansToText,
@@ -123,7 +123,7 @@ function compileEntry(
   if (entry.kind === "user" || entry.kind === "assistant") {
     const tone = entry.kind === "user" ? "user" : "assistant";
     document.push({
-      text: `${entry.kind === "user" ? "OPERATOR" : "0SEC"}${repeat}`,
+      text: `${entry.kind === "user" ? "OPERATOR" : "xsec"}${repeat}`,
       tone,
       turn: entry.turn,
       entryId: entry.id,

@@ -24,7 +24,7 @@
 
 import { estimateCost, modelProvider, splitCost } from "./cost.js";
 import type { CostBreakdownEntry } from "../events/bus.js";
-import type { TokenUsageForPricing } from "@0sec/shared";
+import type { TokenUsageForPricing } from "@xsec/shared";
 
 interface UsageBucket {
   inputTokens: number;

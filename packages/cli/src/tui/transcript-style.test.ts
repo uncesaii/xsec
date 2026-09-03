@@ -188,14 +188,14 @@ describe("rail is the default and preserves today's geometry", () => {
 describe("role label styles produce the documented widths", () => {
   it("full", () => {
     expect(roleLabelText("user", "full")).toBe("▌ operator");
-    expect(roleLabelText("assistant", "full")).toBe("▌ 0sec");
+    expect(roleLabelText("assistant", "full")).toBe("▌ xsec");
     expect(roleLabelWidth("user", "full")).toBe("▌ operator".length);
-    expect(roleLabelWidth("assistant", "full")).toBe("▌ 0sec".length);
+    expect(roleLabelWidth("assistant", "full")).toBe("▌ xsec".length);
   });
 
   it("short", () => {
     expect(roleLabelText("user", "short")).toBe("op");
-    expect(roleLabelText("assistant", "short")).toBe("0sec");
+    expect(roleLabelText("assistant", "short")).toBe("xsec");
     expect(roleLabelWidth("user", "short")).toBe(2);
     expect(roleLabelWidth("assistant", "short")).toBe(4);
   });

@@ -1,5 +1,5 @@
 /**
- * Tests for the v0 rule-based router (0sec#113).
+ * Tests for the v0 rule-based router (xsec#113).
  *
  * Coverage:
  *   - Rule 1 (high-confidence SQLi with error-based signal → static set, high confidence)
@@ -11,7 +11,7 @@
  */
 
 import { describe, expect, it, beforeEach } from "vitest";
-import type { Finding } from "@0sec/shared";
+import type { Finding } from "@xsec/shared";
 import {
   RuleBasedRouter,
   decideLayers,

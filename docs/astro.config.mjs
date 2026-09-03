@@ -6,7 +6,7 @@ import rehypeMermaid from "rehype-mermaid";
 export default defineConfig({
   output: "static",
   outDir: "./dist",
-  site: "https://docs.0.security",
+  site: "",
   // Allow previewing the dev server over Tailscale (dev-only; ignored by the static build).
   vite: { server: { allowedHosts: [".ts.net"] } },
   markdown: {
@@ -20,26 +20,20 @@ export default defineConfig({
   },
   integrations: [
     starlight({
-      title: "0sec",
+      title: "XSEC",
       favicon: "/favicon.svg",
       head: [
         { tag: "link", attrs: { rel: "icon", href: "/favicon.ico", sizes: "32x32" } },
         { tag: "link", attrs: { rel: "apple-touch-icon", href: "/apple-touch-icon.png" } },
       ],
       description:
-        "Open-source security research harness for authorized targets. The technical project and CLI are named 0sec.",
+        "Open-source security research harness for authorized targets. The technical project and CLI are named XSEC.",
       logo: {
-        src: "./src/assets/0sec-aperture-white.svg",
-        alt: "0sec",
+        src: "./src/assets/xsec-aperture-white.svg",
+        alt: "XSEC",
         replacesTitle: true,
       },
-      social: [
-        {
-          icon: "external",
-          label: "Website",
-          href: "https://0sec.ai",
-        },
-      ],
+      social: [],
       defaultLocale: "root",
       expressiveCode: {
         themes: ["dracula"],

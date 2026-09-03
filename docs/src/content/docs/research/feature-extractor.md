@@ -16,7 +16,7 @@ The extractor is intentionally cheap:
 - no network requests
 - no external scanners
 
-It is the handcrafted half of 0sec's VulnBERT-inspired hybrid direction.
+It is the handcrafted half of XSEC's VulnBERT-inspired hybrid direction.
 
 ## Why it exists
 
@@ -28,7 +28,7 @@ VulnBERT's reported ablations are the key reference point:
 | CodeBERT alone | 84.3% | 4.2% |
 | Hybrid features + neural fusion | 92.2% | 1.2% |
 
-0sec uses the handcrafted layer today because it is deterministic,
+XSEC uses the handcrafted layer today because it is deterministic,
 explainable, and cheap enough to run before any paid verification.
 
 ## Group breakdown
@@ -116,7 +116,7 @@ explainable, and cheap enough to run before any paid verification.
 
 ### Kernel crash features
 
-Added for kernel-target findings (0verse), where the signal lives in the crash
+Added for kernel-target findings (xverse), where the signal lives in the crash
 report rather than an HTTP request/response. Zero-valued on web findings, so the
 same 55-D vector serves both domains.
 
@@ -142,7 +142,7 @@ The features deliberately mix six signal families:
 - metadata priors
 - text-quality heuristics
 - cross-field consistency
-- kernel crash-report signals (0verse targets)
+- kernel crash-report signals (xverse targets)
 
 That split reflects how triage actually works in practice: a finding is not
 credible because any one field looks good, but because several independent

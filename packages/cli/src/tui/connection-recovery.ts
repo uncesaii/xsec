@@ -13,7 +13,7 @@ export function connectionRecoveryForError(error: string): ConnectionRecovery | 
   const detail = error.trim();
   if (!detail) return null;
 
-  if (/chatgpt.*codex|codex.*(?:token|auth|login|backend)|0sec_chatgpt/i.test(detail)) {
+  if (/chatgpt.*codex|codex.*(?:token|auth|login|backend)|XSEC_chatgpt/i.test(detail)) {
     return {
       providerId: "chatgpt-codex",
       title: "ChatGPT Codex needs to reconnect",

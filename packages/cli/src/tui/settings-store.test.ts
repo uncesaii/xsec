@@ -21,14 +21,14 @@ import {
 const tempHomes: string[] = [];
 
 function makeHome(): string {
-  const dir = mkdtempSync(join(tmpdir(), "0sec-settings-store-"));
+  const dir = mkdtempSync(join(tmpdir(), "xsec-settings-store-"));
   tempHomes.push(dir);
   return dir;
 }
 
 /**
  * A home path that is actually a *file*, so `saveSettings`' `mkdirSync` of the
- * `.0sec` directory underneath it throws (ENOTDIR) and the save reports false —
+ * `.xsec` directory underneath it throws (ENOTDIR) and the save reports false —
  * while `loadSettings` still degrades to defaults without throwing.
  */
 function makeUnwritableHome(): string {
@@ -185,14 +185,14 @@ describe("reloadSettings", () => {
   it("re-reads disk and notifies", () => {
     const home = makeHome();
     configureSettingsStore({ homeDir: home });
-    // Persist once so the `.0sec` directory and file exist on disk.
+    // Persist once so the `.xsec` directory and file exist on disk.
     setSettings({ ...DEFAULT_SETTINGS, theme: "dark" });
     const fn = vi.fn();
     subscribeSettings(fn);
 
     // An external edit to the file the store is not aware of.
     writeFileSync(
-      join(home, ".0sec", "tui-settings.json"),
+      join(home, ".xsec", "tui-settings.json"),
       JSON.stringify({ ...DEFAULT_SETTINGS, theme: "ansi" }),
       "utf8",
     );
@@ -272,7 +272,7 @@ import {
 import { defaultWriteLayer, getSettingSources } from "./settings-store.js";
 
 function makeProjectDir(): string {
-  const dir = mkdtempSync(join(tmpdir(), "0sec-store-project-"));
+  const dir = mkdtempSync(join(tmpdir(), "xsec-store-project-"));
   tempHomes.push(dir);
   return dir;
 }

@@ -9,14 +9,14 @@ import {
   loadScope,
   parseMcpConfig,
   connectMcpServers,
-} from "@0sec/core";
+} from "@xsec/core";
 import type {
   ConsoleAutonomyMode,
   ConsoleSession,
   NativeMessage,
   ToolCall,
   ToolResult,
-} from "@0sec/core";
+} from "@xsec/core";
 import { canUseOpenTui, isBunRuntime } from "../tui/runtime.js";
 import {
   findCommand,
@@ -119,12 +119,12 @@ export function resolveConsoleAutonomyMode(opts: {
 }
 
 /**
- * `0sec console` — the unified interactive chat cockpit.
+ * `xsec console` — the unified interactive chat cockpit.
  *
  * A single conversational surface where the operator talks to the engine and it
- * can invoke every 0sec tool (recon, web pentest, source/package scan,
+ * can invoke every xsec tool (recon, web pentest, source/package scan,
  * variant hunt, verify, patch-gen) in one place. Thin REPL over the engine-side
- * driver in `@0sec/core` (`createConsoleSession`) — the tool registry and LLM
+ * driver in `@xsec/core` (`createConsoleSession`) — the tool registry and LLM
  * runtime are the real ones the autonomous scanner uses; this command only owns
  * terminal I/O and rendering.
  */
@@ -312,13 +312,13 @@ export function registerConsoleCommand(program: Command): void {
         return;
       }
 
-      // Attach any configured MCP servers (0SEC_MCP = JSON array of
+      // Attach any configured MCP servers (XSEC_MCP = JSON array of
       // {id,command,args?}) once, before either interactive front-end launches.
       // Connecting here (not inside React) keeps the TUI session build
       // synchronous — the connected host is threaded down as an option. The
       // session closes the host on cleanup. Fail-soft: a bad config or a server
       // that won't connect degrades to no MCP tools, never blocks the console.
-      const mcpHost = await connectMcpServers(parseMcpConfig(process.env["0SEC_MCP"]));
+      const mcpHost = await connectMcpServers(parseMcpConfig(process.env["XSEC_MCP"]));
       if (mcpHost) {
         console.log(chalk.dim(`MCP: connected ${mcpHost.serverIds().length} server(s) — ${mcpHost.registeredTools().length} tool(s)`));
       }
@@ -349,7 +349,7 @@ export function registerConsoleCommand(program: Command): void {
       }
 
       if (!scope) {
-        console.error(chalk.red("0sec console under Node requires --scope <file>."));
+        console.error(chalk.red("xsec console under Node requires --scope <file>."));
         console.error(chalk.dim("The readline fallback cannot approve session-only scope extensions; use the Bun TUI for scope-on-demand."));
         if (mcpHost) await mcpHost.closeAll();
         process.exitCode = 2;
@@ -445,7 +445,7 @@ export function registerConsoleCommand(program: Command): void {
           console.log(
             chalk.yellow(
               `\n"${text}" requires the Bun-backed TUI console. ` +
-              `Use the \`0sec\` command (no flags) for the full interactive experience.\n`,
+              `Use the \`xsec\` command (no flags) for the full interactive experience.\n`,
             ),
           );
           rl.prompt();
@@ -491,7 +491,7 @@ export function registerConsoleCommand(program: Command): void {
             console.log(
               chalk.yellow(
                 `\n/${parsed.command} isn't available in the line-mode console. ` +
-                `Use the \`0sec\` command (no flags) for the full interactive TUI.\n`,
+                `Use the \`xsec\` command (no flags) for the full interactive TUI.\n`,
               ),
             );
             rl.prompt();
@@ -567,7 +567,7 @@ function previewResult(result: ToolResult): string {
 
 function printBanner(session: ConsoleSession, target?: string): void {
   console.log("");
-  console.log(chalk.bold("0sec console") + chalk.dim(" — interactive operator cockpit"));
+  console.log(chalk.bold("xsec console") + chalk.dim(" — interactive operator cockpit"));
   console.log(chalk.dim(`  session ${session.scanId}`));
   console.log(chalk.dim(`  ${session.tools.length} tools available${target ? ` · target ${target}` : " · no target set"}`));
   console.log(chalk.dim(`  mode: ${modeLabel(session.autonomyMode)}`));
@@ -612,7 +612,7 @@ function printHelp(): void {
   console.log(chalk.dim("  The Node fallback cannot approve scope extensions or Co-pilot actions; use the Bun TUI for those approvals."));
   console.log(chalk.dim("  anything else is sent to the engine as an operator message.\n"));
   console.log(chalk.dim("  Navigation commands (/chat, /scope, /agents, …) require the Bun TUI."));
-  console.log(chalk.dim("  Run the bare `0sec` command for the full interactive experience.\n"));
+  console.log(chalk.dim("  Run the bare `xsec` command for the full interactive experience.\n"));
 }
 
 function findCategory(name: string): string {

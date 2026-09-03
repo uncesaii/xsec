@@ -62,8 +62,8 @@ export type TranscriptStyle = (typeof TRANSCRIPT_STYLES)[number];
 
 /**
  * How the "who is speaking" label is drawn, independent of the frame:
- *  - `full`  — `▌ operator` / `▌ 0sec` (today's label; the default)
- *  - `short` — `op` / `0sec`
+ *  - `full`  — `▌ operator` / `▌ xsec` (today's label; the default)
+ *  - `short` — `op` / `xsec`
  *  - `glyph` — `▌` only
  *  - `off`   — no label row at all
  */
@@ -300,7 +300,7 @@ function clampWidth(n: number): number {
  * it. `age` is a pre-formatted relative age ("12s"); an empty string omits the
  * separator entirely rather than leaving a dangling ` · `.
  *
- * The `full` form reproduces today's labels exactly (`▌ operator`, `▌ 0sec`),
+ * The `full` form reproduces today's labels exactly (`▌ operator`, `▌ xsec`),
  * which is what keeps the default byte-identical.
  */
 export function roleLabelText(
@@ -309,8 +309,8 @@ export function roleLabelText(
   age = "",
 ): string | null {
   if (style === "off") return null;
-  const speaker = kind === "user" ? "operator" : "0sec";
-  const short = kind === "user" ? "op" : "0sec";
+  const speaker = kind === "user" ? "operator" : "xsec";
+  const short = kind === "user" ? "op" : "xsec";
   const suffix = age ? ` · ${age}` : "";
   if (style === "glyph") return "▌";
   if (style === "short") return `${short}${suffix}`;

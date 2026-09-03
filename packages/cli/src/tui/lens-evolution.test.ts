@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { LensSynthesisResult } from "@0sec/core";
+import type { LensSynthesisResult } from "@xsec/core";
 
 import type {
   LensSynthWatchDeps,
@@ -99,8 +99,8 @@ describe("TUI lens evolution controller", () => {
   });
 
   it("uses the documented user-state inbox by default", () => {
-    expect(tuiLensSynthesisInputPath("/tmp/0sec-home")).toBe(
-      "/tmp/0sec-home/.0sec/lens-synthesis/miss-input.json",
+    expect(tuiLensSynthesisInputPath("/tmp/xsec-home")).toBe(
+      "/tmp/xsec-home/.xsec/lens-synthesis/miss-input.json",
     );
   });
 });

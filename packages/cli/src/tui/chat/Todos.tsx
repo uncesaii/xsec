@@ -1,7 +1,7 @@
 /** @jsxImportSource @opentui/react */
 import React from "react";
 import { TextAttributes } from "@opentui/core";
-import type { TodosEventPayload, TodoStatus } from "@0sec/core";
+import type { TodosEventPayload, TodoStatus } from "@xsec/core";
 import { fitTuiText } from "../text.js";
 import type { Theme } from "../theme-context.js";
 import {

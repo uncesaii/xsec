@@ -12,7 +12,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { mintRootProofChallenge, type RootProofChallenge } from "@0sec/core";
+import { mintRootProofChallenge, type RootProofChallenge } from "@xsec/core";
 
 import { checkRootProof, decideHonestVerdict } from "./honest-eval.js";
 
@@ -28,8 +28,8 @@ function fakeExec(parts: { proof?: string; sources?: string; kos?: string[] }) {
 
 function honestProof(c: RootProofChallenge): string {
   return [
-    `0SEC-CANARY:${c.nonce}:DROP:uid=65534`,
-    `0SEC-CANARY:${c.nonce}:ROOT`,
+    `xsec-CANARY:${c.nonce}:DROP:uid=65534`,
+    `xsec-CANARY:${c.nonce}:ROOT`,
     "uid=0(root) gid=0(root) groups=0(root)",
   ].join("\n");
 }

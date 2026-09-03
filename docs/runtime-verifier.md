@@ -46,7 +46,7 @@ For each confirmed, self-hostable finding with a `poc_plan` (structured or
 prose description of how to demonstrate the bug against a running target):
 
 1. **Provision** an E2B sandbox from the target's declared quickstart image
-   (the 0sec Docker image or equivalent).
+   (the XSEC Docker image or equivalent).
 2. **Stand up** the target service inside the sandbox using its declared
    startup sequence (e.g. `docker compose up`, `pnpm run-local`, a script).
 3. **Discover** the live endpoint (sandbox hostname + mapped port).
@@ -109,7 +109,7 @@ interface RuntimeVerdict {
 - Only targets tagged `selfHostable` in their target descriptor are eligible.
 - The engine never provisions a sandbox against a target pointing at
   third-party infrastructure (production, staging, CI — any non-local URL).
-- The sandbox runs the 0sec Docker image, which has no host network access
+- The sandbox runs the XSEC Docker image, which has no host network access
   beyond the E2B gateway.
 - No scan output written from inside the sandbox is trusted by the engine:
   transcripts are evidence, not commands.
@@ -173,5 +173,5 @@ its E2B guardrails and does not claim that an E2B driver exists.
 - `selfHostable` target descriptor field.
 - `poc_plan` structured field on `Finding` (currently prose in
   `evidence.analysis`).
-- Per-target startup scripts baked into the 0sec Docker image.
+- Per-target startup scripts baked into the XSEC Docker image.
 - Integration test against a real E2B sandbox.

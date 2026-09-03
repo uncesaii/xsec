@@ -5,13 +5,13 @@ import { execFile } from "node:child_process";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import chalk from "chalk";
-import { VERSION } from "@0sec/shared";
-import type { ScanDepth, OutputFormat, RuntimeMode, ScanMode, AuthConfig, ScanReport, SeedFinding } from "@0sec/shared";
-import type { CostBreakdownEntry } from "@0sec/core";
+import { VERSION } from "@xsec/shared";
+import type { ScanDepth, OutputFormat, RuntimeMode, ScanMode, AuthConfig, ScanReport, SeedFinding } from "@xsec/shared";
+import type { CostBreakdownEntry } from "@xsec/core";
 import { formatAuditReport, formatReviewReport, formatReport, generatePdfReport } from "../formatters/index.js";
 import { buildShareUrl, checkRuntimeAvailability, getRuntimeAvailability } from "../utils.js";
 import { formatCrossValidatedLeads, type CrossValidatedLeadsSummary } from "./cross-validated-leads.js";
-import { resolveOsecRunStorage, writeOsecRunReport } from "@0sec/db";
+import { resolveOsecRunStorage, writeOsecRunReport } from "@xsec/db";
 import { runDeepReview } from "./deep-review.js";
 
 interface ScanCompletedCost {
@@ -20,7 +20,7 @@ interface ScanCompletedCost {
   cost_per_flag?: number;
 }
 
-type CoreModule = typeof import("@0sec/core");
+type CoreModule = typeof import("@xsec/core");
 
 let coreModulePromise: Promise<CoreModule> | null = null;
 
@@ -34,7 +34,7 @@ async function loadCoreModule(): Promise<CoreModule> {
     const srcExists = process.versions.bun && existsSync(fileURLToPath(srcUrl));
     coreModulePromise = srcExists
       ? import(srcUrl.href) as Promise<CoreModule>
-      : import("@0sec/core");
+      : import("@xsec/core");
   }
   return coreModulePromise;
 }
@@ -83,13 +83,13 @@ export interface RunOptions {
   rateLimit?: string;
   /** Open the operator TUI after the run completes. */
   tui?: boolean;
-  /** Path to a JSON scope file (0sec#215). Threaded into ScanConfig.scopeFile. */
+  /** Path to a JSON scope file (xsec#215). Threaded into ScanConfig.scopeFile. */
   scopeFile?: string;
-  /** Opt-out for the scanner-binary suppression gate (0sec#217). Threaded into ScanConfig.allowScanners. */
+  /** Opt-out for the scanner-binary suppression gate (xsec#217). Threaded into ScanConfig.allowScanners. */
   allowScanners?: boolean;
-  /** Repeatable `--attribution-header NAME=VALUE` (0sec#216). */
+  /** Repeatable `--attribution-header NAME=VALUE` (xsec#216). */
   attributionHeaders?: string[];
-  /** `--attribution-ua <token>` (0sec#216). */
+  /** `--attribution-ua <token>` (xsec#216). */
   attributionUaToken?: string;
   /**
    * `--engagement-profile <name>` — engagement hardening posture
@@ -103,7 +103,7 @@ export interface RunOptions {
   wafEvasion?: boolean;
   /**
    * http_audit env-bridge config (FROZEN CONTRACT). Populated by the scan
-   * command from 0SEC_TARGET_* env vars only when `mode === "http_audit"`;
+   * command from XSEC_TARGET_* env vars only when `mode === "http_audit"`;
    * undefined otherwise. The core (`agenticScan`) turns these into an
    * in-memory ScopePolicy (host allowlist), PathPolicy (path-prefix
    * allowlist), per-host RateLimiter, and a wall-clock kill switch, all
@@ -114,7 +114,7 @@ export interface RunOptions {
   httpAuditRateLimitRps?: number;
   httpAuditKillAfterSec?: number;
   /**
-   * Tool-call dispatch protocol (0sec#232) — `json`, `xml`, or `auto`.
+   * Tool-call dispatch protocol (xsec#232) — `json`, `xml`, or `auto`.
    * Threaded into ScanConfig.dispatchMode and consulted only by the
    * legacy text-based agent loop.
    */
@@ -171,7 +171,7 @@ export interface RunOptions {
   /**
    * Pre-computed candidate vulnerable spans, parsed from an external producer
    * (today: GemmaForge, schema `gemmaforge.leads/v1`). Only consumed when
-   * `targetType === "source-code"`. See `0sec#368` for the broader plan to
+   * `targetType === "source-code"`. See `xsec#368` for the broader plan to
    * inject these into the agent's worklist before static scanner prioritisation runs.
    */
   seedFindings?: SeedFinding[];
@@ -184,7 +184,7 @@ export interface RunOptions {
    */
   npmDynamicDiscovery?: boolean;
   /**
-   * Emit target (0sec#377). Default unset → existing terminal/json/etc.
+   * Emit target (xsec#377). Default unset → existing terminal/json/etc.
    * `pr` → turn each reproduced finding into a GitHub PR (repro + suggested
    * patch from the fix-template registry). Unverified findings roll up into
    * a single `hypotheses.md`.
@@ -284,16 +284,16 @@ function getTargetType(report: any, opts: RunOptions): string | undefined {
   return report?.targetType ?? opts.targetType;
 }
 
-function emitResultLine(payload: ResultLinePayload): void {  if (process.env["0SEC_EMIT_RESULT_LINE"] !== "1" && !process.env["0SEC_CLOUD_SINK"]) return;
-  console.log(`0SEC_RESULT=${JSON.stringify(payload)}`);
+function emitResultLine(payload: ResultLinePayload): void {  if (process.env["XSEC_EMIT_RESULT_LINE"] !== "1" && !process.env["XSEC_CLOUD_SINK"]) return;
+  console.log(`XSEC_RESULT=${JSON.stringify(payload)}`);
 }
 
 function getCloudFinalSinkConfig(): { sinkUrl: string; scanId: string; token?: string } | null {
-  if (process.env["0SEC_FEATURE_CLOUD_SINK"] === "0") return null;
-  const sinkUrl = process.env["0SEC_CLOUD_SINK"]?.trim();
-  const scanId = process.env["0SEC_CLOUD_SCAN_ID"]?.trim();
+  if (process.env["XSEC_FEATURE_CLOUD_SINK"] === "0") return null;
+  const sinkUrl = process.env["XSEC_CLOUD_SINK"]?.trim();
+  const scanId = process.env["XSEC_CLOUD_SCAN_ID"]?.trim();
   if (!sinkUrl || !scanId) return null;
-  const token = process.env["0SEC_CLOUD_TOKEN"]?.trim() || undefined;
+  const token = process.env["XSEC_CLOUD_TOKEN"]?.trim() || undefined;
   return { sinkUrl, scanId, token };
 }
 
@@ -373,7 +373,7 @@ function crossValidatedSeverityColor(severity: string): (text: string) => string
 }
 
 /**
- * Print the cross-validated-leads highlight block (0sec FoxGuard Phase 4).
+ * Print the cross-validated-leads highlight block (xsec FoxGuard Phase 4).
  * Purely additive end-of-scan output: a scan with no agreeing leads never
  * reaches here, and this never touches exit codes or the result line.
  */
@@ -394,7 +394,7 @@ async function postFinalResultToCloud(report: unknown): Promise<void> {
   const url = `${config.sinkUrl.replace(/\/+$/, "")}/scans/${encodeURIComponent(config.scanId)}/findings`;
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    "X-0sec-Scan-Id": config.scanId,
+    "X-xsec-Scan-Id": config.scanId,
   };
   if (config.token) headers.Authorization = `Bearer ${config.token}`;
 
@@ -407,13 +407,13 @@ async function postFinalResultToCloud(report: unknown): Promise<void> {
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       process.stderr.write(
-        `[0sec cloud-sink] report POST ${url} returned ${res.status}: ${text.slice(0, 200)}\n`,
+        `[xsec cloud-sink] report POST ${url} returned ${res.status}: ${text.slice(0, 200)}\n`,
       );
     }
 
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    process.stderr.write(`[0sec cloud-sink] report POST ${url} failed: ${msg}\n`);
+    process.stderr.write(`[xsec cloud-sink] report POST ${url} failed: ${msg}\n`);
   }
 }
 /**
@@ -447,16 +447,16 @@ export async function runUnified(opts: RunOptions): Promise<void> {
   const { target, depth, format, runtime, timeout } = opts;
   const core = await loadCoreModule();
 
-  // ── Journal-based resume (0sec#374) ───────────────────────────────
+  // ── Journal-based resume (xsec#374) ───────────────────────────────
   let effectiveResumeScanId = opts.resumeScanId;
 
-  // ── Journal branching (0sec#250) ─────────────────────────────────
+  // ── Journal branching (xsec#250) ─────────────────────────────────
   if (opts.branchFromEntry !== undefined) {
     if (!effectiveResumeScanId) {
       console.error(chalk.red("--branch-from requires --resume <run-id>"));
       process.exit(2);
     }
-    const { branchJournal } = await import("@0sec/core");
+    const { branchJournal } = await import("@xsec/core");
     const result = branchJournal({
       runId: effectiveResumeScanId,
       fromEntry: opts.branchFromEntry,
@@ -510,13 +510,13 @@ export async function runUnified(opts: RunOptions): Promise<void> {
   // must not require the Codex CLI binary. Both env vars are valid
   // activations — refresh token is the long-lived OAuth credential the
   // local CLI uses, while access token is what the cloud worker forwards
-  // to sandboxes (see 0sec-cloud PR #324). detectProvider in
+  // to sandboxes (see xsec-cloud PR #324). detectProvider in
   // packages/core/src/runtime/llm-api.ts accepts either pair, so the
   // preflight gate must accept either pair too.
   const directCodexProviderConfigured =
     runtime === "codex" &&
-    (!!process.env["0SEC_CHATGPT_ACCESS_TOKEN"]?.trim() ||
-      !!process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"]?.trim());
+    (!!process.env["XSEC_CHATGPT_ACCESS_TOKEN"]?.trim() ||
+      !!process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"]?.trim());
   if (runtime !== "api" && runtime !== "auto" && !directCodexProviderConfigured) {
     const rt = core.createRuntime({ type: runtime, timeout });
     const available = await rt.isAvailable();
@@ -690,7 +690,7 @@ export async function runUnified(opts: RunOptions): Promise<void> {
         const extension = format === "pdf" ? "pdf" : "html";
         const filePath = opts.reportPath
           ? resolve(opts.reportPath)
-          : join(tmpdir(), `0sec-report-${Date.now()}.${extension}`);
+          : join(tmpdir(), `xsec-report-${Date.now()}.${extension}`);
         if (format === "pdf") {
           await generatePdfReport(toScanReport(reportAny), filePath);
         } else {
@@ -723,7 +723,7 @@ export async function runUnified(opts: RunOptions): Promise<void> {
       console.log("");
       console.log(chalk.gray("  --tui post-scan view is no longer bundled in the npm package."));
       console.log(chalk.gray("  Install the standalone binary for the full OpenTUI experience:"));
-      console.log(chalk.gray("    curl -fsSL https://raw.githubusercontent.com/0sec-labs/0sec/main/install.sh | bash"));
+      console.log(chalk.gray("    curl -fsSL https://raw.githubusercontent.com/uncesaii/xsec/main/install.sh | bash"));
       console.log("");
     }
 
@@ -739,7 +739,7 @@ export async function runUnified(opts: RunOptions): Promise<void> {
     const estimatedCostUsd = getEstimatedCost(reportAny);
     const usage = getUsage(reportAny);
 
-    // ── Emit findings as PRs (0sec#377) ──
+    // ── Emit findings as PRs (xsec#377) ──
     if (opts.emit === "pr") {
       const findings = (report as any).findings ?? [];
       const core = await loadCoreModule();
@@ -751,7 +751,7 @@ export async function runUnified(opts: RunOptions): Promise<void> {
       const repoRoot = opts.targetType === "source-code" && existsSync(target)
         ? resolve(target)
         : process.cwd();
-      const outDir = opts.emitOutDir ?? join(tmpdir(), `0sec-emit-${Date.now()}`);
+      const outDir = opts.emitOutDir ?? join(tmpdir(), `xsec-emit-${Date.now()}`);
       console.log(chalk.blue(`[emit pr] ${findings.length} finding(s); repo=${repoRoot} base=${opts.emitPrBase ?? "main"}${opts.emitPrDryRun ? " (dry-run)" : ""}`));
       const emitReport = await core.emitFindingsAsPRs(findings, {
         repoRoot,
@@ -793,7 +793,7 @@ export async function runUnified(opts: RunOptions): Promise<void> {
       }
     }
 
-    const ceilingRaw = process.env["0SEC_COST_CEILING_USD"]?.trim();
+    const ceilingRaw = process.env["XSEC_COST_CEILING_USD"]?.trim();
     if (ceilingRaw) {
       const ceiling = Number(ceilingRaw);
       if (Number.isFinite(ceiling) && estimatedCostUsd !== undefined && estimatedCostUsd > ceiling) {

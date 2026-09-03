@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 #
-# 0sec — pre-built distribution image
+# xsec — pre-built distribution image
 #
 # Multi-stage build:
 #   stage 1 (builder): node:20 + pnpm, builds the bundled CLI in /app/dist
@@ -8,7 +8,7 @@
 #
 # Usage:
 #   docker run --rm -e AZURE_OPENAI_API_KEY=$KEY \
-#     ghcr.io/0sec-labs/0sec:latest scan --target https://example.com --scope /work/scope.json
+#     ghcr.io/uncesaii/xsec:latest scan --target https://example.com --scope /work/scope.json
 # Build args:
 #   INSTALL_SECLISTS=1     include SecLists wordlists (~1GB extra, off by default)
 #   AZUREHOUND_VERSION=vX  pin the AzureHound release (checksum-verified, see below)
@@ -48,7 +48,7 @@ ARG INSTALL_SECLISTS=0
 ARG DEBIAN_FRONTEND=noninteractive
 
 ENV NODE_ENV=production \
-    0SEC_DOCKER=1 \
+    XSEC_DOCKER=1 \
     PATH=/usr/local/bin:/usr/bin:/bin
 
 # Base system + Node 20 + pentest tooling.
@@ -157,10 +157,10 @@ WORKDIR /app
 COPY --from=builder /app/dist /app/dist
 
 
-# Make the bundled CLI globally invocable as `0sec` (and `0` for short).
-RUN ln -s /app/dist/0sec.js /usr/local/bin/0sec \
-    && ln -s /app/dist/0sec.js /usr/local/bin/0 \
-    && chmod +x /app/dist/0sec.js
+# Make the bundled CLI globally invocable as `xsec` (and `0` for short).
+RUN ln -s /app/dist/xsec.js /usr/local/bin/xsec \
+    && ln -s /app/dist/xsec.js /usr/local/bin/0 \
+    && chmod +x /app/dist/xsec.js
 
 # Drop privileges by reusing the default ubuntu user (uid 1000) shipped with
 # ubuntu:24.04. Runtime code and browser assets are read-only to this user;
@@ -171,5 +171,5 @@ RUN install -d -o ubuntu -g ubuntu /work
 USER ubuntu
 WORKDIR /work
 
-ENTRYPOINT ["node", "/app/dist/0sec.js"]
+ENTRYPOINT ["node", "/app/dist/xsec.js"]
 CMD ["--help"]

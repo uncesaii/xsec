@@ -1,11 +1,11 @@
 import { execFileSync } from "node:child_process";
-import type { SemgrepFinding } from "@0sec/shared";
+import type { SemgrepFinding } from "@xsec/shared";
 import type { RuntimeType } from "./runtime/index.js";
 import type { ScanListener } from "./scanner.js";
 
 /**
  * Pinned Foxguard release used by `runFoxguardScan`. We pin to the latest
- * stable release (https://github.com/0sec-labs/foxguard/releases) rather
+ * stable release (https://github.com/uncesaii/foxguard/releases) rather
  * than tracking `main` or `latest` so the ablation harness produces
  * reproducible numbers across runs.
  *
@@ -172,13 +172,13 @@ export interface StaticScannerOptions {
 }
 
 export function selectedStaticScanner(): "foxguard" | "semgrep" {
-  return process.env["0SEC_STATIC"] === "semgrep" ? "semgrep" : "foxguard";
+  return process.env["XSEC_STATIC"] === "semgrep" ? "semgrep" : "foxguard";
 }
 
 /**
  * Raw JSON shape emitted by `foxguard --format json` (top-level array of
  * Finding structs). Source of truth:
- * https://github.com/0sec-labs/foxguard/blob/v0.10.0/src/lib.rs
+ * https://github.com/uncesaii/foxguard/blob/v0.10.0/src/lib.rs
  *
  * Severity is `low | medium | high | critical` (lowercase). Optional
  * fields are omitted from the JSON when unset, so the translator must
@@ -210,7 +210,7 @@ interface FoxguardJsonFinding {
 
 /**
  * Run foxguard as a sibling source analyzer and translate its JSON output
- * into 0sec's `SemgrepFinding` shape so the existing review pipeline can
+ * into xsec's `SemgrepFinding` shape so the existing review pipeline can
  * consume either scanner without changing prompt/report contracts.
  *
  * Behaviour:
@@ -295,7 +295,7 @@ export function runFoxguardScan(
       // back to semgrep silently so the pipeline keeps moving.
       const message = err instanceof Error ? err.message : String(err);
       logger(
-        `[0sec] foxguard unavailable (${message}); falling back to semgrep. ` +
+        `[xsec] foxguard unavailable (${message}); falling back to semgrep. ` +
           `Pin in use: foxguard@${foxguardTag}.`,
       );
       const fallbackFindings = fallback(targetPath, emit, {
@@ -338,7 +338,7 @@ export function runSelectedStaticScan(
  *   - `line` / `end_line` → `startLine` / `endLine` (end_line defaults
  *                          to startLine when missing — Foxguard omits
  *                          it for some single-line patterns)
- *   - `severity`          → `severity` (already in 0sec's 4-tier
+ *   - `severity`          → `severity` (already in xsec's 4-tier
  *                          vocabulary; we normalize via
  *                          `mapFoxguardSeverity` so unexpected values
  *                          land on `info` instead of leaking through)

@@ -1,12 +1,11 @@
 ---
 title: Benchmark
-description: How 0sec scores on public security benchmarks — a secondary, condition-specific signal.
+description: How XSEC scores on public security benchmarks — a secondary, condition-specific signal.
 ---
 
-**We care about real vulnerabilities, not leaderboards.** 0sec's proof is the
+**We care about real vulnerabilities, not leaderboards.** XSEC's proof is the
 running, verified track record of real bugs disclosed in the Linux kernel and
-widely-used open source, with maintainer review — that lives at
-**[0.security](https://0.security)**, not on this page.
+widely-used open source, with maintainer review.
 
 Public CTF benchmarks are a *secondary* signal. They tell you the core pipeline
 isn't broken; they don't tell you the agent finds real CVEs. CTF challenges are
@@ -14,7 +13,7 @@ far smaller than real repos, and cross-project scores are protocol-sensitive
 (different fork, model, turn cap, retry protocol), so treat every number below as
 specific to its test conditions, not a like-for-like leaderboard.
 
-## Where 0sec stands (honest, condition-specific)
+## Where XSEC stands (honest, condition-specific)
 
 | Benchmark | Score | Conditions & caveats |
 |-----------|-------|----------------------|
@@ -35,17 +34,17 @@ Wilson confidence intervals, and why a single solve is an anecdote — see
 
 ## Running the canonical harness
 
-`0sec bench run` is the single benchmark orchestrator. Integrations own only
+`xsec bench run` is the single benchmark orchestrator. Integrations own only
 suite-specific target lifecycle and official grading; every run still produces
 the same manifest, attempt receipts, scorecard, tournament, and evidence
 contract.
 
 ```bash
 # Core web/source-audit corpus.
-0sec bench run --integration core --variants variants.json
+xsec bench run --integration core --variants variants.json
 
 # XBOW: Docker lifecycle + fresh per-attempt flag, scored by the shared oracle.
-0sec bench run \
+xsec bench run \
   --integration xbow \
   --xbow-path /path/to/xbow \
   --variants variants.json \
@@ -54,7 +53,7 @@ contract.
   --schedule case-major
 
 # CyberGym: official differential oracle, strict one graded submit per task.
-0sec bench run \
+xsec bench run \
   --integration cybergym \
   --cybergym-harness /path/to/cybergym \
   --cybergym-subset results/cybergym-fair-v1.subset.txt \
@@ -71,7 +70,6 @@ commands until they are migrated through the same integration contract.
 
 ## Related
 
-- **[0.security](https://0.security)**
 - [Methodology](/methodology/) — per-attempt rate, Wilson CI, single-model caveats
 - [XBOW Analysis](/research/xbow-analysis/) — how the XBOW score is built, and its limits
 - [Competitive Landscape](/research/competitive-landscape/) — where other agents sit, briefly

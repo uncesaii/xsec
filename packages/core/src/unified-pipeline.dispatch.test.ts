@@ -30,7 +30,7 @@
  *                                  pipeline takes the AI-runtime branch
  *                                  without needing a real env var).
  *
- * The real `@0sec/db` is used with a tmp file (same shape as the restore
+ * The real `@xsec/db` is used with a tmp file (same shape as the restore
  * test) so persistence side effects round-trip honestly.
  *
  * Out of scope (deliberately skipped):
@@ -42,7 +42,7 @@
  *     blind-verify code branch deserves its own seed with its own
  *     `runAnalysisAgent` mock shape (separate PR).
  *   • Per-file orchestration loop — already covered by the research-loop
- *     test. We force `0SEC_FEATURE_PER_ITEM_ORCHESTRATION=0` to keep
+ *     test. We force `XSEC_FEATURE_PER_ITEM_ORCHESTRATION=0` to keep
  *     these tests on the single-shot dispatch.
  */
 
@@ -50,8 +50,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { Finding, NpmAuditFinding, SemgrepFinding } from "@0sec/shared";
-import { osecDB } from "@0sec/db";
+import type { Finding, NpmAuditFinding, SemgrepFinding } from "@xsec/shared";
+import { osecDB } from "@xsec/db";
 
 // ── Module-level mocks ──────────────────────────────────────────────────────
 //
@@ -71,9 +71,9 @@ const runFoxguardScanMock = vi.fn();
 vi.mock("./shared-analysis.js", () => ({
   runFoxguardScan: runFoxguardScanMock,
   runSemgrepScan: runSemgrepScanMock,
-  selectedStaticScanner: () => process.env["0SEC_STATIC"] === "semgrep" ? "semgrep" : "foxguard",
+  selectedStaticScanner: () => process.env["XSEC_STATIC"] === "semgrep" ? "semgrep" : "foxguard",
   runSelectedStaticScan: (...args: unknown[]) =>
-    process.env["0SEC_STATIC"] === "semgrep"
+    process.env["XSEC_STATIC"] === "semgrep"
       ? runSemgrepScanMock(...args)
       : runFoxguardScanMock(...args),
 }));
@@ -135,13 +135,13 @@ const { eventBus } = await import("./events/bus.js");
 const tempDirs: string[] = [];
 
 function freshTmpDir(prefix: string): string {
-  const dir = mkdtempSync(join(tmpdir(), `0sec-unified-pipeline-${prefix}-`));
+  const dir = mkdtempSync(join(tmpdir(), `xsec-unified-pipeline-${prefix}-`));
   tempDirs.push(dir);
   return dir;
 }
 
 function freshDbPath(): string {
-  return join(freshTmpDir("db"), "0sec.db");
+  return join(freshTmpDir("db"), "xsec.db");
 }
 
 /** Build an InstalledPackage shape — what installPackageForEcosystem returns. */
@@ -228,23 +228,23 @@ beforeEach(() => {
   // Force the single-shot agent path. Per-file orchestration is covered
   // by `unified-pipeline.research-loop.test.ts`; mixing both branches in
   // a single seed would obscure dispatch assertions.
-  originalPerItemEnv = process.env["0SEC_FEATURE_PER_ITEM_ORCHESTRATION"];
-  process.env["0SEC_FEATURE_PER_ITEM_ORCHESTRATION"] = "0";
+  originalPerItemEnv = process.env["XSEC_FEATURE_PER_ITEM_ORCHESTRATION"];
+  process.env["XSEC_FEATURE_PER_ITEM_ORCHESTRATION"] = "0";
 
   // Some upstream prompt code reads keys for banner logic; we already
   // short-circuited the runtime, but unset to keep tests deterministic.
   originalApiKey = process.env.ANTHROPIC_API_KEY;
-  originalStaticAnalyzer = process.env["0SEC_STATIC"];
-  originalCloudEvents = process.env["0SEC_CLOUD_EVENTS"];
-  delete process.env["0SEC_STATIC"];
-  delete process.env["0SEC_CLOUD_EVENTS"];
+  originalStaticAnalyzer = process.env["XSEC_STATIC"];
+  originalCloudEvents = process.env["XSEC_CLOUD_EVENTS"];
+  delete process.env["XSEC_STATIC"];
+  delete process.env["XSEC_CLOUD_EVENTS"];
 });
 
 afterEach(() => {
   if (originalPerItemEnv === undefined) {
-    delete process.env["0SEC_FEATURE_PER_ITEM_ORCHESTRATION"];
+    delete process.env["XSEC_FEATURE_PER_ITEM_ORCHESTRATION"];
   } else {
-    process.env["0SEC_FEATURE_PER_ITEM_ORCHESTRATION"] = originalPerItemEnv;
+    process.env["XSEC_FEATURE_PER_ITEM_ORCHESTRATION"] = originalPerItemEnv;
   }
   if (originalApiKey === undefined) {
     delete process.env.ANTHROPIC_API_KEY;
@@ -252,14 +252,14 @@ afterEach(() => {
     process.env.ANTHROPIC_API_KEY = originalApiKey;
   }
   if (originalStaticAnalyzer === undefined) {
-    delete process.env["0SEC_STATIC"];
+    delete process.env["XSEC_STATIC"];
   } else {
-    process.env["0SEC_STATIC"] = originalStaticAnalyzer;
+    process.env["XSEC_STATIC"] = originalStaticAnalyzer;
   }
   if (originalCloudEvents === undefined) {
-    delete process.env["0SEC_CLOUD_EVENTS"];
+    delete process.env["XSEC_CLOUD_EVENTS"];
   } else {
-    process.env["0SEC_CLOUD_EVENTS"] = originalCloudEvents;
+    process.env["XSEC_CLOUD_EVENTS"] = originalCloudEvents;
   }
   for (const dir of tempDirs.splice(0)) {
     rmSync(dir, { recursive: true, force: true });
@@ -316,7 +316,7 @@ describe("runPipeline — targetType dispatch", () => {
 
   it("npm-package: 'name@version' string is split before reaching the installer (latest fallback shape)", async () => {
     // The npm path has its own split logic *before* installPackageForEcosystem,
-    // matching the public CLI contract `0sec run node-forge@0.10.0`.
+    // matching the public CLI contract `xsec run node-forge@0.10.0`.
     installPackageMock.mockReturnValue(fakeInstalledPackage("npm", "node-forge", "0.10.0"));
 
     await runPipeline({
@@ -506,9 +506,9 @@ describe("runPipeline — oversized-review guard", () => {
     expect(runAnalysisAgentMock).toHaveBeenCalledTimes(1);
   });
 
-  it("0SEC_REVIEW_MAX_FILES overrides the cap (count above the override trips the guard)", async () => {
-    const prev = process.env["0SEC_REVIEW_MAX_FILES"];
-    process.env["0SEC_REVIEW_MAX_FILES"] = "10";
+  it("XSEC_REVIEW_MAX_FILES overrides the cap (count above the override trips the guard)", async () => {
+    const prev = process.env["XSEC_REVIEW_MAX_FILES"];
+    process.env["XSEC_REVIEW_MAX_FILES"] = "10";
     try {
       // 11 > the overridden cap of 10.
       countScopeFilesUpToMock.mockReturnValue(11);
@@ -527,8 +527,8 @@ describe("runPipeline — oversized-review guard", () => {
 
       expect(runAnalysisAgentMock).not.toHaveBeenCalled();
     } finally {
-      if (prev === undefined) delete process.env["0SEC_REVIEW_MAX_FILES"];
-      else process.env["0SEC_REVIEW_MAX_FILES"] = prev;
+      if (prev === undefined) delete process.env["XSEC_REVIEW_MAX_FILES"];
+      else process.env["XSEC_REVIEW_MAX_FILES"] = prev;
     }
   });
 
@@ -654,7 +654,7 @@ describe("runPipeline — analyze phase", () => {
     installPackageMock.mockReturnValue(fakeInstalledPackage("npm", "is-number", "7.0.0"));
     runFoxguardScanMock.mockReturnValue([fakeSemgrepFinding("index.js")]);
     runDependencyAuditMock.mockReturnValue([fakeNpmAudit("is-number")]);
-    process.env["0SEC_CLOUD_EVENTS"] = "1";
+    process.env["XSEC_CLOUD_EVENTS"] = "1";
     const events: Array<{ type: string; payload: Record<string, unknown> }> = [];
     const unsubscribe = eventBus.subscribe({
       emit(type, payload) {
@@ -696,8 +696,8 @@ describe("runPipeline — analyze phase", () => {
     });
   });
 
-  it("source-code: 0SEC_STATIC=semgrep routes static analysis to semgrep", async () => {
-    process.env["0SEC_STATIC"] = "semgrep";
+  it("source-code: XSEC_STATIC=semgrep routes static analysis to semgrep", async () => {
+    process.env["XSEC_STATIC"] = "semgrep";
     const repoDir = freshTmpDir("repo-semgrep");
     const dbPath = freshDbPath();
     writeFileSync(join(repoDir, "index.ts"), "// fixture");
@@ -1002,7 +1002,7 @@ describe("runPipeline — research phase + review profile", () => {
 describe("runPipeline — scan-wide cost ceiling", () => {
   /**
    * Regression for the prod 0review escape: the $3 ZERO_REVIEW_COST_CEILING_USD
-   * reached the sandbox as 0SEC_COST_CEILING_USD, the review command resolved
+   * reached the sandbox as XSEC_COST_CEILING_USD, the review command resolved
    * it — and then runUnified dropped it before core.runPipeline, so review
    * scans ran UNCAPPED and landed at $4.99 / $6.36. Even where a ceiling did
    * reach the pipeline, it was enforced per agent SESSION, so research($3) +
@@ -1215,7 +1215,7 @@ describe("runPipeline — scan_completed event stream", () => {
   it("normal review completion emits scan_completed with model + turns + tool calls + cost + breakdown", async () => {
     const repoDir = freshTmpDir("repo-scan-completed");
     writeFileSync(join(repoDir, "app.ts"), "// fixture");
-    process.env["0SEC_CLOUD_EVENTS"] = "1";
+    process.env["XSEC_CLOUD_EVENTS"] = "1";
 
     // Research (2 turns) + one verify (1 turn), each folding usage into the
     // shared ledger under the session's pricing model — exactly what the
@@ -1273,7 +1273,7 @@ describe("runPipeline — scan_completed event stream", () => {
   it("threads the API runtime's resolved default model into scan pricing", async () => {
     const repoDir = freshTmpDir("repo-scan-completed-default-model");
     writeFileSync(join(repoDir, "app.ts"), "// fixture");
-    process.env["0SEC_CLOUD_EVENTS"] = "1";
+    process.env["XSEC_CLOUD_EVENTS"] = "1";
     runAnalysisAgentMock.mockImplementation(async (args: MockAgentArgs) => {
       expect(args.config.model).toBe("claude-fake-default");
       const usage = { inputTokens: 100_000, outputTokens: 10_000 };
@@ -1315,7 +1315,7 @@ describe("runPipeline — scan_completed event stream", () => {
   it("cost-trip completions also carry the full field set", async () => {
     const repoDir = freshTmpDir("repo-scan-completed-cost-trip");
     writeFileSync(join(repoDir, "app.ts"), "// fixture");
-    process.env["0SEC_CLOUD_EVENTS"] = "1";
+    process.env["XSEC_CLOUD_EVENTS"] = "1";
 
     runAnalysisAgentMock.mockImplementation(async (args: MockAgentArgs) => {
       const usage = { inputTokens: 900_000, outputTokens: 60_000 };
@@ -1406,8 +1406,8 @@ describe("runPipeline — diff-aware review", () => {
     expect(args.cliPrompt).toContain(changedFile);
   });
 
-  it("0SEC_STATIC=semgrep with --changed-only scopes semgrep to changed files only", async () => {
-    process.env["0SEC_STATIC"] = "semgrep";
+  it("XSEC_STATIC=semgrep with --changed-only scopes semgrep to changed files only", async () => {
+    process.env["XSEC_STATIC"] = "semgrep";
     const { repoDir, changedFile } = makeRepoWithDiff();
 
     await runPipeline({

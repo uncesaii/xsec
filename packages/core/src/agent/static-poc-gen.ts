@@ -1,4 +1,4 @@
-// 0sec#666 / EPIC #674 Part A — agentic PoC-gen for static / no-PoC findings.
+// xsec#666 / EPIC #674 Part A — agentic PoC-gen for static / no-PoC findings.
 //
 // THE GAP (root-caused 2026-05-30): high/critical findings emitted by the
 // static / code-analysis path ship with `pocSteps === undefined`. The cloud
@@ -17,11 +17,11 @@
 //                artifact + captured proof and attach it to the finding, so
 //                the verify runner picks it up instead of skipping it.
 //   not repro  → flag the finding `poc:none` (triageNote + a `poc_gen` layer
-//                verdict) so 0cloud routes it to manual / inconclusive review.
+//                verdict) so xcloud routes it to manual / inconclusive review.
 //                We never downgrade severity or drop the finding here — the
 //                whole point of #666 is that no-PoC ≠ false-positive.
 //
-// Behind the default-OFF `0SEC_FEATURE_POC_GEN_STATIC` flag so it is
+// Behind the default-OFF `XSEC_FEATURE_POC_GEN_STATIC` flag so it is
 // A/B-able via the #656 harness and safe to merge dark. Wired into
 // agentic-scanner.ts after the PoV gate.
 
@@ -30,7 +30,7 @@ import type {
   LayerVerdict,
   PocStep,
   PocStepAction,
-} from "@0sec/shared";
+} from "@xsec/shared";
 import type { NativeRuntime } from "../runtime/types.js";
 import {
   generatePov,
@@ -75,7 +75,7 @@ export interface StaticPocGenOptions extends GeneratePovOptions {
 // ────────────────────────────────────────────────────────────────────
 
 const MAX_NOTE_CHARS = 8000;
-const HEREDOC = "0SEC_POC_EOF";
+const HEREDOC = "XSEC_POC_EOF";
 
 function clip(s: string, max = MAX_NOTE_CHARS): string {
   if (s.length <= max) return s;

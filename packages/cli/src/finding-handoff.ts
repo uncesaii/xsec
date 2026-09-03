@@ -1,4 +1,4 @@
-import type { Finding } from "@0sec/shared";
+import type { Finding } from "@xsec/shared";
 
 export const FINDING_CHAT_INTENTS = ["investigate", "verify", "draft_fix"] as const;
 export type FindingChatIntent = (typeof FINDING_CHAT_INTENTS)[number];
@@ -70,7 +70,7 @@ export function buildFindingConsoleCommand(
   intent: FindingChatIntent = "investigate",
 ): string {
   const args = [
-    "0sec console",
+    "xsec console",
     "--finding",
     shellQuote(finding.id),
     "--finding-intent",

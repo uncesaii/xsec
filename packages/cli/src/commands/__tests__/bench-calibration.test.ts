@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { BenchManifest } from "@0sec/core";
-import { objectiveOracleEvaluatorAttestation } from "@0sec/core";
+import type { BenchManifest } from "@xsec/core";
+import { objectiveOracleEvaluatorAttestation } from "@xsec/core";
 import { sha256Bytes } from "../bench-improvement.js";
 
 import {
@@ -94,7 +94,7 @@ describe("zero-cost 0research calibration", () => {
   });
 
   it("materializes the exact evaluator code, config, and canonical bundle bytes", () => {
-    const root = mkdtempSync(join(tmpdir(), "0sec-calibration-evaluator-"));
+    const root = mkdtempSync(join(tmpdir(), "xsec-calibration-evaluator-"));
     const output = join(root, "evaluator");
     try {
       materializeObjectiveOracleEvaluator(output);

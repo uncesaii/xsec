@@ -1,7 +1,7 @@
 /** @jsxImportSource @opentui/react */
 import React from "react";
 import { TextAttributes } from "@opentui/core";
-import { MODEL_PRICING, type ModelRates } from "@0sec/shared";
+import { MODEL_PRICING, type ModelRates } from "@xsec/shared";
 import { fitTuiText, sanitizeTuiText } from "../text.js";
 import { agentAccentFor } from "../agent-color.js";
 import { ShimmerText } from "./shimmer.js";
@@ -71,7 +71,7 @@ const WEB_CARD_MAX_SOURCES = 6;
 /** Compact relative age, e.g. "12s" / "4m" / "2h". */
 function relativeAge(at: number | undefined, now: number): string {
   // Restored entries carry no timestamp; return empty so the caller can omit
-  // the separator entirely rather than rendering a dangling "0sec ·".
+  // the separator entirely rather than rendering a dangling "xsec ·".
   if (!at) return "";
   const seconds = Math.max(0, Math.floor((now - at) / 1000));
   if (seconds < 60) return `${seconds}s`;
@@ -217,7 +217,7 @@ export function renderEntry(
     const isUser = entry.kind === "user";
     // Frame accents (a bubble border, the inline label gap) stay in the
     // speaker's own tone. The LABEL, however, carries the brand: the assistant
-    // "0sec" label renders in the brand purple (theme.BRAND); the operator label
+    // "xsec" label renders in the brand purple (theme.BRAND); the operator label
     // stays the neutral accent. Body text is never tinted by this — it keeps
     // TEXT / PRIMARY via renderMarkdownBlocks below.
     const tone = isUser ? ACCENT : PRIMARY;
@@ -272,7 +272,7 @@ export function renderEntry(
       // card"); OpenCode's answer is a faint left bar + label, which demarcates a
       // turn without the weight. The SPINE TONE tells the two apart: the operator
       // turn takes the neutral ACCENT (it reads like the composer that produced
-      // it), the AI turn takes the BRAND purple (the "0sec" voice) and carries a
+      // it), the AI turn takes the BRAND purple (the "xsec" voice) and carries a
       // small brand label so the answer announces itself.
       const spine = isUser ? ACCENT : BRAND;
       // The AI turn's footer is quiet provenance only — the per-turn telemetry
