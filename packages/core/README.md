@@ -6,7 +6,7 @@ audit pipeline, and triage filters. Consumed by `@xsec/cli`.
 ## Feature flags
 
 Feature flags are declared in `src/agent/features.ts`. Each flag maps to a
-`0SEC_FEATURE_<NAME>` environment variable. The `@xsec/cli` `scan` command
+`XSEC_FEATURE_<NAME>` environment variable. The `@xsec/cli` `scan` command
 also accepts a `--features` flag that sets those env vars automatically:
 
 ```bash
@@ -15,7 +15,7 @@ pnpm xsec scan --target https://example.com --features wp_fingerprint,web_search
 ```
 
 Any token passed to `--features` is upcased, non-alphanumeric chars are
-replaced with `_`, and the result is set as `0SEC_FEATURE_<TOKEN>=1`. For
+replaced with `_`, and the result is set as `XSEC_FEATURE_<TOKEN>=1`. For
 most flags the value is captured at module-import time — setting env vars in
 your shell is the most reliable approach. Flags that are declared as getters
 (e.g. `wpFingerprint`) re-read the env at access time and therefore honour
@@ -26,7 +26,7 @@ your shell is the most reliable approach. Flags that are declared as getters
 Playbooks live in `src/agent/playbooks.ts`. Each playbook is a string keyed by
 vulnerability type (`sqli`, `ssti`, `idor`, `xss`, `cve_exploitation`, …) plus
 a set of regex `INDICATORS` that pattern-match against recent tool-result text.
-When `0SEC_FEATURE_DYNAMIC_PLAYBOOKS=1`, the native agent loop matches
+When `XSEC_FEATURE_DYNAMIC_PLAYBOOKS=1`, the native agent loop matches
 indicators at ~30% of the turn budget and injects the top 3 matching playbooks
 as a user message.
 
@@ -56,7 +56,7 @@ Opt-in tool exposed behind the `wp_fingerprint` feature flag. Implemented in
 6. **Matches CVEs** using a built-in high-impact WordPress plugin vulnerability
    catalog, queries the no-key WPVulnerability API for current plugin/theme
    advisories, optionally queries WPScan's API when `WPSCAN_API_TOKEN` (or
-   `0SEC_WPSCAN_API_TOKEN`) is set, then optionally POSTs each `(slug, version)`
+   `XSEC_WPSCAN_API_TOKEN`) is set, then optionally POSTs each `(slug, version)`
    pair to `https://api.osv.dev/v1/query` for broader OSV coverage.
 7. **Returns structured findings** — a list of `(kind, slug, version, cves, exploit_hints)`
    tuples plus a human-readable summary the agent can act on.
@@ -178,7 +178,7 @@ sometimes plant decoy flags in obvious locations to catch script kiddies."*
 
 ### Configuration
 
-- Env var: `0SEC_FEATURE_DECOY_DETECTION=0` to disable.
+- Env var: `XSEC_FEATURE_DECOY_DETECTION=0` to disable.
 - CLI flag: `xsec scan --no-decoy-detection <target>`.
 
 ### Tests

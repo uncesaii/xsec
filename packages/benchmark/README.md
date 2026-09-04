@@ -56,7 +56,7 @@ exact receipt hash, distinct retained dump bytes, a pre-run sealed label, and
 all execution safety gates. Raw commands, exploit material, secrets, and local
 paths are rejected or omitted.
 
-Live collection also requires `0SEC_WINDOWS_LABEL_SEAL_KEY` (at least 32
+Live collection also requires `XSEC_WINDOWS_LABEL_SEAL_KEY` (at least 32
 bytes). The collector verifies the HMAC seal over campaign, case, ground truth,
 label hash, and seal timestamp without persisting the key.
 
@@ -361,7 +361,7 @@ The CI workflow exposes the same via the `repeat` and
 ### JIT skills A/B
 
 Issue [#410] adds a small wrapper for comparing the default agent against
-`0SEC_FEATURE_JIT_SKILLS=1` on the same XBOW target selection. The
+`XSEC_FEATURE_JIT_SKILLS=1` on the same XBOW target selection. The
 wrapper runs the baseline cell first, then the JIT-skills cell, and
 reports pass/flag deltas plus attack turns, token totals, and estimated cost.
 

@@ -27,7 +27,7 @@ one-way, single-depth fan-out.
   normalizes up to `SUBAGENT_MAX_FANOUT = 8` task specs, resolves child deps
   once (`loadSubagentDeps`, ~4180), runs them bounded-concurrently
   (`mapWithConcurrency`, default `SUBAGENT_CONCURRENCY = 4`, override
-  `0SEC_SUBAGENT_CONCURRENCY`), and merges findings **after the pool joins**, in
+  `XSEC_SUBAGENT_CONCURRENCY`), and merges findings **after the pool joins**, in
   input order, so there are never concurrent writers to `this.ctx.findings`.
 - `runOneSubagent` (~4187) calls `runNativeAgentLoop` with a **hardcoded child
   tool set `["bash", "save_finding", "done"]`** that deliberately excludes

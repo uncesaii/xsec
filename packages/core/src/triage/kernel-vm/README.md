@@ -9,12 +9,12 @@ automated kernel crash validation.
 # Build (15-30 min, requires Docker)
 ./build.sh ./out
 
-# `0SEC_*` names begin with a digit, so pass them with `env` rather than
+# `XSEC_*` names begin with a digit, so pass them with `env` rather than
 # Bash `export`.
 env \
-  0SEC_KERNEL_QEMU=1 \
-  0SEC_KERNEL_QEMU_KERNEL=./out/bzImage \
-  0SEC_KERNEL_QEMU_DISK=./out/rootfs.img \
+  XSEC_KERNEL_QEMU=1 \
+  XSEC_KERNEL_QEMU_KERNEL=./out/bzImage \
+  XSEC_KERNEL_QEMU_DISK=./out/rootfs.img \
   0sec ingest --verify /path/to/crash-reports/
 
 # Run a standalone C reproducer through the same VM oracle
@@ -74,14 +74,14 @@ syzbot crash/reproducer pair while uploading the VM logs and runner outputs as a
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `0SEC_KERNEL_QEMU` | - | Set to `1` to enable |
-| `0SEC_KERNEL_QEMU_KERNEL` | - | Path to bzImage |
-| `0SEC_KERNEL_QEMU_DISK` | - | Path to rootfs.img |
-| `0SEC_KERNEL_QEMU_MEMORY_MB` | `2048` | VM memory |
-| `0SEC_KERNEL_QEMU_SMP` | `2` | CPU cores |
-| `0SEC_KERNEL_QEMU_TIMEOUT_SEC` | `60` | Reproducer timeout |
-| `0SEC_KERNEL_QEMU_BOOT_TIMEOUT_SEC` | `120` | Boot timeout |
-| `0SEC_KERNEL_QEMU_ACCEL` | - | QEMU accelerator (e.g. `kvm`) |
-| `0SEC_KERNEL_QEMU_SHARE_TAG` | `osecshare` | 9p mount tag used by the guest boot script |
-| `0SEC_KERNEL_QEMU_ARTIFACT_DIR` | - | Preserve VM run artifacts (serial log, compile log, dmesg, runner outputs) instead of deleting the temp directory |
-| `0SEC_KERNEL_BUILD_CACHE` | `~/.cache/0sec/kernel-vm` | Cache directory for `--kernel-tree` VM builds |
+| `XSEC_KERNEL_QEMU` | - | Set to `1` to enable |
+| `XSEC_KERNEL_QEMU_KERNEL` | - | Path to bzImage |
+| `XSEC_KERNEL_QEMU_DISK` | - | Path to rootfs.img |
+| `XSEC_KERNEL_QEMU_MEMORY_MB` | `2048` | VM memory |
+| `XSEC_KERNEL_QEMU_SMP` | `2` | CPU cores |
+| `XSEC_KERNEL_QEMU_TIMEOUT_SEC` | `60` | Reproducer timeout |
+| `XSEC_KERNEL_QEMU_BOOT_TIMEOUT_SEC` | `120` | Boot timeout |
+| `XSEC_KERNEL_QEMU_ACCEL` | - | QEMU accelerator (e.g. `kvm`) |
+| `XSEC_KERNEL_QEMU_SHARE_TAG` | `osecshare` | 9p mount tag used by the guest boot script |
+| `XSEC_KERNEL_QEMU_ARTIFACT_DIR` | - | Preserve VM run artifacts (serial log, compile log, dmesg, runner outputs) instead of deleting the temp directory |
+| `XSEC_KERNEL_BUILD_CACHE` | `~/.cache/xsec/kernel-vm` | Cache directory for `--kernel-tree` VM builds |
