@@ -2037,6 +2037,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
       case "kimi": return "Kimi (Moonshot)";
       case "qwen": return "Qwen (Alibaba Model Studio)";
       case "xai": return "xAI (Grok)";
+      case "custom-openai": return "Custom OpenAI";
     }
   }
 
