@@ -31,11 +31,15 @@ function cellCount(text: string): number {
 }
 
 /**
- * The cursor glyph. A hollow vertical bar `│` when idle (prompt is visible
- * but no input yet), a filled white block `█` when the operator is typing.
+ * The block-cursor glyph. Standard terminal behaviour: a FILLED block when the
+ * composer is focused/active, a BLINKING-LOOK outline when it is not — so an
+ * operator can tell at a glance whether keystrokes land in the composer or
+ * elsewhere. The idle glyph uses the light shade `░` which reads as a
+ * visible-but-inactive cursor against dark backgrounds, making it obvious the
+ * prompt is ready for input.
  */
 export function composerCursorGlyph(active: boolean): string {
-  return active ? "█" : "│";
+  return active ? "█" : "░";
 }
 
 /**
@@ -156,6 +160,11 @@ export function ComposerInput({
       <box flexDirection="column" minWidth={0}>
         {rows.map((line, i) => {
           const isLast = i === rows.length - 1;
+          // Preserve whitespace exactly (NOT fitTuiText, which collapses+trims):
+          // `wrapComposerInput` already bounds each row to `textWidth` and keeps
+          // every space, and `composerContentRows` guarantees the last row has a
+          // free cell, so a trailing space the operator just typed shows and the
+          // caret advances past it. Only control chars are stripped.
           const shown = sanitizeComposerText(line);
           return (
             <text key={`composer-line-${i}`} fg={TEXT}>
@@ -166,11 +175,7 @@ export function ComposerInput({
       </box>
     );
   }
-  // Idle: cursor at the start + placeholder, same line, single string concat
-  // so OpenTUI can't wrap them apart.
-  const cursor = composerCursorGlyph(false);
-  const ph = fitTuiText(placeholder, textWidth - 1);
-  return <text fg={MUTED}>{`${cursor}${ph}`}</text>;
+  return <text fg={placeholderTone ?? MUTED}>{fitTuiText(placeholder, textWidth)}</text>;
 }
 
 /**
