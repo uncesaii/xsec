@@ -31,15 +31,13 @@ function cellCount(text: string): number {
 }
 
 /**
- * The block-cursor glyph. Standard terminal behaviour: a FILLED block when the
- * composer is focused/active, a BLINKING-LOOK outline when it is not — so an
- * operator can tell at a glance whether keystrokes land in the composer or
- * elsewhere. The idle glyph uses the light shade `░` which reads as a
- * visible-but-inactive cursor against dark backgrounds, making it obvious the
- * prompt is ready for input.
+ * The block-cursor glyph. The cursor is always FILLED (`█`) — both idle and
+ * composing — so the prompt looks active and ready for input from the moment
+ * the TUI opens. The visual difference between idle and composing is carried
+ * by the `›` prefix color and the frame border, not the cursor shape.
  */
-export function composerCursorGlyph(active: boolean): string {
-  return active ? "█" : "░";
+export function composerCursorGlyph(_active: boolean): string {
+  return "█";
 }
 
 /**
@@ -175,7 +173,14 @@ export function ComposerInput({
       </box>
     );
   }
-  return <text fg={placeholderTone ?? MUTED}>{fitTuiText(placeholder, textWidth)}</text>;
+  // Idle: show the placeholder with a filled cursor at the end so the prompt
+  // looks active and ready for input from the moment the TUI opens.
+  const cursor = composerCursorGlyph(false);
+  return (
+    <text fg={placeholderTone ?? MUTED}>
+      {fitTuiText(placeholder, textWidth - 1)}{cursor}
+    </text>
+  );
 }
 
 /**
