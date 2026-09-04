@@ -4124,7 +4124,7 @@ export function ChatScreen({
     <box flexDirection="row" width={outerWidth ?? "100%"} flexShrink={0} marginTop={1} minWidth={0}>
       <ComposerFrame style={composerStyle} active={composerActive} theme={theme} padY={padY}>
         <box flexDirection="row" width="100%" minWidth={0}>
-          <text width={1} flexShrink={0} fg={PRIMARY}>›</text>
+          <text width={1} flexShrink={0} fg={composing ? PRIMARY : MUTED}>›</text>
           <text width={1} flexShrink={0} fg={MUTED}> </text>
           <box width={textWidth} flexShrink={0} minWidth={0}>
             {composerInput(textWidth)}

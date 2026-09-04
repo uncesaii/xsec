@@ -148,7 +148,7 @@ export function ComposerInput({
   placeholderTone?: string;
   theme: Theme;
 }) {
-  const { TEXT, MUTED, PRIMARY } = theme;
+  const { TEXT, MUTED } = theme;
   if (composing) {
     const rows = composerContentRows(text, textWidth);
     const cursor = composerCursorGlyph(active);
@@ -156,11 +156,6 @@ export function ComposerInput({
       <box flexDirection="column" minWidth={0}>
         {rows.map((line, i) => {
           const isLast = i === rows.length - 1;
-          // Preserve whitespace exactly (NOT fitTuiText, which collapses+trims):
-          // `wrapComposerInput` already bounds each row to `textWidth` and keeps
-          // every space, and `composerContentRows` guarantees the last row has a
-          // free cell, so a trailing space the operator just typed shows and the
-          // caret advances past it. Only control chars are stripped.
           const shown = sanitizeComposerText(line);
           return (
             <text key={`composer-line-${i}`} fg={TEXT}>
@@ -171,18 +166,11 @@ export function ComposerInput({
       </box>
     );
   }
-  // Idle: show a cursor at the start followed by the placeholder, so the
-  // prompt looks active and ready for input from the moment the TUI opens.
-  // Uses the same single-<text> pattern as the composing branch so the cursor
-  // and placeholder sit on the same line without wrapping.
+  // Idle: cursor at the start + placeholder, same line, single string concat
+  // so OpenTUI can't wrap them apart.
   const cursor = composerCursorGlyph(false);
   const ph = fitTuiText(placeholder, textWidth - 1);
-  return (
-    <text>
-      <text fg={PRIMARY}>{cursor}</text>
-      <text fg={placeholderTone ?? MUTED}>{ph}</text>
-    </text>
-  );
+  return <text fg={MUTED}>{`${cursor}${ph}`}</text>;
 }
 
 /**
