@@ -43,13 +43,15 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.inputs.tag || github.ref }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
       - uses: actions/setup-node@v5
         with:
           # Node 22, not 24: tree-sitter@0.21.1's native addon fails to compile
           # against Node 24's V8 (missing cppgc header) on linux-arm64, which has
           # no prebuilt. Node 22 compiles it from source cleanly.
           node-version: 22
-      - run: corepack enable
       # Keep the compiler pinned while the bundled OpenTUI/native-addon surface
       # is validated. `bun-compile.sh` stages tree-sitter's runtime-discovered
       # N-API addons so their direct requires are embedded in the executable.
