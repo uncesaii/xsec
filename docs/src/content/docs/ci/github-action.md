@@ -56,7 +56,7 @@ jobs:
         with:
           fetch-depth: 0
       - run: |
-          xsec review . \
+          x review . \
             --diff-base "${{ github.event.pull_request.base.sha }}" \
             --changed-only \
             --format sarif > xsec-results.sarif

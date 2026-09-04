@@ -118,12 +118,12 @@ assume every older finding has an envelope.
 Two import paths handle kernel proofs the generic VM runner can't safely
 rebuild:
 
-- `xsec research linux-matrix` imports externally executed boots. The versioned
+- `x research linux-matrix` imports externally executed boots. The versioned
   manifest binds build IDs, literal crash/completion oracles, per-boot markers,
   thresholds, and log paths; XSEC hashes the manifest, every log, and its
   verdict. The envelope says `executionOrigin: external` and never claims XSEC
   ran the boots.
-- `xsec research linux` runs natively, bound to a required literal crash oracle
+- `x research linux` runs natively, bound to a required literal crash oracle
   (`--expected-signature`). A different KASAN/oops/GPF is recorded but can't
   satisfy the N-boot gate. Each boot contributes its own hashed dmesg artifact,
   so a 2-of-3 claim carries the full three-boot audit trail.
@@ -313,7 +313,7 @@ XSEC speaks MCP three ways:
 
 - **As a client** — `McpRuntime` connects to MCP servers and uses their tools as
   the LLM backend.
-- **As a server** — `xsec mcp-server` exposes a scoped subset of tools over
+- **As a server** — `x mcp-server` exposes a scoped subset of tools over
   stdio to an external host. `--tools` is an allowlist, not a capability grant:
   every exposed tool still runs through XSEC's execution and engagement guards,
   and XSEC keeps ownership of scope, rate limiting, persistence, and verifier
@@ -325,7 +325,7 @@ XSEC speaks MCP three ways:
   abuse, and permission escalation.
 
 ```bash
-xsec mcp-server \
+x mcp-server \
   --target https://example.com \
   --scan-id engagement-001 \
   --scope ./scope.json \

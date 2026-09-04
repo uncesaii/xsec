@@ -71,6 +71,6 @@ should also capture:
 
 ## Relationship to XSEC cloud
 
-XSEC is the public, self-run tool; xsec cloud is the managed service for
+XSEC is the public, self-run tool; x cloud is the managed service for
 orchestration and recurring runs. Adversarial evals should work on both — locally
-and in CI through `xsec`, and as a managed recurring product through `xsec cloud`.
+and in CI through `x`, and as a managed recurring product through `x cloud`.

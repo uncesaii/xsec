@@ -15,7 +15,7 @@ Pass `--repo` alongside your target, pointing at the root of the source running
 behind the URL (local checkout, clone, or mounted CI volume):
 
 ```bash
-xsec scan --target http://localhost:8080 --repo ./my-app
+x scan --target http://localhost:8080 --repo ./my-app
 ```
 
 In the benchmark runner, `--white-box` sets the repo path to the challenge

@@ -159,7 +159,7 @@ restarting.
 restarting long agentic workflows is expensive. This is what makes XSEC feel like
 infrastructure.
 
-**Deliverables:** `xsec resume <scan-id>`; stage-level checkpointing;
+**Deliverables:** `x resume <scan-id>`; stage-level checkpointing;
 partial-result recovery after crash/timeout; resume-safe report generation.
 
 ### 4. Finding inbox + triage workflow

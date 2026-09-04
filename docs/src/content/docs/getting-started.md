@@ -12,7 +12,7 @@ the container image.
 # Verified release binary (macOS Apple Silicon / Linux x64/arm64)
 curl -fsSL https://raw.githubusercontent.com/uncesaii/xsec/main/install.sh | bash
 export PATH="$HOME/.xsec/bin:$PATH"
-xsec --help
+x --help
 
 # Source
 git clone https://github.com/uncesaii/xsec.git
@@ -54,7 +54,7 @@ target before it makes a request.
 ```bash
 echo '{"in_scope":["your-app.com"]}' > scope.json
 
-xsec scan --target https://your-app.com/api/chat --scope ./scope.json
+x scan --target https://your-app.com/api/chat --scope ./scope.json
 ```
 
 This maps the attack surface, launches targeted attacks, reproduces each finding,
@@ -74,7 +74,7 @@ Shell-first: the agent gets `bash` and standard tooling to probe for CORS, SSRF,
 XSS, SQLi, SSTI, exposed files, and more.
 
 ```bash
-xsec scan --target https://your-app.com --mode web --scope ./scope.json
+x scan --target https://your-app.com --mode web --scope ./scope.json
 ```
 
 ### Audit a package
@@ -83,16 +83,16 @@ Downloads and installs the package into a temp dir (never executes it), runs
 static analysis, then an AI review.
 
 ```bash
-xsec audit lodash
-xsec audit requests --ecosystem pypi
-xsec audit alpine:3.20 --ecosystem oci
+x audit lodash
+x audit requests --ecosystem pypi
+x audit alpine:3.20 --ecosystem oci
 ```
 
 ### Review a codebase
 
 ```bash
-xsec review ./my-app                       # local directory
-xsec review https://github.com/user/repo   # clones automatically
+x review ./my-app                       # local directory
+x review https://github.com/user/repo   # clones automatically
 ```
 
 ### Control scan depth
@@ -104,7 +104,7 @@ xsec review https://github.com/user/repo   # clones automatically
 | `deep`    | ~150      | ~10 min |
 
 ```bash
-xsec scan --target https://api.example.com/chat --scope ./scope.json --depth deep
+x scan --target https://api.example.com/chat --scope ./scope.json --depth deep
 ```
 
 ## No sandbox by default

@@ -130,7 +130,7 @@ foxguard on the same code and cross-checks each finding against its SARIF:
 
 ```bash
 env XSEC_FEATURE_MULTIMODAL=1 \
-  xsec scan --target https://example.com --repo ./source
+  x scan --target https://example.com --repo ./source
 ```
 
 ## 6. PoV generation gate
@@ -177,14 +177,14 @@ today; an embedding ranker can replace `scoreMemory` without API changes.
 
 ```bash
 # Mark a finding FP and remember why
-xsec triage mark-fp <finding-id> --reason "test fixture, not prod"
+x triage mark-fp <finding-id> --reason "test fixture, not prod"
 
 # Add a standalone memory
-xsec triage memory add --finding <id> --reason "sink is harmless helper" \
+x triage memory add --finding <id> --reason "sink is harmless helper" \
   --scope package --scope-value my-pkg
 
 # List memories
-xsec triage memory list --scope target
+x triage memory list --scope target
 ```
 
 ## 10. Adversarial debate
@@ -240,9 +240,9 @@ roughly flat. Enable it to re-measure, not to score better.
 Every gate is off by default. `fp-moat` names the set:
 
 ```bash
-xsec scan --features fp-moat --target https://example.com
+x scan --features fp-moat --target https://example.com
 # or, for templated CI:
-env XSEC_FEATURE_PRESET=fp-moat xsec scan --target https://example.com
+env XSEC_FEATURE_PRESET=fp-moat x scan --target https://example.com
 ```
 
 It expands to `REACHABILITY_GATE`, `MULTIMODAL`, `PUBLISHABILITY_GATE`,
@@ -252,7 +252,7 @@ It expands to `REACHABILITY_GATE`, `MULTIMODAL`, `PUBLISHABILITY_GATE`,
 A flag you set yourself always wins, so you can ablate one layer:
 
 ```bash
-env XSEC_FEATURE_POV_GATE=0 xsec scan --features fp-moat …
+env XSEC_FEATURE_POV_GATE=0 x scan --features fp-moat …
 ```
 
 The preset deliberately omits `LEARNED_ROUTER` and `DYNAMIC_TRIAGE` — those
@@ -265,7 +265,7 @@ Each layer records a verdict on the finding as it runs. `findings show` renders
 it:
 
 ```bash
-xsec findings show <id>
+x findings show <id>
 ```
 
 ```

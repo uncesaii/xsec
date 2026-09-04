@@ -126,7 +126,7 @@ The `cli-path-traversal` fixture starts a malicious local API, creates a
 sandboxed export directory, and runs the real CLI argv from `--fixture-command`.
 
 ```bash
-xsec verify --fixture cli-path-traversal \
+x verify --fixture cli-path-traversal \
   --fixture-command '["paperclip","company","export","--api","{{apiUrl}}","--output","{{exportDir}}"]' \
   --retain-artifacts
 ```

@@ -15,13 +15,13 @@ the days after a commit lands and before that same machinery hardens it. This is
 the only structure that beats the audit-density wall.
 
 The engine + CLI live in `@xsec/core` (`stages/recency-hunt.ts`) and
-`xsec recency-hunt`. This directory is just the **daily driver** on bench.
+`x recency-hunt`. This directory is just the **daily driver** on bench.
 
 ## Files
 
 | File | Role |
 |---|---|
-| `run-recency-flywheel.sh` | The driver: `git fetch` linux-next → `xsec recency-hunt --report-dir …`. Idle-priority, additive, non-disruptive. |
+| `run-recency-flywheel.sh` | The driver: `git fetch` linux-next → `x recency-hunt --report-dir …`. Idle-priority, additive, non-disruptive. |
 | `recency-flywheel.service` | `oneshot` systemd unit that runs the driver with `HOME=/root` (for `/root/.codex/auth.json`). |
 | `recency-flywheel.timer` | Daily `OnCalendar=06:30` trigger, `Persistent=true` (catches missed runs). |
 
@@ -82,7 +82,7 @@ touch:
 A high-confidence **survivor** in the report is shaped as a `bugSpec` +
 trigger-seed ready for the next step:
 
-- **Weaponize**: `xsec exploit --autoclimb --source <tree> --target <file>`.
+- **Weaponize**: `x exploit --autoclimb --source <tree> --target <file>`.
 - **Disclose**: hand the survivor to the disclosure stager.
 
 Nothing is auto-sent. Disclosure is operator-gated (embargo discipline). A

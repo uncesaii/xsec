@@ -34,17 +34,17 @@ Wilson confidence intervals, and why a single solve is an anecdote — see
 
 ## Running the canonical harness
 
-`xsec bench run` is the single benchmark orchestrator. Integrations own only
+`x bench run` is the single benchmark orchestrator. Integrations own only
 suite-specific target lifecycle and official grading; every run still produces
 the same manifest, attempt receipts, scorecard, tournament, and evidence
 contract.
 
 ```bash
 # Core web/source-audit corpus.
-xsec bench run --integration core --variants variants.json
+x bench run --integration core --variants variants.json
 
 # XBOW: Docker lifecycle + fresh per-attempt flag, scored by the shared oracle.
-xsec bench run \
+x bench run \
   --integration xbow \
   --xbow-path /path/to/xbow \
   --variants variants.json \
@@ -53,7 +53,7 @@ xsec bench run \
   --schedule case-major
 
 # CyberGym: official differential oracle, strict one graded submit per task.
-xsec bench run \
+x bench run \
   --integration cybergym \
   --cybergym-harness /path/to/cybergym \
   --cybergym-subset results/cybergym-fair-v1.subset.txt \

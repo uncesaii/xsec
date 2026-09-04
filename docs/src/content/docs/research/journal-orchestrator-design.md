@@ -114,7 +114,7 @@ The specialist *does* see raw output for the entries in its slice. The Orchestra
 ## Resume semantics
 
 ```bash
-xsec scan --resume <run-id>
+x scan --resume <run-id>
 ```
 
 Replays the journal from disk, reconstructs in-memory state (open hypotheses, findings, current specialist if mid-dispatch), and continues from the last `handoff` entry. If a `dispatch` exists with no matching handoff, the resume kicks off the specialist again from scratch (specialists are idempotent on re-run by contract — they read the journal slice and append).

@@ -1,9 +1,9 @@
 ---
 title: Kernel VM Verification
-description: Build and configure the QEMU guest used by xsec ingest --verify.
+description: Build and configure the QEMU guest used by x ingest --verify.
 ---
 
-`xsec ingest --verify` runs C reproducers inside a local QEMU guest and compares
+`x ingest --verify` runs C reproducers inside a local QEMU guest and compares
 the guest `dmesg` against the imported kernel crash report. Without the VM,
 kernel verification stays static-only — XSEC won't claim a crash was reproduced.
 
@@ -67,7 +67,7 @@ env \
   XSEC_KERNEL_QEMU=1 \
   XSEC_KERNEL_QEMU_KERNEL="$HOME/.xsec/kernel-vm/linux-6.8.12-kasan/bzImage" \
   XSEC_KERNEL_QEMU_DISK="$HOME/.xsec/kernel-vm/linux-6.8.12-kasan/rootfs.img" \
-  xsec ingest --verify ./crashes
+  x ingest --verify ./crashes
 ```
 
 Recommended local defaults can be added to the same command:
@@ -82,7 +82,7 @@ env \
   XSEC_KERNEL_QEMU_BOOT_TIMEOUT_SEC=180 \
   XSEC_KERNEL_QEMU_TIMEOUT_SEC=60 \
   XSEC_KERNEL_QEMU_ARTIFACT_DIR="$HOME/.xsec/kernel-vm/runs" \
-  xsec ingest --verify ./crashes
+  x ingest --verify ./crashes
 ```
 
 On Linux hosts with KVM, add `XSEC_KERNEL_QEMU_ACCEL=kvm` to that `env` invocation.
@@ -106,7 +106,7 @@ crashes/
 ```
 
 ```bash
-xsec ingest ./crashes --verify --output json
+x ingest ./crashes --verify --output json
 ```
 
 For each C reproducer XSEC writes `repro.c` and `runner.sh` to a temp dir, boots

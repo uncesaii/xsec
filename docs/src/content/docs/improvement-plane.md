@@ -47,14 +47,14 @@ fail-closed tournament, and only persists a champion when the operator
 explicitly enables promotion:
 
 ```bash
-xsec lens-synth --miss-input curated-misses.json --watch --promote
+x lens-synth --miss-input curated-misses.json --watch --promote
 ```
 
 The watcher processes the initial file revision and later content changes.
 Promotions go to `~/.xsec/lenses/appsec-archetypes.json`, never the bundled
 registry. Each promotion or retirement is recorded in the registry's
-hash-linked ledger. Inspect it with `xsec lens-synth --status`; remove a bad
-addition from future reviews with `xsec lens-synth --rollback <lens-id>`.
+hash-linked ledger. Inspect it with `x lens-synth --status`; remove a bad
+addition from future reviews with `x lens-synth --rollback <lens-id>`.
 
 A deep source engagement captures the complete lens array before target
 preparation. A completed promotion becomes visible to the **next** source
@@ -64,7 +64,7 @@ verifier, or budget.
 
 ### TUI automatic mode
 
-The OpenTUI can own that watcher, so launching `0` or `xsec tui` continuously
+The OpenTUI can own that watcher, so launching `0` or `x tui` continuously
 processes the curated inbox while the TUI remains open. It is deliberately
 disabled by default and requires two **Security** settings:
 
@@ -75,7 +75,7 @@ disabled by default and requires two **Security** settings:
 }
 ```
 
-Import that configuration with `xsec config import evolution.json --yes`, or
+Import that configuration with `x config import evolution.json --yes`, or
 enable the two settings in the TUI. The default inbox is
 `~/.xsec/lens-synthesis/miss-input.json`; atomically replace that file with a
 curated miss input to trigger a new evaluation. Set
@@ -83,7 +83,7 @@ curated miss input to trigger a new evaluation. Set
 `OSEC_TUI_LENS_SYNTH_POLL_INTERVAL_MS` to change the polling interval.
 
 The chat status reports `evolve:auto`, `evolve:waiting input`,
-`evolve:promoted`, or `evolve:error`. `0` and `xsec tui` open the same
+`evolve:promoted`, or `evolve:error`. `0` and `x tui` open the same
 chat-first OpenTUI surface; `/run` opens its explicit-target engagement pane.
 Enter a URL, a source path, a git URL, or a package prefix (`npm:`, `pypi:`,
 `cargo:`, `oci:`); a deep source engagement snapshots the current validated
@@ -108,7 +108,7 @@ After `bench improvement-project` writes `result.json`, bind the champion and
 challenger artifacts into a promotion assessment:
 
 ```bash
-xsec bench improvement-assess \
+x bench improvement-assess \
   --result improvement-bundle/result.json \
   --base-artifact champion-artifact.tar.gz \
   --candidate-artifact challenger-artifact.tar.gz \

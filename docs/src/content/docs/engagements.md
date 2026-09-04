@@ -16,7 +16,7 @@ fine for your own infrastructure, wrong for a monitored production estate.
 `--engagement-profile conservative` applies one auditable posture:
 
 ```bash
-xsec scan --target https://app.example.com --mode web \
+x scan --target https://app.example.com --mode web \
   --scope ./engagement-scope.json \
   --engagement-profile conservative
 ```
@@ -41,9 +41,9 @@ escalation into encoding-mutated payloads, not detection or reporting of the
 block:
 
 ```bash
-xsec scan --target https://app.example.com --no-waf-evasion
+x scan --target https://app.example.com --no-waf-evasion
 # or
-env XSEC_WAF_EVASION=0 xsec scan --target https://app.example.com
+env XSEC_WAF_EVASION=0 x scan --target https://app.example.com
 ```
 
 Env vars: `XSEC_ENGAGEMENT_PROFILE`, `XSEC_WAF_EVASION`,
@@ -57,15 +57,15 @@ fact. Runs without a profile are unchanged.
 
 ## Forensic timeline
 
-`xsec timeline` builds a chronological record from the immutable pipeline-event
+`x timeline` builds a chronological record from the immutable pipeline-event
 audit trail:
 
 ```bash
-xsec timeline <scanId>                     # markdown, for a report appendix
-xsec timeline <scanId> --format json       # machine-readable
-xsec timeline <scanId> --format csv        # spreadsheet / SIEM import
-xsec timeline <scanId> --attack-only       # only events with a technique mapping
-xsec timeline <scanId> --since 2026-09-15T09:00:00Z --until 2026-09-15T17:00:00Z
+x timeline <scanId>                     # markdown, for a report appendix
+x timeline <scanId> --format json       # machine-readable
+x timeline <scanId> --format csv        # spreadsheet / SIEM import
+x timeline <scanId> --attack-only       # only events with a technique mapping
+x timeline <scanId> --since 2026-09-15T09:00:00Z --until 2026-09-15T17:00:00Z
 ```
 
 Every row carries a UTC ISO-8601 timestamp, stage, event type, agent role, an
@@ -101,7 +101,7 @@ presentation layer.
 
 ## Identity and token analysis
 
-`xsec identity` assesses an Entra ID tenant read-only — 27 posture checks across
+`x identity` assesses an Entra ID tenant read-only — 27 posture checks across
 privileged roles, conditional access, app registrations, service principals, and
 federation. Read-only is structural: every Graph request hard-codes `GET`.
 
@@ -130,28 +130,28 @@ personal data and handle custody accordingly.
 Two commands, same shape. The client's collector runs wherever the engagement
 puts it; analysis runs here. Both are offline — no collection, auth, or network.
 
-**Active Directory** — `xsec adgraph --input <path>` computes attack paths from a
+**Active Directory** — `x adgraph --input <path>` computes attack paths from a
 BloodHound CE / SharpHound export: paths to Domain Admin, kerberoastable
 principals, unconstrained delegation, DCSync rights, ACL abuse, and the ADCS
 escalation set (ESC1, ESC3–ESC7, ESC9, ESC10, ESC13). ~60 edge kinds each carry
 a written abuse technique.
 
-**Entra ID** — `xsec entragraph --input <path>` does the equivalent over an
+**Entra ID** — `x entragraph --input <path>` does the equivalent over an
 AzureHound export: paths to Global Administrator, service-principal escalation,
 consent-grant escalation, owner-chain abuse, and guest escalation.
 
 ```bash
-xsec entragraph --input ./azurehound-export/
-xsec entragraph --input ./azurehound-export/ --json
-xsec entragraph --input ./export --owned <objectId>,<objectId>   # start from known-compromised principals
-xsec entragraph --input ./export --max-depth 4
+x entragraph --input ./azurehound-export/
+x entragraph --input ./azurehound-export/ --json
+x entragraph --input ./export --owned <objectId>,<objectId>   # start from known-compromised principals
+x entragraph --input ./export --max-depth 4
 ```
 
 :::caution
 An AzureHound run without membership or ownership collections cannot produce
 those paths; `entragraph` says so explicitly rather than presenting an empty
 result as a clean tenant. AzureHound exports also carry no conditional-access,
-federation, or PIM data — run `xsec identity` against a live tenant for those.
+federation, or PIM data — run `x identity` against a live tenant for those.
 :::
 
 ## What XSEC does not do

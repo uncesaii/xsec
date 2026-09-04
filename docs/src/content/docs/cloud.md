@@ -5,17 +5,17 @@ description: How the managed XSEC cloud layer relates to the OSS agent and docs 
 
 :::note
 **Managed offering — separate from the open-source CLI.** Everything below is the
-paid managed layer, not the OSS `xsec` engine documented in the rest of this site.
+paid managed layer, not the OSS `x` engine documented in the rest of this site.
 :::
 
-`xsec cloud` is the managed recurring-run surface built on top of the public
-`xsec` engine. It uses no private fork — the scanner, benchmarks, and
+`x cloud` is the managed recurring-run surface built on top of the public
+`x` engine. It uses no private fork — the scanner, benchmarks, and
 verification logic all stay in the OSS repo.
 
-**OSS (`xsec`):** CLI scanning, benchmarks and methodology, blind verification,
+**OSS (`x`):** CLI scanning, benchmarks and methodology, blind verification,
 triage and reporting primitives, and these docs.
 
-**Managed (`xsec cloud`) adds:** recurring scans, orchestration across
+**Managed (`x cloud`) adds:** recurring scans, orchestration across
 protected/authenticated targets, an operator triage workflow, customer-facing
 evidence bundles, and managed storage and scheduling.
 

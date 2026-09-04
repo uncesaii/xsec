@@ -12,7 +12,7 @@ Point at your OpenAPI 3.x / Swagger 2.0 doc so recon starts with every endpoint,
 parameter, and auth requirement already known — no crawl needed.
 
 ```bash
-xsec scan \
+x scan \
   --target https://api.example.com \
   --api-spec ./openapi.yaml \
   --mode web \
@@ -34,7 +34,7 @@ without running the `wpscan` CLI or sending generic scanner traffic.
 
 ```bash
 env XSEC_FEATURE_DYNAMIC_PLAYBOOKS=1 \
-  xsec scan \
+  x scan \
   --target https://blog.example.com \
   --mode web \
   --depth deep \
@@ -48,7 +48,7 @@ scoped HackerOne/Bugcrowd targets unless the policy permits generic scanners.
 
 ```bash
 env XSEC_FEATURE_DOCKER_EXECUTOR=1 \
-  xsec scan \
+  x scan \
   --target https://blog.example.com \
   --mode web \
   --depth deep \
@@ -60,16 +60,16 @@ env XSEC_FEATURE_DOCKER_EXECUTOR=1 \
 
 ```bash
 # Latest npm version
-xsec audit express
+x audit express
 
 # Pin a version
-xsec audit express --package-version 4.18.2
+x audit express --package-version 4.18.2
 
 # PyPI package
-xsec audit requests --ecosystem pypi
+x audit requests --ecosystem pypi
 
 # Deep audit with the Claude Code CLI
-xsec audit left-pad --depth deep --runtime claude
+x audit left-pad --depth deep --runtime claude
 ```
 
 The package is installed into a temp dir (never executed), scanned, checked
@@ -82,7 +82,7 @@ Use the C-library workflow for userspace C/C++ when a finding needs more than
 static reasoning.
 
 ```bash
-xsec review \
+x review \
   --target c-library \
   ./libfoo \
   --depth deep \
@@ -108,14 +108,14 @@ config skips the slow rebuild and logs `[kernel-cache] hit`.
 
 ```bash
 # Run a syzkaller .syz program against a freshly built kasan kernel
-xsec ingest \
+x ingest \
   --syz ./program.syz \
   --kernel-tree ~/src/linux \
   --kernel-config kasan \
   --output json
 
 # Run a C reproducer with a custom config name and an explicit signature
-xsec ingest \
+x ingest \
   --reproducer ./poc.c \
   --kernel-tree ~/src/linux \
   --kernel-config defconfig+kasan \
@@ -142,7 +142,7 @@ env \
   XSEC_FEATURE_TRIAGE_MEMORIES=1 \
   XSEC_FEATURE_MULTIMODAL=1 \
   XSEC_FEATURE_DOCKER_EXECUTOR=1 \
-  xsec scan \
+  x scan \
   --target https://example.com \
   --mode web \
   --depth deep \
@@ -158,7 +158,7 @@ When a linear attack plan keeps getting stuck, spawn 5 parallel strategies and l
 the fastest win.
 
 ```bash
-xsec scan \
+x scan \
   --target https://hard-target.example.com \
   --mode web \
   --race \
@@ -172,7 +172,7 @@ Push every confirmed finding to a GitHub repo as a labelled issue with evidence 
 ```bash
 export GITHUB_TOKEN="ghp_..."
 
-xsec scan \
+x scan \
   --target https://example.com \
   --mode web \
   --export github:myorg/security-findings
@@ -185,21 +185,21 @@ category (`cat:xss`, …) so you can triage from the GitHub UI.
 
 ```bash
 # HTML (auto-opens in browser and saves to a temp file)
-xsec scan \
+x scan \
   --target https://example.com \
   --mode web \
   --depth deep \
   --format html
 
 # Markdown (printed to stdout; redirect to a file)
-xsec scan \
+x scan \
   --target https://example.com \
   --mode web \
   --depth deep \
   --format md > example-pentest.md
 
 # PDF (auto-opens in your default viewer and saves to a temp file)
-xsec scan \
+x scan \
   --target https://example.com \
   --mode web \
   --depth deep \
@@ -213,7 +213,7 @@ Each report has an executive summary, severity breakdown, per-finding evidence
 
 ```bash
 # Inline
-xsec scan \
+x scan \
   --target https://api.example.com \
   --api-spec ./openapi.yaml \
   --auth '{"type":"bearer","token":"eyJhbGciOi..."}'
@@ -223,7 +223,7 @@ cat > auth.json <<'EOF'
 {"type":"bearer","token":"eyJhbGciOi..."}
 EOF
 
-xsec scan \
+x scan \
   --target https://api.example.com \
   --api-spec ./openapi.yaml \
   --auth ./auth.json
@@ -248,16 +248,16 @@ Mark noisy findings as false positives and XSEC remembers the pattern next time.
 
 ```bash
 # Mark a single finding as FP (auto-creates a memory)
-xsec triage mark-fp NF-042 --reason "test fixture echo endpoint, not reachable in prod"
+x triage mark-fp NF-042 --reason "test fixture echo endpoint, not reachable in prod"
 
 # Add a memory from an existing finding without suppressing it
-xsec triage memory add --finding NF-017 --reason "intentional CORS config for public API"
+x triage memory add --finding NF-017 --reason "intentional CORS config for public API"
 
 # List what XSEC has learned
-xsec triage memory list
+x triage memory list
 
 # Remove a memory that's no longer accurate
-xsec triage memory remove <memory-id>
+x triage memory remove <memory-id>
 ```
 
 Enable memory injection into the verify pipeline with `XSEC_FEATURE_TRIAGE_MEMORIES=1`.

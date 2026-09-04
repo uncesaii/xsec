@@ -37,17 +37,17 @@ description: What ships in XSEC and how evidence becomes a finding.
 ### Authenticated scanning
 
 ```bash
-xsec scan --target https://app.example.com \
+x scan --target https://app.example.com \
   --auth '{"type":"bearer","token":"eyJhbGciOi..."}'
 
 # Or point at a JSON file
-xsec scan --target https://app.example.com --auth ./auth.json
+x scan --target https://app.example.com --auth ./auth.json
 ```
 
 ### API spec import
 
 ```bash
-xsec scan --target https://api.example.com --api-spec ./openapi.yaml
+x scan --target https://api.example.com --api-spec ./openapi.yaml
 ```
 
 Gives the agent a surface map up front instead of making it discover every
@@ -56,7 +56,7 @@ endpoint from scratch.
 ### Export to GitHub Issues
 
 ```bash
-xsec scan --target https://example.com --export github:my-org/my-repo
+x scan --target https://example.com --export github:my-org/my-repo
 ```
 
 ## Runtimes

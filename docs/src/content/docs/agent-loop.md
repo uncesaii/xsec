@@ -158,7 +158,7 @@ Common patterns:
 (`db.logEvent`). Reconstruct a scan with:
 
 ```bash
-xsec history <scan-id> --events
+x history <scan-id> --events
 ```
 
 Session state is persisted every 2 turns, so interrupted scans resume with

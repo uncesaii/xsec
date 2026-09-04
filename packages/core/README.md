@@ -10,8 +10,8 @@ Feature flags are declared in `src/agent/features.ts`. Each flag maps to a
 also accepts a `--features` flag that sets those env vars automatically:
 
 ```bash
-pnpm xsec scan --target https://example.com --features wp_fingerprint
-pnpm xsec scan --target https://example.com --features wp_fingerprint,web_search
+pnpm x scan --target https://example.com --features wp_fingerprint
+pnpm x scan --target https://example.com --features wp_fingerprint,web_search
 ```
 
 Any token passed to `--features` is upcased, non-alphanumeric chars are
@@ -64,7 +64,7 @@ Opt-in tool exposed behind the `wp_fingerprint` feature flag. Implemented in
 ### CLI usage
 
 ```bash
-pnpm xsec scan \
+pnpm x scan \
   --target https://wordpress-target.example.com \
   --features wp_fingerprint
 ```
@@ -179,7 +179,7 @@ sometimes plant decoy flags in obvious locations to catch script kiddies."*
 ### Configuration
 
 - Env var: `XSEC_FEATURE_DECOY_DETECTION=0` to disable.
-- CLI flag: `xsec scan --no-decoy-detection <target>`.
+- CLI flag: `x scan --no-decoy-detection <target>`.
 
 ### Tests
 

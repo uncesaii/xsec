@@ -31,7 +31,7 @@ export AZURE_OPENAI_API_KEY="..."
 export OPENAI_API_KEY="sk-..."
 
 # `XSEC_*` env vars are passed with env for portability.
-env XSEC_CHATGPT_OAUTH_REFRESH_TOKEN="..." xsec doctor
+env XSEC_CHATGPT_OAUTH_REFRESH_TOKEN="..." x doctor
 ```
 
 See [API Keys](/api-keys/) for the full priority order and provider details.
@@ -43,7 +43,7 @@ rather than guessing defaults.
 
 For ChatGPT Codex, run `codex login`, then either rely on
 `~/.codex/auth.json` or use
-`env XSEC_CHATGPT_OAUTH_REFRESH_TOKEN=... xsec <command>`. An explicit token
+`env XSEC_CHATGPT_OAUTH_REFRESH_TOKEN=... x <command>`. An explicit token
 takes priority over API-key providers.
 
 ### CLI runtimes (claude, codex, gemini)
@@ -65,8 +65,8 @@ npm i -g @google/gemini-cli
 Then use them:
 
 ```bash
-xsec scan --target https://api.example.com/chat --runtime claude
-xsec review ./my-repo --runtime codex --depth deep
+x scan --target https://api.example.com/chat --runtime claude
+x review ./my-repo --runtime codex --depth deep
 ```
 
 The Codex CLI isn't used as a live-target wrapper. For live scans on a Codex
@@ -74,7 +74,7 @@ subscription, configure the direct provider instead:
 
 ```bash
 env XSEC_CHATGPT_OAUTH_REFRESH_TOKEN="..." \
-  xsec scan --target https://example.com --runtime codex
+  x scan --target https://example.com --runtime codex
 ```
 
 ### Codex runtime parity matrix
@@ -87,14 +87,14 @@ but subscription env set, XSEC routes through the API runtime against
 
 | Surface                                | Command                                                      | Supported via direct provider |
 |----------------------------------------|--------------------------------------------------------------|--------------------------------|
-| Web / URL scan                         | `xsec scan --target https://… --runtime codex`             | yes                            |
-| npm package audit                      | `xsec audit lodash --ecosystem npm --runtime codex`        | yes                            |
-| PyPI package audit                     | `xsec audit requests --ecosystem pypi --runtime codex`     | yes                            |
-| crates.io package audit                | `xsec audit tokio --ecosystem cargo --runtime codex`       | yes                            |
-| OCI image audit                        | `xsec audit nginx:1.25 --ecosystem oci --runtime codex`    | yes                            |
-| Default source-code review             | `xsec review ./repo --runtime codex`                       | yes                            |
-| Linux kernel review                    | `xsec review ./linux --profile linux-kernel --runtime codex` | yes                          |
-| C/C++ library review                   | `xsec review ./lib --profile c-library --runtime codex`    | yes                            |
+| Web / URL scan                         | `x scan --target https://… --runtime codex`             | yes                            |
+| npm package audit                      | `x audit lodash --ecosystem npm --runtime codex`        | yes                            |
+| PyPI package audit                     | `x audit requests --ecosystem pypi --runtime codex`     | yes                            |
+| crates.io package audit                | `x audit tokio --ecosystem cargo --runtime codex`       | yes                            |
+| OCI image audit                        | `x audit nginx:1.25 --ecosystem oci --runtime codex`    | yes                            |
+| Default source-code review             | `x review ./repo --runtime codex`                       | yes                            |
+| Linux kernel review                    | `x review ./linux --profile linux-kernel --runtime codex` | yes                          |
+| C/C++ library review                   | `x review ./lib --profile c-library --runtime codex`    | yes                            |
 
 (Cloud sandbox dispatch still gates codex on `target_ecosystem === "web"`, tracked
 as a separate follow-up.)
@@ -112,10 +112,10 @@ as a separate follow-up.)
 
 ```bash
 # LLM API scan (default)
-xsec scan --target https://api.example.com/chat
+x scan --target https://api.example.com/chat
 
 # Web app scan
-xsec scan --target https://example.com --mode web
+x scan --target https://example.com --mode web
 ```
 
 ## Depth settings
@@ -129,9 +129,9 @@ xsec scan --target https://example.com --mode web
 | `deep` | ~150 | ~10 min | Pre-launch audits, thorough review |
 
 ```bash
-xsec scan --target https://api.example.com/chat --depth quick
-xsec audit express --depth deep
-xsec review ./my-repo --depth deep --runtime claude
+x scan --target https://api.example.com/chat --depth quick
+x audit express --depth deep
+x review ./my-repo --depth deep --runtime claude
 ```
 
 ## Output formats
@@ -163,7 +163,7 @@ Review only changed files against a base branch — handy in CI to skip scanning
 the whole codebase on every PR:
 
 ```bash
-xsec review ./my-repo --diff-base origin/main --changed-only
+x review ./my-repo --diff-base origin/main --changed-only
 ```
 
 ## Verbose output
@@ -171,13 +171,13 @@ xsec review ./my-repo --diff-base origin/main --changed-only
 `--verbose` shows detailed agent output:
 
 ```bash
-xsec scan --target https://api.example.com/chat --verbose
+x scan --target https://api.example.com/chat --verbose
 ```
 
 ## Feedback delivery
 
 `/feedback <message>` is local-only and appends to
-`~/.xsec/feedback.md`. After `xsec auth login`, staged feedback defaults to the
+`~/.xsec/feedback.md`. After `x auth login`, staged feedback defaults to the
 authenticated receiver; it attributes the
 message to the signed-in organization and delivers through the existing
 team-feedback channel. Re-authenticate after upgrading if an older CLI token
@@ -191,7 +191,7 @@ the pending network action while retaining the local file.
 `XSEC_FEEDBACK_URL` overrides the cloud receiver for a self-hosted HTTPS relay:
 
 ```bash
-env XSEC_FEEDBACK_URL="https://feedback.example.org/v1/feedback" xsec console
+env XSEC_FEEDBACK_URL="https://feedback.example.org/v1/feedback" x console
 ```
 
 Do **not** place an incoming Slack webhook URL directly in the CLI environment:
@@ -296,7 +296,7 @@ test and opt in/out per run. Each is read at process start: set `<FLAG>=0` or
 | `XSEC_FEATURE_MULTIMODAL` | off | Cross-validates findings against foxguard (Rust pattern scanner). |
 | `XSEC_FEATURE_REACHABILITY_GATE` | off | Suppresses findings whose sink is not reachable from an application entry point. |
 | `XSEC_FEATURE_POV_GATE` | off | Requires a working executable PoC per finding, otherwise downgrades to `info`. |
-| `XSEC_FEATURE_TRIAGE_MEMORIES` | off | Injects Semgrep-style per-target persistent FP memories into the verify pipeline. Pairs with `xsec triage`. |
+| `XSEC_FEATURE_TRIAGE_MEMORIES` | off | Injects Semgrep-style per-target persistent FP memories into the verify pipeline. Pairs with `x triage`. |
 
 ## Static analyzer selection
 
@@ -306,7 +306,7 @@ static leads. Set `XSEC_STATIC=semgrep` to route them through Semgrep instead;
 audit`, OSV, OCI inventory) run separately for package targets regardless.
 
 ```bash
-env XSEC_STATIC=semgrep xsec review ./repo --depth quick
+env XSEC_STATIC=semgrep x review ./repo --depth quick
 ```
 
 ### Docker executor overrides
@@ -346,10 +346,10 @@ var.
 
 ```bash
 env XSEC_COST_CEILING_USD=5 \
-  xsec scan --target https://example.com --mode web
+  x scan --target https://example.com --mode web
 
-xsec audit lodash --cost-ceiling 2
-xsec review ./my-repo --cost-ceiling 10
+x audit lodash --cost-ceiling 2
+x review ./my-repo --cost-ceiling 10
 ```
 
 ### LLM runtime resilience
@@ -377,7 +377,7 @@ env \
   XSEC_CLOUD_SINK=https://api.example.com \
   XSEC_CLOUD_SCAN_ID=scan_123 \
   XSEC_CLOUD_TOKEN=secret-token \
-  xsec scan --target https://example.com --mode web
+  x scan --target https://example.com --mode web
 ```
 
 XSEC then POSTs each finding as `{ "finding": ... }` and the final report as
@@ -402,14 +402,14 @@ env \
   XSEC_FEATURE_POV_GATE=1 \
   XSEC_FEATURE_TRIAGE_MEMORIES=1 \
   XSEC_FEATURE_MULTIMODAL=1 \
-  xsec scan --target https://example.com --mode web --depth deep
+  x scan --target https://example.com --mode web --depth deep
 ```
 
 ### Example: Kali toolchain + web search
 
 ```bash
 env XSEC_FEATURE_DOCKER_EXECUTOR=1 XSEC_FEATURE_WEB_SEARCH=1 \
-  xsec scan --target https://example.com --mode web
+  x scan --target https://example.com --mode web
 ```
 
 ### Example: raw Kali fallback
@@ -419,5 +419,5 @@ env \
   XSEC_FEATURE_DOCKER_EXECUTOR=1 \
   XSEC_DOCKER_IMAGE=kalilinux/kali-rolling \
   XSEC_DOCKER_BOOTSTRAP_TOOLS=1 \
-  xsec scan --target https://example.com --mode web
+  x scan --target https://example.com --mode web
 ```

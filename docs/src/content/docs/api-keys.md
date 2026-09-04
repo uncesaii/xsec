@@ -27,7 +27,7 @@ OpenRouter instead.
 
 ## Model routing
 
-Set `--model <id>` or run a command through `env XSEC_MODEL=<id> xsec <command>`
+Set `--model <id>` or run a command through `env XSEC_MODEL=<id> x <command>`
 when more than one credential is present.
 XSEC routes recognized families to the configured provider:
 
@@ -52,8 +52,8 @@ export Z_AI_API_KEY="..."
 export QWEN_API_KEY="..."
 
 # Select its matching model at run time.
-xsec scan --target https://api.example.com --scope ./scope.json --model glm-5.3
-xsec scan --target https://api.example.com --scope ./scope.json --model qwen3.8-max
+x scan --target https://api.example.com --scope ./scope.json --model glm-5.3
+x scan --target https://api.example.com --scope ./scope.json --model qwen3.8-max
 
 # Or use OpenRouter.
 export OPENROUTER_API_KEY="sk-or-v1-..."
@@ -61,7 +61,7 @@ export OPENROUTER_API_KEY="sk-or-v1-..."
 # ChatGPT Codex subscription auth. `XSEC_*` env vars
 # are passed with `env` for portability.
 env XSEC_CHATGPT_OAUTH_REFRESH_TOKEN="..." \
-  xsec review ./authorized-repo --runtime api
+  x review ./authorized-repo --runtime api
 # Or use XSEC_CHATGPT_ACCESS_TOKEN; it is read first when both are present.
 ```
 
@@ -96,9 +96,9 @@ the device instructions in the pane, and reloads `~/.codex/auth.json` only
 after success. It never asks for an OpenAI API key or a pasted OAuth token.
 Choose **OpenAI** separately when you want `OPENAI_API_KEY` direct API access.
 
-Every `xsec` run loads that file into the environment before any subcommand
+Every `x` run loads that file into the environment before any subcommand
 runs, so a codex-login file is picked up everywhere — the console `/providers`
-view, `xsec doctor`, and scans/reviews/audits. An explicit environment value always wins,
+view, `x doctor`, and scans/reviews/audits. An explicit environment value always wins,
 and a missing or malformed file is ignored quietly. One caveat: the `/providers` table
 never checks the filesystem, so anything that reads it *without* the CLI's startup
 load (for example, if you embed it in your own tool) shows "not configured" — a
@@ -166,12 +166,12 @@ subscription loop; Codex and Gemini are source-review oriented:
 
 ```bash
 # Use Claude Code CLI for an authorized live target
-xsec scan --target https://api.example.com/chat --scope ./scope.json --runtime claude
+x scan --target https://api.example.com/chat --scope ./scope.json --runtime claude
 # Use Codex CLI for source review
-xsec review ./my-repo --runtime codex
+x review ./my-repo --runtime codex
 
 # Use Gemini CLI
-xsec review ./my-repo --runtime gemini
+x review ./my-repo --runtime gemini
 ```
 
 Source-review CLI runtimes need no API key — the CLI handles auth. Codex live
