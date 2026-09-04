@@ -61,7 +61,7 @@ actual="$(sha256_file "$binary")"
 chmod 755 "$binary"
 mv -f "$binary" "${INSTALL_DIR}/xsec"
 binary=""
-alias_path="${INSTALL_DIR}/0"
+alias_path="${INSTALL_DIR}/x"
 if [ -L "$alias_path" ]; then
   [ "$(readlink "$alias_path")" = "xsec" ] || fail "refusing to replace existing alias at ${alias_path}"
   rm -f "$alias_path"
@@ -69,9 +69,9 @@ elif [ -e "$alias_path" ]; then
   fail "refusing to replace existing file at ${alias_path}"
 fi
 ln -s "xsec" "$alias_path"
-printf '%s\n' "Installed verified xsec to ${INSTALL_DIR}/xsec (also available as ${INSTALL_DIR}/0)" >&2
+printf '%s\n' "Installed verified xsec to ${INSTALL_DIR}/xsec (also available as ${INSTALL_DIR}/x)" >&2
 
 case ":${PATH}:" in
   *":${INSTALL_DIR}:"*) ;;
-  *) printf '%s\n' "Add ${INSTALL_DIR} to PATH to run: xsec --help (or 0 --help)" >&2 ;;
+  *) printf '%s\n' "Add ${INSTALL_DIR} to PATH to run: x --help" >&2 ;;
 esac
