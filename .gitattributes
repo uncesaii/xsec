@@ -1,0 +1,57 @@
+# Upstream sync protection — mark rebranded files with merge=ours so
+# upstream merges never overwrite our branding or custom features.
+
+# Root
+README.md          merge=ours
+package.json       merge=ours
+install.sh         merge=ours
+pnpm-lock.yaml     merge=ours
+
+# Legal
+LICENSE-MIT        merge=ours
+NOTICE             merge=ours
+
+# Package names (@xsec/*)
+packages/cli/package.json         merge=ours
+packages/core/package.json        merge=ours
+packages/shared/package.json      merge=ours
+packages/db/package.json          merge=ours
+packages/templates/package.json   merge=ours
+packages/benchmark/package.json   merge=ours
+packages/llm-redteam/package.json merge=ours
+packages/dashboard/package.json   merge=ours
+packages/test-targets/package.json merge=ours
+
+# Assets / logos
+assets/xsec-aperture-ink.svg    merge=ours
+assets/xsec-aperture-white.svg  merge=ours
+assets/xsec-icon.gif            merge=ours
+
+# CI workflows
+.github/workflows/release.yml  merge=ours
+.github/workflows/xverse.yml   merge=ours
+
+# Branded code (0sec → xsec replacements in compiled strings)
+packages/core/src/stages/tree-sitter-runtime.cjs merge=ours
+packages/core/src/runtime/llm-api.ts             merge=ours
+
+# Custom features (added by us, not in upstream)
+packages/cli/src/tui/provider-status.ts       merge=ours
+packages/cli/src/tui/credential-store.ts      merge=ours
+packages/cli/src/tui/model-catalog-providers.ts merge=ours
+packages/cli/src/tui/model-catalog-sync.ts    merge=ours
+packages/cli/src/tui/connect-screen.tsx       merge=ours
+packages/cli/src/tui/connect-layout.ts        merge=ours
+packages/cli/src/tui/chat/Composer.tsx        merge=ours
+packages/cli/src/tui/chat-screen.tsx          merge=ours
+
+# Docs (rebranded)
+docs/**/*.md                    merge=ours
+packages/cli/README.md         merge=ours
+packages/core/README.md        merge=ours
+packages/shared/README.md      merge=ours
+packages/db/README.md          merge=ours
+packages/templates/README.md   merge=ours
+packages/benchmark/README.md   merge=ours
+packages/llm-redteam/README.md merge=ours
+packages/dashboard/README.md   merge=ours
