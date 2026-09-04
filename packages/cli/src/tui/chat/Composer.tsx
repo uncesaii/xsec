@@ -173,12 +173,12 @@ export function ComposerInput({
       </box>
     );
   }
-  // Idle: show the placeholder with a filled cursor at the end so the prompt
-  // looks active and ready for input from the moment the TUI opens.
+  // Idle: show a filled cursor at the start followed by the placeholder, so
+  // the prompt looks active and ready for input from the moment the TUI opens.
   const cursor = composerCursorGlyph(false);
   return (
     <text fg={placeholderTone ?? MUTED}>
-      {fitTuiText(placeholder, textWidth - 1)}{cursor}
+      {cursor}{fitTuiText(placeholder, textWidth - 1)}
     </text>
   );
 }
