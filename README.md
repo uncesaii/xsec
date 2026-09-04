@@ -30,10 +30,10 @@
 ```bash
 curl -fsSL https://raw.githubusercontent.com/uncesaii/xsec/main/install.sh | bash
 export PATH="$HOME/.xsec/bin:$PATH"
-xsec --help
+x --help
 ```
 The verified binary is installed to `~/.xsec/bin` with no Node/Bun dependency.
-Add the `export` line to your shell profile to make `xsec` available in future shells.
+Add the `export` line to your shell profile to make `x` available in future shells.
 
 ## What XSEC aims to cover
 
@@ -65,11 +65,11 @@ XSEC's core philosophy is to be a single, extensible and transparent tool to tac
 | Identity / AD (read-only) | `identity`, `adgraph`, `entragraph` |
 | Integrate | `mcp-server`, `console`, `tui`, `dashboard` |
 
-Run `xsec --help` for the rest.
+Run `x --help` for the rest.
 
 ### Primary workflow
 
-Run `xsec` to open the primary OpenTUI chat. Type `/run` to open its engagement
+Run `x` to open the primary OpenTUI chat. Type `/run` to open its engagement
 control pane, then enter a URL, a local source path, a git URL, or an explicit
 package target (`npm:`, `pypi:`, `cargo:`, `oci:`). The pane shows the resolved
 engagement before it runs it; deep source engagements use the validated

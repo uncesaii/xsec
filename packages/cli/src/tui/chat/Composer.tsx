@@ -31,13 +31,11 @@ function cellCount(text: string): number {
 }
 
 /**
- * The block-cursor glyph. The cursor is always FILLED (`█`) — both idle and
- * composing — so the prompt looks active and ready for input from the moment
- * the TUI opens. The visual difference between idle and composing is carried
- * by the `›` prefix color and the frame border, not the cursor shape.
+ * The cursor glyph. A hollow vertical bar `│` when idle (prompt is visible
+ * but no input yet), a filled white block `█` when the operator is typing.
  */
-export function composerCursorGlyph(_active: boolean): string {
-  return "█";
+export function composerCursorGlyph(active: boolean): string {
+  return active ? "█" : "│";
 }
 
 /**
@@ -150,7 +148,7 @@ export function ComposerInput({
   placeholderTone?: string;
   theme: Theme;
 }) {
-  const { TEXT, MUTED } = theme;
+  const { TEXT, MUTED, PRIMARY } = theme;
   if (composing) {
     const rows = composerContentRows(text, textWidth);
     const cursor = composerCursorGlyph(active);
@@ -173,13 +171,15 @@ export function ComposerInput({
       </box>
     );
   }
-  // Idle: show a filled cursor at the start followed by the placeholder, so
-  // the prompt looks active and ready for input from the moment the TUI opens.
+  // Idle: show a cursor at the start followed by the placeholder, so the
+  // prompt looks active and ready for input from the moment the TUI opens.
+  // The cursor uses PRIMARY (bright) so it stands out against the muted text.
   const cursor = composerCursorGlyph(false);
   return (
-    <text fg={placeholderTone ?? MUTED}>
-      {cursor}{fitTuiText(placeholder, textWidth - 1)}
-    </text>
+    <box flexDirection="row" minWidth={0}>
+      <text fg={PRIMARY}>{cursor}</text>
+      <text fg={placeholderTone ?? MUTED}>{fitTuiText(placeholder, textWidth - 1)}</text>
+    </box>
   );
 }
 

@@ -15,9 +15,9 @@ function concatEquals(text: string, width: number): boolean {
 }
 
 describe("composerCursorGlyph", () => {
-  it("is always a filled block so the prompt looks active from the start", () => {
+  it("is a hollow bar when idle and a filled block when composing", () => {
     expect(composerCursorGlyph(true)).toBe("█");
-    expect(composerCursorGlyph(false)).toBe("█");
+    expect(composerCursorGlyph(false)).toBe("│");
   });
 });
 
