@@ -15,9 +15,9 @@ function concatEquals(text: string, width: number): boolean {
 }
 
 describe("composerCursorGlyph", () => {
-  it("is a filled block when focused and a hollow outline when not", () => {
+  it("is a filled block when focused and a visible shade when not", () => {
     expect(composerCursorGlyph(true)).toBe("█");
-    expect(composerCursorGlyph(false)).toBe("▯");
+    expect(composerCursorGlyph(false)).toBe("░");
   });
 });
 

@@ -32,11 +32,14 @@ function cellCount(text: string): number {
 
 /**
  * The block-cursor glyph. Standard terminal behaviour: a FILLED block when the
- * composer is focused/active, a HOLLOW outline when it is not — so an operator
- * can tell at a glance whether keystrokes land in the composer or elsewhere.
+ * composer is focused/active, a BLINKING-LOOK outline when it is not — so an
+ * operator can tell at a glance whether keystrokes land in the composer or
+ * elsewhere. The idle glyph uses the light shade `░` which reads as a
+ * visible-but-inactive cursor against dark backgrounds, making it obvious the
+ * prompt is ready for input.
  */
 export function composerCursorGlyph(active: boolean): string {
-  return active ? "█" : "▯";
+  return active ? "█" : "░";
 }
 
 /**
