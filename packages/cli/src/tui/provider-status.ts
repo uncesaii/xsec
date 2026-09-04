@@ -130,7 +130,21 @@ export const PROVIDERS: readonly ProviderInfo[] = [
     envVars: ["ANTHROPIC_API_KEY"],
     hint: "set ANTHROPIC_API_KEY=sk-ant-... from console.anthropic.com",
   },
+  {
+    id: "custom-openai",
+    label: "Custom",
+    auth: "api-key",
+    envVars: ["XSEC_CUSTOM_OPENAI_API_KEY"],
+    hint: "set XSEC_CUSTOM_OPENAI_API_KEY, XSEC_CUSTOM_OPENAI_BASE_URL, and XSEC_CUSTOM_OPENAI_MODEL (or use /connect for interactive setup)",
+  },
 ];
+
+/** Env var names for the Custom provider's three fields. */
+export const CUSTOM_OPENAI_ENV_VARS = {
+  apiKey: "XSEC_CUSTOM_OPENAI_API_KEY",
+  baseUrl: "XSEC_CUSTOM_OPENAI_BASE_URL",
+  model: "XSEC_CUSTOM_OPENAI_MODEL",
+} as const;
 
 /**
  * An exported-but-empty variable is the classic way this breaks: `export

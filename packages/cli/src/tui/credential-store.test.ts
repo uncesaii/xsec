@@ -89,6 +89,40 @@ describe("normalizeCredentials", () => {
     ).toEqual({ kimi: "kimi-secret" });
   });
 
+  it("handles custom-openai nested config object", () => {
+    const raw = {
+      "custom-openai": {
+        apiKey: "sk-custom-key",
+        baseUrl: "https://my-endpoint.com/v1",
+        model: "my-model",
+      },
+    };
+    const result = normalizeCredentials(raw);
+    expect(result["custom-openai"]).toEqual({
+      apiKey: "sk-custom-key",
+      baseUrl: "https://my-endpoint.com/v1",
+      model: "my-model",
+    });
+  });
+
+  it("drops custom-openai with empty apiKey", () => {
+    const raw = {
+      "custom-openai": {
+        apiKey: "",
+        baseUrl: "https://my-endpoint.com/v1",
+        model: "my-model",
+      },
+    };
+    const result = normalizeCredentials(raw);
+    expect(result["custom-openai"]).toBeUndefined();
+  });
+
+  it("drops custom-openai with non-object value", () => {
+    expect(normalizeCredentials({ "custom-openai": "not-object" })).toEqual({});
+    expect(normalizeCredentials({ "custom-openai": null })).toEqual({});
+    expect(normalizeCredentials({ "custom-openai": ["array"] })).toEqual({});
+  });
+
   it("drops empty and whitespace-only values", () => {
     // A `$(cat key.txt)` newline or an `export KEY=` is not a credential;
     // keeping it would show the provider as configured and fail every call.
@@ -200,14 +234,25 @@ describe("credentialEnvPatch", () => {
   });
 
   it("covers every API-key provider in the table", () => {
-    const creds: StoredCredentials = Object.fromEntries(
-      PROVIDERS.map((info) => [info.id, `secret-for-${info.id}`]),
-    );
+    // custom-openai needs a nested object, not a string.
+    const creds: StoredCredentials = {
+      ...Object.fromEntries(
+        PROVIDERS.filter((info) => info.id !== "custom-openai" && info.auth === "api-key")
+          .map((info) => [info.id, `secret-for-${info.id}`]),
+      ),
+      "custom-openai": { apiKey: "sk-custom", baseUrl: "https://example.com/v1", model: "test" },
+    };
     const patch = credentialEnvPatch(creds, {});
 
-    expect(Object.keys(patch).sort()).toEqual(
-      PROVIDERS.filter((info) => info.auth === "api-key").map((info) => info.envVars[0]).sort(),
-    );
+    // Other providers contribute envVars[0]; custom-openai contributes all 3 env vars.
+    const expectedKeys = [
+      ...PROVIDERS.filter((info) => info.id !== "custom-openai" && info.auth === "api-key")
+        .map((info) => info.envVars[0]),
+      "XSEC_CUSTOM_OPENAI_API_KEY",
+      "XSEC_CUSTOM_OPENAI_BASE_URL",
+      "XSEC_CUSTOM_OPENAI_MODEL",
+    ].sort();
+    expect(Object.keys(patch).sort()).toEqual(expectedKeys);
   });
 
   it("never overrides an env var that already carries a credential", () => {
@@ -321,5 +366,63 @@ describe("redactSecret", () => {
 
   it("ignores surrounding whitespace rather than counting it as entropy", () => {
     expect(redactSecret("  abcd  ")).toBe("••••••••");
+  });
+});
+
+describe("credentialEnvPatch", () => {
+  it("expands custom-openai config into three env vars", () => {
+    const creds: StoredCredentials = {
+      "custom-openai": {
+        apiKey: "sk-custom",
+        baseUrl: "https://my-endpoint.com/v1",
+        model: "my-model",
+      },
+    };
+    const env: Record<string, string | undefined> = {};
+    const patch = credentialEnvPatch(creds, env);
+    expect(patch["XSEC_CUSTOM_OPENAI_API_KEY"]).toBe("sk-custom");
+    expect(patch["XSEC_CUSTOM_OPENAI_BASE_URL"]).toBe("https://my-endpoint.com/v1");
+    expect(patch["XSEC_CUSTOM_OPENAI_MODEL"]).toBe("my-model");
+  });
+
+  it("does not override existing env vars", () => {
+    const creds: StoredCredentials = {
+      "custom-openai": {
+        apiKey: "sk-custom",
+        baseUrl: "https://my-endpoint.com/v1",
+        model: "my-model",
+      },
+    };
+    const env: Record<string, string | undefined> = {
+      XSEC_CUSTOM_OPENAI_API_KEY: "existing-key",
+    };
+    const patch = credentialEnvPatch(creds, env);
+    // Existing key should NOT be overridden
+    expect(patch["XSEC_CUSTOM_OPENAI_API_KEY"]).toBeUndefined();
+    // But base URL and model should be set
+    expect(patch["XSEC_CUSTOM_OPENAI_BASE_URL"]).toBe("https://my-endpoint.com/v1");
+    expect(patch["XSEC_CUSTOM_OPENAI_MODEL"]).toBe("my-model");
+  });
+
+  it("handles regular string credentials", () => {
+    const creds: StoredCredentials = {
+      anthropic: "sk-ant-secret",
+    };
+    const env: Record<string, string | undefined> = {};
+    const patch = credentialEnvPatch(creds, env);
+    expect(patch["ANTHROPIC_API_KEY"]).toBe("sk-ant-secret");
+  });
+
+  it("skips empty custom-openai config", () => {
+    const creds: StoredCredentials = {
+      "custom-openai": {
+        apiKey: "",
+        baseUrl: "https://my-endpoint.com/v1",
+        model: "my-model",
+      },
+    };
+    const env: Record<string, string | undefined> = {};
+    const patch = credentialEnvPatch(creds, env);
+    expect(Object.keys(patch)).toHaveLength(0);
   });
 });

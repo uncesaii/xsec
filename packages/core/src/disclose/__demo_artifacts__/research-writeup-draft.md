@@ -33,4 +33,4 @@ Use parameterised queries and require an authenticated, org-scoped session.
 
 ## Credits
 
-Found by 0sec's automated security-research tooling ([0sec.ai](https://0sec.ai)).
+Found by XSEC's automated security-research tooling.

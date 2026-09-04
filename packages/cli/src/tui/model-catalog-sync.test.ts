@@ -7,6 +7,7 @@ import {
   syncModelCatalog,
   loadCatalogModels,
   isCacheFresh,
+  mergeModelLists,
   CATALOG_TTL_MS,
   type CatalogCache,
 } from "./model-catalog-sync.js";
@@ -212,5 +213,64 @@ describe("catalog merge (priced core + synced extras)", () => {
     );
     const full = buildFullModelCatalog("novel-xyz", { cachePath });
     expect(full[0].id).toBe("novel-xyz");
+  });
+});
+
+describe("mergeModelLists", () => {
+  it("merges two lists, with provider models taking priority", () => {
+    const modelsDev = [
+      { id: "model-a", provider: "anthropic", input: 5, output: 25 },
+      { id: "model-b", provider: "openai", input: 3, output: 15 },
+    ];
+    const providerModels = [
+      { id: "model-b", provider: "openai", input: 2, output: 10, contextTokens: 128000 },
+      { id: "model-c", provider: "deepseek", input: 1, output: 5 },
+    ];
+    const merged = mergeModelLists(modelsDev, providerModels);
+    expect(merged).toHaveLength(3);
+
+    // model-a from Models.dev
+    const a = merged.find((m) => m.id === "model-a")!;
+    expect(a.input).toBe(5);
+
+    // model-b overridden by provider (higher priority)
+    const b = merged.find((m) => m.id === "model-b")!;
+    expect(b.input).toBe(2);
+    expect(b.contextTokens).toBe(128000);
+
+    // model-c from provider only
+    const c = merged.find((m) => m.id === "model-c")!;
+    expect(c.provider).toBe("deepseek");
+  });
+
+  it("handles case-insensitive deduplication", () => {
+    const modelsDev = [
+      { id: "Claude-Sonnet", provider: "anthropic" },
+    ];
+    const providerModels = [
+      { id: "claude-sonnet", provider: "openrouter" },
+    ];
+    const merged = mergeModelLists(modelsDev, providerModels);
+    expect(merged).toHaveLength(1);
+    // Provider takes priority
+    expect(merged[0].provider).toBe("openrouter");
+  });
+
+  it("returns provider models when Models.dev is empty", () => {
+    const providerModels = [
+      { id: "model-x", provider: "deepseek" },
+    ];
+    const merged = mergeModelLists([], providerModels);
+    expect(merged).toHaveLength(1);
+    expect(merged[0].id).toBe("model-x");
+  });
+
+  it("returns Models.dev models when provider list is empty", () => {
+    const modelsDev = [
+      { id: "model-y", provider: "anthropic" },
+    ];
+    const merged = mergeModelLists(modelsDev, []);
+    expect(merged).toHaveLength(1);
+    expect(merged[0].id).toBe("model-y");
   });
 });

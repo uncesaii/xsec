@@ -569,14 +569,21 @@ export function connectDetailLines(
       push(`Connected: credential found in ${provider.via ?? "the environment"}`, "ok");
     } else {
       push("Connected: credential stored on this machine", "ok");
-      if (provider.envVars.length > 0) {
+      if (provider.id === "custom-openai") {
+        push("Exports: XSEC_CUSTOM_OPENAI_API_KEY, XSEC_CUSTOM_OPENAI_BASE_URL, XSEC_CUSTOM_OPENAI_MODEL", "muted");
+      } else if (provider.envVars.length > 0) {
         push(`Exported to the runtime as ${provider.envVars[0]}`, "muted");
       }
     }
   } else {
     push("Not connected in this environment", "warn");
-    if (provider.envVars.length > 0) push(`Reads: ${provider.envVars.join(", ")}`, "muted");
-    if (provider.hint) push(`Setup: ${provider.hint}`, "muted");
+    if (provider.id === "custom-openai") {
+      push("Reads: XSEC_CUSTOM_OPENAI_API_KEY, XSEC_CUSTOM_OPENAI_BASE_URL, XSEC_CUSTOM_OPENAI_MODEL", "muted");
+      push("Setup: press Enter to enter API key, base URL, and model name interactively", "muted");
+    } else {
+      if (provider.envVars.length > 0) push(`Reads: ${provider.envVars.join(", ")}`, "muted");
+      if (provider.hint) push(`Setup: ${provider.hint}`, "muted");
+    }
     if (provider.fileSource) {
       push(`Also read from ${provider.fileSource}, which is not checked here.`, "muted");
     }
@@ -586,7 +593,9 @@ export function connectDetailLines(
   push(
     provider.auth === "oauth"
       ? "Enter: start Codex device OAuth. No API key or pasted token is used."
-      : "Enter: paste an API key. It is stored owner-only on this machine.",
+      : provider.id === "custom-openai"
+        ? "Enter: set API key, base URL, and model name for a custom OpenAI-compatible endpoint."
+        : "Enter: paste an API key. It is stored owner-only on this machine.",
     "muted",
   );
 

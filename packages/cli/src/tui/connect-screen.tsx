@@ -40,6 +40,7 @@ import { providerStates } from "./provider-status.js";
 import {
   loadCredentials,
   saveCredentials,
+  saveCustomOpenaiConfig,
   type StoredCredentials,
 } from "./credential-store.js";
 import type { ConnectionRecovery } from "./connection-recovery.js";
@@ -356,6 +357,14 @@ export function ConnectScreen({ frame, onBack, onExit, recovery, onConnected, en
   const [inputProviderId, setInputProviderId] = useState<string | undefined>(undefined);
   const [inputValue, setInputValue] = useState("");
   const [notice, setNotice] = useState<string | undefined>(undefined);
+
+  // Custom provider multi-step input state.
+  const [customStep, setCustomStep] = useState<"apiKey" | "baseUrl" | "model" | undefined>(undefined);
+  const [customValues, setCustomValues] = useState<{ apiKey: string; baseUrl: string; model: string }>({
+    apiKey: "",
+    baseUrl: "",
+    model: "",
+  });
   const oauthSessionRef = useRef<CodexDeviceAuthSession | undefined>(undefined);
   const [oauth, setOauth] = useState<
     (CodexDeviceAuthUpdate & { providerId: string }) | undefined
@@ -400,7 +409,7 @@ export function ConnectScreen({ frame, onBack, onExit, recovery, onConnected, en
   const layout = computeConnectLayout({ width, height, noticeRows: 1 });
   const window = computeConnectWindow({ rows, selected: cursor, visible: layout.visibleRows, anchor });
 
-  const inInput = inputProviderId !== undefined;
+  const inInput = inputProviderId !== undefined || customStep !== undefined;
   const oauthVisible = oauth?.providerId === activeProvider?.id;
   const inOAuth = oauthVisible && oauth?.phase === "running";
   const mode: ConnectMode = inInput ? "input" : inOAuth ? "oauth" : filtering ? "filter" : "browse";
@@ -478,14 +487,26 @@ export function ConnectScreen({ frame, onBack, onExit, recovery, onConnected, en
       return;
     }
     setOauth(undefined);
+    setNotice(undefined);
+
+    // Custom provider: multi-step flow (apiKey → baseUrl → model).
+    if (provider.id === "custom-openai") {
+      setCustomStep("apiKey");
+      setCustomValues({ apiKey: "", baseUrl: "", model: "" });
+      setInputProviderId(undefined);
+      setInputValue("");
+      return;
+    }
+
     setInputProviderId(provider.id);
     setInputValue("");
-    setNotice(undefined);
   };
 
   const cancelInput = () => {
     setInputProviderId(undefined);
     setInputValue("");
+    setCustomStep(undefined);
+    setCustomValues({ apiKey: "", baseUrl: "", model: "" });
   };
 
   const cancelOauth = () => {
@@ -493,6 +514,48 @@ export function ConnectScreen({ frame, onBack, onExit, recovery, onConnected, en
   };
 
   const commitInput = () => {
+    // Custom provider: advance through steps or commit.
+    if (customStep) {
+      const current = inputValue.trim();
+      if (current.length === 0 && customStep === "apiKey") {
+        setNotice("API key is required");
+        return;
+      }
+      if (customStep === "apiKey") {
+        setCustomValues((prev) => ({ ...prev, apiKey: current }));
+        setCustomStep("baseUrl");
+        setInputValue("");
+        return;
+      }
+      if (customStep === "baseUrl") {
+        setCustomValues((prev) => ({ ...prev, baseUrl: current }));
+        setCustomStep("model");
+        setInputValue("");
+        return;
+      }
+      // customStep === "model" — commit all three fields.
+      const cfg = { ...customValues, model: current };
+      setCustomStep(undefined);
+      setInputValue("");
+      if (cfg.apiKey.length === 0) {
+        setNotice("API key is required; provider unchanged");
+        return;
+      }
+      const ok = saveCustomOpenaiConfig(
+        { apiKey: cfg.apiKey, baseUrl: cfg.baseUrl, model: cfg.model },
+        homeDir,
+      );
+      if (!ok) {
+        setNotice("could not write credentials (is HOME writable?)");
+        return;
+      }
+      const reloaded = loadCredentials(homeDir);
+      setStored(reloaded);
+      setNotice(reloaded["custom-openai"] ? "connected Custom" : "Custom not stored");
+      onConnected?.("custom-openai");
+      return;
+    }
+
     const id = inputProviderId;
     const secret = inputValue.trim();
     setInputProviderId(undefined);
@@ -780,12 +843,22 @@ export function ConnectScreen({ frame, onBack, onExit, recovery, onConnected, en
       ? theme.ERROR
       : detailProvider?.connected ? theme.SUCCESS : theme.MUTED;
 
+  const customStepLabel = customStep === "apiKey"
+    ? "API key"
+    : customStep === "baseUrl"
+      ? "base URL (e.g. https://api.example.com/v1)"
+      : customStep === "model"
+        ? "model name (e.g. my-model)"
+        : undefined;
+
   const statusText = oauthVisible && oauth
     ? oauth.message
     : recovery
       ? recoveryTitle ?? "provider needs to reconnect"
       : inInput
-        ? `paste API key for ${activeProvider?.label ?? inputProviderId}: ${connectInputMask(inputValue.length)}`
+        ? customStepLabel
+          ? `Custom ${customStepLabel}: ${connectInputMask(inputValue.length)}`
+          : `paste API key for ${activeProvider?.label ?? inputProviderId}: ${connectInputMask(inputValue.length)}`
         : filtering
           ? `filter: ${filter}_`
           : notice

@@ -40,11 +40,18 @@ import { dirname, join } from "node:path";
 
 import { homeStateDir } from "@xsec/shared";
 
-import { PROVIDERS } from "./provider-status.js";
+import { PROVIDERS, CUSTOM_OPENAI_ENV_VARS } from "./provider-status.js";
 
 export interface StoredCredentials {
-  /** providerId -> secret value. */
-  [providerId: string]: string;
+  /** providerId -> secret value (string for most, nested object for custom-openai). */
+  [providerId: string]: string | CustomOpenaiConfig;
+}
+
+/** Configuration for the Custom OpenAI-compatible provider. */
+export interface CustomOpenaiConfig {
+  apiKey: string;
+  baseUrl: string;
+  model: string;
 }
 
 /** Basename of the credential file inside the xsec state directory. */
@@ -113,6 +120,20 @@ export function normalizeCredentials(raw: unknown): StoredCredentials {
 
   for (const [providerId, value] of Object.entries(raw as Record<string, unknown>)) {
     if (!STORABLE_PROVIDER_IDS.has(providerId)) continue;
+
+    // Custom OpenAI provider stores a nested config object.
+    if (providerId === "custom-openai") {
+      if (typeof value !== "object" || value === null || Array.isArray(value)) continue;
+      const cfg = value as Record<string, unknown>;
+      const apiKey = typeof cfg["apiKey"] === "string" ? cfg["apiKey"].trim() : "";
+      const baseUrl = typeof cfg["baseUrl"] === "string" ? cfg["baseUrl"].trim() : "";
+      const model = typeof cfg["model"] === "string" ? cfg["model"].trim() : "";
+      if (apiKey.length > 0) {
+        out[providerId] = { apiKey, baseUrl, model };
+      }
+      continue;
+    }
+
     if (typeof value !== "string") continue;
     const secret = value.trim();
     if (secret.length === 0) continue;
@@ -210,13 +231,24 @@ export function credentialEnvPatch(
   for (const info of PROVIDERS) {
     const secret = stored[info.id];
     if (secret === undefined) continue;
+
+    // Custom OpenAI: expand nested config into three env vars.
+    if (info.id === "custom-openai" && typeof secret === "object" && secret !== null) {
+      const cfg = secret as CustomOpenaiConfig;
+      const vars = CUSTOM_OPENAI_ENV_VARS;
+      if (!hasCredential(env[vars.apiKey]) && cfg.apiKey.length > 0) patch[vars.apiKey] = cfg.apiKey;
+      if (!hasCredential(env[vars.baseUrl]) && cfg.baseUrl.length > 0) patch[vars.baseUrl] = cfg.baseUrl;
+      if (!hasCredential(env[vars.model]) && cfg.model.length > 0) patch[vars.model] = cfg.model;
+      continue;
+    }
+
     if (info.envVars.some((name) => hasCredential(env[name]))) continue;
     const target = info.envVars[0];
     // A provider with no env vars cannot be configured this way at all; the
     // table has none today, but the guard keeps a future file-only provider
     // from producing an `undefined` key.
     if (target === undefined) continue;
-    patch[target] = secret;
+    patch[target] = secret as string;
   }
 
   return patch;
@@ -256,4 +288,27 @@ export function redactSecret(secret: string): string {
   const tail = value.slice(-TAIL);
   if (value.length < MIN_LENGTH_FOR_PREFIX) return `${MASK}${tail}`;
   return `${value.slice(0, PREFIX)}…${tail}`;
+}
+
+/**
+ * Load the Custom OpenAI provider config from the credential store.
+ * Returns undefined if not stored or malformed.
+ */
+export function loadCustomOpenaiConfig(homeDir?: string): CustomOpenaiConfig | undefined {
+  const creds = loadCredentials(homeDir);
+  const cfg = creds["custom-openai"];
+  if (typeof cfg === "object" && cfg !== null && typeof cfg.apiKey === "string" && cfg.apiKey.length > 0) {
+    return cfg as CustomOpenaiConfig;
+  }
+  return undefined;
+}
+
+/**
+ * Save the Custom OpenAI provider config to the credential store.
+ * Merges with existing stored credentials.
+ */
+export function saveCustomOpenaiConfig(config: CustomOpenaiConfig, homeDir?: string): boolean {
+  const existing = loadCredentials(homeDir);
+  const next: StoredCredentials = { ...existing, "custom-openai": config };
+  return saveCredentials(next, homeDir);
 }

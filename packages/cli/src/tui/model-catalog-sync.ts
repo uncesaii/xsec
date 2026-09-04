@@ -24,6 +24,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { homeStateDir } from "@xsec/shared";
 import { OFFLINE_MODEL_CATALOG } from "./model-catalog.offline.js";
+import { fetchProviderModels } from "./model-catalog-providers.js";
 
 /** One normalized catalog entry. Prices are $/1M tokens when known. */
 export interface SyncedModel {
@@ -158,17 +159,46 @@ export function loadCatalogModels(opts: CatalogSyncOptions = {}): CatalogCache {
 }
 
 /**
- * Refresh the catalog from Models.dev and write the cache. Returns the new
- * cache on success, or null on any failure (never throws). If `force` is false
- * (default) and the cache is already fresh, returns the existing cache without
- * a network call so `/model` can call this unconditionally on open.
+ * Merge two model lists, with provider-fetched models taking priority over
+ * Models.dev for the same model ID. Provider-fetched data is more authoritative
+ * because it comes directly from the source.
+ */
+export function mergeModelLists(
+  modelsDev: SyncedModel[],
+  providerModels: SyncedModel[],
+): SyncedModel[] {
+  const byId = new Map<string, SyncedModel>();
+  // Models.dev goes in first (lower priority).
+  for (const m of modelsDev) {
+    byId.set(m.id.toLowerCase(), m);
+  }
+  // Provider-fetched models override (higher priority).
+  for (const m of providerModels) {
+    byId.set(m.id.toLowerCase(), m);
+  }
+  return Array.from(byId.values());
+}
+
+/**
+ * Refresh the catalog from Models.dev and configured providers, then write
+ * the merged cache. Returns the new cache on success, or null on any failure
+ * (never throws). If `force` is false (default) and the cache is already
+ * fresh, returns the existing cache without a network call.
  */
 export async function syncModelCatalog(
   opts: CatalogSyncOptions & { force?: boolean } = {},
 ): Promise<CatalogCache | null> {
   const path = catalogCachePath(opts);
   const existing = readCache(path);
-  if (!opts.force && isCacheFresh(existing, opts) && (existing?.models.length ?? 0) > 0) {
+  // Skip the network when the cache is fresh and already includes provider data.
+  // A cache from before the provider-fetch feature (source !== "merged") should
+  // be refreshed so the picker shows real-time models from configured providers.
+  if (
+    !opts.force &&
+    isCacheFresh(existing, opts) &&
+    (existing?.models.length ?? 0) > 0 &&
+    existing?.source === "merged"
+  ) {
     return existing;
   }
 
@@ -176,24 +206,42 @@ export async function syncModelCatalog(
   if (typeof fetchImpl !== "function") return null;
   const url = opts.url ?? MODELS_DEV_URL;
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-  try {
-    const res = await fetchImpl(url, { signal: controller.signal });
-    if (!res.ok) return null;
-    const json = (await res.json()) as unknown;
-    const models = normalizeModelsDev(json);
-    if (models.length === 0) return null;
-    const cache: CatalogCache = {
-      fetchedAt: (opts.now ?? Date.now)(),
-      source: url,
-      models,
-    };
-    writeCache(path, cache);
-    return cache;
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timer);
-  }
+  // Fetch from Models.dev and all configured providers in parallel.
+  // Provider models are fetched first since they are more authoritative
+  // (directly from the source), while Models.dev fills in any gaps.
+  const [modelsDevResult, providerResult] = await Promise.allSettled([
+    (async () => {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+      try {
+        const res = await fetchImpl(url, { signal: controller.signal });
+        if (!res.ok) return [];
+        const json = (await res.json()) as unknown;
+        return normalizeModelsDev(json);
+      } catch {
+        return [];
+      } finally {
+        clearTimeout(timer);
+      }
+    })(),
+    fetchProviderModels(process.env, fetchImpl),
+  ]);
+
+  const modelsDev = modelsDevResult.status === "fulfilled" ? modelsDevResult.value : [];
+  const providerModels = providerResult.status === "fulfilled" ? providerResult.value : [];
+
+  // Merge: provider-fetched models take priority for same IDs.
+  const models = mergeModelLists(modelsDev, providerModels);
+  if (models.length === 0) return null;
+
+  const cache: CatalogCache = {
+    fetchedAt: (opts.now ?? Date.now)(),
+    // Always mark as "merged" since we always fetch from both Models.dev and
+    // configured providers. Old caches with a different source string will be
+    // refreshed on the next sync to pick up provider-specific models.
+    source: "merged",
+    models,
+  };
+  writeCache(path, cache);
+  return cache;
 }

@@ -13,12 +13,13 @@ import type { LogoCellTone } from "../logo-animation.js";
  * `TERMINAL_BLOCK_LOGO_WIDTH`), which keeps a row's segments from overflowing.
  */
 export const TERMINAL_BLOCK_LOGO = [
-  "#      /  #######  #######   ######",
-  "  #  /    ##       ##       ##     ",
-  "   /#     #######  #####    ##     ",
-  "  /  #         ##  ##       ##     ",
-  "/      #  #######  #######   ######",
+  "##    //  ########  ########  ########",
+  " ### ///  ##        ##       ##       ",
+  "  /////   ########  ######   ##       ",
+  " /// ###        ##  ##       ##       ",
+  "//    ##  ########  ########  ########",
 ] as const;
+
 export const TERMINAL_BLOCK_LOGO_WIDTH = 35;
 
 /**

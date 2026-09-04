@@ -701,7 +701,7 @@ const QWEN_TOKEN_PLAN_DEEPSEEK_MODEL = "deepseek-v4-flash-0731";
 const XAI_DEFAULT_BASE_URL = "https://api.x.ai/v1";
 const XAI_DEFAULT_MODEL = "grok-4.6";
 
-type ApiProvider = "openrouter" | "anthropic" | "openai" | "azure" | "deepseek" | "chatgpt-codex" | "z-ai" | "kimi" | "qwen" | "xai";
+type ApiProvider = "openrouter" | "anthropic" | "openai" | "azure" | "deepseek" | "chatgpt-codex" | "z-ai" | "kimi" | "qwen" | "xai" | "custom-openai";
 type WireApi = "chat_completions" | "responses";
 /**
  * Azure Foundry deployment ids used by xcloud. The worker can inject both
@@ -847,6 +847,11 @@ export function resolveFailoverProvider(
       const key = process.env.XAI_API_KEY;
       if (!key) return undefined;
       return { apiKey: key, baseUrl: process.env.XAI_BASE_URL ?? XAI_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "custom-openai": {
+      const key = process.env.XSEC_CUSTOM_OPENAI_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.XSEC_CUSTOM_OPENAI_BASE_URL ?? "http://localhost:8080/v1", wireApi: "chat_completions" };
     }
   }
 }
@@ -1332,6 +1337,8 @@ function providerForModel(model: string | undefined): ApiProvider | undefined {
     if (process.env.OPENROUTER_API_KEY) return "openrouter";
     return undefined;
   }
+  // Custom OpenAI-compatible endpoint — model ids prefixed with "custom/".
+  if (m.startsWith("custom/")) return process.env.XSEC_CUSTOM_OPENAI_API_KEY ? "custom-openai" : undefined;
   return undefined;
 }
 
@@ -1420,6 +1427,7 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
       "kimi",
       "qwen",
       "xai",
+      "custom-openai",
     ];
     if (!supported.includes(pinnedProviderRaw as ApiProvider)) {
       throw new Error(`${source} is unsupported: ${pinnedProviderRaw}`);
@@ -1496,6 +1504,10 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
     case "openai":
       return { provider: "openai", apiKey: process.env.OPENAI_API_KEY as string,
         baseUrl: process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1", defaultModel: DEFAULT_OPENAI_MODEL, wireApi: "chat_completions" };
+    case "custom-openai":
+      return { provider: "custom-openai", apiKey: process.env.XSEC_CUSTOM_OPENAI_API_KEY ?? "",
+        baseUrl: process.env.XSEC_CUSTOM_OPENAI_BASE_URL ?? "http://localhost:8080/v1",
+        defaultModel: process.env.XSEC_CUSTOM_OPENAI_MODEL ?? "default", wireApi: "chat_completions" };
     default:
       break; // fall through to env-priority detection
   }
@@ -1647,6 +1659,19 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
       apiKey: xaiKey,
       baseUrl: process.env.XAI_BASE_URL ?? XAI_DEFAULT_BASE_URL,
       defaultModel: XAI_DEFAULT_MODEL,
+      wireApi: "chat_completions",
+    };
+  }
+
+  // Custom OpenAI-compatible endpoint — explicit operator opt-in via
+  // XSEC_CUSTOM_OPENAI_API_KEY + XSEC_CUSTOM_OPENAI_BASE_URL + XSEC_CUSTOM_OPENAI_MODEL.
+  const customOpenaiKey = process.env.XSEC_CUSTOM_OPENAI_API_KEY;
+  if (customOpenaiKey) {
+    return {
+      provider: "custom-openai",
+      apiKey: customOpenaiKey,
+      baseUrl: process.env.XSEC_CUSTOM_OPENAI_BASE_URL ?? "http://localhost:8080/v1",
+      defaultModel: process.env.XSEC_CUSTOM_OPENAI_MODEL ?? "default",
       wireApi: "chat_completions",
     };
   }

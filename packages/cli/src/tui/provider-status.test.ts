@@ -46,6 +46,7 @@ describe("PROVIDERS", () => {
         "anthropic",
         "azure",
         "chatgpt-codex",
+        "custom-openai",
         "deepseek",
         "kimi",
         "openai",
