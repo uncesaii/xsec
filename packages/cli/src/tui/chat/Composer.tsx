@@ -173,13 +173,15 @@ export function ComposerInput({
   }
   // Idle: show a cursor at the start followed by the placeholder, so the
   // prompt looks active and ready for input from the moment the TUI opens.
-  // The cursor uses PRIMARY (bright) so it stands out against the muted text.
+  // Uses the same single-<text> pattern as the composing branch so the cursor
+  // and placeholder sit on the same line without wrapping.
   const cursor = composerCursorGlyph(false);
+  const ph = fitTuiText(placeholder, textWidth - 1);
   return (
-    <box flexDirection="row" minWidth={0}>
+    <text>
       <text fg={PRIMARY}>{cursor}</text>
-      <text fg={placeholderTone ?? MUTED}>{fitTuiText(placeholder, textWidth - 1)}</text>
-    </box>
+      <text fg={placeholderTone ?? MUTED}>{ph}</text>
+    </text>
   );
 }
 
