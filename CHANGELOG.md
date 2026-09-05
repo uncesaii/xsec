@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-09-06
+
+### Added
+- `/providers` Popular section: curated top 5 providers (Codex, OpenAI, Anthropic, Google, OpenRouter) with subtitles
+- `/model` Recent section: last 5 used models at top, persisted to `~/.xsec/recent-models.json`
+- All 213 models.dev providers in `/providers` with real-time model fetching and pricing
+- Real-time model catalog sync from models.dev/api.json on `/model` open (background, cached)
+- Provider labels resolved from models.dev registry — no more title-cased fallback IDs
+
+### Changed
+- `/model` now shows ALL models from ALL providers (unfiltered) instead of only configured providers
+- Recent models tracked via file-based store (works in Node.js CLI, not localStorage)
+
+### Fixed
+- Recent models now persist across CLI sessions via `~/.xsec/recent-models.json`
+
 ## [0.12.0] - 2026-09-06
 
 ### Added
