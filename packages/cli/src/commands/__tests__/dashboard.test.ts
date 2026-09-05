@@ -647,7 +647,7 @@ describe("dashboard — static asset serving", () => {
     const captured = await invokeHandler(makeRequest({ method: "GET", url: "/" }));
     expect(captured.statusCode).toBe(200);
     expect(captured.headers["Content-Type"]).toMatch(/text\/html/);
-    expect(captured.body).toMatch(/0sec-control-token" content="[0-9a-f-]{8,}"/);
+    expect(captured.body).toMatch(/xsec-control-token" content="[0-9a-f-]{8,}"/);
   });
 
   it("GET /<spa-route> serves index.html WITH the control-token <meta> injected", async () => {
@@ -712,7 +712,7 @@ describe("dashboard — desktop console API", () => {
       makeRequest({
         method: "GET",
         url: "/api/console/providers/codex",
-        headers: { "x-0sec-control-token": token },
+        headers: { "x-xsec-control-token": token },
       }),
     );
 
@@ -732,7 +732,7 @@ describe("dashboard — desktop console API", () => {
       makeRequest({
         method: "POST",
         url: "/api/console/sessions",
-        headers: { "x-0sec-control-token": token },
+        headers: { "x-xsec-control-token": token },
         body: {
           target: "https://app.example.test",
           role: "audit",
@@ -752,7 +752,7 @@ describe("dashboard — desktop console API", () => {
       makeRequest({
         method: "GET",
         url: `/api/console/sessions/${session.session.id}/events?after=0`,
-        headers: { "x-0sec-control-token": token },
+        headers: { "x-xsec-control-token": token },
       }),
     );
 
