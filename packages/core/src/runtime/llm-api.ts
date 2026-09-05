@@ -709,8 +709,10 @@ const MISTRAL_DEFAULT_MODEL = "mistral-large-latest";
 
 const META_DEFAULT_BASE_URL = "https://api.meta.ai/v1";
 const META_DEFAULT_MODEL = "muse-spark-1.2";
+const NVIDIA_DEFAULT_BASE_URL = "https://integrate.api.nvidia.com/v1";
+const NVIDIA_DEFAULT_MODEL = "nvidia/nemotron-3-ultra";
 
-type ApiProvider = "openrouter" | "anthropic" | "openai" | "azure" | "deepseek" | "chatgpt-codex" | "z-ai" | "kimi" | "qwen" | "xai" | "custom-openai" | "zen" | "google" | "mistral" | "meta" | "cohere" | "perplexity";
+type ApiProvider = "openrouter" | "anthropic" | "openai" | "azure" | "deepseek" | "chatgpt-codex" | "z-ai" | "kimi" | "qwen" | "xai" | "custom-openai" | "zen" | "google" | "mistral" | "meta" | "cohere" | "perplexity" | "nvidia";
 type WireApi = "chat_completions" | "responses";
 /**
  * Azure Foundry deployment ids used by xcloud. The worker can inject both
@@ -882,7 +884,7 @@ export function resolveFailoverProvider(
     case "nvidia": {
       const key = process.env.NVIDIA_API_KEY;
       if (!key) return undefined;
-      return { apiKey: key, baseUrl: process.env.NVIDIA_BASE_URL ?? "https://integrate.api.nvidia.com/v1", wireApi: "chat_completions" };
+      return { apiKey: key, baseUrl: process.env.NVIDIA_BASE_URL ?? NVIDIA_DEFAULT_BASE_URL, wireApi: "chat_completions" };
     }
   }
 }
@@ -1610,8 +1612,8 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
         defaultModel: process.env.META_MODEL ?? META_DEFAULT_MODEL, wireApi: "chat_completions" };
     case "nvidia":
       return { provider: "nvidia", apiKey: process.env.NVIDIA_API_KEY as string,
-        baseUrl: process.env.NVIDIA_BASE_URL ?? "https://integrate.api.nvidia.com/v1",
-        defaultModel: process.env.NVIDIA_MODEL ?? "nvidia/nemotron-3-ultra", wireApi: "chat_completions" };
+        baseUrl: process.env.NVIDIA_BASE_URL ?? NVIDIA_DEFAULT_BASE_URL,
+        defaultModel: process.env.NVIDIA_MODEL ?? NVIDIA_DEFAULT_MODEL, wireApi: "chat_completions" };
     case "cohere":
       return { provider: "cohere", apiKey: process.env.COHERE_API_KEY as string,
         baseUrl: process.env.COHERE_BASE_URL ?? "https://api.cohere.com/v2",
