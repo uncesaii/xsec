@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-09-06
+
 ### Fixed
 - Remaining `0sec` references in desktop package: sidecar binary names, `OSEC_DESKTOP_ROOT` env var, window title, error box, test expectations
 - `pnpm desktop` not working — missing scripts in root `package.json`

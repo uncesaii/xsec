@@ -1,7 +1,7 @@
 {
   "name": "xsec",
   "type": "module",
-  "version": "0.15.0",
+  "version": "0.11.0",
   "description": "The open cybersecurity harness — evidence-first, agent-driven security research for authorized targets.",
   "bin": {
     "x": "dist/xsec.js",
