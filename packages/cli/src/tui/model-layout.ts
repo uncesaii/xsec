@@ -57,7 +57,8 @@
  */
 
 import { buildModelCatalog, type CatalogModel } from "./model-catalog.js";
-import { PROVIDERS, providerStates, type ProviderState } from "./provider-status.js";
+import { PROVIDERS, providerStates, allProviders, type ProviderState, type AllProviderEntry } from "./provider-status.js";
+import { MODELS_DEV_BY_ID } from "./models-dev-providers.js";
 import { shellChromeRows, wrapCells } from "./settings-layout.js";
 import { sanitizeTuiText } from "./text.js";
 
@@ -129,25 +130,35 @@ function titleCase(id: string): string {
 /** Everything sayable about the provider behind a catalogue entry. */
 export function providerGroupFor(
   id: string,
-  states: readonly ProviderState[],
+  states: readonly (ProviderState | AllProviderEntry)[],
 ): ModelProviderGroup {
   const state = states.find((candidate) => candidate.id === id);
-  if (!state) {
+  if (state) {
+    return {
+      id: state.id,
+      label: state.label,
+      credential: state.configured ? "ready" : "missing",
+      via: state.via,
+      hint: "hint" in state ? state.hint : undefined,
+      fileSource: "fileSource" in state ? state.fileSource : undefined,
+      envVars: state.envVars,
+    };
+  }
+  // Look up from models.dev registry for unmapped providers
+  const md = MODELS_DEV_BY_ID.get(id);
+  if (md) {
     return {
       id,
-      label: titleCase(id) || id,
+      label: md.name,
       credential: "unmapped",
-      envVars: [],
+      envVars: md.envVars,
     };
   }
   return {
-    id: state.id,
-    label: state.label,
-    credential: state.configured ? "ready" : "missing",
-    via: state.via,
-    hint: state.hint,
-    fileSource: state.fileSource,
-    envVars: state.envVars,
+    id,
+    label: titleCase(id) || id,
+    credential: "unmapped",
+    envVars: [],
   };
 }
 
@@ -164,7 +175,7 @@ export function credentialLabel(credential: ProviderCredential): string {
 }
 
 /** Labels of every provider that currently holds a credential. */
-export function configuredProviderLabels(states: readonly ProviderState[]): string[] {
+export function configuredProviderLabels(states: readonly (ProviderState | AllProviderEntry)[]): string[] {
   return states.filter((state) => state.configured).map((state) => state.label);
 }
 
@@ -177,7 +188,7 @@ export function configuredProviderLabels(states: readonly ProviderState[]): stri
  * credentials", because the catalogue has no chatgpt-codex models to group
  * under, and without this line that reads as "nothing works".
  */
-export function credentialSummary(states: readonly ProviderState[]): string {
+export function credentialSummary(states: readonly (ProviderState | AllProviderEntry)[]): string {
   const labels = configuredProviderLabels(states);
   if (labels.length === 0) {
     return "credentials: none detected in this environment - see /doctor";
@@ -202,7 +213,7 @@ export interface ModelRowsInput {
   /** Defaults to the live catalogue; a test may pass its own. */
   catalog?: readonly CatalogModel[];
   /** Defaults to an empty environment, i.e. nothing configured. */
-  states?: readonly ProviderState[];
+  states?: readonly (ProviderState | AllProviderEntry)[];
   filter?: string;
   /** The model the session is currently running. */
   activeModel?: string;

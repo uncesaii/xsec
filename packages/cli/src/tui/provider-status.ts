@@ -16,7 +16,13 @@
  * providers deviate from the `<VENDOR>_API_KEY` pattern (`Z_AI_API_KEY`,
  * `AZURE_OPENAI_API_KEY`, and the two `XSEC_CHATGPT_*` tokens), so extend
  * this table by re-reading that file rather than by analogy.
+ *
+ * Additionally, `MODELS_DEV_PROVIDERS` from models-dev-providers.ts provides
+ * the full list of 213 providers from models.dev, used by the /providers
+ * screen to show all available vendors and their configuration status.
  */
+
+import { MODELS_DEV_PROVIDERS, type ModelsDevProvider, isModelsDevProviderConfigured } from "./models-dev-providers.js";
 
 export interface ProviderInfo {
   /** Provider id as the runtime names it, e.g. "anthropic". */
@@ -81,10 +87,6 @@ export const PROVIDERS: readonly ProviderInfo[] = [
     id: "azure",
     label: "Azure OpenAI",
     auth: "api-key",
-    // Only the Azure key authenticates; the deployment URL comes from
-    // AZURE_OPENAI_BASE_URL / OPENAI_BASE_URL / ~/.codex/config.toml
-    // (L1435-1445). A key with no reachable base URL still counts as
-    // configured here because detectProvider selects azure on the key alone.
     envVars: ["AZURE_OPENAI_API_KEY"],
     hint: "set AZURE_OPENAI_API_KEY plus AZURE_OPENAI_BASE_URL (or [model_providers.azure] in ~/.codex/config.toml)",
   },
@@ -122,6 +124,41 @@ export const PROVIDERS: readonly ProviderInfo[] = [
     auth: "api-key",
     envVars: ["XAI_API_KEY"],
     hint: "set XAI_API_KEY from console.x.ai (endpoint override: XAI_BASE_URL)",
+  },
+  {
+    id: "google",
+    label: "Google Gemini",
+    auth: "api-key",
+    envVars: ["GOOGLE_API_KEY"],
+    hint: "set GOOGLE_API_KEY from aistudio.google.com (endpoint override: GOOGLE_BASE_URL)",
+  },
+  {
+    id: "mistral",
+    label: "Mistral AI",
+    auth: "api-key",
+    envVars: ["MISTRAL_API_KEY"],
+    hint: "set MISTRAL_API_KEY from console.mistral.ai (endpoint override: MISTRAL_BASE_URL)",
+  },
+  {
+    id: "meta",
+    label: "Meta Muse",
+    auth: "api-key",
+    envVars: ["META_API_KEY"],
+    hint: "set META_API_KEY from dev.meta.ai (endpoint override: META_BASE_URL)",
+  },
+  {
+    id: "cohere",
+    label: "Cohere",
+    auth: "api-key",
+    envVars: ["COHERE_API_KEY"],
+    hint: "set COHERE_API_KEY from dashboard.cohere.com (endpoint override: COHERE_BASE_URL)",
+  },
+  {
+    id: "perplexity",
+    label: "Perplexity",
+    auth: "api-key",
+    envVars: ["PERPLEXITY_API_KEY"],
+    hint: "set PERPLEXITY_API_KEY from perplexity.ai (endpoint override: PERPLEXITY_BASE_URL)",
   },
   {
     id: "anthropic",
@@ -191,4 +228,93 @@ export function isProviderConfigured(providerId: string, env: Record<string, str
   // would take the picker down.
   const info = PROVIDERS.find((candidate) => candidate.id === providerId);
   return info !== undefined && satisfyingVar(info, env) !== undefined;
+}
+
+// ── Models.dev integration ──────────────────────────────────────────────────
+//
+// The /providers screen shows both the core PROVIDERS (runtime-routable) and
+// all models.dev providers (for visibility into what's available). The models.dev
+// providers are checked against the environment to show configured/unconfigured
+// status.
+
+export type { ModelsDevProvider };
+
+/** Re-export the full models.dev provider list for the /providers screen. */
+export { MODELS_DEV_PROVIDERS };
+
+/**
+ * All providers shown on the /providers screen: core PROVIDERS first,
+ * then models.dev providers not already in the core list.
+ */
+export interface AllProviderEntry {
+  /** "core" for runtime providers, "models-dev" for catalog-only providers. */
+  source: "core" | "models-dev";
+  /** Provider ID. */
+  id: string;
+  /** Human-readable name. */
+  label: string;
+  /** Whether this provider has credentials configured. */
+  configured: boolean;
+  /** Which env var was found, if configured. */
+  via?: string;
+  /** The env vars this provider uses. */
+  envVars: readonly string[];
+}
+
+/**
+ * Get all providers for the /providers screen, combining core and models.dev.
+ * Core providers come first, then models.dev providers not already in core.
+ */
+export function allProviders(env: Record<string, string | undefined>): AllProviderEntry[] {
+  const coreIds = new Set(PROVIDERS.map((p) => p.id));
+  const entries: AllProviderEntry[] = [];
+
+  // Core providers first
+  for (const state of providerStates(env)) {
+    entries.push({
+      source: "core",
+      id: state.id,
+      label: state.label,
+      configured: state.configured,
+      via: state.via,
+      envVars: state.envVars,
+    });
+  }
+
+  // Models.dev providers not already in core
+  for (const md of MODELS_DEV_PROVIDERS) {
+    if (coreIds.has(md.id)) continue;
+    const configured = isModelsDevProviderConfigured(md, env);
+    const via = md.envVars.find((v) => {
+      const val = env[v];
+      return typeof val === "string" && val.trim().length > 0;
+    });
+    entries.push({
+      source: "models-dev",
+      id: md.id,
+      label: md.name,
+      configured,
+      via,
+      envVars: md.envVars,
+    });
+  }
+
+  return entries;
+}
+
+/**
+ * Get all configured provider IDs (core + models.dev) for the model picker.
+ * Used to filter which models can actually be routed.
+ */
+export function allConfiguredProviderIds(env: Record<string, string | undefined>): Set<string> {
+  const ids = new Set<string>();
+  for (const state of providerStates(env)) {
+    if (state.configured) ids.add(state.id);
+  }
+  for (const md of MODELS_DEV_PROVIDERS) {
+    if (isModelsDevProviderConfigured(md, env)) {
+      ids.add(md.runtimeId ?? md.id);
+    }
+  }
+  return ids;
 }

@@ -74,7 +74,8 @@ import {
 } from "./model-layout.js";
 import { buildFullModelCatalog } from "./model-catalog.js";
 import { syncModelCatalog } from "./model-catalog-sync.js";
-import { providerStates } from "./provider-status.js";
+import { providerStates, allProviders } from "./provider-status.js";
+import { loadRecentModels, saveRecentModels, addRecentModel } from "./recent-models-store.js";
 
 /** How many rows page-up and page-down move. */
 const PAGE_STEP = 5;
@@ -102,7 +103,7 @@ export interface ModelScreenProps {
   currentModel?: string;
   /** Enter on a model row. The router decides what "select" means. */
   onSelect: (id: string) => void;
-  /** Leave the screen — Esc, once any filter has been cleared. */
+  /** Leave the screen — Esc once any filter has been cleared. */
   onBack: () => void;
   /** Leave the console entirely — ctrl+c. */
   onExit: () => void;
@@ -112,6 +113,15 @@ export interface ModelScreenProps {
    * test mutating `process.env`.
    */
   env?: Record<string, string | undefined>;
+  /** Recent model ids (last 5), persisted across sessions via file store. */
+  recentModels?: string[];
+  /** Called after a model is selected to update the recent list. */
+  onRecentUpdate?: (recentIds: string[]) => void;
+  /**
+   * The credential store home dir. Defaults to the real one; injected so a test
+   * can point the store at a temp dir without touching the operator's file.
+   */
+  homeDir?: string;
 }
 
 function toneColor(theme: Theme, tone: ModelDetailTone): string | undefined {
@@ -139,6 +149,9 @@ export function ModelScreen({
   onBack,
   onExit,
   env,
+  recentModels: propRecentModels,
+  onRecentUpdate,
+  homeDir,
 }: ModelScreenProps) {
   const theme = useTheme();
   const { width, height } = useTerminalDimensions();
@@ -146,10 +159,35 @@ export function ModelScreen({
   const [filter, setFilter] = useState("");
   const [filtering, setFiltering] = useState(false);
 
+  // --- Recent models: last 5 models used, persisted across sessions via file store ---
+  // Start with persisted recents, or prop-provided, fall back to empty
+  const initialRecent = propRecentModels
+    ? [...propRecentModels].slice(0, 5)
+    : loadRecentModels(homeDir);
+  const [recentModels, setRecentModels] = useState<string[]>(initialRecent);
+
+  // When prop recentModels changes (controlled), sync to state
+  useEffect(() => {
+    if (propRecentModels && propRecentModels.length > 0) {
+      setRecentModels(propRecentModels.slice(0, 5));
+    }
+  }, [propRecentModels]);
+
+  // Wrap onSelect to track recent models
+  const trackOnSelect = (id: string) => {
+    // Call original onSelect
+    onSelect(id);
+    // Update recent models: push to front, keep only 5, deduplicate
+    const updated = [id, ...recentModels.filter((i) => i !== id)].slice(0, 5);
+    setRecentModels(updated);
+    saveRecentModels(updated, homeDir);
+    onRecentUpdate?.(updated);
+  };
+
   // Read once per mount. Credentials are process-level and cannot change
   // under a screen that has no way to set them; re-deriving them on every
   // keystroke would only make the filter slower.
-  const states = useMemo(() => providerStates(env ?? process.env), [env]);
+  const states = useMemo(() => allProviders(env ?? process.env), [env]);
   const configured = useMemo(() => configuredProviderLabels(states), [states]);
   // Refresh the Models.dev catalog cache in the background whenever the picker
   // opens. Fire-and-forget: it never throws, no-ops when the cache is still
@@ -204,11 +242,36 @@ export function ModelScreen({
     for (const row of modelRows) if (row.kind === "model") map.set(row.model.id, row);
     return map;
   }, [modelRows]);
+
+  // --- Prepend "Recent" section: heading + last-5-models-used ---
+  // Build an augmented items list that puts the 5 most recently selected model
+  // rows at the very top (under a "Recent" heading created by category change),
+  // before the normal catalogue models.
+  const recentItems = useMemo(() => {
+    // If no recent models, just return the original items
+    if (recentModels.length === 0) return items;
+    // Create model rows for each recent model (no separate heading item needed;
+    // the first one's category="recent" will naturally trigger a "RECENT" header).
+    const recentModelItems = recentModels.map((id) => {
+      const modelItem = items.find((i) => i.id === id);
+      if (!modelItem) return null;
+      return {
+        id: modelItem.id,
+        label: modelItem.label,
+        meta: modelItem.meta,
+        category: "recent",
+        current: modelItem.current,
+      };
+    }).filter(Boolean) as DialogItem[];
+    // Prepend recent models, then the original items
+    return [...recentModelItems, ...items];
+  }, [recentModels, items]);
+
   // Display rows (headings interleaved) drive the panel's scroll/height math.
   const totalRows = useMemo(() => {
     let count = 0;
     let group = "";
-    for (const item of items) {
+    for (const item of recentItems) {
       if (item.category && item.category !== group) {
         group = item.category;
         count += 1;
@@ -216,18 +279,18 @@ export function ModelScreen({
       count += 1;
     }
     return count;
-  }, [items]);
+  }, [recentItems]);
 
   // Open on the running model rather than on row zero: the most common reason to
   // open the screen is to confirm or step off what is already set. The stored
   // index then catches up as the operator moves or filters.
   const [selected, setSelected] = useState(() =>
-    Math.max(0, items.findIndex((item) => item.current)),
+    Math.max(0, recentItems.findIndex((item) => item.current)),
   );
   // The highlighted row can vanish from under the cursor as the filter narrows,
   // so the rendered cursor is always the clamped one.
-  const cursor = clampDialogSelection(items, selected);
-  const activeItem = cursor >= 0 ? items[cursor] : undefined;
+  const cursor = clampDialogSelection(recentItems, selected);
+  const activeItem = cursor >= 0 ? recentItems[cursor] : undefined;
 
   const contentWidth = Math.max(0, width - 4);
   const bodyRows = Math.max(0, height - shellChromeRows(width) - STATUS_ROWS);
@@ -275,7 +338,7 @@ export function ModelScreen({
     if (key.name === "return") {
       // Enter selects from either mode: while filtering, the whole point of
       // typing four characters is to reach one row and take it.
-      if (activeItem) onSelect(activeItem.id);
+      if (activeItem) trackOnSelect(activeItem.id);
       return;
     }
 
@@ -345,7 +408,7 @@ export function ModelScreen({
   const body = (
     <box flexDirection="column" width="100%" flexGrow={1} minWidth={0}>
       <DialogSelectBody
-        items={items}
+        items={recentItems}
         cursor={cursor}
         panel={panel}
         query={filter}

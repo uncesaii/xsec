@@ -103,86 +103,91 @@ function normalizeOpenAiCompatibleModels(raw: unknown, providerId: string): Sync
 }
 
 // ── Provider env var → fetcher mapping ──
+//
+// Uses MODELS_DEV_PROVIDERS to automatically create fetchers for all
+// OpenAI-compatible providers. Only providers with a base URL and whose
+// env var is set will get a fetcher.
+
+import { MODELS_DEV_PROVIDERS } from "./models-dev-providers.js";
+
+/** Providers that need special parsing (not standard OpenAI-compatible). */
+const SPECIAL_PARSERS = new Map<string, (raw: unknown) => SyncedModel[]>([
+  ["openrouter", normalizeOpenRouterModels],
+]);
 
 function buildProviderFetchers(env: Record<string, string | undefined>): ProviderModelFetcher[] {
   const fetchers: ProviderModelFetcher[] = [];
+  const seen = new Set<string>();
 
-  // OpenRouter
-  const openrouterKey = env["OPENROUTER_API_KEY"];
-  if (openrouterKey && openrouterKey.trim().length > 0) {
+  // First: add the special providers (OpenRouter with custom parser)
+  for (const md of MODELS_DEV_PROVIDERS) {
+    if (!md.openaiCompatible || !md.baseUrl) continue;
+    const parser = SPECIAL_PARSERS.get(md.id);
+    if (!parser) continue;
+
+    // Check if any of the provider's env vars is set
+    const apiKey = md.envVars.find((v) => {
+      const val = env[v];
+      return typeof val === "string" && val.trim().length > 0;
+    });
+    if (!apiKey) continue;
+
+    const key = (env[apiKey] ?? "").trim();
+    const runtimeId = md.runtimeId ?? md.id;
+    if (seen.has(runtimeId)) continue;
+    seen.add(runtimeId);
+
     fetchers.push({
-      providerId: "openrouter",
-      baseUrl: "https://openrouter.ai/api/v1",
-      apiKey: openrouterKey.trim(),
-      parseResponse: normalizeOpenRouterModels,
+      providerId: runtimeId,
+      baseUrl: md.baseUrl.replace(/\$\{[^}]+\}/g, ""), // Strip template vars
+      apiKey: key,
+      parseResponse: parser,
     });
   }
 
-  // OpenAI
-  const openaiKey = env["OPENAI_API_KEY"];
-  if (openaiKey && openaiKey.trim().length > 0) {
+  // Then: add all standard OpenAI-compatible providers from models.dev
+  for (const md of MODELS_DEV_PROVIDERS) {
+    if (!md.openaiCompatible || !md.baseUrl) continue;
+    if (SPECIAL_PARSERS.has(md.id)) continue; // Already handled above
+
+    // Check if any of the provider's env vars is set
+    const envVar = md.envVars.find((v) => {
+      const val = env[v];
+      return typeof val === "string" && val.trim().length > 0;
+    });
+    if (!envVar) continue;
+
+    const apiKey = (env[envVar] ?? "").trim();
+    const runtimeId = md.runtimeId ?? md.id;
+    if (seen.has(runtimeId)) continue;
+    seen.add(runtimeId);
+
+    // Allow env var override for base URL (e.g. DEEPSEEK_BASE_URL)
+    const baseURLOverride = md.envVars.length === 1
+      ? env[md.envVars[0]!.replace("_API_KEY", "_BASE_URL")]
+      : undefined;
+    const baseUrl = baseURLOverride?.trim() || md.baseUrl.replace(/\$\{[^}]+\}/g, "");
+
     fetchers.push({
-      providerId: "openai",
-      baseUrl: env["OPENAI_BASE_URL"]?.trim() || "https://api.openai.com/v1",
-      apiKey: openaiKey.trim(),
-      parseResponse: (raw) => normalizeOpenAiCompatibleModels(raw, "openai"),
+      providerId: runtimeId,
+      baseUrl,
+      apiKey,
+      parseResponse: (raw) => normalizeOpenAiCompatibleModels(raw, runtimeId),
     });
   }
 
-  // DeepSeek
-  const deepseekKey = env["DEEPSEEK_API_KEY"];
-  if (deepseekKey && deepseekKey.trim().length > 0) {
-    fetchers.push({
-      providerId: "deepseek",
-      baseUrl: env["DEEPSEEK_BASE_URL"]?.trim() || "https://api.deepseek.com",
-      apiKey: deepseekKey.trim(),
-      parseResponse: (raw) => normalizeOpenAiCompatibleModels(raw, "deepseek"),
-    });
-  }
-
-  // xAI
-  const xaiKey = env["XAI_API_KEY"];
-  if (xaiKey && xaiKey.trim().length > 0) {
-    fetchers.push({
-      providerId: "xai",
-      baseUrl: env["XAI_BASE_URL"]?.trim() || "https://api.x.ai/v1",
-      apiKey: xaiKey.trim(),
-      parseResponse: (raw) => normalizeOpenAiCompatibleModels(raw, "xai"),
-    });
-  }
-
-  // Qwen (Alibaba Model Studio)
-  const qwenKey = env["QWEN_API_KEY"];
-  if (qwenKey && qwenKey.trim().length > 0) {
-    fetchers.push({
-      providerId: "qwen",
-      baseUrl: env["QWEN_BASE_URL"]?.trim() || "https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1",
-      apiKey: qwenKey.trim(),
-      parseResponse: (raw) => normalizeOpenAiCompatibleModels(raw, "qwen"),
-    });
-  }
-
-  // Custom OpenAI-compatible endpoint
+  // Finally: add custom-openai if configured
   const customKey = env[CUSTOM_OPENAI_ENV_VARS.apiKey];
   const customUrl = env[CUSTOM_OPENAI_ENV_VARS.baseUrl];
   if (customKey && customKey.trim().length > 0 && customUrl && customUrl.trim().length > 0) {
-    fetchers.push({
-      providerId: "custom-openai",
-      baseUrl: customUrl.trim().replace(/\/+$/, ""),
-      apiKey: customKey.trim(),
-      parseResponse: (raw) => normalizeOpenAiCompatibleModels(raw, "custom-openai"),
-    });
-  }
-
-  // OpenCode Zen
-  const zenKey = env["ZEN_API_KEY"];
-  if (zenKey && zenKey.trim().length > 0) {
-    fetchers.push({
-      providerId: "zen",
-      baseUrl: env["ZEN_BASE_URL"]?.trim() || "https://opencode.ai/zen/v1",
-      apiKey: zenKey.trim(),
-      parseResponse: (raw) => normalizeOpenAiCompatibleModels(raw, "zen"),
-    });
+    if (!seen.has("custom-openai")) {
+      fetchers.push({
+        providerId: "custom-openai",
+        baseUrl: customUrl.trim().replace(/\/+$/, ""),
+        apiKey: customKey.trim(),
+        parseResponse: (raw) => normalizeOpenAiCompatibleModels(raw, "custom-openai"),
+      });
+    }
   }
 
   return fetchers;

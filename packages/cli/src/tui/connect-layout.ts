@@ -41,7 +41,7 @@
  * for that move.
  */
 
-import { PROVIDERS, providerStates, type ProviderState } from "./provider-status.js";
+import { PROVIDERS, providerStates, type ProviderState, type AllProviderEntry } from "./provider-status.js";
 import { computeListWindow, computePaneSplit } from "./pane-layout.js";
 import { shellChromeRows, wrapCells } from "./settings-layout.js";
 import { sanitizeTuiText } from "./text.js";
@@ -78,7 +78,13 @@ export type AuthKind = "api-key" | "oauth";
  * Providers surfaced in the "Popular" group, in the order shown. Membership is
  * a curation decision, not a runtime fact, so it lives here and nowhere else.
  */
-export const RECOMMENDED_IDS: readonly string[] = ["chatgpt-codex", "anthropic", "openai"];
+export const RECOMMENDED_IDS: readonly string[] = [
+  "chatgpt-codex",
+  "anthropic",
+  "openai",
+  "google",
+  "openrouter",
+];
 
 /**
  * Plain-language subtitles for the recommended group. Kept short enough to sit
@@ -89,6 +95,8 @@ const PROVIDER_SUBTITLE: Record<string, string> = {
   "chatgpt-codex": "Sign in with your ChatGPT subscription - no API key, no per-token billing.",
   anthropic: "Paste an Anthropic API key from console.anthropic.com.",
   openai: "Paste an OpenAI API key from platform.openai.com.",
+  google: "Get a Google AI API key from makersuite.google.com.",
+  openrouter: "Paste an OpenRouter API key from openrouter.ai.",
 };
 
 /** The auth method for a provider id comes from the runtime provider table. */
@@ -131,8 +139,8 @@ export interface ConnectProvider {
 }
 
 export interface ConnectSources {
-  /** Provider states over the environment (from `providerStates`). */
-  states: readonly ProviderState[];
+  /** Provider states over the environment (from `providerStates` or `allProviders`). */
+  states: readonly (ProviderState | AllProviderEntry)[];
   /** Provider ids that have a value in the on-disk credential store. */
   stored?: ReadonlySet<string> | readonly string[];
 }
@@ -146,7 +154,7 @@ export function hasAnyConnection({ states, stored }: ConnectSources): boolean {
 
 /** Everything sayable about one provider, folding env and stored credentials. */
 function connectProviderFor(
-  info: ProviderState,
+  info: ProviderState | AllProviderEntry,
   storedSet: ReadonlySet<string>,
 ): ConnectProvider {
   // Env wins: an explicit export is the credential the runtime will actually
@@ -156,6 +164,9 @@ function connectProviderFor(
     : storedSet.has(info.id)
       ? "stored"
       : undefined;
+  // AllProviderEntry from models.dev may not have hint/fileSource — provide defaults.
+  const hint = "hint" in info ? info.hint : `set ${info.envVars[0] ?? "API_KEY"} for ${info.label}`;
+  const fileSource = "fileSource" in info ? info.fileSource : undefined;
   return {
     id: info.id,
     label: info.label,
@@ -163,9 +174,9 @@ function connectProviderFor(
     connected: source !== undefined,
     source,
     via: info.via,
-    hint: info.hint,
+    hint,
     subtitle: PROVIDER_SUBTITLE[info.id],
-    fileSource: info.fileSource,
+    fileSource,
     envVars: info.envVars,
   };
 }
