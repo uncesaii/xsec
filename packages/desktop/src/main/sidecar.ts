@@ -74,9 +74,9 @@ export function sidecarResourceFileName(
   switch (platform) {
     case "linux":
     case "darwin":
-      return `0sec-${platform}-${arch}`;
+      return `xsec-${platform}-${arch}`;
     case "win32":
-      return `0sec-windows-${arch}.exe`;
+      return `xsec-windows-${arch}.exe`;
     default:
       throw new Error(`Unsupported desktop platform: ${platform}`);
   }
@@ -88,7 +88,7 @@ export function findWorkspaceRoot(startDirectory: string): string {
     if (existsSync(join(current, "pnpm-workspace.yaml"))) return current;
     const parent = dirname(current);
     if (parent === current) {
-      throw new Error("Unable to locate the 0sec workspace. Set OSEC_DESKTOP_ROOT to the workspace path.");
+      throw new Error("Unable to locate the xsec workspace. Set XSEC_DESKTOP_ROOT to the workspace path.");
     }
     current = parent;
   }
@@ -142,7 +142,7 @@ export function createDashboardSidecarInvocation(
     return { command: sidecar, args: dashboardArgs(options.assetDir), cwd: options.cwd };
   }
 
-  const projectRoot = options.projectRoot ?? findWorkspaceRoot(process.env.OSEC_DESKTOP_ROOT ?? process.cwd());
+  const projectRoot = options.projectRoot ?? findWorkspaceRoot(process.env.XSEC_DESKTOP_ROOT ?? process.cwd());
   const cliEntrypoint = join(projectRoot, "packages", "cli", "dist", "index.js");
   if (!existsSync(cliEntrypoint)) {
     throw new Error(`CLI build not found at ${cliEntrypoint}. Run pnpm --filter 0sec-cli build first.`);

@@ -27,12 +27,12 @@ let isQuitting = false;
 
 function desktopAssetDirectory(): string {
   if (app.isPackaged) return join(process.resourcesPath, "dashboard");
-  const workspaceRoot = findWorkspaceRoot(process.env.OSEC_DESKTOP_ROOT ?? process.cwd());
+  const workspaceRoot = findWorkspaceRoot(process.env.XSEC_DESKTOP_ROOT ?? process.cwd());
   return join(workspaceRoot, "packages", "dashboard", "dist");
 }
 
 function sidecarWorkingDirectory(): string {
-  if (!app.isPackaged) return findWorkspaceRoot(process.env.OSEC_DESKTOP_ROOT ?? process.cwd());
+  if (!app.isPackaged) return findWorkspaceRoot(process.env.XSEC_DESKTOP_ROOT ?? process.cwd());
   const userData = app.getPath("userData");
   mkdirSync(userData, { recursive: true, mode: 0o700 });
   return userData;
@@ -66,7 +66,7 @@ function createWindow(): BrowserWindow {
     minHeight: 640,
     show: false,
     backgroundColor: "#09090b",
-    title: "0sec",
+    title: "xsec",
     webPreferences: {
       contextIsolation: true,
       sandbox: true,
@@ -120,7 +120,7 @@ async function startApplication(): Promise<void> {
     cwd: sidecarWorkingDirectory(),
     packaged: app.isPackaged,
     resourcesPath: app.isPackaged ? process.resourcesPath : undefined,
-    projectRoot: app.isPackaged ? undefined : findWorkspaceRoot(process.env.OSEC_DESKTOP_ROOT ?? process.cwd()),
+    projectRoot: app.isPackaged ? undefined : findWorkspaceRoot(process.env.XSEC_DESKTOP_ROOT ?? process.cwd()),
   });
   dashboard = await startDashboardSidecar(invocation);
 

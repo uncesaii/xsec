@@ -14,7 +14,7 @@ export interface DesktopCodexAuthControllerOptions {
 
 /**
  * Daemon-owned adapter for Codex's official device OAuth flow. The browser
- * renderer sees phase/status text only; the Codex CLI writes and 0sec reads the
+ * renderer sees phase/status text only; the Codex CLI writes and xsec reads the
  * auth file inside the daemon process, so OAuth tokens never cross this API.
  */
 export class DesktopCodexAuthController {
