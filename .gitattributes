@@ -1,17 +1,21 @@
-# Upstream sync protection — mark rebranded files with merge=ours so
-# upstream merges never overwrite our branding or custom features.
+# Upstream sync protection — mark pure branding files with merge=ours.
+# Code files with rebrand strings are NOT marked; the post-merge rebrand
+# script (scripts/post-merge-rebrand.sh) re-applies our replacements
+# after upstream merges, so new upstream features flow through.
+
+# ── Pure branding files (keep merge=ours) ──────────────────────────────────
+# These are files where our changes are purely text/name replacements and
+# upstream should never override them.
 
 # Root
 README.md          merge=ours
-package.json       merge=ours
 install.sh         merge=ours
-pnpm-lock.yaml     merge=ours
 
 # Legal
 LICENSE-MIT        merge=ours
 NOTICE             merge=ours
 
-# Package names (@xsec/*)
+# Package names (@xsec/*) — only the "name" field changed
 packages/cli/package.json         merge=ours
 packages/core/package.json        merge=ours
 packages/shared/package.json      merge=ours
@@ -21,48 +25,17 @@ packages/benchmark/package.json   merge=ours
 packages/llm-redteam/package.json merge=ours
 packages/dashboard/package.json   merge=ours
 packages/test-targets/package.json merge=ours
+packages/desktop/package.json     merge=ours
 
-# Assets / logos
+# Assets / logos (our custom designs)
 assets/xsec-aperture-ink.svg    merge=ours
 assets/xsec-aperture-white.svg  merge=ours
 assets/xsec-icon.gif            merge=ours
 
-# CI workflows
+# CI workflows (our rebrand + pnpm fix)
 .github/workflows/release.yml  merge=ours
 .github/workflows/xverse.yml   merge=ours
-
-# Branded code (0sec → xsec replacements in compiled strings)
-packages/core/src/stages/tree-sitter-runtime.cjs merge=ours
-packages/core/src/runtime/llm-api.ts             merge=ours
-
-# Custom features (added by us, not in upstream)
-packages/cli/src/tui/provider-status.ts       merge=ours
-packages/cli/src/tui/credential-store.ts      merge=ours
-packages/cli/src/tui/model-catalog-providers.ts merge=ours
-packages/cli/src/tui/model-catalog-sync.ts    merge=ours
-packages/cli/src/tui/connect-screen.tsx       merge=ours
-packages/cli/src/tui/connect-layout.ts        merge=ours
-packages/cli/src/tui/chat/Composer.tsx        merge=ours
-packages/cli/src/tui/chat-screen.tsx          merge=ours
-
-# Desktop app (rebranded from 0sec)
-packages/desktop/package.json                 merge=ours
-packages/desktop/src/main/sidecar.ts          merge=ours
-packages/desktop/scripts/prepare-desktop-resources.mjs merge=ours
-packages/cli/src/desktop/console-gateway.ts   merge=ours
-packages/cli/src/desktop/console-gateway.test.ts merge=ours
-packages/cli/src/desktop/codex-auth-controller.ts merge=ours
-
-# Dashboard (rebranded imports)
-packages/dashboard/src/api.ts                 merge=ours
-packages/dashboard/src/pages/chat-page.tsx    merge=ours
-
-# Desktop CI workflow (rebranded)
-.github/workflows/desktop-macos.yml          merge=ours
-
-# Smoke test scripts (rebranded)
-scripts/smoke-desktop-macos.sh               merge=ours
-scripts/smoke-cli.sh                         merge=ours
+.github/workflows/desktop-macos.yml merge=ours
 
 # Docs (rebranded)
 docs/**/*.md                    merge=ours
@@ -74,3 +47,26 @@ packages/templates/README.md   merge=ours
 packages/benchmark/README.md   merge=ours
 packages/llm-redteam/README.md merge=ours
 packages/dashboard/README.md   merge=ours
+
+# ── Code files (NO merge=ours — upstream changes flow through) ────────────
+# These files have our rebrand strings BUT upstream may add new features.
+# The post-merge-rebrand.sh script re-applies our 0sec→xsec replacements
+# after merge, so both upstream features and our rebrand are preserved.
+#
+# Examples:
+#   packages/core/src/runtime/llm-api.ts             (custom-openai provider)
+#   packages/core/src/stages/tree-sitter-runtime.cjs (__XSEC_COMPILED_TARGET__)
+#   packages/cli/src/tui/chat-screen.tsx              (cursor customization)
+#   packages/cli/src/tui/chat/Composer.tsx            (cursor customization)
+#   packages/cli/src/tui/provider-status.ts           (custom-openai)
+#   packages/cli/src/tui/credential-store.ts          (custom-openai config)
+#   packages/cli/src/tui/model-catalog-providers.ts   (provider fetchers)
+#   packages/cli/src/tui/model-catalog-sync.ts        (merged catalog)
+#   packages/cli/src/tui/connect-screen.tsx           (custom provider flow)
+#   packages/cli/src/tui/connect-layout.ts            (custom provider text)
+#   packages/desktop/src/main/sidecar.ts              (XSEC_DASHBOARD_READY)
+#   packages/cli/src/desktop/console-gateway.ts       (@xsec imports)
+#   packages/dashboard/src/api.ts                     (@xsec imports)
+#   packages/dashboard/src/pages/chat-page.tsx        (@xsec imports)
+#   scripts/smoke-desktop-macos.sh                    (xsec binary names)
+#   scripts/smoke-cli.sh                              (XSEC_ env vars)
