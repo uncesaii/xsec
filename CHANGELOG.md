@@ -8,17 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- 14 CI test failures across 8 files (nokasan fixture, codex refresh persistence, pov-gate domain, exploit-scan marker case, novelty-check exclusion, execution-evidence digest, dashboard control-token, c-cpp-profile timeout)
-- Restored Codex refresh-token disk persistence (`persistChatGptCodexAuthFile`, `authFilePath` state) that was accidentally clobbered by the rebrand commit
-- Added missing `desktop` and `desktop:package` scripts to root `package.json`
-- Fixed `bin` field: `"0"` replaced with `"x"` (rebranded CLI entrypoint)
-- Fixed `0sec desktop sidecar` error message in `sidecar.ts`
-- Fixed `install-e2e.sh`: removed stale `0` command test, kept `x` + `xsec`
-- Made GitHub repo public (fixes source/binary/container installation E2E)
-- Added macOS desktop workflow documentation to README
+- Remaining `0sec` references in desktop package: sidecar binary names, `OSEC_DESKTOP_ROOT` env var, window title, error box, test expectations
+- `pnpm desktop` not working — missing scripts in root `package.json`
+- Electron crashes on Windows — added `--no-sandbox` to desktop start script
+- Upstream sync failing — configured `upstream` remote in CI, checks commits/tags/packages
 
 ### Changed
-- `OWN_FROM_MARKERS` in novelty-check now includes `"xsec.dev"` for own-postings exclusion
+- License copyright updated to `xsec 2026`
 
 ## [0.10.0] - 2026-09-05
 
