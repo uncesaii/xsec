@@ -142,6 +142,19 @@ bash scripts/bun-compile.sh "" dist-bin/xsec-darwin-arm64
 pnpm desktop:package
 ```
 
+The macOS desktop workflow targets a protected Apple-silicon self-hosted runner;
+it packages the app and smokes its bundled sidecar. A logged-in Mac desktop
+session remains required for visual UI verification.
+
+For an interactive remote development session, the unpackaged app can expose a
+**loopback-only** Chromium debugger for an SSH tunnel:
+
+```bash
+XSEC_DESKTOP_DEBUG_PORT=9222 pnpm desktop
+```
+
+Do not expose that port on a LAN or enable it for packaged releases.
+
 ## Contributing & security
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) — synthetic or authorized targets only. Report vulnerabilities privately via [SECURITY.md](SECURITY.md), not public issues.
