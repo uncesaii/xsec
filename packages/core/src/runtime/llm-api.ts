@@ -11,7 +11,7 @@ import type {
   NativeContentBlock,
 } from "./types.js";
 
-import { appendFileSync, existsSync, readFileSync } from "node:fs";
+import { appendFileSync, existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { VERSION } from "@xsec/shared";
@@ -996,6 +996,7 @@ interface ChatGptCodexAuthState {
    * gets away with it via single-request architecture).
    */
   inflightRefresh?: Promise<void>;
+  authFilePath?: string;
 }
 
 /**
@@ -1009,9 +1010,35 @@ interface ChatGptCodexAuthState {
  */
 let chatGptCodexAuthState: ChatGptCodexAuthState | undefined;
 
-/** Reset the cached ChatGPT Codex auth state. Test-only. */
+/** Reset the module-singleton codex auth state (test isolation). */
 export function __resetChatGptCodexAuthStateForTests(): void {
   chatGptCodexAuthState = undefined;
+}
+
+function resolveChatGptCodexAuthPath(): string {
+  return process.env["XSEC_CHATGPT_AUTH_FILE"] ?? join(homedir(), ".codex", "auth.json");
+}
+
+function persistChatGptCodexAuthFile(authPath: string, tokens: CodexTokenResponse): void {
+  try {
+    let existing: Record<string, unknown> = {};
+    try {
+      existing = JSON.parse(readFileSync(authPath, "utf8")) as Record<string, unknown>;
+    } catch { existing = {}; }
+    const prevTokens = (existing.tokens as Record<string, unknown> | undefined) ?? {};
+    const nextTokens: Record<string, unknown> = {
+      ...prevTokens,
+      access_token: tokens.access_token,
+      ...(tokens.refresh_token ? { refresh_token: tokens.refresh_token } : {}),
+      ...(tokens.id_token ? { id_token: tokens.id_token } : {}),
+    };
+    const merged = { ...existing, tokens: nextTokens, last_refresh: new Date().toISOString() };
+    const tmp = `${authPath}.tmp-${process.pid}`;
+    writeFileSync(tmp, `${JSON.stringify(merged, null, 2)}\n`, { mode: 0o600 });
+    renameSync(tmp, authPath);
+  } catch (err) {
+    process.stderr.write(`[xsec] warning: could not persist rotated Codex refresh token to ${authPath}: ${err instanceof Error ? err.message : String(err)}\n`);
+  }
 }
 
 function readChatGptCodexEnv():
@@ -1033,7 +1060,7 @@ function readChatGptCodexEnv():
 function readChatGptCodexAuthFile():
   | { accessToken?: string; refreshToken?: string; accountId?: string }
   | undefined {
-  const authPath = process.env["XSEC_CHATGPT_AUTH_FILE"] ?? join(homedir(), ".codex", "auth.json");
+  const authPath = resolveChatGptCodexAuthPath();
   if (!existsSync(authPath)) return undefined;
   try {
     const auth = JSON.parse(readFileSync(authPath, "utf8")) as {
@@ -1152,7 +1179,9 @@ export async function getChatGptCodexAccessToken(): Promise<{
   accountId?: string;
 }> {
   if (!chatGptCodexAuthState) {
-    const fromEnv = readChatGptCodexEnv() ?? readChatGptCodexAuthFile();
+    const fromEnvOnly = readChatGptCodexEnv();
+    const fromFile = fromEnvOnly ? undefined : readChatGptCodexAuthFile();
+    const fromEnv = fromEnvOnly ?? fromFile;
     if (!fromEnv) {
       throw new Error(
         "ChatGPT Codex auth: neither XSEC_CHATGPT_ACCESS_TOKEN nor " +
@@ -1163,15 +1192,13 @@ export async function getChatGptCodexAccessToken(): Promise<{
       );
     }
     chatGptCodexAuthState = {
-      // refreshToken is optional now — the worker-controller path forwards
-      // a pre-issued access_token and no refresh capability. Local CLI use
-      // still gets a refresh_token from env and refreshes in-process.
       refreshToken: fromEnv.refreshToken ?? "",
       accountId: fromEnv.accountId,
       accessToken: fromEnv.accessToken,
       accessTokenExpiresAt: fromEnv.accessToken
         ? accessTokenExpiryMs(fromEnv.accessToken)
         : 0,
+      ...(fromFile ? { authFilePath: resolveChatGptCodexAuthPath() } : {}),
     };
     // Seed accountId from the forwarded access_token's JWT when not
     // already provided — saves one round-trip for cloud sandboxes that
@@ -1219,6 +1246,9 @@ export async function getChatGptCodexAccessToken(): Promise<{
           // is short-lived).
           if (tokens.refresh_token) {
             state.refreshToken = tokens.refresh_token;
+            if (state.authFilePath) {
+              persistChatGptCodexAuthFile(state.authFilePath, tokens);
+            }
           }
           if (!state.accountId) {
             state.accountId = extractChatGptAccountId(tokens);
