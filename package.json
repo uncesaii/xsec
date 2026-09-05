@@ -4,7 +4,7 @@
   "version": "0.15.0",
   "description": "The open cybersecurity harness — evidence-first, agent-driven security research for authorized targets.",
   "bin": {
-    "0": "dist/xsec.js",
+    "x": "dist/xsec.js",
     "xsec": "dist/xsec.js"
   },
   "files": [
@@ -35,7 +35,9 @@
     "consolidate-xbow": "pnpm --filter @xsec/benchmark consolidate-xbow",
     "clean": "pnpm -r clean",
     "vulnerable": "pnpm exec cross-env PORT=43100 pnpm --filter @xsec/test-targets vulnerable",
-    "safe": "pnpm exec cross-env PORT=43101 pnpm --filter @xsec/test-targets safe"
+    "safe": "pnpm exec cross-env PORT=43101 pnpm --filter @xsec/test-targets safe",
+    "desktop": "pnpm --filter @xsec/desktop start",
+    "desktop:package": "pnpm --filter @xsec/desktop package"
   },
   "keywords": [
     "security",

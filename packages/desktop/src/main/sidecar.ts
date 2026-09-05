@@ -117,7 +117,7 @@ function assertDashboardAssets(assetDir: string): void {
 function assertSidecar(path: string): void {
   if (!existsSync(path)) {
     throw new Error(
-      `0sec desktop sidecar not found at ${path}. Build the matching dist-bin/0sec-* release binary before packaging.`,
+      `xsec desktop sidecar not found at ${path}. Build the matching dist-bin/xsec-* release binary before packaging.`,
     );
   }
 }
