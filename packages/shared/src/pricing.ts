@@ -177,8 +177,12 @@ export function modelProvider(model?: string): string {
   if (lowered.startsWith("mistral/")) return "mistral";
   if (lowered.startsWith("z-ai/") || lowered.startsWith("zai/")) return "z-ai";
   if (lowered.startsWith("kimi/") || lowered.startsWith("moonshot/")) return "kimi";
+  if (lowered.startsWith("qwen/")) return "qwen";
   if (lowered.startsWith("openrouter/")) return "openrouter";
   if (lowered.startsWith("xai/") || lowered.startsWith("x-ai/")) return "xai";
+  if (lowered.startsWith("nvidia/")) return "nvidia";
+  if (lowered.startsWith("cohere/")) return "cohere";
+  if (lowered.startsWith("perplexity/")) return "perplexity";
 
   const stripped = normalizeModel(model).toLowerCase();
   if (stripped.startsWith("gpt-") || stripped.startsWith("o3") || stripped.startsWith("o4-")) return "openai";
@@ -191,6 +195,8 @@ export function modelProvider(model?: string): string {
   if (stripped.startsWith("k3") || stripped.startsWith("kimi")) return "kimi";
   if (stripped.startsWith("qwen")) return "qwen";
   if (stripped.startsWith("grok")) return "xai";
+  if (stripped.startsWith("command")) return "cohere";
+  if (stripped.startsWith("sonar")) return "perplexity";
   return "unknown";
 }
 

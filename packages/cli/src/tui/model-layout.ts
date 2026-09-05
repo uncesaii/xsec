@@ -271,7 +271,11 @@ export function buildModelRows({
   filter = "",
   activeModel,
 }: ModelRowsInput = {}): ModelRow[] {
-  const terms = sanitizeTuiText(filter).toLowerCase().split(" ").filter(Boolean);
+  // Check for provider-only filter (prefix "provider:" or "@")
+  const isProviderFilter = filter.startsWith("provider:") || filter.startsWith("@");
+  const filterTerms = isProviderFilter
+    ? filter.slice(filter.indexOf(":") + 1).toLowerCase().split(" ").filter(Boolean)
+    : sanitizeTuiText(filter).toLowerCase().split(" ").filter(Boolean);
   const groups = new Map<string, ModelProviderGroup>();
   const byProvider = new Map<string, CatalogModel[]>();
 
@@ -285,8 +289,10 @@ export function buildModelRows({
       group = providerGroupFor(providerId, states);
       groups.set(providerId, group);
     }
-    const haystack = `${model.id} ${group.id} ${group.label} ${model.price}`.toLowerCase();
-    if (terms.length > 0 && !terms.every((term) => haystack.includes(term))) continue;
+    const haystack = isProviderFilter
+      ? `${group.id} ${group.label}`.toLowerCase()
+      : `${model.id} ${group.id} ${group.label} ${model.price}`.toLowerCase();
+    if (filterTerms.length > 0 && !filterTerms.every((term) => haystack.includes(term))) continue;
     const bucket = byProvider.get(providerId);
     if (bucket) bucket.push(model);
     else byProvider.set(providerId, [model]);
@@ -509,7 +515,7 @@ export type ModelMode = "browse" | "filter";
  * primary way anyone reaches a row.
  */
 export function modelFooterHint(mode: ModelMode, hasFilter = false): string {
-  if (mode === "filter") return "type to filter · enter/esc done · backspace delete";
+  if (mode === "filter") return "type to filter · @provider: filter by provider · enter/esc done · backspace delete";
   return [
     "up/down move",
     "enter select",

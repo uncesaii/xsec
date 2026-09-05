@@ -701,7 +701,16 @@ const QWEN_TOKEN_PLAN_DEEPSEEK_MODEL = "deepseek-v4-flash-0731";
 const XAI_DEFAULT_BASE_URL = "https://api.x.ai/v1";
 const XAI_DEFAULT_MODEL = "grok-4.6";
 
-type ApiProvider = "openrouter" | "anthropic" | "openai" | "azure" | "deepseek" | "chatgpt-codex" | "z-ai" | "kimi" | "qwen" | "xai" | "custom-openai" | "zen";
+const GOOGLE_DEFAULT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai";
+const GOOGLE_DEFAULT_MODEL = "gemini-2.5-flash";
+
+const MISTRAL_DEFAULT_BASE_URL = "https://api.mistral.ai/v1";
+const MISTRAL_DEFAULT_MODEL = "mistral-large-latest";
+
+const META_DEFAULT_BASE_URL = "https://api.meta.ai/v1";
+const META_DEFAULT_MODEL = "muse-spark-1.2";
+
+type ApiProvider = "openrouter" | "anthropic" | "openai" | "azure" | "deepseek" | "chatgpt-codex" | "z-ai" | "kimi" | "qwen" | "xai" | "custom-openai" | "zen" | "google" | "mistral" | "meta" | "cohere" | "perplexity";
 type WireApi = "chat_completions" | "responses";
 /**
  * Azure Foundry deployment ids used by xcloud. The worker can inject both
@@ -747,9 +756,11 @@ export function parseLlmFallbackChain(): FallbackEntry[] {
   const raw = process.env["XSEC_LLM_FALLBACK"];
   if (!raw || raw.trim().length === 0) return [];
   const entries: FallbackEntry[] = [];
-  const VALID_PROVIDERS: Record<string, true> = {
+const VALID_PROVIDERS: Record<string, true> = {
     openrouter: true, anthropic: true, openai: true, azure: true, deepseek: true,
     "chatgpt-codex": true, "z-ai": true, kimi: true, qwen: true, xai: true,
+    google: true, mistral: true, meta: true, cohere: true, perplexity: true,
+    nvidia: true,
   };
   for (const part of raw.split(",")) {
     const trimmed = part.trim();
@@ -852,6 +863,26 @@ export function resolveFailoverProvider(
       const key = process.env.XSEC_CUSTOM_OPENAI_API_KEY;
       if (!key) return undefined;
       return { apiKey: key, baseUrl: process.env.XSEC_CUSTOM_OPENAI_BASE_URL ?? "http://localhost:8080/v1", wireApi: "chat_completions" };
+    }
+    case "google": {
+      const key = process.env.GOOGLE_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.GOOGLE_BASE_URL ?? GOOGLE_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "mistral": {
+      const key = process.env.MISTRAL_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.MISTRAL_BASE_URL ?? MISTRAL_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "meta": {
+      const key = process.env.META_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.META_BASE_URL ?? META_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "nvidia": {
+      const key = process.env.NVIDIA_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.NVIDIA_BASE_URL ?? "https://integrate.api.nvidia.com/v1", wireApi: "chat_completions" };
     }
   }
 }
@@ -1374,6 +1405,16 @@ function providerForModel(model: string | undefined): ApiProvider | undefined {
   }
   // Custom OpenAI-compatible endpoint — model ids prefixed with "custom/".
   if (m.startsWith("custom/")) return process.env.XSEC_CUSTOM_OPENAI_API_KEY ? "custom-openai" : undefined;
+  // Google Gemini.
+  if (m.startsWith("gemini")) return process.env.GOOGLE_API_KEY ? "google" : undefined;
+  // Mistral.
+  if (m.startsWith("mistral")) return process.env.MISTRAL_API_KEY ? "mistral" : undefined;
+  // Meta Llama.
+  if (m.startsWith("llama")) return process.env.META_API_KEY ? "meta" : undefined;
+  // Cohere Command.
+  if (m.startsWith("command") || m.startsWith("cohere/")) return process.env.COHERE_API_KEY ? "cohere" : undefined;
+  // Perplexity Sonar.
+  if (m.startsWith("sonar") || m.startsWith("perplexity/")) return process.env.PERPLEXITY_API_KEY ? "perplexity" : undefined;
   // OpenCode Zen — curated models, fallback when ZEN_API_KEY is set.
   if (process.env.ZEN_API_KEY) return "zen";
   return undefined;
@@ -1466,6 +1507,11 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
       "xai",
       "custom-openai",
       "zen",
+      "google",
+      "mistral",
+      "meta",
+      "cohere",
+      "perplexity",
     ];
     if (!supported.includes(pinnedProviderRaw as ApiProvider)) {
       throw new Error(`${source} is unsupported: ${pinnedProviderRaw}`);
@@ -1549,7 +1595,31 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
     case "zen":
       return { provider: "zen", apiKey: process.env.ZEN_API_KEY as string,
         baseUrl: process.env.ZEN_BASE_URL ?? "https://opencode.ai/zen/v1",
-        defaultModel: process.env.ZEN_MODEL ?? "", wireApi: "chat_completions" };
+        defaultModel: process.env.ZEN_MODEL ?? "big-pickle", wireApi: "chat_completions" };
+    case "google":
+      return { provider: "google", apiKey: process.env.GOOGLE_API_KEY as string,
+        baseUrl: process.env.GOOGLE_BASE_URL ?? GOOGLE_DEFAULT_BASE_URL,
+        defaultModel: process.env.GOOGLE_MODEL ?? GOOGLE_DEFAULT_MODEL, wireApi: "chat_completions" };
+    case "mistral":
+      return { provider: "mistral", apiKey: process.env.MISTRAL_API_KEY as string,
+        baseUrl: process.env.MISTRAL_BASE_URL ?? MISTRAL_DEFAULT_BASE_URL,
+        defaultModel: process.env.MISTRAL_MODEL ?? MISTRAL_DEFAULT_MODEL, wireApi: "chat_completions" };
+    case "meta":
+      return { provider: "meta", apiKey: process.env.META_API_KEY as string,
+        baseUrl: process.env.META_BASE_URL ?? META_DEFAULT_BASE_URL,
+        defaultModel: process.env.META_MODEL ?? META_DEFAULT_MODEL, wireApi: "chat_completions" };
+    case "nvidia":
+      return { provider: "nvidia", apiKey: process.env.NVIDIA_API_KEY as string,
+        baseUrl: process.env.NVIDIA_BASE_URL ?? "https://integrate.api.nvidia.com/v1",
+        defaultModel: process.env.NVIDIA_MODEL ?? "nvidia/nemotron-3-ultra", wireApi: "chat_completions" };
+    case "cohere":
+      return { provider: "cohere", apiKey: process.env.COHERE_API_KEY as string,
+        baseUrl: process.env.COHERE_BASE_URL ?? "https://api.cohere.com/v2",
+        defaultModel: process.env.COHERE_MODEL ?? "command-a-plus-05-2026", wireApi: "chat_completions" };
+    case "perplexity":
+      return { provider: "perplexity", apiKey: process.env.PERPLEXITY_API_KEY as string,
+        baseUrl: process.env.PERPLEXITY_BASE_URL ?? "https://api.perplexity.ai",
+        defaultModel: process.env.PERPLEXITY_MODEL ?? "sonar-pro", wireApi: "chat_completions" };
     default:
       break; // fall through to env-priority detection
   }
@@ -1617,7 +1687,7 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
       provider: "zen",
       apiKey: zenKey,
       baseUrl: process.env.ZEN_BASE_URL ?? "https://opencode.ai/zen/v1",
-      defaultModel: process.env.ZEN_MODEL ?? "",
+      defaultModel: process.env.ZEN_MODEL ?? "big-pickle",
       wireApi: "chat_completions",
     };
   }
@@ -2092,6 +2162,12 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
       case "xai": return "xAI (Grok)";
       case "custom-openai": return "Custom OpenAI";
       case "zen": return "OpenCode Zen";
+      case "google": return "Google Gemini";
+      case "mistral": return "Mistral";
+      case "meta": return "Meta Muse";
+      case "nvidia": return "NVIDIA";
+      case "cohere": return "Cohere";
+      case "perplexity": return "Perplexity";
     }
   }
 
@@ -2108,7 +2184,12 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
       "  export KIMI_API_KEY=...                (Moonshot Kimi K3 — flat-rate coding, Anthropic-compatible)\n" +
       "  export QWEN_API_KEY=...                (Alibaba Qwen — Token Plan sub, OpenAI-compatible)\n" +
       "  export XAI_API_KEY=...                 (xAI Grok — OpenAI-compatible)\n" +
-      "  export ZEN_API_KEY=...                (OpenCode Zen — curated models, OpenAI-compatible)"
+      "  export ZEN_API_KEY=...                (OpenCode Zen — curated models, OpenAI-compatible)\n" +
+      "  export GOOGLE_API_KEY=...             (Google Gemini — OpenAI-compatible)\n" +
+      "  export MISTRAL_API_KEY=...            (Mistral — OpenAI-compatible)\n" +
+      "  export META_API_KEY=...               (Meta Muse — OpenAI-compatible)\n" +
+      "  export COHERE_API_KEY=...             (Cohere — OpenAI-compatible)\n" +
+      "  export PERPLEXITY_API_KEY=...         (Perplexity — OpenAI-compatible)"
     );
   }
 

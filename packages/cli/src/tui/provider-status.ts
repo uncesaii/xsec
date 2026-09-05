@@ -126,6 +126,13 @@ export const PROVIDERS: readonly ProviderInfo[] = [
     hint: "set XAI_API_KEY from console.x.ai (endpoint override: XAI_BASE_URL)",
   },
   {
+    id: "nvidia",
+    label: "NVIDIA",
+    auth: "api-key",
+    envVars: ["NVIDIA_API_KEY"],
+    hint: "set NVIDIA_API_KEY from build.nvidia.com (endpoint override: NVIDIA_BASE_URL)",
+  },
+  {
     id: "google",
     label: "Google Gemini",
     auth: "api-key",

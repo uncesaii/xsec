@@ -46,11 +46,17 @@ describe("PROVIDERS", () => {
         "anthropic",
         "azure",
         "chatgpt-codex",
+        "cohere",
         "custom-openai",
         "deepseek",
+        "google",
         "kimi",
+        "meta",
+        "mistral",
+        "nvidia",
         "openai",
         "openrouter",
+        "perplexity",
         "qwen",
         "xai",
         "z-ai",
@@ -164,7 +170,7 @@ describe("isProviderConfigured", () => {
 
   it("returns false for an unknown id instead of throwing", () => {
     // The model catalog carries vendors with no direct runtime path.
-    for (const id of ["google", "meta", "mistral", "unknown", "", "ANTHROPIC"]) {
+    for (const id of ["unknown", "", "ANTHROPIC"]) {
       expect(isProviderConfigured(id, { ANTHROPIC_API_KEY: "sk-ant" })).toBe(false);
     }
   });
