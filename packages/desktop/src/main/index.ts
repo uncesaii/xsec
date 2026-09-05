@@ -148,7 +148,7 @@ if (!app.requestSingleInstanceLock()) {
 
   app.whenReady().then(startApplication).catch((error: unknown) => {
     const message = error instanceof Error ? error.message : String(error);
-    dialog.showErrorBox("0sec could not start", message);
+    dialog.showErrorBox("xsec could not start", message);
     app.exit(1);
   });
 

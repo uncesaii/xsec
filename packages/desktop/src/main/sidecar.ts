@@ -110,7 +110,7 @@ function dashboardArgs(assetDir: string): string[] {
 
 function assertDashboardAssets(assetDir: string): void {
   if (!existsSync(join(assetDir, "index.html"))) {
-    throw new Error(`Dashboard assets not found at ${assetDir}. Build @0sec/dashboard before launching desktop.`);
+    throw new Error(`Dashboard assets not found at ${assetDir}. Build @xsec/dashboard before launching desktop.`);
   }
 }
 
@@ -145,7 +145,7 @@ export function createDashboardSidecarInvocation(
   const projectRoot = options.projectRoot ?? findWorkspaceRoot(process.env.XSEC_DESKTOP_ROOT ?? process.cwd());
   const cliEntrypoint = join(projectRoot, "packages", "cli", "dist", "index.js");
   if (!existsSync(cliEntrypoint)) {
-    throw new Error(`CLI build not found at ${cliEntrypoint}. Run pnpm --filter 0sec-cli build first.`);
+    throw new Error(`CLI build not found at ${cliEntrypoint}. Run pnpm --filter xsec-cli build first.`);
   }
 
   return {
