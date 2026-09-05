@@ -4630,7 +4630,7 @@ export async function showOpenTuiHome(): Promise<void> {
   const savedModel = loadLastModel();
   await mountApp({
     type: "console",
-    initialRoute: { type: "chat" },
+    initialRoute: { type: "chat", options: savedModel ? { model: savedModel } : undefined },
     onExit: () => {},
   });
 }

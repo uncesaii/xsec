@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-09-06
+
+### Added
+- OpenCode Zen provider — real-time model fetching, env var `ZEN_API_KEY`, endpoint override `ZEN_BASE_URL`
+
+### Fixed
+- Model selection not persisting across sessions — `showOpenTuiHome()` now loads saved model into initial route
+- Chat screen `empty` check now ignores notices/errors so logo renders correctly on fresh launch
+
 ## [0.11.0] - 2026-09-06
 
 ### Fixed

@@ -174,6 +174,17 @@ function buildProviderFetchers(env: Record<string, string | undefined>): Provide
     });
   }
 
+  // OpenCode Zen
+  const zenKey = env["ZEN_API_KEY"];
+  if (zenKey && zenKey.trim().length > 0) {
+    fetchers.push({
+      providerId: "zen",
+      baseUrl: env["ZEN_BASE_URL"]?.trim() || "https://opencode.ai/zen/v1",
+      apiKey: zenKey.trim(),
+      parseResponse: (raw) => normalizeOpenAiCompatibleModels(raw, "zen"),
+    });
+  }
+
   return fetchers;
 }
 

@@ -137,6 +137,13 @@ export const PROVIDERS: readonly ProviderInfo[] = [
     envVars: ["XSEC_CUSTOM_OPENAI_API_KEY"],
     hint: "set XSEC_CUSTOM_OPENAI_API_KEY, XSEC_CUSTOM_OPENAI_BASE_URL, and XSEC_CUSTOM_OPENAI_MODEL (or use /connect for interactive setup)",
   },
+  {
+    id: "zen",
+    label: "OpenCode Zen",
+    auth: "api-key",
+    envVars: ["ZEN_API_KEY"],
+    hint: "set ZEN_API_KEY from OpenCode Zen (endpoint override: ZEN_BASE_URL)",
+  },
 ];
 
 /** Env var names for the Custom provider's three fields. */

@@ -1,6 +1,6 @@
 {
   "name": "xsec-cli",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Open-source agentic AI pentest framework. Autonomously discover, exploit, and verify vulnerabilities in web apps, AI/LLM apps, source code, and npm/PyPI/Cargo/OCI packages.",
   "type": "module",
   "bin": {

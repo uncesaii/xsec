@@ -3681,7 +3681,7 @@ export function ChatScreen({
     }
   });
 
-  const empty = entries.length === 0;
+  const empty = entries.filter((e) => e.kind === "user" || e.kind === "assistant").length === 0;
   // Parked messages are surfaced next to the working indicator, because that is
   // exactly where the operator is looking while they wait.
   const queueLabel = composerQueueLabel(queuedCount);

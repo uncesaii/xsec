@@ -701,7 +701,7 @@ const QWEN_TOKEN_PLAN_DEEPSEEK_MODEL = "deepseek-v4-flash-0731";
 const XAI_DEFAULT_BASE_URL = "https://api.x.ai/v1";
 const XAI_DEFAULT_MODEL = "grok-4.6";
 
-type ApiProvider = "openrouter" | "anthropic" | "openai" | "azure" | "deepseek" | "chatgpt-codex" | "z-ai" | "kimi" | "qwen" | "xai" | "custom-openai";
+type ApiProvider = "openrouter" | "anthropic" | "openai" | "azure" | "deepseek" | "chatgpt-codex" | "z-ai" | "kimi" | "qwen" | "xai" | "custom-openai" | "zen";
 type WireApi = "chat_completions" | "responses";
 /**
  * Azure Foundry deployment ids used by xcloud. The worker can inject both
@@ -1374,6 +1374,8 @@ function providerForModel(model: string | undefined): ApiProvider | undefined {
   }
   // Custom OpenAI-compatible endpoint — model ids prefixed with "custom/".
   if (m.startsWith("custom/")) return process.env.XSEC_CUSTOM_OPENAI_API_KEY ? "custom-openai" : undefined;
+  // OpenCode Zen — curated models, fallback when ZEN_API_KEY is set.
+  if (process.env.ZEN_API_KEY) return "zen";
   return undefined;
 }
 
@@ -1463,6 +1465,7 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
       "qwen",
       "xai",
       "custom-openai",
+      "zen",
     ];
     if (!supported.includes(pinnedProviderRaw as ApiProvider)) {
       throw new Error(`${source} is unsupported: ${pinnedProviderRaw}`);
@@ -1543,6 +1546,10 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
       return { provider: "custom-openai", apiKey: process.env.XSEC_CUSTOM_OPENAI_API_KEY ?? "",
         baseUrl: process.env.XSEC_CUSTOM_OPENAI_BASE_URL ?? "http://localhost:8080/v1",
         defaultModel: process.env.XSEC_CUSTOM_OPENAI_MODEL ?? "default", wireApi: "chat_completions" };
+    case "zen":
+      return { provider: "zen", apiKey: process.env.ZEN_API_KEY as string,
+        baseUrl: process.env.ZEN_BASE_URL ?? "https://opencode.ai/zen/v1",
+        defaultModel: process.env.ZEN_MODEL ?? "", wireApi: "chat_completions" };
     default:
       break; // fall through to env-priority detection
   }
@@ -1601,6 +1608,17 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
       baseUrl: process.env.DEEPSEEK_BASE_URL ?? DEEPSEEK_DEFAULT_BASE_URL,
       defaultModel: DEEPSEEK_DEFAULT_MODEL,
       wireApi: "responses",
+    };
+  }
+
+  const zenKey = process.env.ZEN_API_KEY;
+  if (zenKey) {
+    return {
+      provider: "zen",
+      apiKey: zenKey,
+      baseUrl: process.env.ZEN_BASE_URL ?? "https://opencode.ai/zen/v1",
+      defaultModel: process.env.ZEN_MODEL ?? "",
+      wireApi: "chat_completions",
     };
   }
 
@@ -2073,6 +2091,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
       case "qwen": return "Qwen (Alibaba Model Studio)";
       case "xai": return "xAI (Grok)";
       case "custom-openai": return "Custom OpenAI";
+      case "zen": return "OpenCode Zen";
     }
   }
 
@@ -2088,7 +2107,8 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
       "  export Z_AI_API_KEY=...                (Z.ai GLM — flat-rate Coding Plan, Anthropic-compatible)\n" +
       "  export KIMI_API_KEY=...                (Moonshot Kimi K3 — flat-rate coding, Anthropic-compatible)\n" +
       "  export QWEN_API_KEY=...                (Alibaba Qwen — Token Plan sub, OpenAI-compatible)\n" +
-      "  export XAI_API_KEY=...                 (xAI Grok — OpenAI-compatible)"
+      "  export XAI_API_KEY=...                 (xAI Grok — OpenAI-compatible)\n" +
+      "  export ZEN_API_KEY=...                (OpenCode Zen — curated models, OpenAI-compatible)"
     );
   }
 
