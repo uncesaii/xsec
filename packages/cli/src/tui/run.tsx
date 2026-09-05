@@ -1,6 +1,8 @@
 /** @jsxImportSource @opentui/react */
-import { appendFileSync } from "node:fs";
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
+import { homedir } from "node:os";
+import { join } from "node:path";
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { CliRenderEvents, createCliRenderer, type CliRenderer } from "@opentui/core";
 import { AppContext, createRoot, useKeyboard, useTerminalDimensions } from "@opentui/react";
@@ -4111,7 +4113,9 @@ function ConsoleApp({
   // Chat is the persistent primary surface. Control panes are OpenTUI overlays
   // opened from chat, while these options preserve the active chat session
   // across those pane transitions.
-  const initialChatOptions = initialRoute.type === "chat" ? initialRoute.options : undefined;
+  const initialChatOptions = initialRoute.type === "chat"
+    ? initialRoute.options
+    : { model: loadLastModel() };
   const [chatOptions, setChatOptions] = useState<ChatScreenOptions | undefined>(initialChatOptions);
   const [chatGeneration, setChatGeneration] = useState(0);
   const chatOptionsRef = useRef(chatOptions);
@@ -4171,6 +4175,7 @@ function ConsoleApp({
       // other openChat (e.g. the palette's "Open chat") keeps the generation and
       // the existing options, so the live transcript is preserved.
       if (options && options.model !== undefined && options.model !== chatOptionsRef.current?.model) {
+        saveLastModel(options.model);
         setChatOptions((prev) => ({ ...prev, ...options }));
         setChatGeneration((generation) => generation + 1);
       }
@@ -4601,18 +4606,40 @@ async function mountApp(mode: AppMode): Promise<void> {
   });
 }
 
+function lastModelPath(): string {
+  return join(homedir(), ".xsec", "last-model");
+}
+
+function loadLastModel(): string | undefined {
+  try {
+    return readFileSync(lastModelPath(), "utf8").trim() || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function saveLastModel(model: string): void {
+  try {
+    const dir = join(homedir(), ".xsec");
+    try { mkdirSync(dir, { recursive: true }); } catch {}
+    writeFileSync(lastModelPath(), model, "utf8");
+  } catch {}
+}
+
 export async function showOpenTuiHome(): Promise<void> {
+  const savedModel = loadLastModel();
   await mountApp({
     type: "console",
-    initialRoute: { type: "chat" },
+    initialRoute: { type: "launcher" },
     onExit: () => {},
   });
 }
 
 export async function showOpenTuiConsole(options: ChatScreenOptions = {}): Promise<void> {
+  const model = options.model ?? loadLastModel();
   await mountApp({
     type: "console",
-    initialRoute: { type: "chat", options },
+    initialRoute: { type: "chat", options: { ...options, model } },
     onExit: () => {},
   });
 }
