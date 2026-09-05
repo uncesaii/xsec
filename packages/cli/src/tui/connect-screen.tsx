@@ -857,7 +857,7 @@ export function ConnectScreen({ frame, onBack, onExit, recovery, onConnected, en
       ? recoveryTitle ?? "provider needs to reconnect"
       : inInput
         ? customStepLabel
-          ? `Custom ${customStepLabel}: ${connectInputMask(inputValue.length)}`
+          ? `Custom ${customStepLabel}: ${customStep === "apiKey" ? connectInputMask(inputValue.length) : inputValue}`
           : `paste API key for ${activeProvider?.label ?? inputProviderId}: ${connectInputMask(inputValue.length)}`
         : filtering
           ? `filter: ${filter}_`
