@@ -30,7 +30,7 @@ check_binary_install() {
     export HOME=/tmp/xsec-home
     curl -fsSL https://raw.githubusercontent.com/uncesaii/xsec/main/install.sh | bash
     export PATH="$HOME/.xsec/bin:$PATH"
-    0 --help >/dev/null
+    x --help >/dev/null
     xsec --help >/dev/null
   '
 }
