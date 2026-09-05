@@ -1776,7 +1776,7 @@ export function registerDashboardCommand(program: Command): void {
         const url = origin;
         console.log(chalk.red.bold("  \u25C6 xsec") + chalk.gray(" dashboard"));
         console.log(chalk.gray(`  ${url}`));
-        if (opts.readyJson) console.log(`0SEC_DASHBOARD_READY ${JSON.stringify({ url })}`);
+        if (opts.readyJson) console.log(`XSEC_DASHBOARD_READY ${JSON.stringify({ url })}`);
         console.log(chalk.gray("  Ctrl+C to stop"));
         if (opts.open !== false) openBrowser(`${url}/dashboard`);
       });

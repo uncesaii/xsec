@@ -540,7 +540,7 @@ describe("dashboard — argument validation", () => {
     expect(err).toBeUndefined();
     expect(httpState.listenCalls).toEqual([{ port: 0, host: "127.0.0.1" }]);
     expect(logSpy).toHaveBeenCalledWith(
-      '0SEC_DASHBOARD_READY {"url":"http://127.0.0.1:46123"}',
+      'XSEC_DASHBOARD_READY {"url":"http://127.0.0.1:46123"}',
     );
   });
 

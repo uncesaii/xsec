@@ -9,7 +9,7 @@ import type {
   DesktopConsoleOperatorAnswer,
   DesktopConsoleRole,
   DesktopConsoleSession,
-} from "@0sec/shared";
+} from "@xsec/shared";
 import {
   cancelDesktopCodexDeviceAuth,
   cancelDesktopConsoleTurn,

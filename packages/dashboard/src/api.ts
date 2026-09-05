@@ -14,7 +14,7 @@ import type {
   DesktopConsoleEvent,
   DesktopConsoleRole,
   DesktopConsoleSession,
-} from "@0sec/shared";
+} from "@xsec/shared";
 
 /** Read the per-session control token injected by the dashboard server. */
 function getControlToken(): string | null {

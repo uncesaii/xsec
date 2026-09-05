@@ -1,16 +1,16 @@
 {
-  "name": "@0sec/desktop",
+  "name": "@xsec/desktop",
   "version": "0.15.0",
-  "description": "Native desktop control plane for the 0sec security harness.",
-  "author": "0sec Labs",
+  "description": "Native desktop control plane for the XSEC security harness.",
+  "author": "XSEC Labs",
   "repository": {
     "type": "git",
-    "url": "https://github.com/0sec-labs/0sec.git"
+    "url": "https://github.com/uncesaii/xsec.git"
   },
   "private": true,
   "type": "module",
   "main": "dist/main/index.js",
-  "desktopName": "0sec",
+  "desktopName": "xsec",
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "start": "pnpm run build && electron .",
@@ -22,9 +22,9 @@
     "clean": "rm -rf dist release resources"
   },
   "build": {
-    "appId": "com.0security.osec",
-    "productName": "0sec",
-    "executableName": "0sec",
+    "appId": "com.xsec.app",
+    "productName": "xsec",
+    "executableName": "xsec",
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "icon": "build/icon.png",
     "asar": true,
@@ -57,7 +57,7 @@
         "deb"
       ],
       "category": "Development",
-      "maintainer": "0sec Labs",
+      "maintainer": "XSEC Labs",
       "syncDesktopName": true
     },
     "mac": {

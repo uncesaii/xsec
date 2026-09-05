@@ -27,23 +27,23 @@ afterEach(() => {
 
 describe("parseDashboardReadyLine", () => {
   it("accepts only a root loopback HTTP origin", () => {
-    expect(parseDashboardReadyLine('0SEC_DASHBOARD_READY {"url":"http://127.0.0.1:48123"}')).toBe(
+    expect(parseDashboardReadyLine('XSEC_DASHBOARD_READY {"url":"http://127.0.0.1:48123"}')).toBe(
       "http://127.0.0.1:48123",
     );
-    expect(parseDashboardReadyLine('0SEC_DASHBOARD_READY {"url":"http://[::1]:48123"}')).toBe(
+    expect(parseDashboardReadyLine('XSEC_DASHBOARD_READY {"url":"http://[::1]:48123"}')).toBe(
       "http://[::1]:48123",
     );
   });
 
   it.each([
     "unrelated output",
-    '0SEC_DASHBOARD_READY {"url":"https://127.0.0.1:48123"}',
-    '0SEC_DASHBOARD_READY {"url":"http://localhost:48123"}',
-    '0SEC_DASHBOARD_READY {"url":"http://192.0.2.1:48123"}',
-    '0SEC_DASHBOARD_READY {"url":"http://user@127.0.0.1:48123"}',
-    '0SEC_DASHBOARD_READY {"url":"http://127.0.0.1:48123/dashboard"}',
-    '0SEC_DASHBOARD_READY {"url":"http://127.0.0.1:48123?token=leak"}',
-    "0SEC_DASHBOARD_READY not-json",
+    'XSEC_DASHBOARD_READY {"url":"https://127.0.0.1:48123"}',
+    'XSEC_DASHBOARD_READY {"url":"http://localhost:48123"}',
+    'XSEC_DASHBOARD_READY {"url":"http://192.0.2.1:48123"}',
+    'XSEC_DASHBOARD_READY {"url":"http://user@127.0.0.1:48123"}',
+    'XSEC_DASHBOARD_READY {"url":"http://127.0.0.1:48123/dashboard"}',
+    'XSEC_DASHBOARD_READY {"url":"http://127.0.0.1:48123?token=leak"}',
+    "XSEC_DASHBOARD_READY not-json",
   ])("rejects untrusted readiness line %s", (line) => {
     expect(parseDashboardReadyLine(line)).toBeNull();
   });

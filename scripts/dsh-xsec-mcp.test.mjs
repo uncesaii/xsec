@@ -14,13 +14,13 @@ import {
   buildProfilePatch,
   parseRunnerArgs,
   runRunner,
-} from "./dsh-0sec-mcp.mjs";
+} from "./dsh-xsec-mcp.mjs";
 
 const baseArgs = [
   "--target", "https://example.test",
   "--scan-id", "scan-123",
   "--scope", "scope.json",
-  "Use only 0sec MCP tools.",
+  "Use only xsec MCP tools.",
 ];
 
 test("DSH runner requires an explicitly scoped target and one task", () => {
@@ -38,12 +38,12 @@ test("DSH runner defaults to the bounded recon tool set", () => {
   const options = parseRunnerArgs(baseArgs, "/workspace");
   assert.equal(options.mcpTools, DEFAULT_MCP_TOOLS);
   assert.deepEqual(
-    buildMcpArgs(options, "/opt/0sec/dist/0sec.js").slice(-2),
+    buildMcpArgs(options, "/opt/xsec/dist/xsec.js").slice(-2),
     ["--tools", DEFAULT_MCP_TOOLS],
   );
 });
 
-test("DSH runner preserves 0sec engagement arguments", () => {
+test("DSH runner preserves xsec engagement arguments", () => {
   const options = parseRunnerArgs([
     "--target", "https://example.test",
     "--scan-id", "scan-123",
@@ -57,16 +57,16 @@ test("DSH runner preserves 0sec engagement arguments", () => {
     "--no-waf-evasion",
     "--mcp-env", "0SEC_MCP_AUTH_JSON",
     "--mcp-env", "0SEC_MCP_AUTH_JSON",
-    "Use only 0sec MCP tools.",
+    "Use only xsec MCP tools.",
   ], "/workspace");
 
   assert.equal(options.scope, "/workspace/scope.json");
   assert.equal(options.dbPath, "/workspace/runs/scan.sqlite");
   assert.deepEqual(options.mcpEnv, ["0SEC_MCP_AUTH_JSON"]);
   assert.deepEqual(
-    buildMcpArgs(options, "/opt/0sec/dist/0sec.js"),
+    buildMcpArgs(options, "/opt/xsec/dist/xsec.js"),
     [
-      "/opt/0sec/dist/0sec.js",
+      "/opt/xsec/dist/xsec.js",
       "mcp-server",
       "--target", "https://example.test",
       "--scan-id", "scan-123",
@@ -82,12 +82,12 @@ test("DSH runner preserves 0sec engagement arguments", () => {
   );
 });
 
-test("DSH patch exposes only 0sec MCP tools from the shipped base profile", () => {
+test("DSH patch exposes only xsec MCP tools from the shipped base profile", () => {
   const patch = buildProfilePatch({
-    entrypoint: "/opt/0sec/dist/0sec.js",
-    serverCwd: "/opt/0sec",
+    entrypoint: "/opt/xsec/dist/xsec.js",
+    serverCwd: "/opt/xsec",
     mcpArgs: [
-      "/opt/0sec/dist/0sec.js",
+      "/opt/xsec/dist/xsec.js",
       "mcp-server",
       "--target", "https://example.test",
       "--scan-id", "scan-123",
@@ -102,7 +102,7 @@ test("DSH patch exposes only 0sec MCP tools from the shipped base profile", () =
   }
   assert.match(patch, /name: '@deepseek-ai\/dsh-mcp-client'/);
   assert.match(patch, /transport: stdio/);
-  assert.match(patch, /serverName: "0sec"/);
+  assert.match(patch, /serverName: "xsec"/);
   assert.match(patch, /failOnStartupError: true/);
   assert.match(patch, /reconnect:\n          enabled: false/);
   assert.match(patch, /0SEC_MCP_AUTH_JSON: !!js process\.env\["0SEC_MCP_AUTH_JSON"\]/);
@@ -111,13 +111,13 @@ test("DSH patch exposes only 0sec MCP tools from the shipped base profile", () =
 
 test("DSH invocation stays a one-shot headless profile command", () => {
   assert.deepEqual(
-    buildDshArgs("/tmp/0sec-mcp.patch.yml", "Use only 0sec MCP tools."),
+    buildDshArgs("/tmp/xsec-mcp.patch.yml", "Use only xsec MCP tools."),
     [
       "--profile",
       "headless",
       "--patch",
-      "/tmp/0sec-mcp.patch.yml",
-      "Use only 0sec MCP tools.",
+      "/tmp/xsec-mcp.patch.yml",
+      "Use only xsec MCP tools.",
     ],
   );
 });
@@ -138,8 +138,8 @@ test("invalid child environment names are rejected", () => {
 });
 
 test("runner gives DSH a private patch and removes it after the one-shot", async () => {
-  const fixture = await mkdtemp(join(tmpdir(), "0sec-dsh-runner-test-"));
-  const entrypoint = join(fixture, "0sec.js");
+  const fixture = await mkdtemp(join(tmpdir(), "xsec-dsh-runner-test-"));
+  const entrypoint = join(fixture, "xsec.js");
   const scope = join(fixture, "scope.json");
   const observed = join(fixture, "observed.json");
   const dsh = join(fixture, "dsh");
@@ -174,13 +174,13 @@ writeFileSync(${JSON.stringify(observed)}, JSON.stringify({ args, patchPath }));
       "--scope", scope,
       "--entrypoint", entrypoint,
       "--dsh-bin", dsh,
-      "Use only 0sec MCP tools.",
+      "Use only xsec MCP tools.",
     ]);
 
     assert.equal(exitCode, 0);
     const result = JSON.parse(await readFile(observed, "utf8"));
     assert.deepEqual(result.args.slice(0, 3), ["--profile", "headless", "--patch"]);
-    assert.equal(result.args.at(-1), "Use only 0sec MCP tools.");
+    assert.equal(result.args.at(-1), "Use only xsec MCP tools.");
     assert.equal(existsSync(result.patchPath), false);
   } finally {
     await rm(fixture, { recursive: true, force: true });

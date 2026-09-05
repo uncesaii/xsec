@@ -3,7 +3,7 @@ import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { createInterface } from "node:readline";
 
-const READY_PREFIX = "0SEC_DASHBOARD_READY ";
+const READY_PREFIX = "XSEC_DASHBOARD_READY ";
 const DEFAULT_STARTUP_TIMEOUT_MS = 20_000;
 const GRACEFUL_STOP_TIMEOUT_MS = 5_000;
 const STDERR_LIMIT = 4_096;

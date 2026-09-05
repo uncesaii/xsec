@@ -45,6 +45,25 @@ packages/cli/src/tui/connect-layout.ts        merge=ours
 packages/cli/src/tui/chat/Composer.tsx        merge=ours
 packages/cli/src/tui/chat-screen.tsx          merge=ours
 
+# Desktop app (rebranded from 0sec)
+packages/desktop/package.json                 merge=ours
+packages/desktop/src/main/sidecar.ts          merge=ours
+packages/desktop/scripts/prepare-desktop-resources.mjs merge=ours
+packages/cli/src/desktop/console-gateway.ts   merge=ours
+packages/cli/src/desktop/console-gateway.test.ts merge=ours
+packages/cli/src/desktop/codex-auth-controller.ts merge=ours
+
+# Dashboard (rebranded imports)
+packages/dashboard/src/api.ts                 merge=ours
+packages/dashboard/src/pages/chat-page.tsx    merge=ours
+
+# Desktop CI workflow (rebranded)
+.github/workflows/desktop-macos.yml          merge=ours
+
+# Smoke test scripts (rebranded)
+scripts/smoke-desktop-macos.sh               merge=ours
+scripts/smoke-cli.sh                         merge=ours
+
 # Docs (rebranded)
 docs/**/*.md                    merge=ours
 packages/cli/README.md         merge=ours
