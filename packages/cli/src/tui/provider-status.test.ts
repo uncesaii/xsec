@@ -54,6 +54,7 @@ describe("PROVIDERS", () => {
         "qwen",
         "xai",
         "z-ai",
+        "zen",
       ].sort(),
     );
   });
