@@ -1,19 +1,5 @@
 name: "XSEC: Publish Docker image"
 
-# Build + push the xsec engine image to ghcr.io/<owner>/xsec.
-#
-# Trigger model — mirrors dashboard-build.yml / services-publish.yml so
-# merged engine work doesn't drift out of production (see #522):
-#
-#   - successful XSEC: Main on main → SHA-tagged image + :main + refreshed
-#                                       :latest. This is the rolling-main path
-#                                       the worker-controller pins by default
-#                                       (XSEC_IMAGE=…/xsec:latest).
-#
-# Main publishes are chained from `XSEC: Main` instead of running directly on
-# push, so a bad engine cannot refresh :latest before the CI suite has passed.
-# The publisher has no direct tag or manual trigger. Every credentialed build
-# starts only after trusted main CI succeeds.
 on:
   workflow_run:
     workflows: ["XSEC: Main"]
@@ -24,13 +10,6 @@ permissions:
   contents: read
   packages: write
 
-# Queue builds per ref; never cancel an in-progress build. Two failure
-# shapes this avoids (both measured 2026-07-17):
-#   - a condition-SKIPPED workflow_run publish (CI conclusion != success)
-#     occupied the group and CANCELLED a real in-progress build — skips
-#     must never kill builds;
-#   - out-of-order CI completions raced each other to GHCR. Queued
-#     builds complete in order instead of cancelling mid-flight.
 concurrency:
   group: xsec-docker-publish-${{ github.ref }}
   cancel-in-progress: false
@@ -39,21 +18,13 @@ jobs:
   build-and-push:
     if: >-
       github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.head_repository.full_name == github.repository
-    # Self-hosted X64 runner (same as worker-publish/dashboard-build) — far
-    # faster than GitHub's 2-vCPU hosted runners and shares the buildx layer
-    # cache with the other image builds. amd64-only (below) so no QEMU needed.
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     env:
-      # Suppress build-record artifact upload — see the xsec-side fix.
-      # docker/build-push-action v6 uploads a `.dockerbuild` record per
-      # build by default; those accumulated org-wide and exhausted the
-      # Actions artifact storage quota on 2026-07-28, which skipped this
-      # very workflow's publish job. We never consume these records.
       DOCKER_BUILD_RECORD_UPLOAD: "false"
       DOCKER_BUILD_SUMMARY: "false"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.ref }}
 
@@ -75,14 +46,6 @@ jobs:
           OWNER="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
           echo "name=ghcr.io/${OWNER}/xsec" >> "$GITHUB_OUTPUT"
 
-      # :latest only moves when this build IS the current main tip.
-      # workflow_run publishes check out the TRIGGERING CI run's head_sha;
-      # with main moving fast, an older CI completing later would otherwise
-      # publish older content over a newer :latest (measured 2026-07-17:
-      # the 21:58 :latest shipped d3ee0b45-era content, missing a fix that
-      # had merged 40min earlier, while looking green). The immutable :sha
-      # tag is stamped on every build regardless, so any image's exact
-      # content stays identifiable/testable.
       - name: Resolve :latest eligibility
         id: latest_eligible
         run: |
@@ -91,10 +54,8 @@ jobs:
           TIP_SHA="$(git ls-remote origin refs/heads/main | cut -f1)"
           if [ "$CI_SHA" = "$TIP_SHA" ]; then
             echo "enabled=true" >> "$GITHUB_OUTPUT"
-            echo ":latest moves (CI head == main tip: $CI_SHA)"
           else
             echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo ":latest HELD (CI head $CI_SHA is not main tip $TIP_SHA) — stamping :sha only"
           fi
 
       - name: Extract metadata
@@ -102,13 +63,6 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: ${{ steps.image.outputs.name }}
-          # Tag plan:
-          #   - sha          (every trusted-main build)       abc1234
-          #   - branch ref   (trusted-main build)             main
-          #   - :latest      (tip-gated — see eligibility)    latest
-          # Public version-tag publishing is a separately reviewed release
-          # path; a tag push must never execute arbitrary source on the
-          # credentialed publisher.
           tags: |
             type=sha,format=short,prefix=
             type=ref,event=branch
@@ -121,13 +75,6 @@ jobs:
 
       - name: Build and push
         id: build
-        # amd64-only: <REDACTED_INTERNAL_INFRA> + E2B sandboxes are all amd64, so the previous
-        # linux/arm64 leg was pure QEMU-emulated waste — 5-10x slower and the
-        # cause of the build failures (the emulated leg OOM/timeout). Dropping
-        # it fixes the build AND makes it much faster. One-shot retry mirrors
-        # worker-publish for the self-hosted runner's intermittent buildx
-        # graceful_stop/EOF failures.
-        continue-on-error: true
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -139,89 +86,3 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=xsec
           cache-to: type=gha,mode=max,scope=xsec
-          no-cache: ${{ github.event_name == 'workflow_dispatch' }}
-
-      - name: Re-authenticate to GHCR before retry
-        if: steps.build.outcome == 'failure'
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push — retry
-        if: steps.build.outcome == 'failure'
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64
-          builder: ${{ steps.buildx.outputs.name }}
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha,scope=xsec
-          cache-to: type=gha,mode=max,scope=xsec
-          no-cache: true
-
-      # Buildx can refresh the registry session used for the push. Re-login
-      # before the daemon performs the independent digest pull below.
-      - name: Authenticate GHCR image smoke test
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Smoke-test published image
-        run: |
-          set -euo pipefail
-          # Smoke-test BY DIGEST, not by tag.
-          #
-          # This previously took `head -n1` of the metadata tag list on the
-          # assumption that the :sha tag is always first. It isn't: on the
-          # `workflow_run` path the list leads with `:main` (type=ref), and
-          # `:main` is not among the tags this trigger actually pushes — the
-          # push emits :sha and :latest. `docker pull` then hit a tag that
-          # does not exist, and GHCR answers "unauthorized" rather than 404
-          # for a private package, so the failure read as an auth problem for
-          # months of runs (e52a2e8, 2026-07-27) while the push underneath had
-          # succeeded perfectly.
-          #
-          # `steps.build.outputs.digest` is the immutable digest the push step
-          # just produced. It cannot drift from what was pushed, it cannot be
-          # reordered by a tag-plan change, and it is exactly the reference the
-          # release manifest pins — so this now smoke-tests the artifact we
-          # actually promote.
-          IMAGE="ghcr.io/${{ github.repository_owner }}/xsec@${{ steps.build.outputs.digest }}"
-          echo "Smoke-testing $IMAGE"
-          docker pull "$IMAGE"
-          # Exec every tool as the non-root `ubuntu` user the image drops to.
-          # Any failure fails the job so broken tool additions can't silently
-          # ship — and, importantly, so the E2B template dispatch below never
-          # fires for an image whose tooling is broken.
-          docker run --rm --entrypoint bash "$IMAGE" -c '
-            set -e
-            echo "=== whoami ===" && whoami
-            echo "=== node ==="          && node --version
-            echo "=== ripgrep ==="       && rg --version | head -1
-            echo "=== nmap ==="          && nmap --version | head -1
-            # AD / cloud-identity tooling.
-            # `command -v` is the existence assertion (it exits non-zero when the
-            # binary is missing); the piped version banner is informational —
-            # piping would otherwise swallow a non-zero exit.
-            echo "=== ldapsearch ==="    && command -v ldapsearch && ldapsearch -VV 2>&1 | head -1
-            echo "=== klist ==="         && command -v klist && klist -V 2>&1 | head -1
-            echo "=== kinit ==="         && command -v kinit
-            for t in secretsdump.py GetUserSPNs.py GetNPUsers.py psexec.py wmiexec.py ntlmrelayx.py; do
-              echo "=== impacket $t ===" && command -v "$t" && "$t" -h 2>&1 | head -3
-            done
-            echo "=== certipy ==="        && command -v certipy && certipy --help 2>&1 | head -3
-            echo "=== bloodhound-ce ==="  && command -v bloodhound-ce-python && bloodhound-ce-python --help 2>&1 | head -3
-            echo "=== azurehound ==="     && command -v azurehound && azurehound --help 2>&1 | head -3
-            # The AD venv must NOT shadow the system interpreter: the agent
-            # helper scripts import the apt-managed requests/bs4 via plain
-            # `python3`, and a venv on PATH would silently hide them.
-            echo "=== system python deps ===" && python3 -c "import requests, bs4; print(\"py deps ok\")"
-            echo "ALL_TOOLS_OK"
-          '

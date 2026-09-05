@@ -1,10 +1,5 @@
 name: "xverse: Main"
 
-# xverse is the binary-native research engine exported into this repository
-# under xverse/ (ADR-094). Consistent with the public PR policy, contributor
-# code executes only after review: this workflow runs on pushes to main and on
-# same-repository pull requests, never on fork checkouts.
-
 on:
   push:
     branches: [main]
@@ -22,12 +17,10 @@ concurrency:
 
 jobs:
   core:
-    # Same-repo PRs only. Fork checkouts are never executed; the public PR
-    # policy workflow (public-pr.yml) is the only fork-facing job.
     if: >-
       github.event_name == 'push' ||
       github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     timeout-minutes: 25
     defaults:
       run:
@@ -35,7 +28,7 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: "1"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - uses: actions/setup-python@v5

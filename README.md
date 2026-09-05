@@ -83,12 +83,14 @@ and research, but they are not separate primary TUI modes.
 
 ## How it works
 
-It proves the bug before it reports it.
-
-- **Free-form agents, hard guardrails.** Models decide what to probe; turn budgets, loop detection, and scope-on-every-call keep them in line.
-- **Reproduce before trust.** A blind agent re-exploits each finding from the PoC alone. What it can't reproduce is dropped.
-- **Triage before verify.** Class oracles and a second scanner cut noise before the expensive step.
-- **Bring your own model.** Anthropic, OpenAI, Azure, OpenRouter, or local Ollama — you hold the key.
+- **Free-form agents, hard guardrails.** Models decide what to probe. Turn budgets,
+  loop detection and a scope check on every call keep them inside the engagement.
+- **Blind re-exploitation.** A second agent gets the PoC and nothing else. If it
+  can't reproduce the finding, the finding is dropped.
+- **Cheap checks first.** Class oracles and a second scanner cut the noise, so the
+  expensive step runs on less.
+- **Your own model.** Anthropic, OpenAI, Azure, OpenRouter or local Ollama. You hold
+  the key.
 
 Every run keeps its own evidence under `~/.xsec/runs/<id>/`, so you can `resume`, `replay`, or `disclose` it later.
 
@@ -117,10 +119,33 @@ git clone https://github.com/uncesaii/xsec.git && cd xsec
 corepack enable && pnpm install --frozen-lockfile && pnpm build && node packages/cli/dist/index.js --help
 ```
 
+### Desktop development
+
+The Electron shell opens a chat-first React operator workspace against a local
+Bun sidecar. Operations, runs, and findings are secondary routes; Node and
+provider credentials never enter the renderer.
+
+```bash
+pnpm build
+pnpm desktop
+```
+
+Package a host-native app only after compiling its matching sidecar:
+
+```bash
+# Apple Silicon macOS
+bash scripts/bun-compile.sh "" dist-bin/xsec-darwin-arm64
+
+# Linux x64
+# bash scripts/bun-compile.sh "" dist-bin/xsec-linux-x64
+
+pnpm desktop:package
+```
+
 ## Contributing & security
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) — synthetic or authorized targets only. Report vulnerabilities privately via [SECURITY.md](SECURITY.md), not public issues.
 
 ## License
 
-Dual-licensed **MIT OR Apache-2.0** — see [LICENSE](LICENSE) / [LICENSE-MIT](LICENSE-MIT). © 2026 0sec Labs.
+Dual-licensed **MIT OR Apache-2.0** — see [LICENSE](LICENSE) / [LICENSE-MIT](LICENSE-MIT). © 2026 XSEC Labs.

@@ -1,13 +1,5 @@
 name: "XSEC: Release"
 
-# Build the standalone `xsec` binary natively on each target OS and publish all
-# four (+ checksums) to the GitHub Release. Native builds avoid `bun --compile`
-# cross-compilation, which cannot resolve @opentui/core's per-platform native
-# packages from a single host. Each binary is smoke-tested on its own runner
-# before it ships.
-#
-# Trigger: pushing a `v*` tag, or manually via workflow_dispatch with the tag.
-
 on:
   push:
     tags: ["v*"]
@@ -40,30 +32,21 @@ jobs:
     env:
       PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.inputs.tag || github.ref }}
       - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
       - uses: actions/setup-node@v5
         with:
-          # Node 22, not 24: tree-sitter@0.21.1's native addon fails to compile
-          # against Node 24's V8 (missing cppgc header) on linux-arm64, which has
-          # no prebuilt. Node 22 compiles it from source cleanly.
           node-version: 22
-      # Keep the compiler pinned while the bundled OpenTUI/native-addon surface
-      # is validated. `bun-compile.sh` stages tree-sitter's runtime-discovered
-      # N-API addons so their direct requires are embedded in the executable.
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: "1.3.14"
       - name: Install dependencies
-        # No --ignore-scripts: the native addon (tree-sitter) must build so the
-        # compiled binary has a .node to load at runtime (arm64 has no prebuilt).
         run: pnpm install --no-frozen-lockfile
       - name: Build the CLI dependency closure
-        # Only the xsec-cli closure is needed for the binary. Building the whole
-        # workspace (pnpm -r) also builds @xsec/docs, whose astro site 404s on
-        # Windows and has nothing to do with the release binary.
         run: pnpm --filter "xsec-cli..." build
       - name: Compile native binary
         shell: bash
@@ -71,9 +54,6 @@ jobs:
       - name: Smoke the binary
         shell: bash
         run: |
-          # Move the build tree's node_modules away before launch. A compiled
-          # executable must not depend on a native addon that happens to exist in
-          # the checkout used to produce it.
           smoke_dir="$(mktemp -d)"
           mv node_modules node_modules.release-build
           trap 'mv node_modules.release-build node_modules; rm -rf "$smoke_dir"' EXIT

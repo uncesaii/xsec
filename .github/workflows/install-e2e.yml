@@ -1,9 +1,5 @@
 name: "XSEC: Installation E2E"
 
-# Verify the public commands in README.md and Getting Started, not a build-tree
-# approximation. The image-publish completion trigger makes this run after the
-# public :latest image is refreshed; the daily run catches upstream registry,
-# GitHub Release, and base-image drift.
 on:
   workflow_dispatch:
   schedule:
@@ -17,7 +13,7 @@ permissions:
 
 concurrency:
   group: xsec-install-e2e
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   install:
@@ -34,9 +30,8 @@ jobs:
       matrix:
         method: [binary, source, container]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
-          # These checks deliberately exercise the public default-branch surface.
           ref: ${{ github.event.repository.default_branch }}
       - name: Exercise documented ${{ matrix.method }} installation
         run: bash scripts/install-e2e.sh ${{ matrix.method }}

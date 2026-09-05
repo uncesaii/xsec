@@ -9,20 +9,20 @@ permissions:
 
 concurrency:
   group: xsec-main-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
         with:
           version: 9.15.9
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Build CLI
@@ -30,14 +30,6 @@ jobs:
       - name: Type-check
         run: pnpm lint
       - name: Smoke CLI
-        # The bundle keeps react/@opentui/* (and the native tree-sitter,
-        # node-sqlite3-wasm, drizzle) EXTERNAL so it never ships a second React
-        # instance beside OpenTUI's. Those externals live in the generated
-        # dist/package.json but are not hoisted to the repo root, so the raw
-        # bundle can't resolve them until we install them next to it. Mirror the
-        # installed-tarball layout by installing the bundle's own deps into dist/
-        # before smoking. Use `npm install --omit=dev` (not `npm ci`) so a lock
-        # that lags the current react/@opentui versions can't fail the smoke.
         run: |
           (cd dist && npm install --omit=dev --no-audit --no-fund)
           node dist/xsec.js --help

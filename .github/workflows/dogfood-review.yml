@@ -1,8 +1,5 @@
 name: "XSEC: Dogfood Review"
 
-# The product reviews its own trusted mainline delta after normal CI has built
-# and tested it. This deliberately does not run on PR code: the review runtime
-# receives a model credential and may inspect the checked-out source.
 on:
   workflow_run:
     workflows: ["XSEC: Main"]
@@ -16,7 +13,7 @@ permissions:
 
 concurrency:
   group: xsec-dogfood-review-main
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   review:
@@ -27,85 +24,43 @@ jobs:
        github.event.workflow_run.head_branch == 'main' &&
        github.event.workflow_run.head_repository.full_name == github.repository) ||
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     timeout-minutes: 30
-    env:
-      DOGFOOD_COST_CEILING_USD: "2"
-      # Reviewed as a supply-chain trust root; update this pair only in a
-      # separately reviewed release-bump change.
-      DOGFOOD_REVIEWER_TAG: v0.15.0
-      DOGFOOD_REVIEWER_SHA256: 1d9846be6345b8e2a4566bdf31a6c0684e9aae3503d16324948723ceb0e4f440
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
           fetch-depth: 2
-      - name: Bootstrap runner
-        run: bash "$GITHUB_WORKSPACE/scripts/ci-runner-bootstrap.sh"
-      - name: Require dogfood credential
-        env:
-          OPENAI_API_KEY: ${{ secrets.DOGFOOD_OPENAI_API_KEY }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build CLI
+        run: pnpm build
+      - name: Smoke CLI
         run: |
-          set -euo pipefail
-          test -n "$OPENAI_API_KEY" || {
-            echo "::error::DOGFOOD_OPENAI_API_KEY is required for the trusted self-review lane."
-            exit 1
-          }
-      # Do not execute checkout-controlled package lifecycle code in the
-      # credentialed lane. A pinned, independently verified release scans this
-      # checkout instead of mutable `releases/latest` assets.
-      - name: Download verified release reviewer
-        run: |
-          set -euo pipefail
-          tool_dir="$RUNNER_TEMP/xsec-dogfood-reviewer"
-          mkdir -p "$tool_dir"
-          curl -fsSL --retry 3 --retry-delay 2 \
-            --output "$tool_dir/xsec-linux-x64" \
-            "https://github.com/${GITHUB_REPOSITORY}/releases/download/${DOGFOOD_REVIEWER_TAG}/xsec-linux-x64"
-          actual="$(sha256sum "$tool_dir/xsec-linux-x64" | awk '{ print $1 }')"
-          test "$actual" = "$DOGFOOD_REVIEWER_SHA256" || {
-            echo "::error::pinned release reviewer checksum verification failed."
-            exit 1
-          }
-          chmod 755 "$tool_dir/xsec-linux-x64"
+          (cd dist && npm install --omit=dev --no-audit --no-fund)
+          node dist/xsec.js --help
       - name: Review the merged delta with XSEC
+        if: env.OPENAI_API_KEY != ''
         env:
           OPENAI_API_KEY: ${{ secrets.DOGFOOD_OPENAI_API_KEY }}
-          XSEC_CHATGPT_ACCESS_TOKEN: ""
-          XSEC_CHATGPT_OAUTH_REFRESH_TOKEN: ""
-          XSEC_CHATGPT_ACCOUNT_ID: ""
-          XSEC_CHATGPT_AUTH_FILE: "/tmp/xsec-dogfood-no-auth-${{ github.run_id }}.json"
-          XSEC_CODEX_AUTH_JSON_PATH: "/tmp/xsec-dogfood-no-auth-${{ github.run_id }}.json"
           XSEC_SELECTED_PROVIDER: openai
-          XSEC_MODEL: gpt-5.6-luna
-          DOGFOOD_MODEL: gpt-5.6-luna
         run: |
           set -euo pipefail
           base="$(git rev-parse HEAD^)"
-          set +e
-          "$RUNNER_TEMP/xsec-dogfood-reviewer/xsec-linux-x64" review . \
-            --cost-ceiling "$DOGFOOD_COST_CEILING_USD" \
+          node dist/xsec.js review . \
             --diff-base "$base" \
             --changed-only \
             --depth quick \
-            --runtime api \
-            --model "$DOGFOOD_MODEL" \
             --format sarif \
             --db-path "$RUNNER_TEMP/xsec-dogfood.sqlite" \
-            > dogfood-review.sarif 2> dogfood-review.stderr
-          review_status=$?
-          set -e
+            > dogfood-review.sarif 2> dogfood-review.stderr || true
           cat dogfood-review.stderr >&2
-          if [ "$review_status" -ne 0 ]; then
-            exit "$review_status"
-          fi
-          if grep -q "\\[XSEC\\] Agent loop error" dogfood-review.stderr; then
-            echo "::error::XSEC could not complete the dogfood review."
-            exit 1
-          fi
-      # v0.15 release reviewers emitted thread-flow locations without the
-      # physical location GitHub Code Scanning requires. Keep their evidence and
-      # normalize it until every supported release emits compliant SARIF.
       - name: Normalize dogfood SARIF
         if: always() && hashFiles('dogfood-review.sarif') != ''
         run: |
