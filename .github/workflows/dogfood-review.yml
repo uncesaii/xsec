@@ -36,7 +36,7 @@ jobs:
       DOGFOOD_REVIEWER_TAG: v0.15.0
       DOGFOOD_REVIEWER_SHA256: 1d9846be6345b8e2a4566bdf31a6c0684e9aae3503d16324948723ceb0e4f440
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
           fetch-depth: 2

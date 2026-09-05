@@ -53,7 +53,7 @@ jobs:
       DOCKER_BUILD_SUMMARY: "false"
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.ref }}
 
