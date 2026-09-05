@@ -1009,6 +1009,11 @@ interface ChatGptCodexAuthState {
  */
 let chatGptCodexAuthState: ChatGptCodexAuthState | undefined;
 
+/** Reset the cached ChatGPT Codex auth state. Test-only. */
+export function __resetChatGptCodexAuthStateForTests(): void {
+  chatGptCodexAuthState = undefined;
+}
+
 function readChatGptCodexEnv():
   | { accessToken?: string; refreshToken?: string; accountId?: string }
   | undefined {

@@ -305,7 +305,7 @@ export function generateWriteup(
 
   out.push("## Credits", "");
   out.push(
-    "Found by XSEC's automated security-research tooling.",
+    "Found by XSEC's automated security-research tooling. https://xsec.dev",
     "",
   );
 

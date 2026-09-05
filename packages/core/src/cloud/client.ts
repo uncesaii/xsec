@@ -71,6 +71,7 @@ export interface CloudHealthResponse {
   status: string;
 }
 function healthPath(host: string): string {
+  if (host.includes("cloud.xsec.dev")) return "/api/health";
   return "/health";
 }
 

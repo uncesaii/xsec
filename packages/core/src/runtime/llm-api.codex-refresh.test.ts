@@ -19,10 +19,10 @@ describe("Codex refresh-token rotation write-back", () => {
   let authPath: string;
 
   const CODEX_ENV = [
-    "0SEC_CHATGPT_ACCESS_TOKEN",
-    "0SEC_CHATGPT_OAUTH_REFRESH_TOKEN",
-    "0SEC_CHATGPT_ACCOUNT_ID",
-    "0SEC_CHATGPT_AUTH_FILE",
+    "XSEC_CHATGPT_ACCESS_TOKEN",
+    "XSEC_CHATGPT_OAUTH_REFRESH_TOKEN",
+    "XSEC_CHATGPT_ACCOUNT_ID",
+    "XSEC_CHATGPT_AUTH_FILE",
   ];
 
   beforeEach(() => {
@@ -64,7 +64,7 @@ describe("Codex refresh-token rotation write-back", () => {
         tokens: { refresh_token: "old-refresh", account_id: "acct-123" },
       }),
     );
-    process.env["0SEC_CHATGPT_AUTH_FILE"] = authPath;
+    process.env["XSEC_CHATGPT_AUTH_FILE"] = authPath;
     mockRefresh("rotated-refresh-1");
 
     const out = await getChatGptCodexAccessToken();
@@ -83,7 +83,7 @@ describe("Codex refresh-token rotation write-back", () => {
       authPath,
       JSON.stringify({ tokens: { refresh_token: "old-refresh" } }),
     );
-    process.env["0SEC_CHATGPT_AUTH_FILE"] = authPath;
+    process.env["XSEC_CHATGPT_AUTH_FILE"] = authPath;
 
     const seen: string[] = [];
     vi.stubGlobal(
@@ -115,8 +115,8 @@ describe("Codex refresh-token rotation write-back", () => {
 
   it("does NOT write a file on the env-forwarded path (no authFilePath)", async () => {
     // Env-forwarded refresh token (worker-controller/cloud path).
-    process.env["0SEC_CHATGPT_OAUTH_REFRESH_TOKEN"] = "env-refresh";
-    process.env["0SEC_CHATGPT_AUTH_FILE"] = authPath; // present but must stay untouched
+    process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"] = "env-refresh";
+    process.env["XSEC_CHATGPT_AUTH_FILE"] = authPath; // present but must stay untouched
     mockRefresh("rotated-env");
 
     await getChatGptCodexAccessToken();

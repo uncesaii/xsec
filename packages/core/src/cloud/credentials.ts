@@ -26,7 +26,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 
 /** Canonical production host. Override via XSEC_CLOUD_HOST or cloud.env. */
-export const DEFAULT_CLOUD_HOST = "";
+export const DEFAULT_CLOUD_HOST = "https://cloud.xsec.dev";
 
 export interface CloudCredentials {
   host: string;
