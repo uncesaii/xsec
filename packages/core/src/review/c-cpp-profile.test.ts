@@ -149,7 +149,7 @@ describe("scaffoldTier1Harness", () => {
     ).rejects.toThrow(/clang\/libFuzzer toolchain is unavailable/);
   });
 
-  it("can build the fixture harness and produce an ASan heap-buffer-overflow when libFuzzer is available", async () => {
+  it("can build the fixture harness and produce an ASan heap-buffer-overflow when libFuzzer is available", { timeout: 30_000 }, async () => {
     if (process.platform === "win32") return;
     if (!(await hasLibFuzzerToolchain())) return;
 

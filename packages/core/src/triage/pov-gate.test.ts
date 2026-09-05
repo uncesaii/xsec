@@ -442,7 +442,7 @@ describe("oastConfirmedPayload", () => {
       category: "ssrf",
       oracle: "oast-callback",
       hasPov: true,
-      reason: "DNS callback: host=abc.oast.xsec.ai",
+      reason: "DNS callback: host=abc.oast.xsec.dev",
     });
   });
 
