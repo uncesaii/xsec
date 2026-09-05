@@ -1,12 +1,12 @@
 name: "XSEC: Upstream Sync"
 
-# Hourly check for new upstream releases (0sec-labs/0sec). When a new tag is
-# detected:
-#   1. Merge upstream-tracking into main
-#   2. Run post-merge rebrand pass (re-stamp our rebrand on upstream changes)
-#   3. Create a release branch with version bump + binary
-#   4. Create a GitHub Release with the binary attached
-#   5. Open a PR from release branch -> main, then merge it immediately
+# Checks 0sec-labs/0sec for new commits, release tags, and package updates.
+# When upstream has moved ahead:
+#   1. Merge upstream into main
+#   2. Run post-merge rebrand pass
+#   3. Bump version, create release branch + binary
+#   4. Create a GitHub Release
+#   5. Open PR and merge immediately
 
 on:
   schedule:
@@ -34,35 +34,49 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Fetch upstream tags
-        run: git fetch upstream --tags
-
-      - name: Find latest upstream tag
-        id: latest
+      - name: Add upstream remote
         run: |
-          LATEST=$(git tag -l "v*" --sort=-v:refname | head -n1)
-          echo "tag=$LATEST" >> "$GITHUB_OUTPUT"
-          echo "Latest upstream tag: $LATEST"
+          git remote add upstream https://github.com/0sec-labs/0sec.git 2>/dev/null || true
+          git fetch upstream
 
-      - name: Read current tracked version
-        id: tracked
-        run: |
-          TRACKED=$(cat .upstream-version 2>/dev/null || echo "none")
-          echo "tag=$TRACKED" >> "$GITHUB_OUTPUT"
-          echo "Currently tracked: $TRACKED"
-
-      - name: Check if new upstream release
+      - name: Check if upstream has new commits or package updates
         id: check
         run: |
-          if [ "${{ steps.latest.outputs.tag }}" = "${{ steps.tracked.outputs.tag }}" ]; then
-            echo "Upstream is up to date (${{ steps.tracked.outputs.tag }})."
+          TRACKED=$(cat .upstream-version 2>/dev/null || echo "none")
+          echo "Currently tracked: $TRACKED"
+
+          # Find the latest upstream tag
+          LATEST_TAG=$(git tag -l "v*" --sort=-v:refname | head -n1)
+          echo "Latest upstream tag: $LATEST_TAG"
+
+          # Find the latest upstream commit on main
+          UPSTREAM_SHA=$(git rev-parse upstream/main)
+          echo "Upstream SHA: $UPSTREAM_SHA"
+
+          # Check if we already have this commit
+          if git merge-base --is-ancestor "$UPSTREAM_SHA" HEAD 2>/dev/null; then
+            echo "Upstream is up to date (commit $UPSTREAM_SHA already in main)."
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            echo "New upstream: ${{ steps.latest.outputs.tag }} (was ${{ steps.tracked.outputs.tag }})"
+            echo "New upstream changes detected"
+
+            # Check for new tag
+            if [ "$LATEST_TAG" != "$TRACKED" ]; then
+              echo "New upstream tag: $LATEST_TAG (was $TRACKED)"
+            fi
+
+            # Check for package.json changes on upstream
+            UPSTREAM_PKGS=$(git diff HEAD...upstream/main --name-only -- '*/package.json' 'package.json' 2>/dev/null || echo "")
+            if [ -n "$UPSTREAM_PKGS" ]; then
+              echo "Package updates detected:"
+              echo "$UPSTREAM_PKGS"
+            fi
+
+            echo "tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # --- Everything below runs only when a new upstream release exists ---
+      # --- Everything below runs only when upstream has moved ahead ---
 
       - name: Setup pnpm
         if: steps.check.outputs.changed == 'true'
@@ -112,9 +126,9 @@ jobs:
             pkg.version = '$NEW_VERSION';
             fs.writeFileSync('packages/cli/package.json', JSON.stringify(pkg, null, 2) + '\n');
           "
-          echo "${{ steps.latest.outputs.tag }}" > .upstream-version
+          echo "${{ steps.check.outputs.tag }}" > .upstream-version
           git add -A
-          git commit -m "chore: bump version to $TAG, track upstream ${{ steps.latest.outputs.tag }}"
+          git commit -m "chore: bump version to $TAG, track upstream ${{ steps.check.outputs.tag }}"
           git tag "$TAG"
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
@@ -146,10 +160,10 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${{ steps.version.outputs.tag }}"
-          NOTES="Automated upstream sync from upstream ${{ steps.latest.outputs.tag }}."
+          NOTES="Automated upstream sync from upstream ${{ steps.check.outputs.tag }}."
           gh release create "$TAG" dist-bin/xsec-linux-x64 \
             --repo "${{ github.repository }}" \
-            --title "XSEC $TAG (upstream ${{ steps.latest.outputs.tag }})" \
+            --title "XSEC $TAG (upstream ${{ steps.check.outputs.tag }})" \
             --notes "$NOTES" \
             --verify-tag
           echo "url=https://github.com/${{ github.repository }}/releases/tag/$TAG" >> "$GITHUB_OUTPUT"
@@ -164,8 +178,8 @@ jobs:
           RELEASE_URL="${{ steps.release.outputs.url }}"
           PR_URL=$(gh pr create \
             --repo "${{ github.repository }}" \
-            --title "chore: sync upstream ${{ steps.latest.outputs.tag }} ($TAG)" \
-            --body "Automated upstream sync. Upstream: ${{ steps.latest.outputs.tag }}, Version: $TAG, Binary: $RELEASE_URL" \
+            --title "chore: sync upstream ${{ steps.check.outputs.tag }} ($TAG)" \
+            --body "Automated upstream sync. Upstream: ${{ steps.check.outputs.tag }}, Version: $TAG, Binary: $RELEASE_URL" \
             --base main \
             --head "$BRANCH")
           PR_NUM=$(echo "$PR_URL" | grep -oP '\d+$')
