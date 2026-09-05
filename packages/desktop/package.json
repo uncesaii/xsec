@@ -13,7 +13,7 @@
   "desktopName": "xsec",
   "scripts": {
     "build": "tsc --project tsconfig.json",
-    "start": "pnpm run build && electron .",
+    "start": "pnpm run build && electron . --no-sandbox",
     "test": "vitest run",
     "package": "pnpm run build && node scripts/prepare-desktop-resources.mjs && electron-builder --publish never",
     "package:linux": "pnpm run build && node scripts/prepare-desktop-resources.mjs && electron-builder --publish never --linux",
