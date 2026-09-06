@@ -711,8 +711,38 @@ const META_DEFAULT_BASE_URL = "https://api.meta.ai/v1";
 const META_DEFAULT_MODEL = "muse-spark-1.2";
 const NVIDIA_DEFAULT_BASE_URL = "https://integrate.api.nvidia.com/v1";
 const NVIDIA_DEFAULT_MODEL = "nvidia/nemotron-3-ultra";
+const GROQ_DEFAULT_BASE_URL = "https://api.groq.com/openai/v1";
+const GROQ_DEFAULT_MODEL = "llama-3.3-70b-versatile";
+const TOGETHER_DEFAULT_BASE_URL = "https://api.together.xyz/v1";
+const TOGETHER_DEFAULT_MODEL = "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo";
+const FIREWORKS_DEFAULT_BASE_URL = "https://api.fireworks.ai/inference/v1";
+const FIREWORKS_DEFAULT_MODEL = "accounts/fireworks/models/llama-v3p1-70b-instruct";
+const DEEPINFRA_DEFAULT_BASE_URL = "https://api.deepinfra.com/v1/openai";
+const DEEPINFRA_DEFAULT_MODEL = "meta-llama/Meta-Llama-3.1-70B-Instruct";
+const FIREWORKS_AI_DEFAULT_BASE_URL = "https://api.fireworks.ai/inference/v1";
+const FIREWORKS_AI_DEFAULT_MODEL = "accounts/fireworks/models/llama-v3p1-70b-instruct";
+const CEREBRAS_DEFAULT_BASE_URL = "https://api.cerebras.ai/v1";
+const CEREBRAS_DEFAULT_MODEL = "llama3.1-70b";
+const SILICONFLOW_DEFAULT_BASE_URL = "https://api.siliconflow.cn/v1";
+const SILICONFLOW_DEFAULT_MODEL = "Qwen/Qwen2.5-72B-Instruct";
+const NOVITA_DEFAULT_BASE_URL = "https://api.novita.ai/openai";
+const NOVITA_DEFAULT_MODEL = "meta-llama/llama-3.1-70b-instruct";
+const FRIENDLI_DEFAULT_BASE_URL = "https://api.friendli.ai/serverless/v1";
+const FRIENDLI_DEFAULT_MODEL = "meta-llama-3.1-70b-instruct";
+const BASETEN_DEFAULT_BASE_URL = "https://inference.baseten.co/v1";
+const BASETEN_DEFAULT_MODEL = "llama-3.1-70b-instruct";
+const MODAL_DEFAULT_BASE_URL = "https://inference.us-west.modal.direct/v1";
+const MODAL_DEFAULT_MODEL = "meta-llama-3.1-70b-instruct";
+const SCALEWAY_DEFAULT_BASE_URL = "https://api.scaleway.ai/v1";
+const SCALEWAY_DEFAULT_MODEL = "meta-llama-3.1-70b-instruct";
+const OVHCLOUD_DEFAULT_BASE_URL = "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1";
+const OVHCLOUD_DEFAULT_MODEL = "meta-llama-3.1-70b-instruct";
+const VULTR_DEFAULT_BASE_URL = "https://api.vultrinference.com/v1";
+const VULTR_DEFAULT_MODEL = "meta-llama-3.1-70b-instruct";
+const DIGITALOCEAN_DEFAULT_BASE_URL = "https://inference.do-ai.run/v1";
+const DIGITALOCEAN_DEFAULT_MODEL = "meta-llama-3.1-70b-instruct";
 
-type ApiProvider = "openrouter" | "anthropic" | "openai" | "azure" | "deepseek" | "chatgpt-codex" | "z-ai" | "kimi" | "qwen" | "xai" | "custom-openai" | "zen" | "google" | "mistral" | "meta" | "cohere" | "perplexity" | "nvidia";
+type ApiProvider = "openrouter" | "anthropic" | "openai" | "azure" | "deepseek" | "chatgpt-codex" | "z-ai" | "kimi" | "qwen" | "xai" | "custom-openai" | "zen" | "google" | "mistral" | "meta" | "cohere" | "perplexity" | "nvidia" | "groq" | "together" | "fireworks" | "deepinfra" | "cerebras" | "siliconflow" | "novita" | "friendli" | "baseten" | "modal" | "scaleway" | "ovhcloud" | "vultr" | "digitalocean";
 type WireApi = "chat_completions" | "responses";
 /**
  * Azure Foundry deployment ids used by xcloud. The worker can inject both
@@ -762,7 +792,10 @@ const VALID_PROVIDERS: Record<string, true> = {
     openrouter: true, anthropic: true, openai: true, azure: true, deepseek: true,
     "chatgpt-codex": true, "z-ai": true, kimi: true, qwen: true, xai: true,
     google: true, mistral: true, meta: true, cohere: true, perplexity: true,
-    nvidia: true,
+    nvidia: true, groq: true, together: true, fireworks: true, deepinfra: true,
+    cerebras: true, siliconflow: true, novita: true, friendli: true,
+    baseten: true, modal: true, scaleway: true, ovhcloud: true,
+    vultr: true, digitalocean: true,
   };
   for (const part of raw.split(",")) {
     const trimmed = part.trim();
@@ -885,6 +918,76 @@ export function resolveFailoverProvider(
       const key = process.env.NVIDIA_API_KEY;
       if (!key) return undefined;
       return { apiKey: key, baseUrl: process.env.NVIDIA_BASE_URL ?? NVIDIA_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "groq": {
+      const key = process.env.GROQ_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.GROQ_BASE_URL ?? GROQ_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "together": {
+      const key = process.env.TOGETHER_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.TOGETHER_BASE_URL ?? TOGETHER_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "fireworks": {
+      const key = process.env.FIREWORKS_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.FIREWORKS_BASE_URL ?? FIREWORKS_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "deepinfra": {
+      const key = process.env.DEEPINFRA_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.DEEPINFRA_BASE_URL ?? DEEPINFRA_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "cerebras": {
+      const key = process.env.CEREBRAS_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.CEREBRAS_BASE_URL ?? CEREBRAS_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "siliconflow": {
+      const key = process.env.SILICONFLOW_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.SILICONFLOW_BASE_URL ?? SILICONFLOW_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "novita": {
+      const key = process.env.NOVITA_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.NOVITA_BASE_URL ?? NOVITA_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "friendli": {
+      const key = process.env.FRIENDLI_TOKEN;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.FRIENDLI_BASE_URL ?? FRIENDLI_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "baseten": {
+      const key = process.env.BASETEN_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.BASETEN_BASE_URL ?? BASETEN_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "modal": {
+      const key = process.env.MODAL_PROXY_TOKEN;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.MODAL_BASE_URL ?? MODAL_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "scaleway": {
+      const key = process.env.SCALEWAY_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.SCALEWAY_BASE_URL ?? SCALEWAY_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "ovhcloud": {
+      const key = process.env.OVHCLOUD_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.OVHCLOUD_BASE_URL ?? OVHCLOUD_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "vultr": {
+      const key = process.env.VULTR_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.VULTR_BASE_URL ?? VULTR_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "digitalocean": {
+      const key = process.env.DIGITALOCEAN_ACCESS_TOKEN;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.DIGITALOCEAN_BASE_URL ?? DIGITALOCEAN_DEFAULT_BASE_URL, wireApi: "chat_completions" };
     }
   }
 }
@@ -1409,6 +1512,36 @@ function providerForModel(model: string | undefined): ApiProvider | undefined {
   if (m.startsWith("custom/")) return process.env.XSEC_CUSTOM_OPENAI_API_KEY ? "custom-openai" : undefined;
   // Google Gemini.
   if (m.startsWith("gemini")) return process.env.GOOGLE_API_KEY ? "google" : undefined;
+  // NVIDIA.
+  if (m.startsWith("nvidia/")) return process.env.NVIDIA_API_KEY ? "nvidia" : undefined;
+  // Groq.
+  if (m.startsWith("groq/")) return process.env.GROQ_API_KEY ? "groq" : undefined;
+  // Together AI.
+  if (m.startsWith("together/") || m.startsWith("togetherai/")) return process.env.TOGETHER_API_KEY ? "together" : undefined;
+  // Fireworks AI.
+  if (m.startsWith("fireworks/") || m.startsWith("fireworks-ai/")) return process.env.FIREWORKS_API_KEY ? "fireworks" : undefined;
+  // DeepInfra.
+  if (m.startsWith("deepinfra/")) return process.env.DEEPINFRA_API_KEY ? "deepinfra" : undefined;
+  // Cerebras.
+  if (m.startsWith("cerebras/")) return process.env.CEREBRAS_API_KEY ? "cerebras" : undefined;
+  // SiliconFlow.
+  if (m.startsWith("siliconflow/")) return process.env.SILICONFLOW_API_KEY ? "siliconflow" : undefined;
+  // Novita AI.
+  if (m.startsWith("novita/") || m.startsWith("novita-ai/")) return process.env.NOVITA_API_KEY ? "novita" : undefined;
+  // Friendli.
+  if (m.startsWith("friendli/")) return process.env.FRIENDLI_TOKEN ? "friendli" : undefined;
+  // Baseten.
+  if (m.startsWith("baseten/")) return process.env.BASETEN_API_KEY ? "baseten" : undefined;
+  // Modal.
+  if (m.startsWith("modal/")) return process.env.MODAL_PROXY_TOKEN ? "modal" : undefined;
+  // Scaleway.
+  if (m.startsWith("scaleway/")) return process.env.SCALEWAY_API_KEY ? "scaleway" : undefined;
+  // OVHcloud.
+  if (m.startsWith("ovhcloud/")) return process.env.OVHCLOUD_API_KEY ? "ovhcloud" : undefined;
+  // Vultr.
+  if (m.startsWith("vultr/")) return process.env.VULTR_API_KEY ? "vultr" : undefined;
+  // DigitalOcean.
+  if (m.startsWith("digitalocean/")) return process.env.DIGITALOCEAN_ACCESS_TOKEN ? "digitalocean" : undefined;
   // Mistral.
   if (m.startsWith("mistral")) return process.env.MISTRAL_API_KEY ? "mistral" : undefined;
   // Meta Llama.
@@ -1514,6 +1647,21 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
       "meta",
       "cohere",
       "perplexity",
+      "nvidia",
+      "groq",
+      "together",
+      "fireworks",
+      "deepinfra",
+      "cerebras",
+      "siliconflow",
+      "novita",
+      "friendli",
+      "baseten",
+      "modal",
+      "scaleway",
+      "ovhcloud",
+      "vultr",
+      "digitalocean",
     ];
     if (!supported.includes(pinnedProviderRaw as ApiProvider)) {
       throw new Error(`${source} is unsupported: ${pinnedProviderRaw}`);
@@ -1614,6 +1762,62 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
       return { provider: "nvidia", apiKey: process.env.NVIDIA_API_KEY as string,
         baseUrl: process.env.NVIDIA_BASE_URL ?? NVIDIA_DEFAULT_BASE_URL,
         defaultModel: process.env.NVIDIA_MODEL ?? NVIDIA_DEFAULT_MODEL, wireApi: "chat_completions" };
+    case "groq":
+      return { provider: "groq", apiKey: process.env.GROQ_API_KEY as string,
+        baseUrl: process.env.GROQ_BASE_URL ?? GROQ_DEFAULT_BASE_URL,
+        defaultModel: process.env.GROQ_MODEL ?? GROQ_DEFAULT_MODEL, wireApi: "chat_completions" };
+    case "together":
+      return { provider: "together", apiKey: process.env.TOGETHER_API_KEY as string,
+        baseUrl: process.env.TOGETHER_BASE_URL ?? TOGETHER_DEFAULT_BASE_URL,
+        defaultModel: process.env.TOGETHER_MODEL ?? TOGETHER_DEFAULT_MODEL, wireApi: "chat_completions" };
+    case "fireworks":
+      return { provider: "fireworks", apiKey: process.env.FIREWORKS_API_KEY as string,
+        baseUrl: process.env.FIREWORKS_BASE_URL ?? FIREWORKS_DEFAULT_BASE_URL,
+        defaultModel: process.env.FIREWORKS_MODEL ?? FIREWORKS_DEFAULT_MODEL, wireApi: "chat_completions" };
+    case "deepinfra":
+      return { provider: "deepinfra", apiKey: process.env.DEEPINFRA_API_KEY as string,
+        baseUrl: process.env.DEEPINFRA_BASE_URL ?? DEEPINFRA_DEFAULT_BASE_URL,
+        defaultModel: process.env.DEEPINFRA_MODEL ?? DEEPINFRA_DEFAULT_MODEL, wireApi: "chat_completions" };
+    case "cerebras":
+      return { provider: "cerebras", apiKey: process.env.CEREBRAS_API_KEY as string,
+        baseUrl: process.env.CEREBRAS_BASE_URL ?? CEREBRAS_DEFAULT_BASE_URL,
+        defaultModel: process.env.CEREBRAS_MODEL ?? CEREBRAS_DEFAULT_MODEL, wireApi: "chat_completions" };
+    case "siliconflow":
+      return { provider: "siliconflow", apiKey: process.env.SILICONFLOW_API_KEY as string,
+        baseUrl: process.env.SILICONFLOW_BASE_URL ?? SILICONFLOW_DEFAULT_BASE_URL,
+        defaultModel: process.env.SILICONFLOW_MODEL ?? SILICONFLOW_DEFAULT_MODEL, wireApi: "chat_completions" };
+    case "novita":
+      return { provider: "novita", apiKey: process.env.NOVITA_API_KEY as string,
+        baseUrl: process.env.NOVITA_BASE_URL ?? NOVITA_DEFAULT_BASE_URL,
+        defaultModel: process.env.NOVITA_MODEL ?? NOVITA_DEFAULT_MODEL, wireApi: "chat_completions" };
+    case "friendli":
+      return { provider: "friendli", apiKey: process.env.FRIENDLI_TOKEN as string,
+        baseUrl: process.env.FRIENDLI_BASE_URL ?? FRIENDLI_DEFAULT_BASE_URL,
+        defaultModel: process.env.FRIENDLI_MODEL ?? FRIENDLI_DEFAULT_MODEL, wireApi: "chat_completions" };
+    case "baseten":
+      return { provider: "baseten", apiKey: process.env.BASETEN_API_KEY as string,
+        baseUrl: process.env.BASETEN_BASE_URL ?? BASETEN_DEFAULT_BASE_URL,
+        defaultModel: process.env.BASETEN_MODEL ?? BASETEN_DEFAULT_MODEL, wireApi: "chat_completions" };
+    case "modal":
+      return { provider: "modal", apiKey: process.env.MODAL_PROXY_TOKEN as string,
+        baseUrl: process.env.MODAL_BASE_URL ?? MODAL_DEFAULT_BASE_URL,
+        defaultModel: process.env.MODAL_MODEL ?? MODAL_DEFAULT_MODEL, wireApi: "chat_completions" };
+    case "scaleway":
+      return { provider: "scaleway", apiKey: process.env.SCALEWAY_API_KEY as string,
+        baseUrl: process.env.SCALEWAY_BASE_URL ?? SCALEWAY_DEFAULT_BASE_URL,
+        defaultModel: process.env.SCALEWAY_MODEL ?? SCALEWAY_DEFAULT_MODEL, wireApi: "chat_completions" };
+    case "ovhcloud":
+      return { provider: "ovhcloud", apiKey: process.env.OVHCLOUD_API_KEY as string,
+        baseUrl: process.env.OVHCLOUD_BASE_URL ?? OVHCLOUD_DEFAULT_BASE_URL,
+        defaultModel: process.env.OVHCLOUD_MODEL ?? OVHCLOUD_DEFAULT_MODEL, wireApi: "chat_completions" };
+    case "vultr":
+      return { provider: "vultr", apiKey: process.env.VULTR_API_KEY as string,
+        baseUrl: process.env.VULTR_BASE_URL ?? VULTR_DEFAULT_BASE_URL,
+        defaultModel: process.env.VULTR_MODEL ?? VULTR_DEFAULT_MODEL, wireApi: "chat_completions" };
+    case "digitalocean":
+      return { provider: "digitalocean", apiKey: process.env.DIGITALOCEAN_ACCESS_TOKEN as string,
+        baseUrl: process.env.DIGITALOCEAN_BASE_URL ?? DIGITALOCEAN_DEFAULT_BASE_URL,
+        defaultModel: process.env.DIGITALOCEAN_MODEL ?? DIGITALOCEAN_DEFAULT_MODEL, wireApi: "chat_completions" };
     case "cohere":
       return { provider: "cohere", apiKey: process.env.COHERE_API_KEY as string,
         baseUrl: process.env.COHERE_BASE_URL ?? "https://api.cohere.com/v2",
