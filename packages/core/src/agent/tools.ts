@@ -2757,6 +2757,23 @@ export function buildOperatorQuestionRequest(
   return { ok: true, request: { requestId: idFactory(), questions } };
 }
 
+/**
+ * Runtime config for spawned subagents (`spawn_agent`/`spawn_agents`) and
+ * persistent agents. Inherits the parent session's routing tuple so children
+ * ride the SAME vendor + model instead of re-inferring from env chains —
+ * without this, an NVIDIA parent's children silently land on whatever key
+ * the priority chain hits first (e.g. OpenRouter's rate-limited free tier,
+ * producing exactly the post-turn 429 storms operators report). Absent
+ * parent info (non-console callers) keeps the old bare config, i.e.
+ * inference exactly as before.
+ */
+export function subagentRuntimeConfig(parentModel?: {
+  provider: string;
+  model: string;
+}): { type: "api"; timeout: number; provider?: string; model?: string } {
+  return { type: "api", timeout: 60_000, ...(parentModel ?? {}) };
+}
+
 export class ToolExecutor {
   private db: osecDB | null;
   private ctx: ToolContext;
@@ -5696,7 +5713,7 @@ export class ToolExecutor {
       // and passes them in to stay off the per-child first-import path.
       const { runNativeAgentLoop, LlmApiRuntime } = deps ?? (await this.loadSubagentDeps());
 
-      const rt = new LlmApiRuntime({ type: "api" as any, timeout: 60_000 });
+      const rt = new LlmApiRuntime(subagentRuntimeConfig(this.ctx.parentModel));
       if (!(await rt.isAvailable())) {
         eventBus.emit("subagent_lifecycle", {
           ...base,
@@ -5882,7 +5899,7 @@ export class ToolExecutor {
     messages?: readonly HubMessage[],
   ): Promise<void> {
     const { runNativeAgentLoop, LlmApiRuntime } = await this.loadSubagentDeps();
-    const rt = new LlmApiRuntime({ type: "api" as any, timeout: 60_000 });
+    const rt = new LlmApiRuntime(subagentRuntimeConfig(this.ctx.parentModel));
     if (!(await rt.isAvailable())) throw new Error("No API key available for persistent agent");
 
     const subTools: ToolDefinition[] = ["bash", "save_finding", "done"]

@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "nod
 import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { buildConsoleSystemPrompt, createConsoleSession } from "./turn-engine.js";
+import { buildConsoleSystemPrompt, createConsoleSession, parentModelTuple } from "./turn-engine.js";
 import type {
   ConsoleLocalScopeRequest,
   ConsoleScopeRequest,
@@ -2823,5 +2823,46 @@ describe("createConsoleSession — MCP deferred tool loading", () => {
     expect(names).toContain("mcp__srv__tool3");
     expect(names).not.toContain("list_tools");
     expect(names).not.toContain("load_tool");
+  });
+});
+
+describe("parentModelTuple", () => {
+  it("returns undefined for non-LlmApiRuntime parents (stubs, subprocess loops)", () => {
+    const stub = new ScriptedRuntime([endTurn("hi")]);
+    expect(parentModelTuple(stub)).toBeUndefined();
+  });
+
+  it("reads the concrete vendor + wire model off a live LlmApiRuntime", async () => {
+    const { LlmApiRuntime } = await import("../runtime/llm-api.js");
+    const saved: Record<string, string | undefined> = {};
+    for (const key of [
+      "OPENROUTER_API_KEY", "NVIDIA_API_KEY", "ANTHROPIC_API_KEY", "OPENAI_API_KEY",
+      "XSEC_MODEL", "XSEC_SELECTED_PROVIDER", "XSEC_FORCE_PROVIDER",
+      "XSEC_CHATGPT_ACCESS_TOKEN", "XSEC_CHATGPT_OAUTH_REFRESH_TOKEN",
+      "XSEC_SKIP_PROVIDER_BANNER",
+    ]) {
+      saved[key] = process.env[key];
+      delete process.env[key];
+    }
+    // Test fixture, literal non-secret key.
+    process.env.NVIDIA_API_KEY = "nvapi-test-parent-tuple";
+    process.env["XSEC_SKIP_PROVIDER_BANNER"] = "1";
+    try {
+      const rt = new LlmApiRuntime({
+        type: "api",
+        timeout: 5000,
+        model: "nvidia/nemotron-3-super-120b-a12b",
+        provider: "nvidia",
+      });
+      expect(parentModelTuple(rt)).toEqual({
+        provider: "nvidia",
+        model: "nvidia/nemotron-3-super-120b-a12b",
+      });
+    } finally {
+      for (const [key, value] of Object.entries(saved)) {
+        if (value === undefined) delete process.env[key];
+        else process.env[key] = value;
+      }
+    }
   });
 });

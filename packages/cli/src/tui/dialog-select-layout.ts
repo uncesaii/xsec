@@ -36,6 +36,13 @@ export interface DialogItem {
   meta?: string;
   /** Group heading this row sits under. Rows keep their input order within it. */
   category?: string;
+  /**
+   * Machine provider id behind the row (OpenCode-style `{providerID, modelID}`
+   * tuple: `id` is the model, `provider` is its vendor). Carried through
+   * selection so the router builds the runtime for the chosen provider
+   * instead of re-inferring it from the model id. Absent for non-model rows.
+   */
+  provider?: string;
   /** Marks the row that is currently in effect — drawn with a gutter dot. */
   current?: boolean;
   /** Rendered dimmed and skipped by navigation when true. */

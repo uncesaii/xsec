@@ -80,6 +80,7 @@ export type AuthKind = "api-key" | "oauth";
  */
 export const RECOMMENDED_IDS: readonly string[] = [
   "chatgpt-codex",
+  "zen",
   "anthropic",
   "openai",
   "google",
@@ -93,6 +94,7 @@ export const RECOMMENDED_IDS: readonly string[] = [
  */
 const PROVIDER_SUBTITLE: Record<string, string> = {
   "chatgpt-codex": "Sign in with your ChatGPT subscription - no API key, no per-token billing.",
+  zen: "Paste a Zen API key from opencode.ai/zen.",
   anthropic: "Paste an Anthropic API key from console.anthropic.com.",
   openai: "Paste an OpenAI API key from platform.openai.com.",
   google: "Get a Google AI API key from makersuite.google.com.",

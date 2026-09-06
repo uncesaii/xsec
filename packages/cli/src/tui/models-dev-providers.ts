@@ -54,22 +54,22 @@ export const MODELS_DEV_PROVIDERS: readonly ModelsDevProvider[] = [
   { id: "zai", name: "Z.AI", envVars: ["ZHIPU_API_KEY"], baseUrl: "https://api.z.ai/api/paas/v4", openaiCompatible: true, runtimeId: "z-ai" },
 
   // ── Cloud providers ──
-  { id: "azure", name: "Azure", envVars: ["AZURE_RESOURCE_NAME", "AZURE_API_KEY"], native: true, runtimeId: "azure" },
-  { id: "amazon-bedrock", name: "Amazon Bedrock", envVars: ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_REGION", "AWS_BEARER_TOKEN_BEDROCK"], native: true },
-  { id: "google-vertex", name: "Vertex", envVars: ["GOOGLE_VERTEX_PROJECT", "GOOGLE_VERTEX_LOCATION", "GOOGLE_APPLICATION_CREDENTIALS"], native: true },
-  { id: "google-vertex-anthropic", name: "Vertex (Anthropic)", envVars: ["GOOGLE_VERTEX_PROJECT", "GOOGLE_VERTEX_LOCATION", "GOOGLE_APPLICATION_CREDENTIALS"], native: true },
+  { id: "azure", name: "Azure", envVars: ["AZURE_RESOURCE_NAME", "AZURE_API_KEY"], native: true, openaiCompatible: false, runtimeId: "azure" },
+  { id: "amazon-bedrock", name: "Amazon Bedrock", envVars: ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_REGION", "AWS_BEARER_TOKEN_BEDROCK"], native: true, openaiCompatible: false },
+  { id: "google-vertex", name: "Vertex", envVars: ["GOOGLE_VERTEX_PROJECT", "GOOGLE_VERTEX_LOCATION", "GOOGLE_APPLICATION_CREDENTIALS"], native: true, openaiCompatible: false },
+  { id: "google-vertex-anthropic", name: "Vertex (Anthropic)", envVars: ["GOOGLE_VERTEX_PROJECT", "GOOGLE_VERTEX_LOCATION", "GOOGLE_APPLICATION_CREDENTIALS"], native: true, openaiCompatible: false },
 
   // ── GPU/inference providers ──
   { id: "nvidia", name: "Nvidia", envVars: ["NVIDIA_API_KEY"], baseUrl: "https://integrate.api.nvidia.com/v1", openaiCompatible: true },
   { id: "groq", name: "Groq", envVars: ["GROQ_API_KEY"], openaiCompatible: true },
   { id: "deepinfra", name: "Deep Infra", envVars: ["DEEPINFRA_API_KEY"], openaiCompatible: true },
-  { id: "fireworks-ai", name: "Fireworks AI", envVars: ["FIREWORKS_API_KEY"], baseUrl: "https://api.fireworks.ai/inference/v1/", openaiCompatible: true },
-  { id: "togetherai", name: "Together AI", envVars: ["TOGETHER_API_KEY"], openaiCompatible: true },
+  { id: "fireworks-ai", name: "Fireworks AI", envVars: ["FIREWORKS_API_KEY"], baseUrl: "https://api.fireworks.ai/inference/v1/", openaiCompatible: true, runtimeId: "fireworks" },
+  { id: "togetherai", name: "Together AI", envVars: ["TOGETHER_API_KEY"], openaiCompatible: true, runtimeId: "together" },
   { id: "cerebras", name: "Cerebras", envVars: ["CEREBRAS_API_KEY"], openaiCompatible: true },
   { id: "nebius", name: "Nebius Token Factory", envVars: ["NEBIUS_API_KEY"], baseUrl: "https://api.tokenfactory.nebius.com/v1", openaiCompatible: true },
   { id: "siliconflow", name: "SiliconFlow", envVars: ["SILICONFLOW_API_KEY"], baseUrl: "https://api.siliconflow.com/v1", openaiCompatible: true },
   { id: "huggingface", name: "Hugging Face", envVars: ["HF_TOKEN"], baseUrl: "https://router.huggingface.co/v1", openaiCompatible: true },
-  { id: "novita-ai", name: "NovitaAI", envVars: ["NOVITA_API_KEY"], baseUrl: "https://api.novita.ai/openai", openaiCompatible: true },
+  { id: "novita-ai", name: "NovitaAI", envVars: ["NOVITA_API_KEY"], baseUrl: "https://api.novita.ai/openai", openaiCompatible: true, runtimeId: "novita" },
   { id: "friendli", name: "Friendli", envVars: ["FRIENDLI_TOKEN"], baseUrl: "https://api.friendli.ai/serverless/v1", openaiCompatible: true },
   { id: "baseten", name: "Baseten", envVars: ["BASETEN_API_KEY"], baseUrl: "https://inference.baseten.co/v1", openaiCompatible: true },
   { id: "modal", name: "Modal", envVars: ["MODAL_PROXY_TOKEN"], baseUrl: "https://inference.us-west.modal.direct/v1", openaiCompatible: true },
@@ -304,4 +304,22 @@ export function isModelsDevProviderConfigured(
     const val = env[v];
     return typeof val === "string" && val.trim().length > 0;
   });
+}
+
+/**
+ * Get the runtime IDs of all providers that have a known env var set.
+ * Used to exclude models.dev models for providers the user has configured,
+ * so they only see models that actually work on the provider's API.
+ */
+export function getConfiguredProviderIds(
+  env: Record<string, string | undefined>,
+): Set<string> {
+  const ids = new Set<string>();
+  for (const md of MODELS_DEV_PROVIDERS) {
+    if (isModelsDevProviderConfigured(md, env)) {
+      const runtimeId = md.runtimeId ?? md.id;
+      ids.add(runtimeId);
+    }
+  }
+  return ids;
 }

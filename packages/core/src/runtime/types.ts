@@ -9,6 +9,16 @@ export interface RuntimeConfig {
   env?: Record<string, string>;
   model?: string;
   apiKey?: string;
+  /**
+   * Explicit provider id chosen by the operator (OpenCode-style
+   * `{providerID, modelID}` tuple from the model picker). When set and the
+   * provider has credentials, it wins over all inference — no
+   * `providerForModel` prefix-guessing, no stale `XSEC_SELECTED_PROVIDER`
+   * pin. When the provider is unknown or uncredentialed, detection falls
+   * back to inference exactly as before (preserving aggregator routing,
+   * e.g. an NVIDIA id served through OpenRouter).
+   */
+  provider?: string;
   /** Called when the subprocess executes a tool (read file, run command, etc.) */
   onToolCall?: (name: string, detail: string) => void;
   /** Called when the model streams thinking/reasoning text */

@@ -76,6 +76,7 @@ describe("syncModelCatalog + cache", () => {
     const cache = await syncModelCatalog({
       fetchImpl: fakeFetch(MODELS_DEV_SAMPLE),
       cachePath,
+      homeDir: dir,
       now: () => 1000,
     });
     expect(cache).not.toBeNull();
@@ -93,22 +94,22 @@ describe("syncModelCatalog + cache", () => {
       return { ok: true, json: async () => MODELS_DEV_SAMPLE } as unknown as Response;
     }) as unknown as typeof fetch;
 
-    await syncModelCatalog({ fetchImpl: counting, cachePath, now: () => 1000 });
+    await syncModelCatalog({ fetchImpl: counting, cachePath, homeDir: dir, now: () => 1000 });
     expect(calls).toBe(1);
     // Fresh cache (same clock) → no second fetch.
-    await syncModelCatalog({ fetchImpl: counting, cachePath, now: () => 1000 });
+    await syncModelCatalog({ fetchImpl: counting, cachePath, homeDir: dir, now: () => 1000 });
     expect(calls).toBe(1);
     // force bypasses freshness.
-    await syncModelCatalog({ fetchImpl: counting, cachePath, now: () => 1000, force: true });
+    await syncModelCatalog({ fetchImpl: counting, cachePath, homeDir: dir, now: () => 1000, force: true });
     expect(calls).toBe(2);
   });
 
   it("returns null and preserves the cache on fetch failure", async () => {
-    await syncModelCatalog({ fetchImpl: fakeFetch(MODELS_DEV_SAMPLE), cachePath, now: () => 1000 });
+    await syncModelCatalog({ fetchImpl: fakeFetch(MODELS_DEV_SAMPLE), cachePath, homeDir: dir, now: () => 1000 });
     const failing: typeof fetch = (async () => {
       throw new Error("offline");
     }) as unknown as typeof fetch;
-    const result = await syncModelCatalog({ fetchImpl: failing, cachePath, now: () => 9e12, force: true });
+    const result = await syncModelCatalog({ fetchImpl: failing, cachePath, homeDir: dir, now: () => 9e12, force: true });
     expect(result).toBeNull();
     // Old cache still intact.
     expect(loadCatalogModels({ cachePath }).models.length).toBe(3);
@@ -118,6 +119,7 @@ describe("syncModelCatalog + cache", () => {
     const result = await syncModelCatalog({
       fetchImpl: fakeFetch(MODELS_DEV_SAMPLE, false),
       cachePath,
+      homeDir: dir,
     });
     expect(result).toBeNull();
   });
@@ -243,7 +245,22 @@ describe("mergeModelLists", () => {
     expect(c.provider).toBe("deepseek");
   });
 
-  it("handles case-insensitive deduplication", () => {
+  it("handles case-insensitive deduplication within one provider", () => {
+    const modelsDev = [
+      { id: "Claude-Sonnet", provider: "anthropic" },
+    ];
+    const providerModels = [
+      { id: "claude-sonnet", provider: "anthropic" },
+    ];
+    const merged = mergeModelLists(modelsDev, providerModels);
+    expect(merged).toHaveLength(1);
+    // Provider takes priority
+    expect(merged[0].provider).toBe("anthropic");
+  });
+
+  it("keeps the same model id once per provider (OpenCode-style)", () => {
+    // DeepSeek V4 Pro on AnyAPI, OpenRouter and Nvidia are three distinct
+    // rows — dedup is per provider, not per id.
     const modelsDev = [
       { id: "Claude-Sonnet", provider: "anthropic" },
     ];
@@ -251,9 +268,8 @@ describe("mergeModelLists", () => {
       { id: "claude-sonnet", provider: "openrouter" },
     ];
     const merged = mergeModelLists(modelsDev, providerModels);
-    expect(merged).toHaveLength(1);
-    // Provider takes priority
-    expect(merged[0].provider).toBe("openrouter");
+    expect(merged).toHaveLength(2);
+    expect(new Set(merged.map((m) => m.provider))).toEqual(new Set(["anthropic", "openrouter"]));
   });
 
   it("returns provider models when Models.dev is empty", () => {

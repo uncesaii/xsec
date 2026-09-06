@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { PROVIDERS, isProviderConfigured, providerStates } from "./provider-status.js";
+import { PROVIDERS, isProviderConfigured, providerStates, runtimeProviderForCatalogId } from "./provider-status.js";
 
 /** No env at all — the state of a fresh container. */
 const EMPTY: Record<string, string | undefined> = {};
@@ -194,5 +194,24 @@ describe("isProviderConfigured", () => {
     for (const state of providerStates(env)) {
       expect(isProviderConfigured(state.id, env)).toBe(state.configured);
     }
+  });
+});
+
+describe("runtimeProviderForCatalogId", () => {
+  it("maps models.dev ids to runtime ids", () => {
+    expect(runtimeProviderForCatalogId("novita-ai")).toBe("novita");
+    expect(runtimeProviderForCatalogId("fireworks-ai")).toBe("fireworks");
+    expect(runtimeProviderForCatalogId("zai")).toBe("z-ai");
+  });
+
+  it("passes runtime ids through untouched", () => {
+    for (const id of ["nvidia", "openrouter", "anthropic", "deepseek", "qwen"]) {
+      expect(runtimeProviderForCatalogId(id)).toBe(id);
+    }
+  });
+
+  it("passes unknown ids through for inference fallback", () => {
+    expect(runtimeProviderForCatalogId("anyapi")).toBe("anyapi");
+    expect(runtimeProviderForCatalogId("")).toBe("");
   });
 });

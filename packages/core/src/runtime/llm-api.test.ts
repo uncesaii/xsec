@@ -10,6 +10,7 @@ import {
   OperatorAbortError,
   parseLlmFallbackChain,
   resolveFailoverProvider,
+  parseProviderError,
   __resetFallbackChainForTests,
   __resetAzureRegionCacheForTests,
   __resetProviderStartupLogForTests,
@@ -2346,5 +2347,237 @@ describe("LlmApiRuntime operator cancellation", () => {
 
     expect(result.error).toContain("timed out");
     expect(result.cancelled).toBeUndefined();
+  });
+});
+
+// ── Explicit provider (OpenCode-style picker tuple) ──
+
+describe("LlmApiRuntime explicit provider", () => {
+  const origEnv = { ...process.env };
+
+  beforeEach(() => {
+    delete process.env.OPENROUTER_API_KEY;
+    delete process.env.NVIDIA_API_KEY;
+    delete process.env.NVIDIA_BASE_URL;
+    delete process.env.ANTHROPIC_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+    delete process.env["XSEC_MODEL"];
+    delete process.env["XSEC_SELECTED_PROVIDER"];
+    delete process.env["XSEC_FORCE_PROVIDER"];
+    delete process.env["XSEC_CHATGPT_ACCESS_TOKEN"];
+    delete process.env["XSEC_CHATGPT_OAUTH_REFRESH_TOKEN"];
+    process.env["XSEC_CHATGPT_AUTH_FILE"] = "/tmp/xsec-explicit-provider-test-no-auth.json";
+    process.env["XSEC_SKIP_PROVIDER_BANNER"] = "1";
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+    for (const key of Object.keys(process.env)) {
+      if (!(key in origEnv)) delete process.env[key];
+    }
+    Object.assign(process.env, origEnv);
+  });
+
+  it("uses the picked provider's endpoint for a cross-vendor id", () => {
+    // Test fixtures, literal non-secret keys.
+    process.env.OPENROUTER_API_KEY = "sk-or-test";
+    process.env.NVIDIA_API_KEY = "nvapi-test";
+    const rt = new LlmApiRuntime({
+      type: "api",
+      timeout: 5000,
+      model: "nvidia/nemotron-3-super-120b-a12b:free",
+      provider: "openrouter",
+    });
+    expect((rt as any).provider).toBe("openrouter");
+    expect((rt as any).buildUrl()).toBe("https://openrouter.ai/api/v1/chat/completions");
+    // The :free suffix is meaningful on OpenRouter — kept verbatim.
+    expect((rt as any).resolveModelId()).toBe("nvidia/nemotron-3-super-120b-a12b:free");
+  });
+
+  it("strips :free when the picked provider is direct", () => {
+    process.env.OPENROUTER_API_KEY = "sk-or-test";
+    process.env.NVIDIA_API_KEY = "nvapi-test";
+    const rt = new LlmApiRuntime({
+      type: "api",
+      timeout: 5000,
+      model: "nvidia/nemotron-3-super-120b-a12b:free",
+      provider: "nvidia",
+    });
+    expect((rt as any).provider).toBe("nvidia");
+    expect((rt as any).resolveModelId()).toBe("nvidia/nemotron-3-super-120b-a12b");
+  });
+
+  it("beats a stale XSEC_SELECTED_PROVIDER pin", () => {
+    process.env.OPENROUTER_API_KEY = "sk-or-test";
+    process.env.NVIDIA_API_KEY = "nvapi-test";
+    process.env["XSEC_SELECTED_PROVIDER"] = "nvidia";
+    const rt = new LlmApiRuntime({
+      type: "api",
+      timeout: 5000,
+      model: "anthropic/claude-sonnet-4.6",
+      provider: "openrouter",
+    });
+    expect((rt as any).provider).toBe("openrouter");
+  });
+
+  it("falls back to inference when the picked provider has no key", () => {
+    process.env.OPENROUTER_API_KEY = "sk-or-test";
+    const rt = new LlmApiRuntime({
+      type: "api",
+      timeout: 5000,
+      model: "nvidia/nemotron-3-super-120b-a12b:free",
+      provider: "nvidia",
+    });
+    // No NVIDIA key: inference routes the :free id to OpenRouter instead of
+    // building a keyless NVIDIA runtime.
+    expect((rt as any).provider).toBe("openrouter");
+  });
+
+  it("falls back to inference for an unknown picked provider", () => {
+    process.env.OPENROUTER_API_KEY = "sk-or-test";
+    process.env.NVIDIA_API_KEY = "nvapi-test";
+    const rt = new LlmApiRuntime({
+      type: "api",
+      timeout: 5000,
+      model: "nvidia/nemotron-3-super-120b-a12b",
+      provider: "anyapi",
+    });
+    expect((rt as any).provider).toBe("nvidia");
+  });
+
+  it("appends free-tier guidance to 429 errors on :free ids", async () => {
+    process.env.OPENROUTER_API_KEY = "sk-or-test";
+    process.env["XSEC_LLM_429_MAX_RETRIES"] = "0";
+    const fetchMock = vi.fn(
+      async () =>
+        ({
+          ok: false,
+          status: 429,
+          headers: new Headers(),
+          text: async () => '{"error":"rate limited"}',
+        }) as unknown as Response,
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const rt = new LlmApiRuntime({
+      type: "api",
+      timeout: 5000,
+      model: "poolside/laguna-s-2.1:free",
+      provider: "openrouter",
+    });
+    const res = await rt.executeNative(
+      "sys",
+      [{ role: "user", content: [{ type: "text", text: "hi" }] }],
+      [],
+    );
+    expect(res.stopReason).toBe("error");
+    expect(res.error).toContain("API error 429");
+    expect(res.error).toContain("XSEC_LLM_FALLBACK");
+  });
+
+  it("keeps the historical 429 prefix and adds failover guidance for metered ids", async () => {
+    process.env.OPENROUTER_API_KEY = "sk-or-test";
+    process.env["XSEC_LLM_429_MAX_RETRIES"] = "0";
+    const fetchMock = vi.fn(
+      async () =>
+        ({
+          ok: false,
+          status: 429,
+          headers: new Headers(),
+          text: async () => '{"error":"rate limited"}',
+        }) as unknown as Response,
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const rt = new LlmApiRuntime({
+      type: "api",
+      timeout: 5000,
+      model: "anthropic/claude-sonnet-4.6",
+      provider: "openrouter",
+    });
+    const res = await rt.executeNative(
+      "sys",
+      [{ role: "user", content: [{ type: "text", text: "hi" }] }],
+      [],
+    );
+    expect(res.error).toContain("API error 429");
+    expect(res.error).toContain("XSEC_LLM_FALLBACK");
+    expect(res.error).not.toContain("free-tier");
+  });
+});
+
+// ── Professional provider errors (OpenCode-style parsed errors) ──
+
+describe("parseProviderError", () => {
+  const vendor = { providerLabel: "NVIDIA", model: "nvidia/nemotron-3-super-120b-a12b" };
+
+  it("turns a bare Go 404 into a reselect-model message naming vendor + id", () => {
+    const parsed = parseProviderError({ ...vendor, status: 404, body: "404 page not found" });
+    expect(parsed.kind).toBe("model_unavailable");
+    expect(parsed.message).toContain("nvidia/nemotron-3-super-120b-a12b");
+    expect(parsed.message).toContain("NVIDIA");
+    expect(parsed.action).toContain("/model");
+  });
+
+  it("extracts the human message from JSON error bodies", () => {
+    const parsed = parseProviderError({
+      ...vendor,
+      status: 400,
+      body: JSON.stringify({ error: { message: "model not supported", code: 400 } }),
+    });
+    expect(parsed.message).toContain("model not supported");
+    expect(parsed.message).not.toContain("{");
+  });
+
+  it("turns 401s into reconnect guidance, never a dump", () => {
+    const parsed = parseProviderError({ ...vendor, status: 401, body: "user not found" });
+    expect(parsed.kind).toBe("auth");
+    expect(parsed.message).toContain("user not found");
+    expect(parsed.action).toContain("/connect");
+  });
+
+  it("translates gateway HTML into plain guidance without markup", () => {
+    const parsed = parseProviderError({
+      ...vendor,
+      status: 401,
+      body: "<html><body>Unauthorized</body></html>",
+    });
+    expect(parsed.kind).toBe("auth");
+    expect(parsed.message).not.toContain("<html>");
+    expect(parsed.action).toContain("/connect");
+  });
+
+  it("names billing for quota bodies", () => {
+    const parsed = parseProviderError({
+      ...vendor,
+      status: 429,
+      body: JSON.stringify({ error: { code: "insufficient_quota", message: "spent" } }),
+    });
+    expect(parsed.kind).toBe("quota");
+    expect(parsed.action).toMatch(/billing/i);
+  });
+
+  it("names context overflow as a prompt problem", () => {
+    const parsed = parseProviderError({
+      ...vendor,
+      status: 400,
+      body: JSON.stringify({ error: { code: "context_length_exceeded" } }),
+    });
+    expect(parsed.kind).toBe("context_overflow");
+    expect(parsed.message).toMatch(/context window/i);
+  });
+
+  it("keeps free-tier 429 guidance on :free ids", () => {
+    const parsed = parseProviderError({
+      providerLabel: "OpenRouter",
+      model: "poolside/laguna-s-2.1:free",
+      status: 429,
+      body: '{"error":"rate limited"}',
+    });
+    expect(parsed.kind).toBe("rate_limited");
+    expect(parsed.action).toContain("XSEC_LLM_FALLBACK");
+  });
+
+  it("caps very long bodies instead of dumping them", () => {
+    const parsed = parseProviderError({ ...vendor, status: 500, body: "x".repeat(5000) });
+    expect(parsed.message.length).toBeLessThanOrEqual(500);
   });
 });

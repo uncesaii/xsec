@@ -63,6 +63,11 @@ function normalizeOpenRouterModels(raw: unknown): SyncedModel[] {
 
     const entry: SyncedModel = { id, provider: "openrouter" };
     if (contextLength !== undefined) entry.contextTokens = contextLength;
+    // OpenCode shows `info.name ?? model` — OpenRouter's feed carries a
+    // human-readable `name`, so keep it for the friendly picker title.
+    if (typeof item["name"] === "string" && (item["name"] as string).length > 0) {
+      entry.name = item["name"] as string;
+    }
 
     // Mark free models (discount=1 or prompt/completion = 0).
     const discount = typeof pricing["discount"] === "number" ? pricing["discount"] : 0;
@@ -95,8 +100,29 @@ function normalizeOpenAiCompatibleModels(raw: unknown, providerId: string): Sync
     if (typeof item !== "object" || item === null) continue;
     const id = typeof item["id"] === "string" ? item["id"] : undefined;
     if (!id) continue;
-    // Skip embedding and moderation models — only list chat/completion models.
-    if (id.includes("embedding") || id.includes("moderation")) continue;
+    // Skip non-chat models — only list chat/completion models.
+    const lower = id.toLowerCase();
+    if (
+      lower.includes("embedding") ||
+      lower.includes("moderation") ||
+      lower.includes("embed") ||
+      lower.includes("clip") ||
+      lower.includes("translate") ||
+      lower.includes("parse") ||
+      lower.includes("reward") ||
+      lower.includes("safety") ||
+      lower.includes("guard") ||
+      lower.includes("rerank") ||
+      lower.includes("speech") ||
+      lower.includes("tts") ||
+      lower.includes("stt") ||
+      lower.includes("whisper") ||
+      lower.includes("dall-e") ||
+      lower.includes("image-generation") ||
+      lower.includes("video-generation") ||
+      lower.includes("-vision") ||
+      lower.includes("vlm")
+    ) continue;
     out.push({ id, provider: providerId });
   }
   return out;
@@ -237,7 +263,8 @@ export async function fetchProviderModels(
   for (const result of results) {
     if (result.status !== "fulfilled") continue;
     for (const model of result.value) {
-      const key = model.id.toLowerCase();
+      // Include provider in dedup key — different providers can serve the same model ID
+      const key = `${model.id.toLowerCase()}:${model.provider}`;
       if (seen.has(key)) continue;
       seen.add(key);
       out.push(model);

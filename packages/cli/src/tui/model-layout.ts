@@ -56,7 +56,7 @@
  * `shell-geometry.ts`, and this import is the marker for that move.
  */
 
-import { buildModelCatalog, type CatalogModel } from "./model-catalog.js";
+import { buildModelCatalog, displayModelName, isModelFree, type CatalogModel } from "./model-catalog.js";
 import { PROVIDERS, providerStates, allProviders, type ProviderState, type AllProviderEntry } from "./provider-status.js";
 import { MODELS_DEV_BY_ID } from "./models-dev-providers.js";
 import { shellChromeRows, wrapCells } from "./settings-layout.js";
@@ -225,6 +225,23 @@ function compareStrings(a: string, b: string): number {
   return a < b ? -1 : 1;
 }
 
+/**
+ * OpenCode-style row ordering within a provider group: Free rows first,
+ * then newest `releaseDate` first, then friendly title. Mirrors upstream's
+ * `sortModelOptions` (footer !== "Free", release_date desc, title).
+ */
+function compareModels(a: CatalogModel, b: CatalogModel, activeModel?: string): number {
+  if (a.id === activeModel) return b.id === activeModel ? 0 : -1;
+  if (b.id === activeModel) return 1;
+  const freeA = isModelFree(a) ? 0 : 1;
+  const freeB = isModelFree(b) ? 0 : 1;
+  if (freeA !== freeB) return freeA - freeB;
+  const dateA = a.releaseDate ?? "";
+  const dateB = b.releaseDate ?? "";
+  if (dateA !== dateB) return dateA < dateB ? 1 : -1;
+  return compareStrings(displayModelName(a), displayModelName(b)) || compareStrings(a.id, b.id);
+}
+
 const PROVIDER_ORDER = new Map(PROVIDERS.map((info, index) => [info.id, index]));
 
 /**
@@ -260,10 +277,12 @@ function groupRank(group: ModelProviderGroup, activeProvider: string | undefined
  * screen it would also be a credential claim about a vendor the operator did
  * not ask about.
  *
- * The filter is AND-over-terms across the model id, the provider id, the
- * provider label and the formatted price. Matching the provider label is what
- * makes "anthropic" and "Moonshot" both work, and matching the price is what
- * makes "free" a usable query.
+ * The filter is AND-over-terms across the friendly display name, the raw
+ * model id, the provider id, the provider label and the "free" label.
+ * Matching the provider label is what makes "anthropic" and "Moonshot"
+ * both work, matching the display name is what makes "DeepSeek V4 Pro"
+ * findable without knowing the id, and matching "free" keeps the Free
+ * label a usable query (mirrors OpenCode's title+category fuzzy search).
  */
 export function buildModelRows({
   catalog = buildModelCatalog(),
@@ -281,6 +300,9 @@ export function buildModelRows({
 
   for (const model of catalog) {
     if (!model || typeof model.id !== "string" || model.id.length === 0) continue;
+    // Deprecated rows never reach the picker (matches OpenCode's
+    // `info.status !== "deprecated"` filter).
+    if (typeof model.status === "string" && model.status.toLowerCase() === "deprecated") continue;
     const providerId = typeof model.provider === "string" && model.provider.length > 0
       ? model.provider
       : "unknown";
@@ -289,9 +311,14 @@ export function buildModelRows({
       group = providerGroupFor(providerId, states);
       groups.set(providerId, group);
     }
+    // OpenCode searches friendly title + provider (fuzzysort over
+    // ["title", "category"]). Our haystack is the substring analogue:
+    // display name, raw id, provider id/label, and "free" so the Free
+    // label stays a usable query.
+    const title = displayModelName(model);
     const haystack = isProviderFilter
       ? `${group.id} ${group.label}`.toLowerCase()
-      : `${model.id} ${group.id} ${group.label} ${model.price}`.toLowerCase();
+      : `${title} ${model.id} ${group.id} ${group.label} ${isModelFree(model) ? "free" : ""}`.toLowerCase();
     if (filterTerms.length > 0 && !filterTerms.every((term) => haystack.includes(term))) continue;
     const bucket = byProvider.get(providerId);
     if (bucket) bucket.push(model);
@@ -319,14 +346,9 @@ export function buildModelRows({
     const group = groups.get(providerId);
     const models = byProvider.get(providerId);
     if (!group || !models || models.length === 0) continue;
-    // The active model floats to the top of its own group: it is the row the
-    // operator most often opened the screen to confirm, and it doubles as the
-    // initial highlight.
-    const sorted = [...models].sort((a, b) => {
-      if (a.id === activeModel) return b.id === activeModel ? 0 : -1;
-      if (b.id === activeModel) return 1;
-      return compareStrings(a.id, b.id);
-    });
+    // The active model floats to the top of its own group, then
+    // OpenCode-style ordering (Free first, newest first, then title).
+    const sorted = [...models].sort((a, b) => compareModels(a, b, activeModel));
     rows.push({ kind: "heading", group, count: sorted.length });
     for (const model of sorted) {
       rows.push({ kind: "model", group, model, active: model.id === activeModel });
@@ -407,10 +429,15 @@ export function modelDetailLines(
     separate();
     push(`${row.count} model${row.count === 1 ? "" : "s"} priced under this provider`, "text");
   } else {
-    push(row.model.id, "title");
+    // Friendly title first (what the list row shows), then the real
+    // `vendor/model` id the router uses — OpenCode keeps the id in code
+    // only, and the detail pane is where we surface it for verification.
+    push(displayModelName(row.model), "title");
+    if (displayModelName(row.model) !== row.model.id) push(row.model.id, "muted");
     separate();
     push(`Provider: ${group.label}`, "text");
     push(`Price: ${row.model.price}`, "text");
+    if (row.model.releaseDate) push(`Released: ${row.model.releaseDate}`, "muted");
     if (row.active) push("Currently active", "accent");
   }
 

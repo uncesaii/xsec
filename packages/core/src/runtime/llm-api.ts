@@ -710,7 +710,11 @@ const MISTRAL_DEFAULT_MODEL = "mistral-large-latest";
 const META_DEFAULT_BASE_URL = "https://api.meta.ai/v1";
 const META_DEFAULT_MODEL = "muse-spark-1.2";
 const NVIDIA_DEFAULT_BASE_URL = "https://integrate.api.nvidia.com/v1";
-const NVIDIA_DEFAULT_MODEL = "nvidia/nemotron-3-ultra";
+// Live-verified default (2026-09-07, non-stream + streaming + tools):
+// `nemotron-3-ultra` 404s on NVIDIA's API while `nemotron-3-super-120b-a12b`
+// answers 200, so the default must be the latter — a dead default turns
+// every fallback into a 404 that looks like a provider outage.
+const NVIDIA_DEFAULT_MODEL = "nvidia/nemotron-3-super-120b-a12b";
 const GROQ_DEFAULT_BASE_URL = "https://api.groq.com/openai/v1";
 const GROQ_DEFAULT_MODEL = "llama-3.3-70b-versatile";
 const TOGETHER_DEFAULT_BASE_URL = "https://api.together.xyz/v1";
@@ -791,6 +795,7 @@ export function parseLlmFallbackChain(): FallbackEntry[] {
 const VALID_PROVIDERS: Record<string, true> = {
     openrouter: true, anthropic: true, openai: true, azure: true, deepseek: true,
     "chatgpt-codex": true, "z-ai": true, kimi: true, qwen: true, xai: true,
+    "custom-openai": true, zen: true,
     google: true, mistral: true, meta: true, cohere: true, perplexity: true,
     nvidia: true, groq: true, together: true, fireworks: true, deepinfra: true,
     cerebras: true, siliconflow: true, novita: true, friendli: true,
@@ -913,6 +918,21 @@ export function resolveFailoverProvider(
       const key = process.env.META_API_KEY;
       if (!key) return undefined;
       return { apiKey: key, baseUrl: process.env.META_BASE_URL ?? META_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "cohere": {
+      const key = process.env.COHERE_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.COHERE_BASE_URL ?? "https://api.cohere.com/v2", wireApi: "chat_completions" };
+    }
+    case "perplexity": {
+      const key = process.env.PERPLEXITY_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.PERPLEXITY_BASE_URL ?? "https://api.perplexity.ai", wireApi: "chat_completions" };
+    }
+    case "zen": {
+      const key = process.env.ZEN_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.ZEN_BASE_URL ?? "https://opencode.ai/zen/v1", wireApi: "chat_completions" };
     }
     case "nvidia": {
       const key = process.env.NVIDIA_API_KEY;
@@ -1464,6 +1484,16 @@ function parseCodexAzureConfig(): {
 function providerForModel(model: string | undefined): ApiProvider | undefined {
   if (!model) return undefined;
   const m = model.toLowerCase();
+  // OpenRouter's `:free` suffix is an OpenRouter-only namespace (e.g.
+  // `nvidia/nemotron-3-super-120b-a12b:free`). NVIDIA's own API 404s on
+  // it, so these ids prefer OpenRouter — but when no OpenRouter key exists
+  // the bare id is matched against direct providers below (via recursion),
+  // so an NVIDIA key still serves the inferable model instead of falling
+  // through to the Anthropic fallback with a garbage id.
+  if (m.endsWith(":free")) {
+    if (process.env.OPENROUTER_API_KEY) return "openrouter";
+    return providerForModel(model.slice(0, -":free".length));
+  }
   // Direct DeepSeek uses the exact lower-case stable API id. Azure exposes
   // a separately cased deployment id for Flash, which is handled below.
   if (model === DEEPSEEK_DEFAULT_MODEL) {
@@ -1510,8 +1540,48 @@ function providerForModel(model: string | undefined): ApiProvider | undefined {
   }
   // Custom OpenAI-compatible endpoint — model ids prefixed with "custom/".
   if (m.startsWith("custom/")) return process.env.XSEC_CUSTOM_OPENAI_API_KEY ? "custom-openai" : undefined;
-  // Google Gemini.
-  if (m.startsWith("gemini")) return process.env.GOOGLE_API_KEY ? "google" : undefined;
+  // NVIDIA serves many models with original provider prefixes.
+  // Check NVIDIA first for known prefixes it serves.
+  if (process.env.NVIDIA_API_KEY) {
+    if (
+      m.startsWith("deepseek-ai/") ||
+      m.startsWith("moonshotai/") ||
+      m.startsWith("meta/") ||
+      m.startsWith("mistral/") ||
+      m.startsWith("google/") ||
+      m.startsWith("microsoft/") ||
+      m.startsWith("nousresearch/") ||
+      m.startsWith("nvidia/") ||
+      m.startsWith("01-ai/") ||
+      m.startsWith("abacusai/") ||
+      m.startsWith("ai21/") ||
+      m.startsWith("baidu/") ||
+      m.startsWith("bigcode/") ||
+      m.startsWith("databricks/") ||
+      m.startsWith("eleutherai/") ||
+      m.startsWith("ibm/") ||
+      m.startsWith("lg/") ||
+      m.startsWith("microsoft/") ||
+      m.startsWith("minimax/") ||
+      m.startsWith("mistralai/") ||
+      m.startsWith("nvidia/") ||
+      m.startsWith("openai/") ||
+      m.startsWith("openbmb/") ||
+      m.startsWith("perplexity/") ||
+      m.startsWith("qwen/") ||
+      m.startsWith("rakuten/") ||
+      m.startsWith("snowflake/") ||
+      m.startsWith("stockmark/") ||
+      m.startsWith("tencent/") ||
+      m.startsWith("thudm/") ||
+      m.startsWith("upstage/") ||
+      m.startsWith("writer/") ||
+      m.startsWith("yandex/") ||
+      m.startsWith("zhipu/")
+    ) {
+      return "nvidia";
+    }
+  }
   // NVIDIA.
   if (m.startsWith("nvidia/")) return process.env.NVIDIA_API_KEY ? "nvidia" : undefined;
   // Groq.
@@ -1625,7 +1695,28 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
   const pinnedProviderRaw =
     forcedProviderRaw ??
     (selectedProviderApplies ? selectedProviderRaw : undefined);
-  if (pinnedProviderRaw) {
+  // A soft pin (XSEC_SELECTED_PROVIDER) must never drag a model onto the
+  // wrong wire: after a /connect reconnect the pin persists for the whole
+  // process, but /model can then select an id that clearly belongs to
+  // another credentialed provider (e.g. pin=nvidia + an Anthropic Claude
+  // id, which NVIDIA answers with a bare 404). When the requested model
+  // maps to a different provider, the pin yields and per-call routing wins.
+  // XSEC_FORCE_PROVIDER stays unconditional by design (benchmark guard).
+  const pinMismatch =
+    pinnedProviderRaw !== undefined &&
+    pinnedProviderRaw !== forcedProviderRaw &&
+    (() => {
+      const mapped = providerForModel(preferredModel);
+      return mapped !== undefined && mapped !== pinnedProviderRaw;
+    })();
+  if (pinMismatch) {
+    diag.info(
+      "provider_pin_yielded",
+      `XSEC_SELECTED_PROVIDER=${pinnedProviderRaw} ignored for model ${preferredModel ?? "<none>"} (routes to its own provider)`,
+      { pinned: pinnedProviderRaw, model: preferredModel ?? "" },
+    );
+  }
+  if (pinnedProviderRaw && !pinMismatch) {
     const source = pinnedProviderRaw === forcedProviderRaw
       ? "XSEC_FORCE_PROVIDER"
       : "XSEC_SELECTED_PROVIDER";
@@ -2027,6 +2118,174 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
 }
 
 /**
+ * A provider failure translated once, for every vendor, into plain language.
+ * Mirrors OpenCode's `parseAPICallError` discipline: typed kinds, the human
+ * message extracted from (possibly JSON/HTML/empty) bodies, and exactly one
+ * actionable next step — never a raw dump, never markup on screen.
+ */
+export interface ParsedProviderError {
+  /** Human one-liner, capped, no markup. */
+  message: string;
+  kind:
+    | "auth"
+    | "model_unavailable"
+    | "rate_limited"
+    | "quota"
+    | "bad_request"
+    | "server"
+    | "context_overflow"
+    | "network"
+    | "unknown";
+  /** The one action that helps, or "" when nothing actionable exists. */
+  action: string;
+}
+
+/** Pull the human message out of a provider error body (OpenCode's `message()`). */
+function extractProviderMessage(body: string): string {
+  const text = body.trim();
+  if (!text) return "";
+  try {
+    const parsed: unknown = JSON.parse(text);
+    if (parsed && typeof parsed === "object") {
+      const rec = parsed as Record<string, unknown>;
+      for (const key of ["message", "detail"]) {
+        if (typeof rec[key] === "string" && rec[key].trim()) {
+          return (rec[key] as string).trim();
+        }
+      }
+      const err = rec["error"];
+      if (typeof err === "string" && err.trim()) return err.trim();
+      if (err && typeof err === "object") {
+        const nested = (err as Record<string, unknown>)["message"];
+        if (typeof nested === "string" && nested.trim()) return nested.trim();
+      }
+    }
+  } catch {
+    // Not JSON — treat as plain text below.
+  }
+  return text;
+}
+
+export function parseProviderError(input: {
+  providerLabel: string;
+  model: string;
+  status?: number;
+  body: string;
+}): ParsedProviderError {
+  const vendor = input.providerLabel || "provider";
+  const modelRef = input.model ? ` "${input.model}"` : "";
+  const status = input.status;
+  const raw = extractProviderMessage(input.body);
+  const cap = (text: string): string =>
+    text.length > 500 ? `${text.slice(0, 497)}...` : text;
+
+  // Code-driven signals live in the RAW body: extraction keeps only the
+  // human message ("spent") and would drop the machine code
+  // ("insufficient_quota"), so match both.
+  const signalText = `${input.body}\n${raw}`;
+  // Plan/subscription quota is spent for hours/days — retrying is pointless.
+  if (/insufficient_quota|quota_exceeded|quota exhausted|usage_limit|plan quota|billing/i.test(signalText)) {
+    return {
+      message: cap(raw || "Plan quota exhausted."),
+      kind: "quota",
+      action: `Check plan and billing for ${vendor}, then reconnect if needed via /connect.`,
+    };
+  }
+  // Context overflow is a prompt problem, never a credential problem.
+  if (status === 413 || /context_length_exceeded|context window|maximum context|too many tokens/i.test(signalText)) {
+    return {
+      message: "Input exceeds the context window of this model.",
+      kind: "context_overflow",
+      action: "Shorten the conversation (compact) or switch to a larger-context model in /model.",
+    };
+  }
+  if (status === 401) {
+    if (/^\s*<!doctype|^\s*<html/i.test(input.body)) {
+      return {
+        message: "Request blocked by a gateway or proxy.",
+        kind: "auth",
+        action: `Authentication never reached ${vendor} — check proxy settings, then reconnect via /connect.`,
+      };
+    }
+    return {
+      message: cap(raw || "Unauthorized."),
+      kind: "auth",
+      action: `${vendor} rejected the credential (invalid, revoked, or never granted). Reconnect via /connect — never paste a different vendor's key.`,
+    };
+  }
+  if (status === 403) {
+    return {
+      message: cap(raw || "Forbidden."),
+      kind: "auth",
+      action: `${vendor} refused the request for this account — check account access and model permissions, then reconnect via /connect if needed.`,
+    };
+  }
+  // The classic confusion: the id is fine elsewhere but this vendor does not
+  // serve it (wrong-vendor routing, delisted model, `:free` outside
+  // OpenRouter). Reconnecting the key cannot help — reselecting can.
+  if (
+    status === 404 ||
+    raw === "404 page not found" ||
+    /model .*not (found|available|supported)|no such model|unknown model/i.test(raw)
+  ) {
+    return {
+      message:
+        raw && raw !== "404 page not found"
+          ? cap(raw)
+          : `Model${modelRef} is not served by ${vendor}.`,
+      kind: "model_unavailable",
+      action:
+        `Reselect in /model — the same name can exist on several vendors, ` +
+        `and free-tier ids only work on OpenRouter.`,
+    };
+  }
+  if (status === 429) {
+    if (input.model.toLowerCase().endsWith(":free")) {
+      return {
+        message: cap(raw || "Rate limited."),
+        kind: "rate_limited",
+        action:
+          `OpenRouter free-tier rate limit (resets on the provider's window). ` +
+          `To ride through automatically set XSEC_LLM_FALLBACK="provider:model", ` +
+          `or switch to a metered model.`,
+      };
+    }
+    return {
+      message: cap(raw || "Rate limited."),
+      kind: "rate_limited",
+      action: `Rate limited by ${vendor} — it resets on the provider's window; to fail over automatically set XSEC_LLM_FALLBACK="provider:model".`,
+    };
+  }
+  if (status === 400) {
+    return {
+      message: cap(raw || "Bad request."),
+      kind: "bad_request",
+      action: `The request or model id was rejected by ${vendor} — reselect the model in /model.`,
+    };
+  }
+  if (status !== undefined && status >= 500) {
+    return {
+      message: cap(raw || `Temporary issue at ${vendor}.`),
+      kind: "server",
+      action: `A temporary issue at ${vendor} — wait briefly and retry.`,
+    };
+  }
+  // HTML from a gateway/proxy on any other status: say so, don't dump markup.
+  if (/^\s*<!doctype|^\s*<html/i.test(input.body)) {
+    return {
+      message: "Request blocked by a gateway or proxy.",
+      kind: "network",
+      action: "Check proxy and network settings, then retry.",
+    };
+  }
+  return {
+    message: cap(raw || (status !== undefined ? `HTTP ${status}.` : "Unknown error.")),
+    kind: "unknown",
+    action: "",
+  };
+}
+
+/**
  * Runtime that calls LLM APIs directly.
  *
  * Supports multiple providers with automatic detection:
@@ -2064,9 +2323,28 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
     this.azureConfig = parseCodexAzureConfig();
     this.fallbackChain = getFallbackChain();
     this.fallbackIndex = 0;
+    // Explicit provider from the model picker (OpenCode-style
+    // `{providerID, modelID}` tuple). A credentialed explicit provider wins
+    // over inference AND over a stale XSEC_SELECTED_PROVIDER pin — the pick
+    // is newer intent than any earlier /connect. XSEC_FORCE_PROVIDER still
+    // wins (unconditional benchmark guard, honored inside detectProvider).
+    // Unknown or uncredentialed providers fall through to inference.
+    const requestedModel = config.model ?? process.env["XSEC_MODEL"];
+    const explicitProvider = config.provider?.trim() as ApiProvider | undefined;
+    const forcedRaw = process.env["XSEC_FORCE_PROVIDER"]?.trim();
+    const explicitResolved =
+      explicitProvider && !forcedRaw && requestedModel
+        ? resolveFailoverProvider(explicitProvider, requestedModel)
+        : undefined;
     // Thread the requested model into detection so provider follows the model
     // per-call (per-call multi-provider routing) when its auth is available.
-    const detected = detectProvider(config.apiKey, config.model ?? process.env["XSEC_MODEL"]);
+    const detected = explicitResolved
+      ? {
+          provider: explicitProvider as ApiProvider,
+          ...explicitResolved,
+          defaultModel: requestedModel as string,
+        }
+      : detectProvider(config.apiKey, requestedModel);
     this.provider = detected.provider;
     this.apiKey = detected.apiKey;
     this.baseUrl = detected.baseUrl;
@@ -2077,7 +2355,6 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
     this.serverCompactionTokens = config.serverCompactionTokens !== undefined
       ? Math.max(1000, config.serverCompactionTokens)
       : undefined;
-    const requestedModel = config.model ?? process.env["XSEC_MODEL"];
     // "free" is a special alias for the free OpenRouter model
     if (requestedModel === "free" && this.provider === "openrouter") {
       this.model = FREE_OPENROUTER_MODEL;
@@ -2143,6 +2420,27 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
       this.provider === "deepseek" ||
       this.provider === "qwen" ||
       this.provider === "xai" ||
+      this.provider === "zen" ||
+      this.provider === "google" ||
+      this.provider === "mistral" ||
+      this.provider === "meta" ||
+      this.provider === "cohere" ||
+      this.provider === "perplexity" ||
+      this.provider === "nvidia" ||
+      this.provider === "groq" ||
+      this.provider === "together" ||
+      this.provider === "fireworks" ||
+      this.provider === "deepinfra" ||
+      this.provider === "cerebras" ||
+      this.provider === "siliconflow" ||
+      this.provider === "novita" ||
+      this.provider === "friendli" ||
+      this.provider === "baseten" ||
+      this.provider === "modal" ||
+      this.provider === "scaleway" ||
+      this.provider === "ovhcloud" ||
+      this.provider === "vultr" ||
+      this.provider === "digitalocean" ||
       // chatgpt-codex always speaks Responses API; treat it as
       // OpenAI-compat for body-shape branching purposes (the Responses
       // wire-API code paths below already key on `wireApi === "responses"`
@@ -2275,14 +2573,17 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
       return CODEX_API_ENDPOINT;
     }
     if (this.isOpenAICompat) {
-      return `${this.baseUrl}/${this.wireApi === "responses" ? "responses" : "chat/completions"}`;
+      // Normalize a trailing slash: `${base}/v1/` + `/chat/completions`
+      // would double-slash and NVIDIA answers that path with a bare 404.
+      const base = this.baseUrl.replace(/\/+$/, "");
+      return `${base}/${this.wireApi === "responses" ? "responses" : "chat/completions"}`;
     }
     // Anthropic Messages wire — also serves z-ai/GLM and kimi/Moonshot (see
     // `isAnthropicWire`). Explicit positive check rather than a bare fallthrough
     // so an unmapped provider fails loudly instead of silently hitting
     // `/v1/messages`.
     if (this.isAnthropicWire) {
-      return `${this.baseUrl}/v1/messages`;
+      return `${this.baseUrl.replace(/\/+$/, "")}/v1/messages`;
     }
     throw new Error(`buildUrl: provider ${this.provider} is not mapped to a wire`);
   }
@@ -2393,7 +2694,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
 
   private noKeyError(): string {
     return (
-      "No provider credential found. Set one of:\n" +
+      "No provider credential found. Easiest: run /connect in the TUI and paste a key. Or set one of:\n" +
       "  env XSEC_CHATGPT_OAUTH_REFRESH_TOKEN=... xsec <command> (ChatGPT Codex subscription auth)\n" +
       "  export OPENROUTER_API_KEY=sk-or-...   (OpenRouter — many models, one key)\n" +
       "  export DEEPSEEK_API_KEY=...           (DeepSeek — direct Flash 0731 inference)\n" +
@@ -2590,7 +2891,19 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
       // foxguard: ignore[js/no-ssrf]
       let res: Response;
       try {
-        res = await fetch(this.buildUrl(), {
+        const url = this.buildUrl();
+        if (process.env["XSEC_DEBUG_WIRE"]) {
+          // Wire truth for 404-chasing: exact URL, provider, configured
+          // model and key tail (never the secret). Opt-in only.
+          diag.info("llm_wire_request", `${this.providerLabel} POST ${url}`, {
+            provider: this.provider,
+            url,
+            model: this.model,
+            key_tail: this.apiKey ? this.apiKey.slice(-4) : "",
+            attempt,
+          });
+        }
+        res = await fetch(url, {
           method: "POST",
           headers: await this.ensureFreshHeaders(),
           body: bodyFactory(),
@@ -2789,6 +3102,9 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
   ): Promise<RuntimeResult> {
     const start = Date.now();
 
+    // Resolve model ID for the current provider (strips vendor prefix for host providers)
+    const modelId = this.resolveModelId();
+
     // chatgpt-codex's "key" is an OAuth refresh token in env, not
     // a Platform API key field — skip the missing-key guard for it
     // and let the refresh attempt surface real errors at request time.
@@ -2823,7 +3139,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
 
         res = await this.postWithRetry(
           () => JSON.stringify({
-            model: this.model,
+            model: modelId,
             [this.maxTokensParamKey]: NATIVE_COMPLETION_TOKEN_LIMIT,
             messages,
             // See executeNative: explicit reasoning_effort passthrough only.
@@ -2850,7 +3166,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
         const isCodex = this.provider === "chatgpt-codex";
         res = await this.postWithRetry(
           () => JSON.stringify({
-            model: this.model,
+            model: modelId,
             input,
             ...(isCodex ? { store: false } : { max_output_tokens: NATIVE_COMPLETION_TOKEN_LIMIT }),
           }),
@@ -2861,7 +3177,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
         // kimi/Moonshot providers — see `isAnthropicWire`).
         res = await this.postWithRetry(
           () => JSON.stringify({
-            model: this.model,
+            model: modelId,
             max_tokens: NATIVE_COMPLETION_TOKEN_LIMIT,
             ...this.anthropicThinkingField(),
             ...(systemPrompt ? { system: systemPrompt } : {}),
@@ -2889,7 +3205,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
           exitCode: 1,
           timedOut: false,
           durationMs: Date.now() - start,
-          error: `${this.providerLabel} API error ${res.status}: ${body.slice(0, 500)}`,
+          error: this.apiErrorText(res.status, body),
         };
       }
 
@@ -2956,6 +3272,46 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
 
   // ── Native Runtime interface (structured messages + tool_use) ──
 
+  /**
+  * Resolve the model ID for the current provider.
+  *
+  * The catalog uses model IDs that include the vendor prefix (e.g.
+  * "meta/codellama-70b", "moonshotai/kimi-k2-instruct-0905"). NVIDIA's API
+  * expects the SAME vendor-prefixed IDs (e.g. "meta/codellama-70b"), so
+  * no transformation is needed for NVIDIA — except OpenRouter's `:free`
+  * suffix, which is stripped for direct providers (that namespace 404s
+  * outside OpenRouter; `providerForModel` routes such ids to OpenRouter,
+  * this is the backstop for stale saved models).
+  *
+  * For providers that DON'T use vendor prefixes in their model IDs, this
+  * strips the prefix. But for most providers, the model ID is passed as-is.
+  */
+  private resolveModelId(): string {
+    // Defensive: a `:free` id that somehow reached a direct provider (e.g. a
+    // stale saved model) would 404 — that suffix only exists on OpenRouter.
+    if (this.provider !== "openrouter" && this.model.toLowerCase().endsWith(":free")) {
+      return this.model.slice(0, -":free".length);
+    }
+    return this.model;
+  }
+
+  /**
+  * Final request error text. The machine prefix (`{label} API error
+  * {status}:`) is stable — classifiers and tests match on it — while the
+  * human half comes from {@link parseProviderError}: an extracted message
+  * plus the one action that actually helps, never a raw body dump.
+  */
+  private apiErrorText(status: number, body: string): string {
+    const parsed = parseProviderError({
+      providerLabel: this.providerLabel,
+      model: this.model,
+      status,
+      body,
+    });
+    const text = `${this.providerLabel} API error ${status}: ${parsed.message}`;
+    return parsed.action ? `${text} ${parsed.action}` : text;
+  }
+
   /** Terminal result for an operator cancellation — `stopReason:"error"` for compatibility, `cancelled:true` for consumers that can tell the difference. */
   private cancelledResult(start: number): NativeRuntimeResult {
     return {
@@ -2992,6 +3348,9 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
     // refresh, no body construction. The console re-checks its signal between
     // rounds, so this is the common shape of "Esc pressed during a tool run".
     if (signal?.aborted) return this.cancelledResult(start);
+
+    // Resolve model ID for the current provider (strips vendor prefix for host providers)
+    const modelId = this.resolveModelId();
 
     const controller = new AbortController();
     const timer = setTimeout(
@@ -3065,7 +3424,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
         }
 
         const body: Record<string, unknown> = {
-          model: this.model,
+          model: modelId,
           [this.maxTokensParamKey]: NATIVE_COMPLETION_TOKEN_LIMIT,
           messages: chatMessages,
         };
@@ -3092,7 +3451,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
         }
 
         res = await this.postWithRetry(
-          () => JSON.stringify({ ...body, model: this.model }),
+          () => JSON.stringify({ ...body, model: modelId }),
           call.signal,
           call,
         );
@@ -3210,7 +3569,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
         // not per-shape — same body otherwise.
         const isCodex = this.provider === "chatgpt-codex";
         const body: Record<string, unknown> = {
-          model: this.model,
+          model: modelId,
           input,
           ...(isCodex
             ? { store: false, instructions: system }
@@ -3285,7 +3644,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
         }
 
         res = await this.postWithRetry(
-          () => JSON.stringify({ ...body, stream: true, model: this.model }),
+          () => JSON.stringify({ ...body, stream: true, model: modelId }),
           call.signal,
           call,
         );
@@ -3298,7 +3657,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
             content: [{ type: "text", text: "" }],
             stopReason: "error",
             durationMs: Date.now() - start,
-            error: `${this.providerLabel} API error ${res.status}: ${responseText.slice(0, 500)}`,
+            error: this.apiErrorText(res.status, responseText),
           };
         }
 
@@ -3385,7 +3744,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
         }
 
         const body: Record<string, unknown> = {
-          model: this.model,
+          model: modelId,
           max_tokens: NATIVE_COMPLETION_TOKEN_LIMIT,
           ...this.anthropicThinkingField(),
           // The remaining breakpoint goes on the system prompt. Because the
@@ -3407,7 +3766,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
         }
 
         res = await this.postWithRetry(
-          () => JSON.stringify({ ...body, model: this.model }),
+          () => JSON.stringify({ ...body, model: modelId }),
           call.signal,
           call,
         );
@@ -3433,7 +3792,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
           content: [{ type: "text", text: "" }],
           stopReason: "error",
           durationMs: Date.now() - start,
-          error: `${this.providerLabel} API error ${res.status}: ${responseText.slice(0, 500)}`,
+          error: this.apiErrorText(res.status, responseText),
         };
       }
 
@@ -3509,7 +3868,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
         if (rawOutput.length > 0) {
           providerRaw = {
             provider: this.provider,
-            model: this.model,
+            model: modelId,
             wireApi: this.wireApi,
             output: rawOutput,
           };
@@ -3590,7 +3949,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
         ) {
           providerRaw = {
             provider: this.provider,
-            model: this.model,
+            model: modelId,
             wireApi: this.wireApi,
             output: rawBlocks,
           };
@@ -4043,11 +4402,11 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
       // reasoning items with their `encrypted_content` still attached, each
       // immediately followed by the item it produced. Handing it back lets the
       // next turn replay it verbatim instead of re-deriving the reasoning.
-      ...(outputItems.length > 0
+            ...(outputItems.length > 0
         ? {
             providerRaw: {
               provider: this.provider,
-              model: this.model,
+              model: this.resolveModelId(),
               wireApi: this.wireApi,
               output: outputItems,
             },

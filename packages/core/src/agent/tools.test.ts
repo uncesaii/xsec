@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { ToolExecutor, getToolsForRole, TOOL_DEFINITIONS, SCANNER_TOOL_NAMES, detectHttpEgressSegments, evaluateDoneCoverageGate, containsUnquotedShellChars, sanitizedEnv } from "./tools.js";
+import { ToolExecutor, getToolsForRole, TOOL_DEFINITIONS, SCANNER_TOOL_NAMES, detectHttpEgressSegments, evaluateDoneCoverageGate, containsUnquotedShellChars, sanitizedEnv, subagentRuntimeConfig } from "./tools.js";
 import { parseFindingsFromCliOutput } from "../findings-parser.js";
 import type { ToolContext, ToolCall } from "./types.js";
 import {
@@ -4246,5 +4246,22 @@ describe("sanitizedEnv — child-process credential filtering (xsec#134)", () =>
       if (previous === undefined) delete process.env[envName];
       else process.env[envName] = previous;
     }
+  });
+});
+
+describe("subagentRuntimeConfig", () => {
+  it("inherits the parent routing tuple so children ride the same vendor", () => {
+    expect(
+      subagentRuntimeConfig({ provider: "nvidia", model: "nvidia/nemotron-3-super-120b-a12b" }),
+    ).toEqual({
+      type: "api",
+      timeout: 60_000,
+      provider: "nvidia",
+      model: "nvidia/nemotron-3-super-120b-a12b",
+    });
+  });
+
+  it("falls back to inference when the parent tuple is absent", () => {
+    expect(subagentRuntimeConfig(undefined)).toEqual({ type: "api", timeout: 60_000 });
   });
 });

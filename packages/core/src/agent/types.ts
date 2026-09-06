@@ -529,6 +529,16 @@ export interface ToolContext {
    */
   costModel?: string;
   /**
+   * Parent session's routing tuple (OpenCode-style `{providerID, modelID}`),
+   * stamped by the console session builder. Spawned subagents build their
+   * runtime from it so children ride the SAME vendor as the parent instead
+   * of re-inferring from env chains (which silently parks them on whatever
+   * key comes first — e.g. OpenRouter's rate-limited free tier while the
+   * parent runs NVIDIA). Absent for non-console callers — children then
+   * fall back to inference exactly as before.
+   */
+  parentModel?: { provider: string; model: string };
+  /**
    * Tool-health recorder (xsec#tool-reliability). When present, the executor
    * routes structured tool-failure / skip events (missing binary, buffer
    * limit, wrong lockfile, policy/scope denial) into it so the run can surface

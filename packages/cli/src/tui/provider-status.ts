@@ -22,7 +22,7 @@
  * screen to show all available vendors and their configuration status.
  */
 
-import { MODELS_DEV_PROVIDERS, type ModelsDevProvider, isModelsDevProviderConfigured } from "./models-dev-providers.js";
+import { MODELS_DEV_PROVIDERS, MODELS_DEV_BY_ID, MODELS_DEV_BY_RUNTIME_ID, type ModelsDevProvider, isModelsDevProviderConfigured } from "./models-dev-providers.js";
 
 export interface ProviderInfo {
   /** Provider id as the runtime names it, e.g. "anthropic". */
@@ -422,4 +422,22 @@ export function allConfiguredProviderIds(env: Record<string, string | undefined>
     }
   }
   return ids;
+}
+
+/**
+ * Map a catalog provider id to the runtime provider id.
+ *
+ * Catalog rows mix models.dev ids (`novita-ai`, `fireworks-ai`) and runtime
+ * ids (`novita`, `nvidia`): provider-fetched rows already use
+ * `runtimeId ?? id`, models.dev-synced rows use the raw models.dev id. The
+ * runtime only understands its own ids and falls back to inference for
+ * anything else, so normalize here — the picker passes the
+ * `(provider, model)` tuple and the runtime trusts it (OpenCode-style).
+ */
+export function runtimeProviderForCatalogId(catalogId: string): string {
+  const direct = MODELS_DEV_BY_ID.get(catalogId);
+  if (direct) return direct.runtimeId ?? direct.id;
+  const byRuntime = MODELS_DEV_BY_RUNTIME_ID.get(catalogId);
+  if (byRuntime?.runtimeId) return byRuntime.runtimeId;
+  return catalogId;
 }

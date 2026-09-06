@@ -34,6 +34,16 @@ export interface SyncedModel {
   contextTokens?: number;
   input?: number;
   output?: number;
+  /**
+   * Friendly display name from Models.dev / provider APIs (e.g.
+   * "DeepSeek V4 Pro"). When absent the picker falls back to a beautified
+   * form of the id. Mirrors OpenCode's `info.name ?? model`.
+   */
+  name?: string;
+  /** Release date string from the feed, used for newest-first sorting. */
+  releaseDate?: string;
+  /** Model lifecycle status (e.g. "active", "deprecated"). */
+  status?: string;
 }
 
 /** On-disk cache envelope. */
@@ -62,6 +72,8 @@ export interface CatalogSyncOptions {
   url?: string;
   /** TTL for freshness decisions — defaults to one day. */
   ttlMs?: number;
+  /** Injectable home dir for credential loading — defaults to undefined (real home). */
+  homeDir?: string;
 }
 
 /** Resolve the cache path, honoring an explicit override then ~/.xsec. */
@@ -105,6 +117,18 @@ export function normalizeModelsDev(raw: unknown): SyncedModel[] {
       if (typeof cost["input"] === "number") entry.input = cost["input"];
       if (typeof cost["output"] === "number") entry.output = cost["output"];
       if (typeof limit["context"] === "number") entry.contextTokens = limit["context"];
+      // OpenCode-style display metadata: friendly name, release date, status.
+      // The picker shows `name ?? beautified id` and sorts Free-first then
+      // newest-first; deprecated rows are filtered like upstream.
+      if (typeof m["name"] === "string" && (m["name"] as string).length > 0) {
+        entry.name = m["name"] as string;
+      }
+      if (typeof m["release_date"] === "string" && (m["release_date"] as string).length > 0) {
+        entry.releaseDate = m["release_date"] as string;
+      }
+      if (typeof m["status"] === "string" && (m["status"] as string).length > 0) {
+        entry.status = m["status"] as string;
+      }
       out.push(entry);
       seen.add(id);
     }
@@ -159,23 +183,46 @@ export function loadCatalogModels(opts: CatalogSyncOptions = {}): CatalogCache {
 }
 
 /**
- * Merge two model lists, with provider-fetched models taking priority over
- * Models.dev for the same model ID. Provider-fetched data is more authoritative
- * because it comes directly from the source.
+ * Merge two model lists. Provider-fetched models take priority over Models.dev
+ * for the same model ID. Models.dev models are ONLY used for providers that
+ * are NOT configured (no API key). For configured providers, only their own
+ * API data is used — this prevents showing model IDs from models.dev that
+ * don't exist on the actual provider API (e.g. models.dev lists
+ * "minimaxai/minimax-m3" under OpenRouter, but OpenRouter doesn't have it).
  */
 export function mergeModelLists(
   modelsDev: SyncedModel[],
   providerModels: SyncedModel[],
+  configuredProviders?: Set<string>,
 ): SyncedModel[] {
   const byId = new Map<string, SyncedModel>();
-  // Models.dev goes in first (lower priority).
-  for (const m of modelsDev) {
-    byId.set(m.id.toLowerCase(), m);
-  }
-  // Provider-fetched models override (higher priority).
+
+  // Get the set of providers that have API-fetched data
+  const providersWithApiData = new Set<string>();
   for (const m of providerModels) {
-    byId.set(m.id.toLowerCase(), m);
+    providersWithApiData.add(m.provider);
   }
+
+  // Models.dev models: only include for providers that are NOT configured.
+  // If a provider is configured (has API key), we only show models from
+  // that provider's own API. This is the only way to guarantee the model
+  // IDs actually work on the provider.
+  // Dedup key includes the provider (like OpenCode's per-provider model
+  // maps): the same model id served by OpenRouter, Nvidia, AnyAPI, etc.
+  // must appear once PER PROVIDER, not once globally.
+  for (const m of modelsDev) {
+    // Skip if the provider is configured (has API key)
+    if (configuredProviders?.has(m.provider)) continue;
+    // Skip if the provider has API data (even if not configured)
+    if (providersWithApiData.has(m.provider)) continue;
+    byId.set(`${m.id.toLowerCase()}:${m.provider.toLowerCase()}`, m);
+  }
+
+  // Provider-fetched models always win (they come directly from the source)
+  for (const m of providerModels) {
+    byId.set(`${m.id.toLowerCase()}:${m.provider.toLowerCase()}`, m);
+  }
+
   return Array.from(byId.values());
 }
 
@@ -209,6 +256,12 @@ export async function syncModelCatalog(
   // Fetch from Models.dev and all configured providers in parallel.
   // Provider models are fetched first since they are more authoritative
   // (directly from the source), while Models.dev fills in any gaps.
+  const { loadCredentials, credentialEnvPatch } = await import("./credential-store.js");
+  const credentials = loadCredentials(opts.homeDir);
+  // Map provider IDs (e.g. "nvidia") back to env var names (e.g. "NVIDIA_API_KEY")
+  // so fetchProviderModels and getConfiguredProviderIds can find them.
+  const credPatch = credentialEnvPatch(credentials, process.env);
+  const envWithCredentials = { ...process.env, ...credPatch };
   const [modelsDevResult, providerResult] = await Promise.allSettled([
     (async () => {
       const controller = new AbortController();
@@ -224,14 +277,19 @@ export async function syncModelCatalog(
         clearTimeout(timer);
       }
     })(),
-    fetchProviderModels(process.env, fetchImpl),
+    fetchProviderModels(envWithCredentials, fetchImpl),
   ]);
 
   const modelsDev = modelsDevResult.status === "fulfilled" ? modelsDevResult.value : [];
   const providerModels = providerResult.status === "fulfilled" ? providerResult.value : [];
 
+  // Get list of configured providers (those with API keys set) so we can
+  // exclude models.dev models for them even if the API fetch failed.
+  const { getConfiguredProviderIds } = await import("./models-dev-providers.js");
+  const configuredProviders = getConfiguredProviderIds(envWithCredentials);
+
   // Merge: provider-fetched models take priority for same IDs.
-  const models = mergeModelLists(modelsDev, providerModels);
+  const models = mergeModelLists(modelsDev, providerModels, configuredProviders);
   if (models.length === 0) return null;
 
   const cache: CatalogCache = {

@@ -5,6 +5,7 @@ import {
   describeFeedbackOutcome,
   resolveCrashKey,
   sanitizeCrashText,
+  shouldRemountChat,
   type CrashInfo,
 } from "./run.js";
 
@@ -149,5 +150,19 @@ describe("describeFeedbackOutcome", () => {
     const out = describeFeedbackOutcome({ ok: false, path: local.path, error: "EACCES" }, { ok: false, skipped: "no-endpoint" });
     expect(out.tone).toBe("err");
     expect(out.text).toContain("Could not save");
+  });
+});
+
+describe("shouldRemountChat", () => {
+  it("remounts only to seat a fresh/restored transcript", () => {
+    expect(shouldRemountChat(undefined)).toBe(false);
+    expect(shouldRemountChat({})).toBe(false);
+    expect(shouldRemountChat({ model: "gpt-5.5" })).toBe(false);
+    expect(shouldRemountChat({ model: "a", provider: "openrouter" })).toBe(false);
+    expect(shouldRemountChat({ initialMessages: [] })).toBe(false);
+  });
+
+  it("remounts for resume restores carrying messages", () => {
+    expect(shouldRemountChat({ initialMessages: [{ role: "user", content: [] }] })).toBe(true);
   });
 });

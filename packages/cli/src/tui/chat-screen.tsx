@@ -46,6 +46,7 @@ import {
 } from "./settings-store.js";
 import { useTheme, type Theme } from "./theme-context.js";
 import { createTranscriptDocument, modelProvider } from "@xsec/shared";
+import { buildFullModelCatalog } from "./model-catalog.js";
 import { homedir } from "node:os";
 import {
   createPresentationEmitter,
@@ -106,6 +107,7 @@ import {
 import {
   PROVIDERS,
   providerStates,
+  runtimeProviderForCatalogId,
 } from "./provider-status.js";
 import {
   credentialEnvPatch,
@@ -455,6 +457,14 @@ export interface ChatScreenOptions {
   target?: string;
   scope?: ScopePolicy;
   model?: string;
+  /**
+   * Catalog provider id behind the selected model (OpenCode-style
+   * `{providerID, modelID}` tuple from the picker). The runtime builds this
+   * vendor's credentials + endpoint directly instead of re-inferring the
+   * provider from the model id — this is what stops same-id models on
+   * different vendors (e.g. Nvidia vs OpenRouter) from clashing.
+   */
+  provider?: string;
   role?: "discovery" | "attack" | "verify" | "report" | "audit" | "review";
   maxToolIterations?: number;
   allowScanners?: boolean;
@@ -1071,6 +1081,10 @@ export function ChatScreen({
   const modelIdRef = useRef(modelId);
   modelIdRef.current = modelId;
   const pendingHostRebuild = useRef(false);
+  /** A model/provider switch deferred because a turn was in flight. */
+  const pendingModelSwitch = useRef<{ model: string; provider?: string } | null>(null);
+  /** Last options.model/provider applied — drives the in-place switch effect. */
+  const appliedOptionsRef = useRef({ model: options?.model, provider: options?.provider });
   const turn = useRef(0);
   // The bottom bar's right cell (a "N turns · M tools" counter + sidebar toggle
   // glyphs) was removed: the counter was noise and the closed-state toggle
@@ -1213,14 +1227,22 @@ export function ChatScreen({
    * silently discarded mid-engagement.
    */
   const buildSession = useCallback((
-    opts: { model?: string; initialMessages?: NativeMessage[] } = {},
+    opts: { model?: string; provider?: string; initialMessages?: NativeMessage[] } = {},
   ): { session: ConsoleSession; model: string } => {
     // Apply stored provider credentials before the runtime resolves any.
     // credentialEnvPatch never overrides a variable the shell already set,
     // so an explicit export always beats the file.
     const patch = credentialEnvPatch(loadCredentials(), process.env);
     for (const [key, value] of Object.entries(patch)) process.env[key] = value;
-    const runtime = createConsoleRuntime({ model: opts.model ?? options?.model });
+    // The picker's (provider, model) tuple travels intact: the runtime uses
+    // the chosen vendor's credentials + endpoint instead of guessing the
+    // provider back from the id (which 404s for same-id cross-vendor rows).
+    const runtime = createConsoleRuntime({
+      model: opts.model ?? options?.model,
+      provider: runtimeProviderForCatalogId(
+        opts.provider ?? options?.provider ?? "",
+      ) || undefined,
+    });
     const created = createConsoleSession({
       runtime,
       target: options?.target,
@@ -1400,6 +1422,57 @@ export function ChatScreen({
     void previous.cleanup();
   }, [buildSession]);
 
+  /**
+   * Switch model (and vendor) WITHOUT leaving the session: rebuilds the
+   * runtime around the picked tuple and carries the live transcript across,
+   * exactly like a resume rehydrate. Remounting here would wipe the
+   * engagement back to a blank chat — that is why /model used to feel like
+   * being kicked home. Deferred while a turn runs (flushed at the boundary);
+   * a failed switch leaves the operator exactly where they were.
+   */
+  const switchModelInPlace = useCallback((requested: string, provider?: string) => {
+    if (requested === modelIdRef.current && provider === undefined) {
+      appendEntry({ kind: "notice", text: `Model is already ${requested}`, turn: turn.current });
+      return;
+    }
+    if (busyRef.current) {
+      pendingModelSwitch.current = { model: requested, provider };
+      appendEntry({
+        kind: "notice",
+        text: "switching model after the active turn finishes",
+        turn: turn.current,
+      });
+      return;
+    }
+    const previous = sessionRef.current;
+    if (!previous) return; // the mount effect will build with the new options
+    let built: { session: ConsoleSession; model: string };
+    try {
+      built = buildSession({
+        model: requested,
+        provider,
+        initialMessages: previous.messages,
+      });
+    } catch (error) {
+      appendEntry({
+        kind: "notice",
+        text: `could not switch to ${requested}; model is unchanged`,
+        detail: error instanceof Error ? error.message : String(error),
+        turn: turn.current,
+      });
+      return;
+    }
+    setSession(built.session);
+    setModelId(built.model);
+    void previous.cleanup();
+    appendEntry({
+      kind: "notice",
+      text: `Model: ${built.model} (${modelProvider(built.model)})`,
+      detail: `${previous.messages.length} prior message(s) carried over.`,
+      turn: turn.current,
+    });
+  }, [appendEntry, buildSession]);
+
   const reconnectProvider = useCallback((providerId: string) => {
     const provider = PROVIDERS.find((candidate) => candidate.id === providerId);
     if (!provider) {
@@ -1480,7 +1553,27 @@ export function ChatScreen({
       pendingHostRebuild.current = false;
       rebuildForHost();
     }
+    if (!busy && pendingModelSwitch.current) {
+      const pending = pendingModelSwitch.current;
+      pendingModelSwitch.current = null;
+      switchModelInPlace(pending.model, pending.provider);
+    }
   }, [busy, rebuildForHost]);
+
+  // Follow model/vendor picks from the full-screen picker IN PLACE: rebuild
+  // the runtime around the new tuple and carry the live transcript across.
+  // (Remounting here would wipe the engagement — the old "kicked home"
+  // behavior. Remounts are reserved for fresh/restored transcripts, which
+  // the mount effect seats from `initialMessages`.)
+  useEffect(() => {
+    const nextModel = options?.model;
+    const nextProvider = options?.provider;
+    const applied = appliedOptionsRef.current;
+    if (nextModel === applied.model && nextProvider === applied.provider) return;
+    appliedOptionsRef.current = { model: nextModel, provider: nextProvider };
+    if (nextModel === undefined || !sessionRef.current) return;
+    switchModelInPlace(nextModel, nextProvider);
+  }, [options?.model, options?.provider, switchModelInPlace]);
 
   /**
    * Claim the structured diagnostics channel while the console is mounted.
@@ -2457,37 +2550,13 @@ export function ChatScreen({
           });
           return true;
         }
-        if (requested === modelId) {
-          appendEntry({ kind: "notice", text: `Model is already ${requested}`, turn: turn.current });
-          return true;
-        }
-        // The model is fixed when the runtime is constructed, so switching
-        // means building a new session. Carry the conversation across so an
-        // engagement does not lose its context, and keep the old session
-        // alive until the new one is built — a failed switch must leave the
-        // operator exactly where they were.
-        const previous = session;
-        let built: { session: ConsoleSession; model: string };
-        try {
-          built = buildSession({ model: requested, initialMessages: previous.messages });
-        } catch (error) {
-          appendEntry({
-            kind: "notice",
-            text: `could not switch to ${requested}; model is unchanged`,
-            detail: error instanceof Error ? error.message : String(error),
-            turn: turn.current,
-          });
-          return true;
-        }
-        setSession(built.session);
-        setModelId(built.model);
-        void previous.cleanup();
-        appendEntry({
-          kind: "notice",
-          text: `Model: ${built.model} (${modelProvider(built.model)})`,
-          detail: `${previous.messages.length} prior message(s) carried over.`,
-          turn: turn.current,
-        });
+        // A bare `/model <id>` carries no vendor; when the catalog knows
+        // exactly one provider for the id, pin the tuple so the runtime
+        // skips inference. Ambiguous or unknown ids fall back to inference.
+        const carriers = buildFullModelCatalog()
+          .filter((entry) => entry.id.toLowerCase() === requested.toLowerCase())
+          .map((entry) => entry.provider);
+        switchModelInPlace(requested, carriers.length === 1 ? carriers[0] : undefined);
         return true;
       }
       case "mode": {

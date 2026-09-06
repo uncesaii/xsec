@@ -1,6 +1,6 @@
 {
   "name": "@xsec/desktop",
-  "version": "0.12.0",
+  "version": "0.14.0",
   "description": "Native desktop control plane for the XSEC security harness.",
   "author": "XSEC Labs",
   "repository": {

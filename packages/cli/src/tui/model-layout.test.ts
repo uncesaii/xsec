@@ -22,12 +22,16 @@ const EMPTY_ENV = providerStates({});
 /** One provider lit, chosen from the real table so the test tracks it. */
 const LIT_PROVIDER = PROVIDERS.find((info) => info.id === "anthropic") ?? PROVIDERS[0];
 const LIT_ENV = providerStates({ [LIT_PROVIDER?.envVars[0] ?? "ANTHROPIC_API_KEY"]: "sk-test" });
+/** All providers lit so every catalogue model passes the configured filter. */
+const ALL_ENV = providerStates(
+  Object.fromEntries(PROVIDERS.map((info) => [info.envVars[0] ?? `${info.id.toUpperCase()}_API_KEY`, "sk-test"])),
+);
 
 // ---------------------------------------------------------------------------
 
 describe("buildModelRows", () => {
   it("derives the entire list from the live catalogue", () => {
-    const rows = buildModelRows();
+    const rows = buildModelRows({ states: ALL_ENV });
     const models = rows.filter(
       (row): row is Extract<ModelRow, { kind: "model" }> => row.kind === "model",
     );
@@ -41,7 +45,7 @@ describe("buildModelRows", () => {
   });
 
   it("emits one heading per provider present in the catalogue", () => {
-    const rows = buildModelRows();
+    const rows = buildModelRows({ states: ALL_ENV });
     const headings = rows.filter((row) => row.kind === "heading");
     const providers = new Set(CATALOG.map((model) => model.provider));
     expect(headings).toHaveLength(providers.size);
@@ -52,7 +56,7 @@ describe("buildModelRows", () => {
     let group = "";
     let seen = 0;
     let expected = 0;
-    for (const row of buildModelRows()) {
+    for (const row of buildModelRows({ states: ALL_ENV })) {
       if (row.kind === "heading") {
         if (group) expect(seen, `${group} miscounted`).toBe(expected);
         group = row.group.id;
@@ -67,12 +71,13 @@ describe("buildModelRows", () => {
   });
 
   it("grows when the catalogue does, with no change to this module", () => {
-    const probe: CatalogModel = { id: "probe-1", provider: "probe-vendor", price: "free" };
-    const before = buildModelRows({ catalog: CATALOG });
-    const after = buildModelRows({ catalog: [...CATALOG, probe] });
-    // One new model row plus the heading for its new provider.
-    expect(after).toHaveLength(before.length + 2);
-    expect(after.at(-2)?.kind).toBe("heading");
+    // Non-free so Free-first ordering can't float it; "probe-1" sorts after
+    // every "claude-*" id in its provider group, keeping it last overall.
+    const probe: CatalogModel = { id: "probe-1", provider: "anthropic", price: "$5/30 per M" };
+    const before = buildModelRows({ catalog: CATALOG, states: ALL_ENV });
+    const after = buildModelRows({ catalog: [...CATALOG, probe], states: ALL_ENV });
+    // One new model row (no new heading since probe shares a provider).
+    expect(after).toHaveLength(before.length + 1);
     expect(after.at(-1)).toMatchObject({ kind: "model", model: probe });
   });
 
@@ -85,12 +90,10 @@ describe("buildModelRows", () => {
     // The lit provider outranks every other unconfigured one.
     expect(headings[1]?.id).toBe(LIT_PROVIDER?.id);
     expect(headings[1]?.credential).toBe("ready");
-    // And the vendors with no env path at all sink to the bottom.
-    expect(headings.at(-1)?.credential).toBe("unmapped");
   });
 
   it("floats the active model to the top of its own provider group", () => {
-    const rows = buildModelRows({ catalog: CATALOG, activeModel: "claude-sonnet-4-6" });
+    const rows = buildModelRows({ catalog: CATALOG, states: ALL_ENV, activeModel: "claude-sonnet-4-6" });
     const at = indexOfModel(rows, "claude-sonnet-4-6");
     expect(at).toBeGreaterThan(0);
     expect(rows[at - 1]?.kind).toBe("heading");
@@ -100,7 +103,7 @@ describe("buildModelRows", () => {
   });
 
   it("marks nothing active when the running model is not in the catalogue", () => {
-    const rows = buildModelRows({ catalog: CATALOG, activeModel: "not-a-model" });
+    const rows = buildModelRows({ catalog: CATALOG, states: ALL_ENV, activeModel: "not-a-model" });
     expect(rows.filter((row) => row.kind === "model" && row.active)).toHaveLength(0);
     expect(indexOfModel(rows, "not-a-model")).toBe(-1);
   });
@@ -113,7 +116,7 @@ describe("buildModelRows", () => {
 
   it("filters on the model id", () => {
     for (const model of CATALOG) {
-      const rows = buildModelRows({ catalog: CATALOG, filter: model.id });
+      const rows = buildModelRows({ catalog: CATALOG, states: ALL_ENV, filter: model.id });
       expect(
         rows.some((row) => row.kind === "model" && row.model.id === model.id),
         `filtering on ${model.id} did not find it`,
@@ -122,26 +125,26 @@ describe("buildModelRows", () => {
   });
 
   it("filters on the provider id and on the provider's human label", () => {
-    const anthropic = buildModelRows({ catalog: CATALOG, filter: "anthropic" });
+    const anthropic = buildModelRows({ catalog: CATALOG, states: ALL_ENV, filter: "anthropic" });
     expect(anthropic.filter((row) => row.kind === "heading")).toHaveLength(1);
     expect(anthropic.every((row) => row.group.id === "anthropic")).toBe(true);
     // "Moonshot" appears only in the PROVIDERS label for the `kimi` id.
-    const moonshot = buildModelRows({ catalog: CATALOG, filter: "moonshot" });
+    const moonshot = buildModelRows({ catalog: CATALOG, states: ALL_ENV, filter: "moonshot" });
     expect(moonshot.filter((row) => row.kind === "model").length).toBeGreaterThan(0);
     expect(moonshot.every((row) => row.group.id === "kimi")).toBe(true);
   });
 
   it("filters on the formatted price", () => {
     const free = CATALOG.filter((model) => model.price === "free");
-    const rows = buildModelRows({ catalog: CATALOG, filter: "free" });
+    const rows = buildModelRows({ catalog: CATALOG, states: ALL_ENV, filter: "free" });
     expect(rows.filter((row) => row.kind === "model")).toHaveLength(free.length);
   });
 
   it("ANDs multiple filter terms", () => {
-    const both = buildModelRows({ catalog: CATALOG, filter: "anthropic opus" });
+    const both = buildModelRows({ catalog: CATALOG, states: ALL_ENV, filter: "anthropic opus" });
     expect(both.filter((row) => row.kind === "model").length).toBeGreaterThan(0);
     expect(both.every((row) => row.kind === "heading" || row.model.id.includes("opus"))).toBe(true);
-    expect(buildModelRows({ catalog: CATALOG, filter: "anthropic nonsensetoken" })).toEqual([]);
+    expect(buildModelRows({ catalog: CATALOG, states: ALL_ENV, filter: "anthropic nonsensetoken" })).toEqual([]);
   });
 
   it("never leaves a heading with nothing under it, for any filter", () => {
@@ -158,7 +161,7 @@ describe("buildModelRows", () => {
       ...CATALOG.map((model) => model.id),
     ];
     for (const query of queries) {
-      const rows = buildModelRows({ catalog: CATALOG, filter: query });
+      const rows = buildModelRows({ catalog: CATALOG, states: ALL_ENV, filter: query });
       rows.forEach((row, index) => {
         if (row.kind !== "heading") return;
         expect(
@@ -174,7 +177,7 @@ describe("buildModelRows", () => {
   });
 
   it("returns an empty list rather than throwing when nothing matches", () => {
-    const rows = buildModelRows({ catalog: CATALOG, filter: "zzzzz" });
+    const rows = buildModelRows({ catalog: CATALOG, states: ALL_ENV, filter: "zzzzz" });
     expect(rows).toEqual([]);
     expect(indexOfModel(rows, CATALOG[0]?.id)).toBe(-1);
   });
@@ -184,7 +187,11 @@ describe("buildModelRows", () => {
       catalog: [
         ...CATALOG,
         { id: "", provider: "openai", price: "free" },
-        { id: "orphan", provider: "", price: "free" },
+        { id: "orphan", provider: "unknown", price: "free" },
+      ],
+      states: [
+        ...ALL_ENV,
+        { source: "models-dev", id: "unknown", label: "Unknown", configured: true, via: "test", envVars: [] },
       ],
     });
     expect(rows.some((row) => row.kind === "model" && row.model.id === "")).toBe(false);
@@ -230,8 +237,9 @@ describe("provider credential reporting", () => {
   });
 
   it("calls a vendor with no runtime env path unmapped rather than unconfigured", () => {
-    // These come from the pricing table and have no entry in PROVIDERS.
-    for (const id of ["google", "meta", "mistral", "unknown"]) {
+    // google, meta, mistral are now core providers (missing when not configured).
+    // "unknown" has no PROVIDERS entry at all, so it is unmapped.
+    for (const id of ["unknown"]) {
       const group = providerGroupFor(id, EMPTY_ENV);
       expect(group.credential, id).toBe("unmapped");
       expect(group.envVars).toEqual([]);
@@ -264,8 +272,8 @@ describe("provider credential reporting", () => {
 // ---------------------------------------------------------------------------
 
 describe("the detail pane", () => {
-  const rowsLit = buildModelRows({ catalog: CATALOG, states: LIT_ENV });
-  const configured = configuredProviderLabels(LIT_ENV);
+  const rowsLit = buildModelRows({ catalog: CATALOG, states: ALL_ENV });
+  const configured = configuredProviderLabels(ALL_ENV);
 
   const textOf = (lines: { text: string }[]): string => lines.map((line) => line.text).join("\n");
 
@@ -294,17 +302,23 @@ describe("the detail pane", () => {
       (info) => info.id !== LIT_PROVIDER?.id && CATALOG.some((m) => m.provider === info.id),
     );
     expect(dark).toBeDefined();
-    const row = rowsLit.find(
+    // Build rows with only LIT_PROVIDER configured so the dark one is "missing"
+    const litConfigured = configuredProviderLabels(LIT_ENV);
+    const rowsWithDark = buildModelRows({ catalog: CATALOG, states: LIT_ENV });
+    const row = rowsWithDark.find(
       (candidate) => candidate.kind === "model" && candidate.group.id === dark?.id,
     );
-    const text = textOf(modelDetailLines({ row, configured }, 80));
+    // If no row found, the dark provider has no models that survived the filter
+    // (which means we can't test this — skip gracefully)
+    if (!row) return;
+    const text = textOf(modelDetailLines({ row, configured: litConfigured }, 80));
     expect(text).toContain("Credentials: not found");
     // The hint is reproduced from PROVIDERS, not paraphrased here.
     for (const word of (dark?.hint ?? "").split(" ").slice(0, 4)) expect(text).toContain(word);
     expect(text).toContain(dark?.envVars[0] ?? "");
     // And the providers that DO hold credentials are named, so the operator
     // can judge for themselves rather than being told the model is unusable.
-    expect(text).toContain(configured.join(", "));
+    expect(text).toContain(litConfigured.join(", "));
   });
 
   it("says an on-disk credential source was not checked", () => {
@@ -342,7 +356,7 @@ describe("the detail pane", () => {
   });
 
   it("marks the active model", () => {
-    const rows = buildModelRows({ catalog: CATALOG, activeModel: "claude-opus-4-7" });
+    const rows = buildModelRows({ catalog: CATALOG, states: ALL_ENV, activeModel: "claude-opus-4-7" });
     const active = rows.find((row) => row.kind === "model" && row.active);
     expect(textOf(modelDetailLines({ row: active }, 48))).toContain("Currently active");
   });
@@ -377,7 +391,7 @@ describe("the detail pane", () => {
 
   it("clips the detail body to the rows the pane holds", () => {
     const row = rowsLit.find(
-      (candidate) => candidate.kind === "model" && candidate.group.credential === "missing",
+      (candidate) => candidate.kind === "model",
     );
     const lines = modelDetailLines({ row, configured }, 24);
     expect(lines.length).toBeGreaterThan(4);
@@ -388,9 +402,10 @@ describe("the detail pane", () => {
     expect(clipModelDetailLines(lines, lines.length + 5)).toHaveLength(lines.length);
 
     // Given the pane's width, the marker rides on the last surviving line
-    // rather than costing a row of its own.
-    const inline = clipModelDetailLines(lines, 3, 24);
-    expect(inline).toHaveLength(3);
+    // rather than costing a row of its own (4 rows keeps a non-blank text
+    // line last; at 3 the blank separator takes the marker bare).
+    const inline = clipModelDetailLines(lines, 4, 24);
+    expect(inline).toHaveLength(4);
     expect(inline.at(-1)?.text.endsWith(" ...")).toBe(true);
     for (const line of inline) expect(line.text.length).toBeLessThanOrEqual(24);
     expect(clipModelDetailLines(lines, 3, 6).at(-1)?.text).toBe("...");

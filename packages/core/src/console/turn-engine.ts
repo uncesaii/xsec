@@ -1557,6 +1557,22 @@ function extractToolTargets(
 }
 
 /**
+ * Parent routing tuple for spawned subagents (OpenCode-style
+ * `{providerID, modelID}`). Reads the concrete vendor + wire model id off a
+ * live `LlmApiRuntime`; any other `NativeRuntime` (test stubs, subprocess
+ * loops) yields `undefined` and children fall back to inference.
+ */
+export function parentModelTuple(
+  runtime: NativeRuntime,
+): { provider: string; model: string } | undefined {
+  if (!(runtime instanceof LlmApiRuntime)) return undefined;
+  const provider = runtime.getConfigurationDiagnostics().provider;
+  const model = runtime.resolvedModel();
+  if (!provider || !model) return undefined;
+  return { provider, model };
+}
+
+/**
  * Create an interactive console session over the real tool registry + runtime.
  *
  * The returned session holds conversation history in memory; each `send()`
@@ -1617,6 +1633,13 @@ export function createConsoleSession(config: ConsoleSessionConfig): ConsoleSessi
     // Information-gathering only — grants no authority (see ConsoleSessionConfig).
     askOperator: config.askOperator,
     agentMessaging: config.agentMessaging,
+    // Routing inheritance for spawn_agent/spawn_agents: children build their
+    // runtime from the parent's concrete (provider, model) instead of
+    // re-inferring from env chains (which parks them on whatever key comes
+    // first — e.g. OpenRouter's rate-limited free tier under an NVIDIA
+    // parent). Undefined for non-LlmApiRuntime parents (stubs, subprocess
+    // loops) — children then fall back to inference exactly as before.
+    parentModel: parentModelTuple(config.runtime),
   };
 
   // ── Model self-extension (session-scoped, additive-only) ──

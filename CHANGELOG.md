@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-09-07
+
+### Added
+- OpenCode-style `(provider, model)` tuple from the `/model` picker all the way to the runtime: a credentialed explicit provider wins over id-inference and stale pins, inference stays as fallback
+- `XSEC_DEBUG_WIRE=1` one-line wire log (URL, provider, model, key tail) for chasing provider errors
+- Subagents inherit the parent session's `(provider, model)` tuple instead of re-inferring from env chains
+- `parseProviderError()`: typed, professional provider errors for all 32 vendors (auth, model-unavailable, rate-limited, quota, context-overflow, server)
+- `/providers` Popular group leads with Zen ("Paste a Zen API key from opencode.ai/zen")
+- Missing `runtimeId` mappings: `novita-ai`→`novita`, `fireworks-ai`→`fireworks`, `togetherai`→`together`
+- Model catalog entries carry friendly `name`, `releaseDate`, `status` from models.dev and provider `/v1/models` feeds
+
+### Changed
+- `/model` rows show friendly titles with the `vendor/` prefix hidden (`cohere/command-a` → "Command A"); `:free` renders as " Free"
+- `/model` right column shows `Free` for zero-cost models, provider name while filtering; no price column in the list
+- `/model` search matches friendly name + id + provider; same model on several vendors lists once per vendor
+- `/model` ordering is Free-first, then newest, then title; deprecated models filtered
+- Switching models rebuilds the session in place and carries the transcript — no more blank-chat remount; remounts reserved for resume restores
+- 429 errors on free-tier ids name the failover way out (`XSEC_LLM_FALLBACK`); recovery screen covers all 32 vendors and no longer yanks wrong-model or bare rate-limit failures to `/connect`
+- `noKeyError` leads with `/connect` instead of a 25-line env wall
+
+### Fixed
+- NVIDIA 404s: `:free` ids route to OpenRouter (stripped for direct providers), dead `nemotron-3-ultra` default replaced with live `nemotron-3-super-120b-a12b`, trailing-slash guard in endpoint builder, stale `XSEC_SELECTED_PROVIDER` pin yields to the picked model
+- Phantom OpenRouter 429 storms after NVIDIA turns: subagents no longer default to the first env key
+- `models-dev-providers.ts` missing `openaiCompatible` flags breaking `pnpm build`
+- Bare `diag.warn` without import breaking `pnpm lint`; malformed-entry test type error
+
 ## [0.13.0] - 2026-09-06
 
 ### Added

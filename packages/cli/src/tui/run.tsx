@@ -3807,12 +3807,14 @@ function ModelRoute({
   return (
     <ModelScreen
       currentModel={chatOptions?.model}
-      onSelect={(id) => {
+      onSelect={(id, providerId) => {
         if (!shell) {
           onExit();
           return;
         }
-        shell.openChat({ ...chatOptions, model: id });
+        // The provider travels with the pick (OpenCode-style tuple) so the
+        // runtime is built for the chosen vendor, not re-inferred by id.
+        shell.openChat({ ...chatOptions, model: id, provider: providerId });
       }}
       onBack={() => leaveCurrentScreen(shell, onExit)}
       onExit={onExit}
@@ -4170,14 +4172,22 @@ function ConsoleApp({
     goBack: () => setRouteIndex((current) => Math.max(0, current - 1)),
     goForward: () => setRouteIndex((current) => Math.min(routes.length - 1, current + 1)),
     openChat: (options) => {
-      // Applying a NEW model is the only reason to rebuild the persistent chat.
-      // Bump the generation so ChatScreen remounts with the new model; every
-      // other openChat (e.g. the palette's "Open chat") keeps the generation and
-      // the existing options, so the live transcript is preserved.
-      if (options && options.model !== undefined && options.model !== chatOptionsRef.current?.model) {
-        saveLastModel(options.model);
-        setChatOptions((prev) => ({ ...prev, ...options }));
-        setChatGeneration((generation) => generation + 1);
+      // Merge every openChat into the persistent options; the ChatScreen
+      // effect follows model/provider picks IN PLACE (carrying the live
+      // transcript), so a remount here would wipe the engagement back to a
+      // blank chat. Remount ONLY to seat a fresh/restored transcript.
+      if (options) {
+        const prev = chatOptionsRef.current;
+        const modelChanged = options.model !== undefined && options.model !== prev?.model;
+        const providerChanged =
+          options.provider !== undefined && options.provider !== prev?.provider;
+        if (options.model !== undefined && (modelChanged || providerChanged)) {
+          saveLastModel(options.model);
+        }
+        setChatOptions((prevState) => ({ ...prevState, ...options }));
+        if (shouldRemountChat(options)) {
+          setChatGeneration((generation) => generation + 1);
+        }
       }
       navigate({ type: "chat", options });
     },
@@ -4604,6 +4614,19 @@ async function mountApp(mode: AppMode): Promise<void> {
       throw error;
     }
   });
+}
+
+/**
+ * Whether applying these chat options needs a full ChatScreen remount.
+ *
+ * Only a fresh/restored transcript does (resume browser, new chat): the
+ * mount effect builds the session around `initialMessages`. A pure
+ * model/provider switch rebuilds IN PLACE inside ChatScreen — carrying the
+ * live transcript — so remounting there would blank the engagement (the old
+ * "pick a model, lose the chat" behavior this replaces).
+ */
+export function shouldRemountChat(options?: ChatScreenOptions): boolean {
+  return options?.initialMessages !== undefined && options.initialMessages.length > 0;
 }
 
 function lastModelPath(): string {

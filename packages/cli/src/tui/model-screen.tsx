@@ -72,7 +72,7 @@ import {
   type ModelMode,
   type ModelRow,
 } from "./model-layout.js";
-import { buildFullModelCatalog } from "./model-catalog.js";
+import { buildFullModelCatalog, displayModelName, isModelFree } from "./model-catalog.js";
 import { syncModelCatalog } from "./model-catalog-sync.js";
 import { providerStates, allProviders } from "./provider-status.js";
 import { loadRecentModels, saveRecentModels, addRecentModel } from "./recent-models-store.js";
@@ -102,7 +102,7 @@ export interface ModelScreenProps {
   /** The model the session is currently running, when there is one. */
   currentModel?: string;
   /** Enter on a model row. The router decides what "select" means. */
-  onSelect: (id: string) => void;
+  onSelect: (id: string, providerId?: string) => void;
   /** Leave the screen — Esc once any filter has been cleared. */
   onBack: () => void;
   /** Leave the console entirely — ctrl+c. */
@@ -173,10 +173,12 @@ export function ModelScreen({
     }
   }, [propRecentModels]);
 
-  // Wrap onSelect to track recent models
-  const trackOnSelect = (id: string) => {
+  // Wrap onSelect to track recent models. The provider travels with the
+  // selection (OpenCode-style tuple) so reselecting from Recent rebuilds
+  // the same provider's runtime instead of re-inferring it from the id.
+  const trackOnSelect = (id: string, providerId?: string) => {
     // Call original onSelect
-    onSelect(id);
+    onSelect(id, providerId);
     // Update recent models: push to front, keep only 5, deduplicate
     const updated = [id, ...recentModels.filter((i) => i !== id)].slice(0, 5);
     setRecentModels(updated);
@@ -215,25 +217,29 @@ export function ModelScreen({
   // `buildModelRows` does all the domain work — grouping by provider, credential
   // lookup, credential-band ordering, floating the active model first, and the
   // AND-over-terms filter. The screen keeps only its selectable model rows and
-  // projects them onto `DialogItem`s: the provider label is the category (so the
-  // shared body draws a heading per provider), the price is the right-aligned
-  // meta, and the running model carries the current-value dot.
+  // projects them onto `DialogItem`s following OpenCode's dialog-model shape:
+  // the friendly title (`info.name ?? model`, slash hidden) is the label, the
+  // right-hand meta is "Free" for zero-cost rows (upstream's footer) or the
+  // provider label while filtering (upstream's flat-on-filter category), and
+  // the real `vendor/model` id stays in `DialogItem.id` for routing.
   const modelRows = useMemo(
     () => buildModelRows({ catalog, states, filter, activeModel: currentModel }),
     [catalog, states, filter, currentModel],
   );
+  const hasFilterText = filter.trim().length > 0;
   const items = useMemo<DialogItem[]>(
     () =>
       modelRows
         .filter((row): row is Extract<ModelRow, { kind: "model" }> => row.kind === "model")
         .map((row) => ({
           id: row.model.id,
-          label: row.model.id,
-          meta: row.model.price,
+          label: displayModelName(row.model),
+          meta: isModelFree(row.model) ? "Free" : hasFilterText ? row.group.label : undefined,
           category: row.group.label,
+          provider: row.group.id,
           current: row.active,
         })),
-    [modelRows],
+    [modelRows, hasFilterText],
   );
   // id -> ModelRow, so the detail renderer can reach the full provider/credential
   // facts the flat `DialogItem` does not carry.
@@ -260,6 +266,7 @@ export function ModelScreen({
         label: modelItem.label,
         meta: modelItem.meta,
         category: "recent",
+        provider: modelItem.provider,
         current: modelItem.current,
       };
     }).filter(Boolean) as DialogItem[];
@@ -338,7 +345,7 @@ export function ModelScreen({
     if (key.name === "return") {
       // Enter selects from either mode: while filtering, the whole point of
       // typing four characters is to reach one row and take it.
-      if (activeItem) trackOnSelect(activeItem.id);
+      if (activeItem) trackOnSelect(activeItem.id, activeItem.provider);
       return;
     }
 
