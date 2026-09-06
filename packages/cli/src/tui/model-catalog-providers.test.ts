@@ -97,16 +97,24 @@ describe("normalizeOpenAiCompatibleModels", () => {
     expect(models[1].id).toBe("gpt-3.5-turbo");
   });
 
-  it("filters out embedding and moderation models", () => {
+  it("filters out non-chat models", () => {
     const raw = {
       data: [
         { id: "text-embedding-3-large" },
         { id: "text-embedding-3-small" },
         { id: "gpt-4" },
         { id: "text-moderation-latest" },
+        { id: "nvidia/nv-embedqa-mistral-7b-v2" },
+        { id: "nvidia/nvclip" },
+        { id: "nvidia/riva-translate-4b-instruct" },
+        { id: "nvidia/nemotron-parse" },
+        { id: "nvidia/phi-3-vision-128k-instruct" },
+        { id: "nvidia/nemotron-4-340b-reward" },
+        { id: "meta/llama-guard-4-12b" },
+        { id: "nvidia/nemotron-3-embed-1b" },
       ],
     };
-    const models = normalizeOpenAiCompatibleModels(raw, "openai");
+    const models = normalizeOpenAiCompatibleModels(raw, "nvidia");
     expect(models).toHaveLength(1);
     expect(models[0].id).toBe("gpt-4");
   });
@@ -153,7 +161,7 @@ describe("fetchProviderModels", () => {
     expect(models).toEqual([]);
   });
 
-  it("deduplicates models across providers", async () => {
+  it("does not deduplicate models with same ID from different providers", async () => {
     let callCount = 0;
     const mockFetch = vi.fn().mockImplementation(async () => {
       callCount++;
@@ -171,8 +179,9 @@ describe("fetchProviderModels", () => {
     };
 
     const models = await fetchProviderModels(env, mockFetch);
-    // Both providers return "shared-model", should be deduplicated.
+    // Both providers return "shared-model" — different providers can serve the same model ID.
     const sharedModels = models.filter((m) => m.id === "shared-model");
-    expect(sharedModels).toHaveLength(1);
+    expect(sharedModels).toHaveLength(2);
+    expect(sharedModels[0].provider).not.toBe(sharedModels[1].provider);
   });
 });

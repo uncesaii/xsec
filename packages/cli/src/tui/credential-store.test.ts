@@ -69,9 +69,10 @@ describe("normalizeCredentials", () => {
   });
 
   it("drops provider ids the runtime cannot authenticate", () => {
-    // "google" and "mistral" exist in the pricing table but have no env-var
-    // path in PROVIDERS, so a key stored under them could never be used.
-    expect(normalizeCredentials({ google: "key", mistral: "key", anthropic: "sk-ant-secret" })).toEqual({
+    // "unknown-vendor" has no env-var path in PROVIDERS, so a key stored
+    // under it could never be used. (google/mistral used to be the example
+    // here; both have credentials paths now.)
+    expect(normalizeCredentials({ "unknown-vendor": "key", anthropic: "sk-ant-secret" })).toEqual({
       anthropic: "sk-ant-secret",
     });
   });
@@ -160,7 +161,7 @@ describe("saveCredentials / loadCredentials", () => {
 
   it("normalises on the way out so an unknown provider never reaches disk", () => {
     const home = makeHome();
-    saveCredentials({ anthropic: "sk-ant-secret", google: "unusable", openai: "  " }, home);
+    saveCredentials({ anthropic: "sk-ant-secret", "unknown-vendor": "unusable", openai: "  " }, home);
 
     const written: unknown = JSON.parse(readFileSync(credentialsFilePath(home), "utf8"));
     expect(written).toEqual({ anthropic: "sk-ant-secret" });
@@ -291,7 +292,7 @@ describe("credentialEnvPatch", () => {
   });
 
   it("ignores stored entries for unknown providers and blank values", () => {
-    expect(credentialEnvPatch({ google: "unusable", anthropic: "   " }, {})).toEqual({});
+    expect(credentialEnvPatch({ "unknown-vendor": "unusable", anthropic: "   " }, {})).toEqual({});
   });
 
   it("returns an empty patch for an empty store", () => {
