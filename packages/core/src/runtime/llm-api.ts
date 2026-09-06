@@ -2372,6 +2372,20 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
       case "mistral": return "Mistral";
       case "meta": return "Meta Muse";
       case "nvidia": return "NVIDIA";
+      case "groq": return "Groq";
+      case "together": return "Together AI";
+      case "fireworks": return "Fireworks AI";
+      case "deepinfra": return "DeepInfra";
+      case "cerebras": return "Cerebras";
+      case "siliconflow": return "SiliconFlow";
+      case "novita": return "Novita AI";
+      case "friendli": return "Friendli";
+      case "baseten": return "Baseten";
+      case "modal": return "Modal";
+      case "scaleway": return "Scaleway";
+      case "ovhcloud": return "OVHcloud";
+      case "vultr": return "Vultr";
+      case "digitalocean": return "DigitalOcean";
       case "cohere": return "Cohere";
       case "perplexity": return "Perplexity";
     }
@@ -2395,7 +2409,22 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
       "  export MISTRAL_API_KEY=...            (Mistral — OpenAI-compatible)\n" +
       "  export META_API_KEY=...               (Meta Muse — OpenAI-compatible)\n" +
       "  export COHERE_API_KEY=...             (Cohere — OpenAI-compatible)\n" +
-      "  export PERPLEXITY_API_KEY=...         (Perplexity — OpenAI-compatible)"
+      "  export PERPLEXITY_API_KEY=...         (Perplexity — OpenAI-compatible)\n" +
+      "  export NVIDIA_API_KEY=...             (NVIDIA Nemotron — OpenAI-compatible)\n" +
+      "  export GROQ_API_KEY=...               (Groq — OpenAI-compatible)\n" +
+      "  export TOGETHER_API_KEY=...           (Together AI — OpenAI-compatible)\n" +
+      "  export FIREWORKS_API_KEY=...          (Fireworks AI — OpenAI-compatible)\n" +
+      "  export DEEPINFRA_API_KEY=...          (DeepInfra — OpenAI-compatible)\n" +
+      "  export CEREBRAS_API_KEY=...           (Cerebras — OpenAI-compatible)\n" +
+      "  export SILICONFLOW_API_KEY=...        (SiliconFlow — OpenAI-compatible)\n" +
+      "  export NOVITA_API_KEY=...             (Novita AI — OpenAI-compatible)\n" +
+      "  export FRIENDLI_TOKEN=...             (Friendli — OpenAI-compatible)\n" +
+      "  export BASETEN_API_KEY=...            (Baseten — OpenAI-compatible)\n" +
+      "  export MODAL_PROXY_TOKEN=...          (Modal — OpenAI-compatible)\n" +
+      "  export SCALEWAY_API_KEY=...           (Scaleway — OpenAI-compatible)\n" +
+      "  export OVHCLOUD_API_KEY=...           (OVHcloud — OpenAI-compatible)\n" +
+      "  export VULTR_API_KEY=...              (Vultr — OpenAI-compatible)\n" +
+      "  export DIGITALOCEAN_ACCESS_TOKEN=...  (DigitalOcean — OpenAI-compatible)"
     );
   }
 
