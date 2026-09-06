@@ -282,6 +282,25 @@ function sanitizeFields(
 
 // ── Level filtering ─────────────────────────────────────────────────────────
 
+// Set at compile time by scripts/bun-compile.sh (`--define
+// __XSEC_RELEASE_BUILD__="true"`); absent in source/dev runs and tests.
+declare const __XSEC_RELEASE_BUILD__: string | undefined;
+
+/**
+ * True inside the compiled production binary. Debug output (diag info/warn,
+ * raw retry lines) is suppressed there unless `XSEC_DEBUG=1` re-enables it;
+ * development runs from source always show it. `XSEC_RELEASE_BINARY=1` in
+ * the environment forces the same posture (escape hatch + test seam).
+ */
+export function isReleaseBinary(): boolean {
+  if (process.env["XSEC_RELEASE_BINARY"] === "1") return true;
+  try {
+    return typeof __XSEC_RELEASE_BUILD__ !== "undefined" && __XSEC_RELEASE_BUILD__ === "true";
+  } catch {
+    return false;
+  }
+}
+
 const LEVEL_RANK: Record<DiagLevel, number> = { info: 10, warn: 20, error: 30 };
 const OFF_RANK = Number.POSITIVE_INFINITY;
 
@@ -292,6 +311,11 @@ const OFF_RANK = Number.POSITIVE_INFINITY;
  */
 function minimumRank(): number {
   const raw = process.env["XSEC_DIAG_LEVEL"];
+  // Production binaries are quiet by default: info/warn debugging stays in
+  // development (source runs) unless explicitly re-enabled. Errors always
+  // flow — a silent failure mode is worse than noise. An explicit
+  // XSEC_DIAG_LEVEL always wins over this default.
+  if (!raw && isReleaseBinary() && !process.env["XSEC_DEBUG"]) return LEVEL_RANK.error;
   if (!raw) return LEVEL_RANK.info;
   switch (raw.trim().toLowerCase()) {
     case "off":

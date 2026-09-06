@@ -47,7 +47,7 @@ import { formatJitSkillsInstruction, getSkillById } from "./skills/index.js";
 import { estimateCost } from "./cost.js";
 import type { ScanCostLedger } from "./cost-ledger.js";
 import { eventBus, isCloudEventSinkActive } from "../events/bus.js";
-import { diag } from "../diagnostics/channel.js";
+import { diag, isReleaseBinary } from "../diagnostics/channel.js";
 import {
   reduceCoordinatorState,
   superviseCoordinator,
@@ -1616,7 +1616,11 @@ export async function runNativeAgentLoop(
       if (transient && transientRetries < MAX_TRANSIENT_RETRIES) {
         transientRetries++;
         const backoffMs = Math.min(20_000, 500 * 2 ** transientRetries);
-        process.stderr.write(`[xsec] transient LLM error (retry ${transientRetries}/${MAX_TRANSIENT_RETRIES}, backoff ${backoffMs}): ${errorMsg.slice(0, 120)}\n`);
+        // Debug line only: silent in the production binary (re-enable with
+        // XSEC_DEBUG=1); the retry outcome still surfaces via events/diag.
+        if (!isReleaseBinary() || process.env["XSEC_DEBUG"]) {
+          process.stderr.write(`[xsec] transient LLM error (retry ${transientRetries}/${MAX_TRANSIENT_RETRIES}, backoff ${backoffMs}): ${errorMsg.slice(0, 120)}\n`);
+        }
         onEvent?.("agent_error", { turn: state.turnCount, error: `transient (retry ${transientRetries}): ${errorMsg.slice(0, 200)}` });
         if (state.turnCount > 0) state.turnCount--; // a failed transient turn must not burn budget
         await delay(backoffMs);

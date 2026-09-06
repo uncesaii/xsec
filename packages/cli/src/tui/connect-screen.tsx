@@ -36,7 +36,7 @@ import { useKeyboard, useTerminalDimensions } from "@opentui/react";
 
 import { useTheme, type Theme } from "./theme-context.js";
 import { Cells } from "./primitives.js";
-import { providerStates } from "./provider-status.js";
+import { providerStates, allProviders } from "./provider-status.js";
 import {
   loadCredentials,
   saveCredentials,
@@ -373,7 +373,7 @@ export function ConnectScreen({ frame, onBack, onExit, recovery, onConnected, en
 
   // OAuth completion updates process env, so authEpoch is the explicit redraw
   // boundary for providerStates rather than a hidden file-read side effect.
-  const states = useMemo(() => providerStates(env ?? process.env), [env, authEpoch]);
+  const states = useMemo(() => allProviders(env ?? process.env), [env, authEpoch]);
   const storedIds = useMemo(() => new Set(Object.keys(stored)), [stored]);
 
   const rows = useMemo(

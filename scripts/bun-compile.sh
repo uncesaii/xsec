@@ -81,6 +81,7 @@ bun build src/index.ts \
   --outfile "../../$OUTFILE" \
   --define "__XSEC_VERSION__=\"$PKG_VERSION\"" \
   --define "__XSEC_COMPILED_TARGET__=\"$NATIVE_TARGET\"" \
+  --define "__XSEC_RELEASE_BUILD__=\"true\"" \
   --external playwright \
   --external playwright-core \
   --external electron \

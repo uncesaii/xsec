@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { MODEL_PRICING, modelProvider } from "@xsec/shared";
 
-import { buildModelCatalog, formatModelPrice, modelSelectorItems } from "./model-catalog.js";
+import { buildModelCatalog, displayModelTitle, formatModelPrice, modelSelectorItems } from "./model-catalog.js";
 
 const SOME_MODEL = "gpt-5.5";
 
@@ -121,5 +121,28 @@ describe("modelSelectorItems", () => {
     const catalog = buildModelCatalog(SOME_MODEL);
     const items = modelSelectorItems(SOME_MODEL);
     expect(items[0].meta).toBe(`${catalog[0].provider} · ${catalog[0].price}`);
+  });
+});
+
+describe("displayModelTitle", () => {
+  it("drops a redundant trailing Free when the row is labeled Free", () => {
+    expect(
+      displayModelTitle({ id: "laguna-s-2.1-free", provider: "zen", price: "free", input: 0, output: 0 }),
+    ).toBe("Laguna S 2.1");
+    expect(
+      displayModelTitle({ id: "x/y:free", provider: "openrouter", price: "free", input: 0, output: 0 }),
+    ).toBe("Y");
+  });
+
+  it("keeps Free in the title when the row is not labeled Free", () => {
+    expect(
+      displayModelTitle({ id: "mystery-free", provider: "poolside", price: "$1/2 per M" }),
+    ).toBe("Mystery Free");
+  });
+
+  it("prefers feed names verbatim", () => {
+    expect(
+      displayModelTitle({ id: "big-pickle", provider: "zen", price: "free", name: "Big Pickle", input: 0, output: 0 }),
+    ).toBe("Big Pickle");
   });
 });

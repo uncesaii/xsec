@@ -10,6 +10,14 @@ import {
   parseMcpConfig,
   connectMcpServers,
 } from "@xsec/core";
+
+const BINARY_NAME = (() => {
+  const argv1 = process.argv[1] ?? "";
+  const base = argv1.split(/[\\/]/).pop() ?? "";
+  const stem = base.replace(/\.(js|ts|mjs|cjs)$/i, "");
+  if (stem === "x" || stem === "0") return stem;
+  return "xsec";
+})();
 import type {
   ConsoleAutonomyMode,
   ConsoleSession,
@@ -445,7 +453,7 @@ export function registerConsoleCommand(program: Command): void {
           console.log(
             chalk.yellow(
               `\n"${text}" requires the Bun-backed TUI console. ` +
-              `Use the \`xsec\` command (no flags) for the full interactive experience.\n`,
+              `Use the \`${BINARY_NAME}\` command (no flags) for the full interactive experience.\n`,
             ),
           );
           rl.prompt();
@@ -491,7 +499,7 @@ export function registerConsoleCommand(program: Command): void {
             console.log(
               chalk.yellow(
                 `\n/${parsed.command} isn't available in the line-mode console. ` +
-                `Use the \`xsec\` command (no flags) for the full interactive TUI.\n`,
+                `Use the \`${BINARY_NAME}\` command (no flags) for the full interactive TUI.\n`,
               ),
             );
             rl.prompt();
@@ -612,7 +620,7 @@ function printHelp(): void {
   console.log(chalk.dim("  The Node fallback cannot approve scope extensions or Co-pilot actions; use the Bun TUI for those approvals."));
   console.log(chalk.dim("  anything else is sent to the engine as an operator message.\n"));
   console.log(chalk.dim("  Navigation commands (/chat, /scope, /agents, …) require the Bun TUI."));
-  console.log(chalk.dim("  Run the bare `xsec` command for the full interactive experience.\n"));
+  console.log(chalk.dim("  Run the bare `" + BINARY_NAME + "` command for the full interactive experience.\n"));
 }
 
 function findCategory(name: string): string {

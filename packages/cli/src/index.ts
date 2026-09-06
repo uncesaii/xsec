@@ -120,8 +120,18 @@ void maybeNotifyUpdate(VERSION);
 
 const program = new Command();
 
+// Use the actual binary name when invoked as `x` so the usage line reads
+// "Usage: x" instead of "Usage: xsec". Falls back to "xsec" for `node dist/xsec.js`.
+const binaryName = (() => {
+  const argv1 = process.argv[1] ?? "";
+  const base = argv1.split(/[\\/]/).pop() ?? "";
+  const stem = base.replace(/\.(js|ts|mjs|cjs)$/i, "");
+  if (stem === "x" || stem === "0") return stem;
+  return "xsec";
+})();
+
 program
-  .name("xsec")
+  .name(binaryName)
   .description("Open-source multi-model security research harness")
   .version(VERSION);
 
@@ -193,17 +203,17 @@ async function showInteractiveMenu(): Promise<void> {
   }
 
   console.log("");
-  console.log(`  ${chalk.bold("xsec")} ${chalk.dim(`v${VERSION}`)}`);
+  console.log(`  ${chalk.bold(binaryName)} ${chalk.dim(`v${VERSION}`)}`);
   console.log("");
-  console.log(`  ${chalk.dim("From v0.9.0 onwards, xsec ships as a self-contained binary.")}`);
+  console.log(`  ${chalk.dim(`From v0.9.0 onwards, ${binaryName} ships as a self-contained binary.`)}`);
   console.log(`  ${chalk.dim("The full TUI (mission control + live scan view) needs Bun's runtime.")}`);
   console.log("");
   console.log(`  ${chalk.bold("Install")} (single curl, no Node / Bun required):`);
   console.log(`    curl -fsSL https://raw.githubusercontent.com/uncesaii/xsec/main/install.sh | bash`);
   console.log("");
   console.log(`  ${chalk.dim("After install, run:")}`);
-  console.log(`    xsec scan --target https://example.com`);
-  console.log(`    xsec --help`);
+  console.log(`    ${binaryName} scan --target https://example.com`);
+  console.log(`    ${binaryName} --help`);
   console.log("");
 }
 

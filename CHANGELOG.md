@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-09-07
+
+### Added
+- Models.dev provider ids canonicalized to runtime ids (`opencode`→`zen`, `novita-ai`→`novita`, …): configured-provider exclusion and API/feed dedup now work for Zen
+- Picker titles drop the redundant trailing "Free" when the row already carries the Free label (real ids untouched)
+- Production binaries are quiet by default: `isReleaseBinary()` (compile-time define + `XSEC_RELEASE_BINARY` escape hatch); diag info/warn suppressed unless `XSEC_DEBUG=1` or explicit `XSEC_DIAG_LEVEL`; errors always flow
+
+### Changed
+- Zen group in `/model` reflects live data: free-tier rows show Free because they genuinely cost $0; paid Zen rows show prices
+
+### Fixed
+- Big Pickle "no response" diagnosed: bare `big-pickle` id is correct, key works — Zen free tier was 429-throttling; runtime retries, fails over via `XSEC_LLM_FALLBACK` when set
+- Removed dead apple-touch-icon head link, unreferenced favicon PNGs, scratch files
+- Fixed `minimumRank` fallback so diagnostics can never silently drop all events
+
 ## [0.14.0] - 2026-09-07
 
 ### Added

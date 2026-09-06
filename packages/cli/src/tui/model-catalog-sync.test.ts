@@ -58,6 +58,15 @@ describe("normalizeModelsDev", () => {
     expect(normalizeModelsDev("nope")).toEqual([]);
     expect(normalizeModelsDev({ p: { models: 42 } })).toEqual([]);
   });
+
+  it("maps models.dev provider ids to runtime ids (opencode → zen)", () => {
+    const rows = normalizeModelsDev({
+      opencode: { models: { "big-pickle": { cost: { input: 0, output: 0 } } } },
+      "novita-ai": { models: { "x": {} } },
+    });
+    expect(rows.find((r) => r.id === "big-pickle")?.provider).toBe("zen");
+    expect(rows.find((r) => r.id === "x")?.provider).toBe("novita");
+  });
 });
 
 describe("syncModelCatalog + cache", () => {

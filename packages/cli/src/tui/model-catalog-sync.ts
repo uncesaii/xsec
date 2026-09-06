@@ -25,6 +25,19 @@ import { dirname, join } from "node:path";
 import { homeStateDir } from "@xsec/shared";
 import { OFFLINE_MODEL_CATALOG } from "./model-catalog.offline.js";
 import { fetchProviderModels } from "./model-catalog-providers.js";
+import { MODELS_DEV_BY_ID } from "./models-dev-providers.js";
+
+/**
+ * Map a models.dev provider id to the id the rest of the app uses.
+ * Provider-fetched rows already use `runtimeId ?? id`; without the same
+ * mapping here, feeds disagree with live APIs — e.g. models.dev calls it
+ * "opencode" while the fetcher, credentials and runtime all say "zen", so
+ * configured-provider exclusion and dedup silently miss and the picker
+ * shows stale doubles.
+ */
+function canonicalProviderId(providerId: string): string {
+  return MODELS_DEV_BY_ID.get(providerId)?.runtimeId ?? providerId;
+}
 
 /** One normalized catalog entry. Prices are $/1M tokens when known. */
 export interface SyncedModel {
@@ -113,7 +126,7 @@ export function normalizeModelsDev(raw: unknown): SyncedModel[] {
         ? (m["limit"] as Record<string, unknown>)
         : {}) as Record<string, unknown>;
 
-      const entry: SyncedModel = { id, provider: providerId };
+      const entry: SyncedModel = { id, provider: canonicalProviderId(providerId) };
       if (typeof cost["input"] === "number") entry.input = cost["input"];
       if (typeof cost["output"] === "number") entry.output = cost["output"];
       if (typeof limit["context"] === "number") entry.contextTokens = limit["context"];

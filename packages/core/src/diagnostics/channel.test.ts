@@ -18,6 +18,7 @@ import {
   claimDiagnostics,
   subscribeDiagnostics,
   isDiagnosticsClaimed,
+  isReleaseBinary,
   recentDiagnostics,
   formatDiagnosticLine,
   _resetDiagnosticsForTests,
@@ -694,5 +695,65 @@ describe("migrated llm-api quota path", () => {
       resets_at: "2026-07-19T00:00:00.000Z",
       status: 429,
     });
+  });
+});
+
+// ── Release-binary quiet default ────────────────────────────────────────────
+
+describe("release binary diagnostics", () => {
+  const saved: Record<string, string | undefined> = {};
+
+  beforeEach(() => {
+    for (const key of ["XSEC_RELEASE_BINARY", "XSEC_DEBUG", "XSEC_DIAG_LEVEL"]) {
+      saved[key] = process.env[key];
+      delete process.env[key];
+    }
+  });
+
+  afterEach(() => {
+    for (const [key, value] of Object.entries(saved)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  });
+
+  it("is a dev build by default (no binary markers)", () => {
+    expect(isReleaseBinary()).toBe(false);
+  });
+
+  it("stays silent on info/warn but keeps errors in release posture", () => {
+    process.env["XSEC_RELEASE_BINARY"] = "1";
+    const { sink, events } = recorder();
+    claimDiagnostics(sink);
+
+    diag.info("i", "dev chatter");
+    diag.warn("w", "retry noise");
+    diag.error("e", "real failure");
+
+    expect(events.map((e) => e.code)).toEqual(["e"]);
+  });
+
+  it("XSEC_DEBUG=1 restores full output in release posture", () => {
+    process.env["XSEC_RELEASE_BINARY"] = "1";
+    process.env["XSEC_DEBUG"] = "1";
+    const { sink, events } = recorder();
+    claimDiagnostics(sink);
+
+    diag.info("i", "dev chatter");
+    diag.warn("w", "retry noise");
+
+    expect(events.map((e) => e.code)).toEqual(["i", "w"]);
+  });
+
+  it("an explicit XSEC_DIAG_LEVEL always wins", () => {
+    process.env["XSEC_RELEASE_BINARY"] = "1";
+    process.env["XSEC_DIAG_LEVEL"] = "warn";
+    const { sink, events } = recorder();
+    claimDiagnostics(sink);
+
+    diag.info("i", "dropped");
+    diag.warn("w", "kept");
+
+    expect(events.map((e) => e.code)).toEqual(["w"]);
   });
 });

@@ -56,7 +56,7 @@
  * `shell-geometry.ts`, and this import is the marker for that move.
  */
 
-import { buildModelCatalog, displayModelName, isModelFree, type CatalogModel } from "./model-catalog.js";
+import { buildModelCatalog, displayModelTitle, isModelFree, type CatalogModel } from "./model-catalog.js";
 import { PROVIDERS, providerStates, allProviders, type ProviderState, type AllProviderEntry } from "./provider-status.js";
 import { MODELS_DEV_BY_ID } from "./models-dev-providers.js";
 import { shellChromeRows, wrapCells } from "./settings-layout.js";
@@ -239,7 +239,7 @@ function compareModels(a: CatalogModel, b: CatalogModel, activeModel?: string): 
   const dateA = a.releaseDate ?? "";
   const dateB = b.releaseDate ?? "";
   if (dateA !== dateB) return dateA < dateB ? 1 : -1;
-  return compareStrings(displayModelName(a), displayModelName(b)) || compareStrings(a.id, b.id);
+  return compareStrings(displayModelTitle(a), displayModelTitle(b)) || compareStrings(a.id, b.id);
 }
 
 const PROVIDER_ORDER = new Map(PROVIDERS.map((info, index) => [info.id, index]));
@@ -315,7 +315,7 @@ export function buildModelRows({
     // ["title", "category"]). Our haystack is the substring analogue:
     // display name, raw id, provider id/label, and "free" so the Free
     // label stays a usable query.
-    const title = displayModelName(model);
+    const title = displayModelTitle(model);
     const haystack = isProviderFilter
       ? `${group.id} ${group.label}`.toLowerCase()
       : `${title} ${model.id} ${group.id} ${group.label} ${isModelFree(model) ? "free" : ""}`.toLowerCase();
@@ -432,8 +432,8 @@ export function modelDetailLines(
     // Friendly title first (what the list row shows), then the real
     // `vendor/model` id the router uses — OpenCode keeps the id in code
     // only, and the detail pane is where we surface it for verification.
-    push(displayModelName(row.model), "title");
-    if (displayModelName(row.model) !== row.model.id) push(row.model.id, "muted");
+    push(displayModelTitle(row.model), "title");
+    if (displayModelTitle(row.model) !== row.model.id) push(row.model.id, "muted");
     separate();
     push(`Provider: ${group.label}`, "text");
     push(`Price: ${row.model.price}`, "text");

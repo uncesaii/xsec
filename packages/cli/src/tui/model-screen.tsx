@@ -72,7 +72,7 @@ import {
   type ModelMode,
   type ModelRow,
 } from "./model-layout.js";
-import { buildFullModelCatalog, displayModelName, isModelFree } from "./model-catalog.js";
+import { buildFullModelCatalog, displayModelTitle, isModelFree } from "./model-catalog.js";
 import { syncModelCatalog } from "./model-catalog-sync.js";
 import { providerStates, allProviders } from "./provider-status.js";
 import { loadRecentModels, saveRecentModels, addRecentModel } from "./recent-models-store.js";
@@ -233,7 +233,7 @@ export function ModelScreen({
         .filter((row): row is Extract<ModelRow, { kind: "model" }> => row.kind === "model")
         .map((row) => ({
           id: row.model.id,
-          label: displayModelName(row.model),
+          label: displayModelTitle(row.model),
           meta: isModelFree(row.model) ? "Free" : hasFilterText ? row.group.label : undefined,
           category: row.group.label,
           provider: row.group.id,

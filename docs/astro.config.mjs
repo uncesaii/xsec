@@ -24,7 +24,6 @@ export default defineConfig({
       favicon: "/favicon.svg",
       head: [
         { tag: "link", attrs: { rel: "icon", href: "/favicon.ico", sizes: "32x32" } },
-        { tag: "link", attrs: { rel: "apple-touch-icon", href: "/apple-touch-icon.png" } },
       ],
       description:
         "Open-source security research harness for authorized targets. The technical project and CLI are named XSEC.",

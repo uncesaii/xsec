@@ -1,6 +1,6 @@
 {
   "name": "@xsec/llm-redteam",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "private": true,
   "description": "Offensive LLM/agent red-team engine: generate indirect-prompt-injection & jailbreak payloads from a sourced strategy library, drive a target adapter, judge breaks, and iterate. The attack-side mirror of packages/benchmark's detection suite.",
   "type": "module",

@@ -71,6 +71,18 @@ export function isModelFree(model: Pick<CatalogModel, "input" | "output" | "pric
 }
 
 /**
+ * Picker-row title: the friendly name, minus a redundant trailing "Free"
+ * when the row already carries the Free label on the right (e.g.
+ * "Laguna S 2.1 Free" + Free → "Laguna S 2.1" + Free). The real id is
+ * untouched — only display text is trimmed, and only when nothing is lost.
+ */
+export function displayModelTitle(model: CatalogModel): string {
+  const title = displayModelName(model);
+  if (!isModelFree(model)) return title;
+  return title.replace(/\s+free$/i, "").trimEnd() || title;
+}
+
+/**
  * `default` is the fallback rate row for unrecognised models, not a model an
  * operator can select — offering it would set the engine to a model id that
  * no provider answers to.
