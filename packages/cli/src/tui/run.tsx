@@ -4362,9 +4362,9 @@ function ConsoleApp({
         pluginHostManager={pluginHostManager ?? undefined}
         evolutionStatus={evolutionStatus}
         onGoBack={shell.goBack}
-        onNavigate={(destination, id) => {
+        onNavigate={(destination, id, finding) => {
           if (destination === "finding") {
-            shell.openFindingDetail(id, undefined, chatOptions);
+            shell.openFindingDetail(id, finding, chatOptions);
             return;
           }
           chatPaneActions[destination]();

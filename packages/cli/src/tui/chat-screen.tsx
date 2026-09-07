@@ -46,6 +46,7 @@ import {
 } from "./settings-store.js";
 import { useTheme, type Theme } from "./theme-context.js";
 import { createTranscriptDocument, modelProvider } from "@xsec/shared";
+import { labelForCatalogId } from "./provider-status.js";
 import { buildFullModelCatalog } from "./model-catalog.js";
 import { homedir } from "node:os";
 import {
@@ -119,7 +120,7 @@ import {
   connectionRecoveryForError,
   type ConnectionRecovery,
 } from "./connection-recovery.js";
-import { VERSION } from "@xsec/shared";
+import { VERSION, type Finding } from "@xsec/shared";
 import {
   type TuiSettings,
 } from "./settings.js";
@@ -375,6 +376,34 @@ function restoredToolCardFields(
       timedOut: false,
     };
   }
+  // Richer fields the detail screen renders. Only `category` and
+  // `location` come from the args; the description is whatever the tool
+  // reported (evidence text the agent typed). The full `Finding` is
+  // reconstructed by the DB loader on a restored session; the in-memory
+  // path keeps a slim subset, which is everything the screen actually
+  // displays before the DB round-trip.
+  if (name === "save_finding") {
+    const category = typeof args.category === "string" ? args.category : undefined;
+    const location = typeof args.location === "string" ? args.location : undefined;
+    let description: string | undefined;
+    if (content && typeof content === "object") {
+      const c = content as Record<string, unknown>;
+      if (typeof c.description === "string") description = c.description;
+      else if (typeof c.message === "string") description = c.message;
+    } else if (typeof content === "string" && content.trim().length > 0) {
+      description = content;
+    }
+    const out: Record<string, unknown> = { metaKind: "finding" };
+    if (category) out.findingCategory = category;
+    if (location) out.findingLocation = location;
+    if (description) out.findingDescription = description;
+    return out;
+  }
+  // REBUILD THE RICH-CARD FIELDS from the live tool result when the entry
+  // represents a save_finding call, so a current-run click opens the
+  // detail screen with the full slim finding (title, severity, category,
+  // location, description) without a DB round-trip. The DB-backed
+  // `restoredToolCardFields` path still applies to RESTORED sessions.
   if (name === "apply_patch") {
     const patch = typeof args.patch === "string" ? args.patch : undefined;
     if (!patch) return {};
@@ -491,7 +520,7 @@ export interface ChatScreenOptions {
 export interface ChatScreenProps {
   options?: ChatScreenOptions;
   onGoBack: () => void;
-  onNavigate: (destination: ChatDestination, id?: string) => void;
+  onNavigate: (destination: ChatDestination, id?: string, finding?: Finding) => void;
   onExit: () => void;
   /**
    * Opens the provider recovery screen after a recognized credential failure.
@@ -650,12 +679,43 @@ export function entriesFromStoredMessages(messages: readonly unknown[]): ChatEnt
 
 /** A finding surfaced this run: a title, a normalised severity, and — when the
  * `save_finding` result reported one — the persisted finding id so the sidebar
- * row can open the full detail view. */
+ * row can open the full detail view. Optional slim fields (category,
+ * location, description) flow from the in-memory tool call straight to the
+ * detail screen so a current-run click opens the view without touching the
+ * DB; the DB-backed loader still supplies anything richer on a restored
+ * session. */
 export interface RunFinding {
   title: string;
   severity: string;
   /** Persisted finding id, when the tool result carried one. */
   id?: string;
+  category?: string;
+  location?: string;
+  description?: string;
+}
+
+/**
+ * Lift a slim `RunFinding` (parsed from the in-memory tool call) into a
+ * partial `Finding` the detail screen can render without a DB lookup.
+ * The screen's field accesses are all optional and degrade to em-dash /
+ * empty, so the required `templateId` / `status` / `evidence` fields are
+ * seeded with harmless placeholders — they're immediately overwritten by
+ * the DB-backed loader on a restored session, and never read on the
+ * current-run path because every render site already uses `?.`.
+ */
+export function runtimeFindingFromRun(finding: RunFinding): Finding {
+  const id = finding.id ?? "pending";
+  return {
+    id,
+    title: finding.title,
+    description: finding.description ?? "",
+    severity: (finding.severity as Finding["severity"]) || "info",
+    category: (finding.category as Finding["category"]) || "info",
+    status: "discovered",
+    templateId: "runtime-fallback",
+    evidence: { request: "", response: "" },
+    timestamp: Date.now(),
+  };
 }
 
 /**
@@ -665,6 +725,18 @@ export interface RunFinding {
  * the severity and the text after the colon is the title. Deriving from the
  * entries the screen already holds means the right sidebar needs no new event
  * plumbing and works identically for a live turn and a restored session.
+ */
+/**
+ * This run's findings, read from the transcript itself: every successful
+ * `save_finding` tool call, newest last. The argument one-liner is
+ * `"<severity> <category>: <title>"` (see tool-format), so the leading word is
+ * the severity and the text after the colon is the title. Deriving from the
+ * entries the screen already holds means the right sidebar needs no new event
+ * plumbing and works identically for a live turn and a restored session.
+ *
+ * Richer fields (category/location/description) come from the entry's
+ * `finding*` card metadata so a current-run click opens the detail screen
+ * with the full slim finding — no DB round-trip needed.
  */
 export function runFindingsFromEntries(entries: readonly ChatEntry[]): RunFinding[] {
   const out: RunFinding[] = [];
@@ -682,7 +754,15 @@ export function runFindingsFromEntries(entries: readonly ChatEntry[]): RunFindin
     // a restored session whose result text was not stored — the row then falls
     // back to a non-clickable entry.
     const idMatch = (entry.detail ?? "").match(/^saved\s+(\S+)/);
-    out.push({ title: title || "(untitled finding)", severity, id: idMatch?.[1] });
+    const finding: RunFinding = {
+      title: title || "(untitled finding)",
+      severity,
+      id: idMatch?.[1],
+    };
+    if (entry.findingCategory) finding.category = entry.findingCategory;
+    if (entry.findingLocation) finding.location = entry.findingLocation;
+    if (entry.findingDescription) finding.description = entry.findingDescription;
+    out.push(finding);
   }
   return out;
 }
@@ -1467,7 +1547,7 @@ export function ChatScreen({
     void previous.cleanup();
     appendEntry({
       kind: "notice",
-      text: `Model: ${built.model} (${modelProvider(built.model)})`,
+      text: `Model: ${built.model} (${labelForCatalogId(modelProvider(built.model), modelProvider(built.model))})`,
       detail: `${previous.messages.length} prior message(s) carried over.`,
       turn: turn.current,
     });
@@ -4584,7 +4664,18 @@ export function ChatScreen({
           width={rightInner}
           rows={rightFindingsBudget + FINDINGS_SIDEBAR_HEADER_ROWS}
           theme={theme}
-          onOpenFinding={(id) => onNavigate("finding", id)}
+          onOpenFinding={(id) => {
+            // The in-memory finding carries enough slim fields (title,
+            // severity, category, location, description) to render the
+            // detail screen without touching the DB. The route still
+            // accepts a db-only id and falls back to loadFindingFocus.
+            const found = runFindings.find((f) => f.id === id);
+            if (found) {
+              onNavigate("finding", id, runtimeFindingFromRun(found));
+            } else {
+              onNavigate("finding", id);
+            }
+          }}
         />
         {hasPlan ? (
           <TodosSidebar payload={todos!} width={rightInner} rows={rightPlanBudget} theme={theme} />

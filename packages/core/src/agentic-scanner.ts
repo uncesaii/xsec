@@ -1044,6 +1044,11 @@ export async function agenticScan(opts: AgenticScanOptions): Promise<ScanReport>
     timeout: config.timeout ?? 120_000,
     model: config.model,
     apiKey: config.apiKey,
+    // Thread the operator's pick from the TUI picker so a same-id cross-vendor
+    // model (DeepSeek V4 Pro on Nvidia vs OpenRouter, OpenCode Zen free tier,
+    // etc.) hits the right endpoint instead of falling into the env-priority
+    // chain and possibly the wrong vendor.
+    provider: config.provider,
   });
   const nativeApiDiagnostics = nativeApiRuntime.getConfigurationDiagnostics();
   assertApiRuntimeSelection(config.runtime, nativeApiDiagnostics);

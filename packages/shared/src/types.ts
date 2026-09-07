@@ -104,6 +104,14 @@ export interface ScanConfig {
   repository?: string;
   apiKey?: string;
   model?: string;
+  /**
+   * Provider id (e.g. "nvidia", "openrouter", "zen") the operator selected in
+   * the TUI picker. Threaded into the LLM runtime so the scan constructor
+   * reaches the right endpoint instead of falling into the env-priority
+   * chain and possibly hitting the wrong vendor (the original 404 on Zen
+   * free models when a NVIDIA key was also present).
+   */
+  provider?: string;
   templateFilter?: string[];
   maxConcurrency?: number;
   timeout?: number;

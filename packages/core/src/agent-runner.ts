@@ -24,7 +24,7 @@ export interface AnalysisAgentOptions {
   target: string;
   scanId: string;
   sessionId?: string;
-  config: { runtime?: string; timeout?: number; depth?: string; apiKey?: string; model?: string; costCeilingUsd?: number; costLedger?: import("./agent/cost-ledger.js").ScanCostLedger };
+  config: { runtime?: string; timeout?: number; depth?: string; apiKey?: string; model?: string; provider?: string; costCeilingUsd?: number; costLedger?: import("./agent/cost-ledger.js").ScanCostLedger };
   db: any;
   emit: ScanListener;
   /** Prompt sent to CLI runtimes (compact, includes ---FINDING--- format instructions) */
@@ -239,6 +239,7 @@ export async function runAnalysisAgent(opts: AnalysisAgentOptions): Promise<Anal
           timeout: config.timeout ?? 120_000,
           apiKey: config.apiKey,
           model: config.model,
+          provider: config.provider,
         }).getConfigurationDiagnostics()
       : null;
   const useDirectChatGptCodex =
@@ -436,6 +437,7 @@ export async function runAnalysisAgent(opts: AnalysisAgentOptions): Promise<Anal
       timeout: config.timeout ?? 120_000,
       apiKey: config.apiKey,
       model: config.model,
+      provider: config.provider,
     });
     const apiDiagnostics = apiRuntime.getConfigurationDiagnostics();
     if (!apiDiagnostics.valid) {

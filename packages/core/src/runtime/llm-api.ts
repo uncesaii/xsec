@@ -2264,10 +2264,18 @@ export function parseProviderError(input: {
     };
   }
   if (status !== undefined && status >= 500) {
+    // Empty body on a 5xx is a strong signal: the request hit the wire, the
+    // provider failed silently (load balancer, gateway, proxy), and we
+    // never got a body to extract. Name that explicitly so the next
+    // regression shows "OpenRouter HTTP 500 (empty body)" instead of
+    // a useless bare "HTTP 500" that looks like a hallucination.
+    const empty = raw.trim().length === 0;
     return {
-      message: cap(raw || `Temporary issue at ${vendor}.`),
+      message: cap(empty ? `${vendor} returned HTTP ${status} with an empty body` : raw),
       kind: "server",
-      action: `A temporary issue at ${vendor} — wait briefly and retry.`,
+      action: empty
+        ? `${vendor} returned ${status} with an empty body (likely a load balancer or gateway, not the model itself). Wait briefly and retry.`
+        : `A temporary issue at ${vendor} — wait briefly and retry.`,
     };
   }
   // HTML from a gateway/proxy on any other status: say so, don't dump markup.

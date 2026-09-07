@@ -60,6 +60,12 @@ export interface RunOptions {
   runtime: RuntimeMode;
   mode?: ScanMode;
   /**
+   * Provider id (e.g. "nvidia", "openrouter", "zen") the operator picked in
+   * the TUI model picker. Threaded into ScanConfig so the scan hits the
+   * same endpoint as the pick, instead of re-inferring from the env chain.
+   */
+  provider?: string;
+  /**
    * Source review execution strategy. The primary control plane uses
    * `lenses`, which is the validated self-evolving source-review path.
    */
@@ -622,6 +628,7 @@ export async function runUnified(opts: RunOptions): Promise<void> {
           verbose: opts.verbose,
           apiKey: opts.apiKey,
           model: opts.model,
+          provider: opts.provider,
           repoPath: opts.repoPath,
           auth: opts.auth,
           apiSpecPath: opts.apiSpecPath,

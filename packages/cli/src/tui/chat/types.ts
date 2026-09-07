@@ -67,7 +67,7 @@ export type ChatEntry = {
    * footer), "edit" (a `✎ Edit: path (+A/-R)` header + diff), or "web" (a
    * `⌕ Web Search` header + query + answer + sources list).
    */
-  metaKind?: "command" | "edit" | "web";
+  metaKind?: "command" | "edit" | "web" | "finding";
   // ── command card ──
   /** The command that was run (header `$ <command>`). */
   command?: string;
@@ -97,6 +97,14 @@ export type ChatEntry = {
   webQuery?: string;
   /** A short answer/summary, when the provider returns one. */
   webAnswer?: string;
+  // ── finding card (sidebar + detail) ──
+  /** Attack category, e.g. "xss" / "wordpress". Carried over the in-memory
+   *  tool call so a current-run click opens the detail without touching the DB. */
+  findingCategory?: string;
+  /** Location string the agent recorded (URL, path, or domain). */
+  findingLocation?: string;
+  /** Short description / evidence the agent typed. */
+  findingDescription?: string;
   /** The result sources: title (optional), url, and an optional relative age. */
   webSources?: Array<{ title?: string; url: string; age?: string }>;
 };

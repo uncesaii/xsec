@@ -441,3 +441,14 @@ export function runtimeProviderForCatalogId(catalogId: string): string {
   if (byRuntime?.runtimeId) return byRuntime.runtimeId;
   return catalogId;
 }
+
+/**
+ * Human label for a catalog provider id, for notices and detail panes.
+ * Falls back to the caller-supplied text (usually the pricing-table guess)
+ * when the id names no known provider.
+ */
+export function labelForCatalogId(catalogId: string | undefined, fallback: string): string {
+  if (!catalogId) return fallback;
+  const runtimeId = runtimeProviderForCatalogId(catalogId);
+  return PROVIDERS.find((info) => info.id === runtimeId)?.label ?? fallback;
+}

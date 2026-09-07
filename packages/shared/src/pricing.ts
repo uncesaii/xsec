@@ -183,6 +183,12 @@ export function modelProvider(model?: string): string {
   if (lowered.startsWith("nvidia/")) return "nvidia";
   if (lowered.startsWith("cohere/")) return "cohere";
   if (lowered.startsWith("perplexity/")) return "perplexity";
+  if (lowered.startsWith("minimax/") || lowered.startsWith("minimax-")) return "minimax";
+  if (lowered.startsWith("novita/")) return "novita-ai";
+  if (lowered.startsWith("voyage/")) return "voyage";
+  if (lowered.startsWith("groq/")) return "groq";
+  if (lowered.startsWith("hf/") || lowered.includes("huggingface")) return "huggingface";
+  if (lowered.startsWith("zen/") || lowered.startsWith("opencode/")) return "zen";
 
   const stripped = normalizeModel(model).toLowerCase();
   if (stripped.startsWith("gpt-") || stripped.startsWith("o3") || stripped.startsWith("o4-")) return "openai";
@@ -197,6 +203,7 @@ export function modelProvider(model?: string): string {
   if (stripped.startsWith("grok")) return "xai";
   if (stripped.startsWith("command")) return "cohere";
   if (stripped.startsWith("sonar")) return "perplexity";
+  if (stripped.startsWith("minimax") || stripped.startsWith("m2.") || stripped.startsWith("m2.5")) return "minimax";
   return "unknown";
 }
 
