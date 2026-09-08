@@ -120,8 +120,10 @@ describe("syncModelCatalog + cache", () => {
     }) as unknown as typeof fetch;
     const result = await syncModelCatalog({ fetchImpl: failing, cachePath, homeDir: dir, now: () => 9e12, force: true });
     expect(result).toBeNull();
-    // Old cache still intact.
-    expect(loadCatalogModels({ cachePath }).models.length).toBe(3);
+    // Old cache still intact, plus the bundled floor unioned on read (e.g. genspark).
+    const loaded = loadCatalogModels({ cachePath });
+    expect(loaded.models.length).toBeGreaterThanOrEqual(3);
+    expect(loaded.models).toEqual(expect.arrayContaining([{ id: "claude-opus-4-7", provider: "anthropic", input: 5, output: 25, contextTokens: 200000 }]));
   });
 
   it("returns null on a non-ok HTTP response", async () => {
@@ -149,14 +151,17 @@ describe("loadCatalogModels fallback order", () => {
     expect(loaded.models.length).toBeGreaterThan(0);
   });
 
-  it("prefers an on-disk cache over the offline floor", async () => {
+  it("prefers an on-disk cache over the offline floor but unions missing floor models", async () => {
     writeFileSync(
       cachePath,
       JSON.stringify({ fetchedAt: 5, source: "test", models: [{ id: "x", provider: "p" }] }),
     );
     const loaded = loadCatalogModels({ cachePath });
     expect(loaded.source).toBe("test");
-    expect(loaded.models).toEqual([{ id: "x", provider: "p" }]);
+    // Cache wins as source, but the bundled floor's missing models (e.g. genspark)
+    // are unioned on read so a stale cache never hides a newly-added floor provider.
+    expect(loaded.models).toEqual(expect.arrayContaining([{ id: "x", provider: "p" }]));
+    expect(loaded.models.length).toBeGreaterThan(1);
   });
 
   it("isCacheFresh respects the TTL", () => {
@@ -207,7 +212,8 @@ describe("catalog merge (priced core + synced extras)", () => {
     );
     const priced = buildModelCatalog();
     const full = buildFullModelCatalog(undefined, { cachePath });
-    expect(full.length).toBe(priced.length + 1);
+    // Priced + the one novel id + the bundled floor (e.g. genspark) unioned on read.
+    expect(full.length).toBeGreaterThanOrEqual(priced.length + 1);
     expect(full.some((m) => m.id === "novel-xyz")).toBe(true);
     // Rate-less synced row shows a neutral placeholder, still selectable.
     expect(full.find((m) => m.id === "novel-xyz")!.price).toBe("—");
