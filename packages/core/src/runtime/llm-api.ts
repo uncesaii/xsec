@@ -57,6 +57,21 @@ function safeParseJson(raw: string | null | undefined): Record<string, unknown> 
   }
 }
 
+let wireDebugWarned = false;
+export function wireDebugEnabled(): boolean {
+  const enabled = !!process.env["XSEC_DEBUG_WIRE"] || !!process.env["XSEC_DEBUG_WIRE_INSECURE"];
+  if (enabled && !wireDebugWarned) {
+    wireDebugWarned = true;
+    try {
+      process.stderr.write("WARNING: XSEC_DEBUG_WIRE enabled - wire logging will include last 4 chars of key material\n");
+    } catch {}
+  }
+  return enabled;
+}
+export function __resetWireDebugForTests(): void {
+  wireDebugWarned = false;
+}
+
 /** True when persisted provider output is safe to replay as Anthropic blocks. */
 function isWireBlockArray(blocks: unknown[]): blocks is WireBlock[] {
   return blocks.every(
