@@ -1766,6 +1766,7 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
       "ovhcloud",
       "vultr",
       "digitalocean",
+      "genspark",
     ];
     if (!supported.includes(pinnedProviderRaw as ApiProvider)) {
       throw new Error(`${source} is unsupported: ${pinnedProviderRaw}`);
@@ -1930,6 +1931,10 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
       return { provider: "perplexity", apiKey: process.env.PERPLEXITY_API_KEY as string,
         baseUrl: process.env.PERPLEXITY_BASE_URL ?? "https://api.perplexity.ai",
         defaultModel: process.env.PERPLEXITY_MODEL ?? "sonar-pro", wireApi: "chat_completions" };
+    case "genspark":
+      return { provider: "genspark", apiKey: (process.env.GENSPARK_API_KEY ?? process.env.GSK_API_KEY) as string,
+        baseUrl: process.env.GENSPARK_BASE_URL ?? process.env.GSK_BASE_URL ?? GENSPARK_DEFAULT_BASE_URL,
+        defaultModel: process.env.GENSPARK_MODEL ?? GENSPARK_DEFAULT_MODEL, wireApi: "chat_completions" };
     default:
       break; // fall through to env-priority detection
   }
@@ -2739,6 +2744,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
       case "ovhcloud": return "OVHcloud";
       case "vultr": return "Vultr";
       case "digitalocean": return "DigitalOcean";
+      case "genspark": return "GenSpark";
       case "cohere": return "Cohere";
       case "perplexity": return "Perplexity";
     }
@@ -2777,7 +2783,8 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
       "  export SCALEWAY_API_KEY=...           (Scaleway — OpenAI-compatible)\n" +
       "  export OVHCLOUD_API_KEY=...           (OVHcloud — OpenAI-compatible)\n" +
       "  export VULTR_API_KEY=...              (Vultr — OpenAI-compatible)\n" +
-      "  export DIGITALOCEAN_ACCESS_TOKEN=...  (DigitalOcean — OpenAI-compatible)"
+      "  export DIGITALOCEAN_ACCESS_TOKEN=...  (DigitalOcean — OpenAI-compatible)\n" +
+      "  export GENSPARK_API_KEY=...           (GenSpark — OpenAI-compatible)"
     );
   }
 
@@ -3343,6 +3350,15 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
     // stale saved model) would 404 — that suffix only exists on OpenRouter.
     if (this.provider !== "openrouter" && this.model.toLowerCase().endsWith(":free")) {
       return this.model.slice(0, -":free".length);
+    }
+    // GenSpark proxy stores models as bare ids (e.g. "claude-sonnet-4-6") but
+    // the picker catalog uses "genspark/<id>" to keep the id distinct from
+    // the same bare id served by Anthropic/OpenAI directly. Strip the prefix
+    // before sending to the Genspark llm_proxy endpoint.
+    if (this.provider === "genspark") {
+      const lower = this.model.toLowerCase();
+      if (lower.startsWith("genspark/")) return this.model.slice("genspark/".length);
+      if (lower.startsWith("genspark-ai/")) return this.model.slice("genspark-ai/".length);
     }
     return this.model;
   }
