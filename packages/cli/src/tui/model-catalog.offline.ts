@@ -29,8 +29,8 @@ export const OFFLINE_MODEL_CATALOG: SyncedModel[] = [
   { id: "gpt-5.5", provider: "openai", contextTokens: 400_000, input: 5, output: 30 },
   { id: "gpt-5.5-mini", provider: "openai", contextTokens: 400_000, input: 0.25, output: 2 },
   // Google
-  { id: "gemini-3-pro", provider: "google", contextTokens: 1_000_000, input: 1.25, output: 10 },
-  { id: "gemini-3-flash", provider: "google", contextTokens: 1_000_000, input: 0.3, output: 2.5 },
+  { id: "gemini-2.5-pro", provider: "google", contextTokens: 1_000_000, input: 1.25, output: 10 },
+  { id: "gemini-2.5-flash", provider: "google", contextTokens: 1_000_000, input: 0.3, output: 2.5 },
   // DeepSeek
   { id: "deepseek-v4", provider: "deepseek", contextTokens: 128_000, input: 0.27, output: 1.1 },
   // Meta (hosted)
@@ -46,7 +46,8 @@ export const OFFLINE_MODEL_CATALOG: SyncedModel[] = [
   { id: "k3", provider: "moonshot", contextTokens: 256_000, input: 3, output: 15 },
   // Z.AI
   { id: "glm-5.3", provider: "z-ai", contextTokens: 200_000, input: 1.4, output: 4.4 },
-  // GenSpark via llm_proxy (from gsk opencode-config; Bearer on https://www.genspark.ai/api/llm_proxy/v1)  { id: "genspark/claude-fable-5", provider: "genspark", contextTokens: 1000000, input: 5500.0, output: 27500.0 },
+  // GenSpark via llm_proxy (from gsk opencode-config; Bearer on https://www.genspark.ai/api/llm_proxy/v1)
+  { id: "genspark/claude-fable-5", provider: "genspark", contextTokens: 1000000, input: 5500.0, output: 27500.0 },
   { id: "genspark/claude-fable-5-1", provider: "genspark", contextTokens: 1000000, input: 5500.0, output: 27500.0 },
   { id: "genspark/claude-opus-5", provider: "genspark", contextTokens: 1000000, input: 2750.0, output: 13750.0 },
   { id: "genspark/claude-opus-4-8", provider: "genspark", contextTokens: 1000000, input: 2750.0, output: 13750.0 },

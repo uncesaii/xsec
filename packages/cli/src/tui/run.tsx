@@ -4853,6 +4853,4 @@ export async function createOpenTuiSession(options: {
   };
 }
 
-export function isBunRuntime(): boolean {
-  return typeof globalThis === "object" && globalThis !== null && "Bun" in globalThis;
-}
+
