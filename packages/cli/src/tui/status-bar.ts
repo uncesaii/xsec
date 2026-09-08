@@ -132,10 +132,15 @@ export interface StatusBarInput {
   /**
    * Add an estimated dollar-cost segment computed from the session tokens and
    * the model's rate. Optional and off by default. When the model's rate is
-   * unknown the segment shows "$—" rather than a figure at a rate the model was
-   * not billed — the same "never invent a number" rule the context percent obeys.
+   * unknown the segment is omitted (a "$—" glyph reads as a broken figure);
+   * known-free models render "$0.00". Never a figure at the fallback rate.
+   * `costUsdTotal` overrides the single-model computation with a precomputed
+   * multi-model total (each turn's spend priced at the model that ran it):
+   * defined (even 0) renders via formatCost, undefined falls back below.
    */
   showCost?: boolean;
+  /** Precomputed multi-model cost total; see `showCost`. */
+  costUsdTotal?: number;
 }
 
 /**
@@ -357,6 +362,24 @@ function costUsd(usage: TokenUsageForPricing, rates: ModelRates): number {
   );
 }
 
+/**
+ * Price one usage slice at its own model's rate, or `undefined` when the
+ * model has no known rate. The quiet, TUI-safe counterpart to shared's
+ * `getRates` + `estimateCost` (which warns on unknown ids — forbidden
+ * inside a terminal renderer). Exported so the chat screen can attribute
+ * each settled turn's spend to the model that ran it and sum the priced
+ * slices, instead of pricing mixed-model session totals at whatever model
+ * happens to be selected now.
+ */
+export function priceUsageForModel(
+  model: string | undefined,
+  usage: TokenUsageForPricing,
+): number | undefined {
+  const rates = model ? resolveRates(model) : undefined;
+  if (!rates) return undefined;
+  return costUsd(usage, rates);
+}
+
 /** Render a positive cost as "$1.23", a sub-cent one as "<$0.01". */
 function formatCost(usd: number): string {
   if (!Number.isFinite(usd) || usd <= 0) return "$0.00";
@@ -415,27 +438,18 @@ export function buildStatusSegments(input: StatusBarInput): StatusSegment[] {
     texts.set("tokens", `${formatTokenCount(inputTokens)}/${formatTokenCount(outputTokens)}`);
   }
 
-  // Cost is opt-in and needs real usage. When the model's rate is unknown we
-  // show "$—" rather than a figure computed at the fallback rate — an honest
-  // "no rate" instead of a plausible-looking lie, the same rule the context
-  // percentage obeys.
+  // Cost is opt-in and needs real usage. When the model's rate is unknown the
+  // segment is OMITTED — OpenCode shows cost only when it can price it, and a
+  // "$—" glyph next to a token count reads as a broken figure, not as
+  // honesty. Known-free models still render "$0.00" via formatCost: a true
+  // zero, not an absence. Never a figure at the fallback rate.
   if (input.showCost && inputTokens + outputTokens > 0) {
-    const rates = model ? resolveRates(model) : undefined;
-    texts.set(
-      "cost",
-      rates
-        ? formatCost(
-            costUsd(
-              {
-                inputTokens,
-                outputTokens,
-                cachedInputTokens: positiveCount(input.cachedInputTokens),
-              },
-              rates,
-            ),
-          )
-        : "$—",
-    );
+    const total = input.costUsdTotal ?? priceUsageForModel(model || undefined, {
+      inputTokens,
+      outputTokens,
+      cachedInputTokens: positiveCount(input.cachedInputTokens),
+    });
+    if (total !== undefined) texts.set("cost", formatCost(total));
   }
 
   // Both halves are required. A window with no usage reading, or a usage

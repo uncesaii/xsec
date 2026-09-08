@@ -11,9 +11,11 @@ import {
   parseLlmFallbackChain,
   resolveFailoverProvider,
   parseProviderError,
+  wireDebugEnabled,
   __resetFallbackChainForTests,
   __resetAzureRegionCacheForTests,
   __resetProviderStartupLogForTests,
+  __resetWireDebugForTests,
 } from "./llm-api.js";
 import type { NativeMessage, NativeContentBlock } from "./types.js";
 
@@ -2579,5 +2581,55 @@ describe("parseProviderError", () => {
   it("caps very long bodies instead of dumping them", () => {
     const parsed = parseProviderError({ ...vendor, status: 500, body: "x".repeat(5000) });
     expect(parsed.message.length).toBeLessThanOrEqual(500);
+  });
+});
+
+describe("wireDebugEnabled", () => {
+  const keys = ["XSEC_DEBUG_WIRE", "XSEC_DEBUG_WIRE_INSECURE"] as const;
+  const saved: Record<string, string | undefined> = {};
+
+  beforeEach(() => {
+    for (const key of keys) {
+      saved[key] = process.env[key];
+      delete process.env[key];
+    }
+    __resetWireDebugForTests();
+  });
+
+  afterEach(() => {
+    for (const key of keys) {
+      if (saved[key] === undefined) delete process.env[key];
+      else process.env[key] = saved[key];
+    }
+    __resetWireDebugForTests();
+  });
+
+  it("is off by default", () => {
+    expect(wireDebugEnabled()).toBe(false);
+  });
+
+  it("accepts both the historical and the explicit insecure name", () => {
+    process.env["XSEC_DEBUG_WIRE"] = "1";
+    expect(wireDebugEnabled()).toBe(true);
+    delete process.env["XSEC_DEBUG_WIRE"];
+    process.env["XSEC_DEBUG_WIRE_INSECURE"] = "1";
+    expect(wireDebugEnabled()).toBe(true);
+  });
+
+  it("warns once about key material on stderr", () => {
+    const writes: string[] = [];
+    const spy = vi.spyOn(process.stderr, "write").mockImplementation(((chunk: unknown) => {
+      writes.push(String(chunk));
+      return true;
+    }) as typeof process.stderr.write);
+    try {
+      process.env["XSEC_DEBUG_WIRE"] = "1";
+      expect(wireDebugEnabled()).toBe(true);
+      expect(wireDebugEnabled()).toBe(true);
+      expect(writes.join("")).toContain("XSEC_DEBUG_WIRE");
+      expect(writes.join("")).toMatch(/last 4 chars/i);
+    } finally {
+      spy.mockRestore();
+    }
   });
 });

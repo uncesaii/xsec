@@ -266,6 +266,13 @@ export const PROVIDERS: readonly ProviderInfo[] = [
     hint: "set PERPLEXITY_API_KEY from perplexity.ai (endpoint override: PERPLEXITY_BASE_URL)",
   },
   {
+    id: "genspark",
+    label: "GenSpark",
+    auth: "api-key",
+    envVars: ["GENSPARK_API_KEY", "GSK_API_KEY"],
+    hint: "set GENSPARK_API_KEY (or GSK_API_KEY) from genspark.ai — LLM proxy at https://www.genspark.ai/api/llm_proxy/v1 requires a paid plan (free-plan keys list models but return 402/403 on chat; see https://www.genspark.ai/pricing) (endpoint override: GENSPARK_BASE_URL or GSK_BASE_URL)",
+  },
+  {
     id: "anthropic",
     label: "Anthropic",
     auth: "api-key",

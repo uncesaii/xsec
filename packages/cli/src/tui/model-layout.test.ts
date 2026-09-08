@@ -7,14 +7,18 @@ import {
   configuredProviderLabels,
   credentialLabel,
   credentialSummary,
+  findModelRow,
+  indexModelRows,
   indexOfModel,
   isFilterKey,
   modelDetailLines,
   modelFooterHint,
+  modelRowKey,
   providerGroupFor,
   type ModelRow,
 } from "./model-layout.js";
 import { PROVIDERS, providerStates } from "./provider-status.js";
+import { formatTokenCount } from "./status-bar.js";
 
 /** The live catalogue, exactly as the screen builds it. */
 const CATALOG = buildModelCatalog();
@@ -288,6 +292,45 @@ describe("the detail pane", () => {
     expect(text).toContain("Price:");
   });
 
+  it("shows the context window when a feed reported one", () => {
+    const row = rowsLit.find(
+      (candidate) => candidate.kind === "model" && candidate.model.contextTokens !== undefined,
+    );
+    expect(row?.kind).toBe("model");
+    if (!row || row.kind !== "model") return;
+    const text = textOf(modelDetailLines({ row, configured, catalog: CATALOG }, 48));
+    expect(text).toContain(`Context: ${formatTokenCount(row.model.contextTokens as number)}`);
+  });
+
+  it("resolves the window across sibling id shapes via the catalogue", () => {
+    // A provider-fetched `vendor/model` row carries no window of its own;
+    // the feed knows it under the bare id — the pane must still show it.
+    const probeCatalog: CatalogModel[] = [
+      { id: "zzz-vendor/zzz-probe-model", provider: "zzz-vendor", price: "—" },
+      { id: "zzz-probe-model", provider: "openrouter", price: "—", contextTokens: 200_000 },
+    ];
+    const rows = buildModelRows({ catalog: probeCatalog, states: ALL_ENV });
+    const row = rows.find(
+      (candidate) => candidate.kind === "model" && candidate.model.id === "zzz-vendor/zzz-probe-model",
+    );
+    expect(row?.kind).toBe("model");
+    const text = textOf(modelDetailLines({ row, configured, catalog: probeCatalog }, 48));
+    expect(text).toContain("Context: 200k");
+  });
+
+  it("omits the context line when no feed knows a window", () => {
+    const probeCatalog: CatalogModel[] = [
+      { id: "zzz-unknown-model", provider: "openrouter", price: "—" },
+    ];
+    const rows = buildModelRows({ catalog: probeCatalog, states: ALL_ENV });
+    const row = rows.find(
+      (candidate) => candidate.kind === "model" && candidate.model.id === "zzz-unknown-model",
+    );
+    expect(row?.kind).toBe("model");
+    const text = textOf(modelDetailLines({ row, configured, catalog: probeCatalog }, 48));
+    expect(text).not.toContain("Context:");
+  });
+
   it("names the env var behind a configured provider", () => {
     const row = rowsLit.find(
       (candidate) => candidate.kind === "model" && candidate.group.id === LIT_PROVIDER?.id,
@@ -409,6 +452,55 @@ describe("the detail pane", () => {
     expect(inline.at(-1)?.text.endsWith(" ...")).toBe(true);
     for (const line of inline) expect(line.text.length).toBeLessThanOrEqual(24);
     expect(clipModelDetailLines(lines, 3, 6).at(-1)?.text).toBe("...");
+  });
+});
+
+describe("provider-aware row lookup", () => {
+  // Aggregator gateways serve other vendors' ids: the same id under two
+  // providers routes, prices and credentials differently, so the detail
+  // pane must describe the highlighted row — never the last-built dup.
+  const dupeCatalog: CatalogModel[] = [
+    { id: "openai/gpt-5.2-chat", provider: "kilo", price: "$1/2 per M" },
+    { id: "openai/gpt-5.2-chat", provider: "openrouter", price: "$1.75/14 per M" },
+  ];
+  const rows = buildModelRows({ catalog: dupeCatalog, states: ALL_ENV });
+  const index = indexModelRows(rows);
+
+  it("keys rows by id and provider", () => {
+    expect(modelRowKey("OpenAI/GPT-5.2-Chat", "Kilo")).toBe("openai/gpt-5.2-chat::kilo");
+    expect(modelRowKey("openai/gpt-5.2-chat")).toBe("openai/gpt-5.2-chat");
+  });
+
+  it("resolves the same id to different rows per provider", () => {
+    const kilo = findModelRow(index, "openai/gpt-5.2-chat", "kilo");
+    const openrouter = findModelRow(index, "openai/gpt-5.2-chat", "openrouter");
+    expect(kilo?.kind).toBe("model");
+    expect(openrouter?.kind).toBe("model");
+    if (kilo?.kind === "model") {
+      expect(kilo.group.id).toBe("kilo");
+      expect(kilo.model.price).toBe("$1/2 per M");
+    }
+    if (openrouter?.kind === "model") {
+      expect(openrouter.group.id).toBe("openrouter");
+      expect(openrouter.model.price).toBe("$1.75/14 per M");
+    }
+  });
+
+  it("keeps the detail pane on the highlighted row's provider", () => {
+    const kilo = findModelRow(index, "openai/gpt-5.2-chat", "kilo");
+    const text = kilo ? modelDetailLines({ row: kilo, configured: [] }, 60).map((l) => l.text).join("\n") : "";
+    expect(text).toContain("Provider: Kilo Gateway");
+    expect(text).not.toContain("Provider: OpenRouter");
+  });
+
+  it("falls back to a bare-id match when the provider is unknown", () => {
+    expect(findModelRow(index, "openai/gpt-5.2-chat")?.kind).toBe("model");
+    expect(findModelRow(index, "OPENAI/GPT-5.2-CHAT", "nope")).toBeDefined();
+  });
+
+  it("returns undefined for an unknown id", () => {
+    expect(findModelRow(index, "nope/nothing", "kilo")).toBeUndefined();
+    expect(findModelRow(index, "nope/nothing")).toBeUndefined();
   });
 });
 

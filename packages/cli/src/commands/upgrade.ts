@@ -26,6 +26,51 @@ interface UpgradeOptions {
   installDir?: string;
 }
 
+/**
+ * Env allowlist for the `curl | bash` child. Exported for tests.
+ *
+ * SECURITY: never forward the ambient environment. The calling shell
+ * routinely holds provider keys (ANTHROPIC_API_KEY, …) and forwarding
+ * them into a network-fetched script is a credential-exfil channel
+ * if install.sh (or anything it sources) is ever compromised. Pass
+ * an explicit allowlist instead: PATH/HOME/terminal locale for the
+ * shell, proxy vars so curl works behind a corporate proxy, TMPDIR
+ * for temp files, and the two XSEC_* overrides install.sh reads.
+ */
+export const UPGRADE_ENV_ALLOWLIST: ReadonlySet<string> = new Set([
+  "PATH",
+  "HOME",
+  "USER",
+  "TERM",
+  "LANG",
+  "LC_ALL",
+  "TMPDIR",
+  "TMP",
+  "TEMP",
+  "HTTP_PROXY",
+  "HTTPS_PROXY",
+  "NO_PROXY",
+  "http_proxy",
+  "https_proxy",
+  "no_proxy",
+  "XSEC_VERSION",
+  "XSEC_INSTALL_DIR",
+]);
+
+export function buildUpgradeEnv(
+  parentEnv: NodeJS.ProcessEnv,
+  opts: UpgradeOptions,
+): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {};
+  for (const key of UPGRADE_ENV_ALLOWLIST) {
+    const value = parentEnv[key];
+    if (value !== undefined) env[key] = value;
+  }
+  if (opts.version) env["XSEC_VERSION"] = opts.version;
+  if (opts.installDir) env["XSEC_INSTALL_DIR"] = opts.installDir;
+  return env;
+}
+
 export function registerUpgradeCommand(program: Command): void {
   program
     .command("upgrade")
@@ -47,10 +92,8 @@ export function registerUpgradeCommand(program: Command): void {
 
       // We pipe the install script into bash, mirroring the curl|bash one-
       // liner from the README. Set up the env so install.sh picks up the
-      // requested overrides.
-      const env: NodeJS.ProcessEnv = { ...process.env };
-      if (opts.version) env["XSEC_VERSION"] = opts.version;
-      if (opts.installDir) env["XSEC_INSTALL_DIR"] = opts.installDir;
+      // requested overrides (allowlisted — see buildUpgradeEnv).
+      const env = buildUpgradeEnv(process.env, opts);
 
       console.log("");
       console.log(`  ${chalk.bold("xsec upgrade")} — fetching the latest binary…`);

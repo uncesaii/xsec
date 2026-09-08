@@ -129,6 +129,7 @@ export const MODELS_DEV_PROVIDERS: readonly ModelsDevProvider[] = [
   { id: "llmgateway", name: "DevPass (LLM Gateway)", envVars: ["LLMGATEWAY_API_KEY"], baseUrl: "https://api.llmgateway.io/v1", openaiCompatible: true },
   { id: "llmgateway-providers", name: "LLM Gateway", envVars: ["LLMGATEWAY_API_KEY"], baseUrl: "https://api.llmgateway.io/v1", openaiCompatible: true },
   { id: "kilo", name: "Kilo Gateway", envVars: ["KILO_API_KEY"], baseUrl: "https://api.kilo.ai/api/gateway", openaiCompatible: true },
+  { id: "genspark", name: "GenSpark", envVars: ["GENSPARK_API_KEY", "GSK_API_KEY"], baseUrl: "https://www.genspark.ai/api/llm_proxy/v1", openaiCompatible: true },
   { id: "tokenrouter", name: "TokenRouter", envVars: ["TOKENROUTER_API_KEY"], baseUrl: "https://api.tokenrouter.com/v1", openaiCompatible: true },
   { id: "trustedrouter", name: "TrustedRouter", envVars: ["TRUSTEDROUTER_API_KEY"], baseUrl: "https://api.trustedrouter.com/v1", openaiCompatible: true },
   { id: "orcarouter", name: "OrcaRouter", envVars: ["ORCAROUTER_API_KEY"], baseUrl: "https://api.orcarouter.ai/v1", openaiCompatible: true },

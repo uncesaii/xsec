@@ -56,10 +56,11 @@
  * `shell-geometry.ts`, and this import is the marker for that move.
  */
 
-import { buildModelCatalog, displayModelTitle, isModelFree, type CatalogModel } from "./model-catalog.js";
+import { buildModelCatalog, displayModelTitle, isModelFree, modelContextWindow, type CatalogModel } from "./model-catalog.js";
 import { PROVIDERS, providerStates, allProviders, type ProviderState, type AllProviderEntry } from "./provider-status.js";
 import { MODELS_DEV_BY_ID } from "./models-dev-providers.js";
 import { shellChromeRows, wrapCells } from "./settings-layout.js";
+import { formatTokenCount } from "./status-bar.js";
 import { sanitizeTuiText } from "./text.js";
 
 export { shellChromeRows, wrapCells };
@@ -208,6 +209,54 @@ export type ModelRow =
       readonly model: CatalogModel;
       readonly active: boolean;
     };
+
+/**
+ * Provider-aware index key: the same model id legitimately appears under
+ * several providers (aggregator gateways such as Kilo or OpenRouter serve
+ * other vendors' ids), and each of those rows routes, prices and
+ * credentials DIFFERENTLY. A bare-id map (`id -> row`, last write wins)
+ * made the detail pane describe whichever duplicate was built last — e.g.
+ * highlighting Kilo's `openai/gpt-5.2-chat` while the pane swore the
+ * provider was OpenRouter with OpenRouter credentials. The key carries the
+ * group so the pane always describes the row the operator is on.
+ */
+export function modelRowKey(id: string, provider?: string): string {
+  const bare = id.trim().toLowerCase();
+  const vendor = (provider ?? "").trim().toLowerCase();
+  return vendor ? `${bare}::${vendor}` : bare;
+}
+
+/** Index every model row under its provider-aware key. */
+export function indexModelRows(rows: readonly ModelRow[]): Map<string, ModelRow> {
+  const map = new Map<string, ModelRow>();
+  for (const row of rows) {
+    if (row.kind !== "model") continue;
+    map.set(modelRowKey(row.model.id, row.group.id), row);
+  }
+  return map;
+}
+
+/**
+ * The row a dialog item points at: exact provider-aware match first, then a
+ * bare-id fallback for items that carry no provider (defensive — every item
+ * the screen builds carries one). Never resolves a DIFFERENT provider's
+ * duplicate when the right one exists.
+ */
+export function findModelRow(
+  index: ReadonlyMap<string, ModelRow>,
+  id: string,
+  provider?: string,
+): ModelRow | undefined {
+  if (provider) {
+    const exact = index.get(modelRowKey(id, provider));
+    if (exact) return exact;
+  }
+  const needle = id.trim().toLowerCase();
+  for (const row of index.values()) {
+    if (row.kind === "model" && row.model.id.trim().toLowerCase() === needle) return row;
+  }
+  return undefined;
+}
 
 export interface ModelRowsInput {
   /** Defaults to the live catalogue; a test may pass its own. */
@@ -396,6 +445,14 @@ export interface ModelDetailInput {
   configured?: readonly string[];
   /** Omit the blank separator rows. Set when the pane is short of rows. */
   compact?: boolean;
+  /**
+   * The full catalogue the rows were built from. Used to resolve the
+   * highlighted model's context window across sibling id shapes (a
+   * provider-fetched `vendor/model` row carries no window of its own, but
+   * the feed row under the bare id does — see `modelContextWindow`).
+   * When omitted, only the row's own reported window is used.
+   */
+  catalog?: readonly CatalogModel[];
 }
 
 /**
@@ -408,7 +465,7 @@ export interface ModelDetailInput {
  * fuse to its value.
  */
 export function modelDetailLines(
-  { row, configured = [], compact = false }: ModelDetailInput,
+  { row, configured = [], compact = false, catalog }: ModelDetailInput,
   width: number,
 ): ModelDetailLine[] {
   const limit = cells(width);
@@ -437,6 +494,13 @@ export function modelDetailLines(
     separate();
     push(`Provider: ${group.label}`, "text");
     push(`Price: ${row.model.price}`, "text");
+    // The context window, when any feed reported one — resolved across
+    // sibling id shapes (vendor prefix, `:free` suffix) exactly like the
+    // status-bar meter, so a provider-fetched row still shows the window
+    // the feed knows under the bare id. Unknown stays absent: the pane
+    // never invents a number.
+    const contextWindow = modelContextWindow(catalog ?? [row.model], row.model.id);
+    if (contextWindow !== undefined) push(`Context: ${formatTokenCount(contextWindow)}`, "text");
     if (row.model.releaseDate) push(`Released: ${row.model.releaseDate}`, "muted");
     if (row.active) push("Currently active", "accent");
   }

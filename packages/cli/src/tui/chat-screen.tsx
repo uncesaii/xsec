@@ -16,6 +16,7 @@ import {
   createConsoleRuntime,
   createConsoleSession,
   eventBus,
+  getToolsForRole,
   type ConsoleAutonomyMode,
   type ConsoleScopeRequest,
   type ConsoleScopeResolution,
@@ -47,7 +48,7 @@ import {
 import { useTheme, type Theme } from "./theme-context.js";
 import { createTranscriptDocument, modelProvider } from "@xsec/shared";
 import { labelForCatalogId } from "./provider-status.js";
-import { buildFullModelCatalog } from "./model-catalog.js";
+import { buildFullModelCatalog, modelContextWindow } from "./model-catalog.js";
 import { homedir } from "node:os";
 import {
   createPresentationEmitter,
@@ -62,6 +63,7 @@ import {
   fitStatusSegments,
   fitStatusPills,
   pillText,
+  priceUsageForModel,
   type StatusSegment,
   type StatusColorRole,
 } from "./status-bar.js";
@@ -521,6 +523,12 @@ export interface ChatScreenProps {
   options?: ChatScreenOptions;
   onGoBack: () => void;
   onNavigate: (destination: ChatDestination, id?: string, finding?: Finding) => void;
+  /**
+   * Strip target/scope from the persistent chat options (run.tsx owns that
+   * state). Called by the `/reset` handler BEFORE rebuilding the session so
+   * a later remount or model switch cannot re-seed the cleared engagement.
+   */
+  onResetEngagement?: () => void;
   onExit: () => void;
   /**
    * Opens the provider recovery screen after a recognized credential failure.
@@ -725,14 +733,6 @@ export function runtimeFindingFromRun(finding: RunFinding): Finding {
  * the severity and the text after the colon is the title. Deriving from the
  * entries the screen already holds means the right sidebar needs no new event
  * plumbing and works identically for a live turn and a restored session.
- */
-/**
- * This run's findings, read from the transcript itself: every successful
- * `save_finding` tool call, newest last. The argument one-liner is
- * `"<severity> <category>: <title>"` (see tool-format), so the leading word is
- * the severity and the text after the colon is the title. Deriving from the
- * entries the screen already holds means the right sidebar needs no new event
- * plumbing and works identically for a live turn and a restored session.
  *
  * Richer fields (category/location/description) come from the entry's
  * `finding*` card metadata so a current-run click opens the detail screen
@@ -792,6 +792,7 @@ export function ChatScreen({
   options,
   onGoBack,
   onNavigate,
+  onResetEngagement,
   onExit,
   onConnectionFailure,
   submitHandle,
@@ -1032,8 +1033,26 @@ export function ChatScreen({
     if (pickerHighlightId) pickerRef.current?.onHighlight?.(pickerHighlightId);
   }, [pickerHighlightId]);
   const [sessionTokens, setSessionTokens] = useState({ input: 0, output: 0 });
-  /** Live turn-budget consumption, updated per model call. */
-  const [turnBudget, setTurnBudget] = useState<{ used: number; limit: number } | null>(null);
+  /**
+   * The last settled turn's context size, attributed to the model that RAN
+   * it. OpenCode pairs its meter the same way (last assistant message's
+   * tokens against that message's model window) instead of cumulative
+   * session spend against the currently-selected window — which is what
+   * produced readings like "527% of 200k" after a model switch. Reset on
+   * /clear and /reset alongside the session totals.
+   */
+  const [lastTurn, setLastTurn] = useState<{ model: string; input: number; output: number } | null>(null);
+  /**
+   * Per-model spend buckets, keyed by the model id that ran each turn.
+   * The cost segment sums each bucket at its OWN rate (via
+   * priceUsageForModel; unpriced buckets contribute nothing) instead of
+   * pricing mixed-model session totals at whatever model is selected now —
+   * the dollar counterpart to lastTurn's meter attribution. Same lifecycle
+   * as sessionTokens: reset on /clear and /reset, per-process (resume
+   * restores native message blocks only, so buckets restart empty there,
+   * exactly like the session totals do).
+   */
+  const [modelSpend, setModelSpend] = useState<Record<string, { input: number; output: number }>>({});
   const [startupError, setStartupError] = useState<string | null>(null);
   const [mode, setMode] = useState<ConsoleAutonomyMode>(options?.autonomyMode ?? "standard");
   /**
@@ -1298,6 +1317,26 @@ export function ChatScreen({
   }, [flushStreamPatches]);
 
   /**
+   * The tool list for `/tools` and `/status`, WITHOUT requiring a live
+   * session. On a fresh open the mount-time buildSession() throws when no
+   * provider is configured yet (startupError, session stays null) — and both
+   * commands then reported "no tools" for a tool set that was always
+   * deterministic. The fallback is exactly what a fresh session would carry
+   * (`config.tools ?? getToolsForRole(role, …)` — see createConsoleSession),
+   * minus live-only injections (plugins, MCP, self-registered tools), which
+   * the panel says out loud via `live: false`.
+   */
+  const resolveToolNames = (): { names: string[]; live: boolean } => {
+    if (session) return { names: session.tools.map((tool) => tool.name), live: true };
+    return {
+      names: getToolsForRole(options?.role ?? "audit", {
+        allowScanners: options?.allowScanners,
+      }).map((tool) => tool.name),
+      live: false,
+    };
+  };
+
+  /**
    * Build a console session.
    *
    * Extracted from the mount effect because `/model` rebuilds the session
@@ -1307,7 +1346,7 @@ export function ChatScreen({
    * silently discarded mid-engagement.
    */
   const buildSession = useCallback((
-    opts: { model?: string; provider?: string; initialMessages?: NativeMessage[] } = {},
+    opts: { model?: string; provider?: string; initialMessages?: NativeMessage[]; clearEngagement?: boolean } = {},
   ): { session: ConsoleSession; model: string } => {
     // Apply stored provider credentials before the runtime resolves any.
     // credentialEnvPatch never overrides a variable the shell already set,
@@ -1325,8 +1364,10 @@ export function ChatScreen({
     });
     const created = createConsoleSession({
       runtime,
-      target: options?.target,
-      scope: options?.scope,
+      // /reset passes clearEngagement: the new session starts with no
+      // target and no scope, so nothing cleared can leak back in.
+      target: opts.clearEngagement ? undefined : options?.target,
+      scope: opts.clearEngagement ? undefined : options?.scope,
       role: options?.role,
       maxToolIterations: options?.maxToolIterations,
       allowScanners: options?.allowScanners,
@@ -1675,6 +1716,9 @@ export function ChatScreen({
           if (!settingsRef.current.showRuntimeNotices) return;
           appendEntry({
             kind: event.level === "error" ? "error" : "notice",
+            // Ambient: runtime noise, not conversation — must not flip the
+            // hero/empty state on its own (see `empty`).
+            ambient: true,
             text: `runtime: ${event.message}`,
             detail: event.fields && Object.keys(event.fields).length > 0
               ? Object.entries(event.fields).map(([k, v]) => `${k}=${String(v)}`).join(" ")
@@ -1698,6 +1742,9 @@ export function ChatScreen({
       if (!settingsRef.current.showRuntimeNotices) return;
       appendEntry({
         kind: "notice",
+        // Ambient: intercepted process output, not conversation — must not
+        // flip the hero/empty state on its own (see `empty`).
+        ambient: true,
         text: line.stream === "stderr" ? `runtime: ${line.text}` : line.text,
         turn: turn.current,
       });
@@ -2294,7 +2341,9 @@ export function ChatScreen({
             mode: modeLabel(mode),
             target: target || undefined,
             scopeRules,
-            toolCount: session?.tools.length ?? 0,
+            // Same session-independent resolution as /tools: a fresh,
+            // not-yet-connected TUI reports the default set, not 0.
+            toolCount: resolveToolNames().names.length,
             turns: turn.current,
             inputTokens: sessionTokens.input,
             outputTokens: sessionTokens.output,
@@ -2339,7 +2388,11 @@ export function ChatScreen({
         setEntries([]);
         entriesRef.current = [];
         turn.current = 0;
-        setTurnBudget(null);
+        // Session totals and the last-turn meter reading belong to the
+        // emptied conversation — a cleared screen must not meter old spend.
+        setSessionTokens({ input: 0, output: 0 });
+        setLastTurn(null);
+        setModelSpend({});
         // The live plan tree belongs to the conversation being emptied.
         setTodos(null);
         // The objective describes the conversation being emptied; drop it so a
@@ -2351,6 +2404,74 @@ export function ChatScreen({
           detail: session
             ? "The model starts from an empty history. Scope, target and mode are unchanged, and nothing you previously denied has been re-allowed."
             : "The transcript is empty. The runtime is not connected, so there was no model history to clear.",
+          turn: turn.current,
+        });
+        return true;
+      }
+      // `/reset` is the complement of `/clear`: where clear empties only
+      // the conversation and deliberately keeps authorization state, reset
+      // drops the whole engagement — transcript, target, scope, granted
+      // escalations and the denied-host / denied-path memory — by rebuilding
+      // the session around a bare runtime. Model and autonomy mode are
+      // preferences, not engagement state, so both are kept.
+      case "reset": {
+        if (busy) {
+          appendEntry({
+            kind: "notice",
+            text: "wait for the active turn before resetting",
+            detail: "The turn in flight is still bound to the engagement this would drop.",
+            turn: turn.current,
+          });
+          return true;
+        }
+        const previous = sessionRef.current;
+        if (!previous) {
+          appendEntry({
+            kind: "notice",
+            text: "nothing to reset",
+            detail: "No session is running, so there is no engagement to drop.",
+            turn: turn.current,
+          });
+          return true;
+        }
+        // Strip the persistent options FIRST so a later remount or model
+        // switch cannot re-seed the cleared target/scope.
+        onResetEngagement?.();
+        let built: { session: ConsoleSession; model: string };
+        try {
+          built = buildSession({ clearEngagement: true });
+        } catch (error) {
+          appendEntry({
+            kind: "notice",
+            text: "could not reset; engagement is unchanged",
+            detail: error instanceof Error ? error.message : String(error),
+            turn: turn.current,
+          });
+          return true;
+        }
+        setSession(built.session);
+        setModelId(built.model);
+        void previous.cleanup();
+        discardStreamPatches();
+        setEntries([]);
+        entriesRef.current = [];
+        turn.current = 0;
+        // Same meter reasoning as /clear: the dropped engagement's spend
+        // and last-turn reading must not haunt the fresh session.
+        setSessionTokens({ input: 0, output: 0 });
+        setLastTurn(null);
+        setModelSpend({});
+        setTodos(null);
+        setObjective("");
+        // The header reads local target/scopeRules state (seeded from options
+        // at mount), NOT the rebuilt session — without this the top bar keeps
+        // showing the dropped engagement's target/scope after /reset.
+        setTarget("");
+        setScopeRules([]);
+        appendEntry({
+          kind: "notice",
+          text: "engagement reset",
+          detail: "Conversation cleared. Target, scope and previous denials were dropped — the next scope/target prompt starts from scratch. Model and mode are unchanged.",
           turn: turn.current,
         });
         return true;
@@ -2729,11 +2850,11 @@ export function ChatScreen({
         return true;
       }
       case "tools": {
-        const toolNames = session?.tools.map((tool) => tool.name) ?? [];
+        const tools = resolveToolNames();
         appendEntry({
           kind: "panel",
           text: "tools",
-          panel: buildToolsPanel(toolNames),
+          panel: buildToolsPanel(tools.names, { liveSession: tools.live }),
           turn: turn.current,
         });
         return true;
@@ -2856,6 +2977,10 @@ export function ChatScreen({
     // the answer alongside the elapsed. Null until the turn returns, so a turn
     // that throws before reporting usage simply stamps nothing.
     let turnUsage: { inputTokens: number; outputTokens: number } | null = null;
+    // The model that ran this turn, captured at settle time (modelIdRef is
+    // stable across the turn). Stamped onto the answer as `usageModel` so the
+    // footer prices the turn at its own rate even after a later /model switch.
+    let turnModel: string | null = null;
     streamingRef.current = false;
     // One controller per turn, published so Esc can reach it. It is cleared
     // in `finally`, so an Esc after the turn ended aborts nothing.
@@ -2965,11 +3090,6 @@ export function ChatScreen({
             ...toolCardFieldsFromMeta(result.meta),
           });
         },
-        onUsage: (usage) => {
-          // Fires once per model call, so the operator watches the budget
-          // being consumed instead of discovering it at the stop.
-          setTurnBudget({ used: usage.turnTokensUsed, limit: usage.turnTokenBudget });
-        },
         onNotice: (notice) => appendEntry({ kind: "notice", text: notice, turn: currentTurn }),
       }, { signal: controller.signal });
 
@@ -2980,11 +3100,33 @@ export function ChatScreen({
         input: prev.input + outcome.usage.inputTokens,
         output: prev.output + outcome.usage.outputTokens,
       }));
+      // Attribute the turn's context size to the model that ran it
+      // (modelIdRef is stable across the turn — in-place switches defer
+      // while busy). Zero-usage failures leave the prior reading alone
+      // rather than wiping the meter to 0%.
+      if (outcome.usage.inputTokens + outcome.usage.outputTokens > 0) {
+        const settledModel = modelIdRef.current ?? "";
+        setLastTurn({
+          model: settledModel,
+          input: outcome.usage.inputTokens,
+          output: outcome.usage.outputTokens,
+        });
+        // Same attribution for spend: each turn lands in its own model's
+        // bucket so the cost segment never blends rates across a switch.
+        turnModel = settledModel;
+        setModelSpend((prev) => ({
+          ...prev,
+          [settledModel]: {
+            input: (prev[settledModel]?.input ?? 0) + outcome.usage.inputTokens,
+            output: (prev[settledModel]?.output ?? 0) + outcome.usage.outputTokens,
+          },
+        }));
+      }
       turnUsage = { inputTokens: outcome.usage.inputTokens, outputTokens: outcome.usage.outputTokens };
 
       // A turn that fails must say so. The engine reports failure through
       // `stopReason`/`error`, and neither was surfaced before: a provider
-      // rejection rendered as "0 tool calls · 0→0 tok" and nothing else,
+      // rejection rendered as "0 tool calls · 0→0 tokens" and nothing else,
       // which reads as the agent having simply ignored the operator.
       const producedText = Boolean(assistantText || outcome.assistantText);
       if (outcome.stopReason === "cancelled") {
@@ -3043,7 +3185,7 @@ export function ChatScreen({
       if (settings.showTurnSummary) {
         appendEntry({
           kind: "notice",
-          text: `${outcome.toolCalls.length} tool call${outcome.toolCalls.length === 1 ? "" : "s"} · ${outcome.usage.inputTokens}→${outcome.usage.outputTokens} tok`,
+          text: `${outcome.toolCalls.length} tool call${outcome.toolCalls.length === 1 ? "" : "s"} · ${outcome.usage.inputTokens}→${outcome.usage.outputTokens} tokens`,
           turn: currentTurn,
         });
       }
@@ -3057,7 +3199,6 @@ export function ChatScreen({
       });
       const recovery = connectionRecoveryForError(detail);
       if (recovery) onConnectionFailure?.(recovery);
-      setTurnBudget(null);
     } finally {
       // Drop the controller before clearing `busy`, so Esc can never abort a
       // turn that has already returned.
@@ -3098,6 +3239,7 @@ export function ChatScreen({
       // never re-times an old answer.
       const turnDuration = Date.now() - turnStartedAt;
       const usage = turnUsage;
+      const usageModel = turnModel;
       setEntries((current) => current.some(
         (e) => e.kind === "assistant" && e.turn === currentTurn && e.durationMs === undefined,
       )
@@ -3107,9 +3249,15 @@ export function ChatScreen({
                   ...e,
                   durationMs: turnDuration,
                   // Stamp per-turn usage alongside the elapsed so the footer's
-                  // token/cost segments have a real figure to render.
+                  // token/cost segments have a real figure to render — plus
+                  // the model that ran the turn, so the cost prices at its
+                  // own rate even after a later /model switch.
                   ...(usage
-                    ? { usageInput: usage.inputTokens, usageOutput: usage.outputTokens }
+                    ? {
+                        usageInput: usage.inputTokens,
+                        usageOutput: usage.outputTokens,
+                        ...(usageModel ? { usageModel } : {}),
+                      }
                     : {}),
                 }
               : e)
@@ -3830,13 +3978,60 @@ export function ChatScreen({
     }
   });
 
-  const empty = entries.filter((e) => e.kind === "user" || e.kind === "assistant").length === 0;
+  // The hero (logo + centered composer) shows only while the transcript is
+  // TRULY empty. Counting just user/assistant rows swallowed every notice
+  // and panel appended before the first message — `/tools`, `/capabilities`,
+  // `/status`, even the `/clear` + `/reset` confirmations rendered into a
+  // transcript the hero branch never paints, so the output only "appeared"
+  // after the next message flipped the view. Every entry kind is persistent
+  // transcript content (toasts/approvals live outside `entries`), so any
+  // entry at all means the conversation view — EXCEPT ambient runtime noise
+  // (diagnostics replays, intercepted process output), which must never kick
+  // the TUI out of the hero on its own: a lone startup warning is not a
+  // conversation.
+  const empty = entries.filter((entry) => !entry.ambient).length === 0;
   // Parked messages are surfaced next to the working indicator, because that is
   // exactly where the operator is looking while they wait.
   const queueLabel = composerQueueLabel(queuedCount);
   // The header owns engagement posture: target, scope, session state, and the
   // optional objective. Autonomy mode belongs beside model and workspace state
   // in the bottom bar, where it is available without competing with the target.
+  // The context meter pairs the LAST TURN's context size with the window of
+  // the model that RAN it (OpenCode: last assistant message's tokens vs
+  // that message's model window) — never cumulative session spend against
+  // the currently-selected window, which is what printed "527% of 200k"
+  // after OpenRouter-router/model switches. No settled turn yet, or the
+  // feed knows no window for that model: no meter (it stays hidden rather
+  // than inventing a denominator). The cumulative in/out counters beside
+  // it remain session spend — a different, honest number.
+  const lastTurnWindow = useMemo(
+    () => (lastTurn ? modelContextWindow(buildFullModelCatalog(), lastTurn.model || undefined) : undefined),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [lastTurn?.model],
+  );
+  const meterWindow = lastTurnWindow;
+  const meterUsed = lastTurnWindow !== undefined && lastTurn
+    ? lastTurn.input + lastTurn.output
+    : undefined;
+  // Multi-model cost total: each turn's spend priced at the model that ran
+  // it, summed. Unpriced buckets (unknown rate) contribute nothing; when NO
+  // bucket prices, the total stays undefined and the segment hides rather
+  // than blending everything at the currently-selected rate.
+  const costTotal = useMemo(() => {
+    let total = 0;
+    let priced = false;
+    for (const [spentModel, spent] of Object.entries(modelSpend)) {
+      const pricedSlice = priceUsageForModel(spentModel || undefined, {
+        inputTokens: spent.input,
+        outputTokens: spent.output,
+      });
+      if (pricedSlice === undefined) continue;
+      priced = true;
+      total += pricedSlice;
+    }
+    return priced ? total : undefined;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modelSpend]);
   const statusSegments = buildStatusSegments({
     model: modelId ?? undefined,
     mode: modeLabel(mode),
@@ -3848,11 +4043,8 @@ export function ChatScreen({
     untracked: git?.untracked,
     inputTokens: sessionTokens.input,
     outputTokens: sessionTokens.output,
-    // The per-turn token budget, shown only while a turn is actually
-    // running. This is the turn budget, NOT a model context window —
-    // nothing in the codebase knows context-window sizes.
-    contextWindow: turnBudget?.limit,
-    contextUsed: turnBudget?.used,
+    contextWindow: meterWindow,
+    contextUsed: meterUsed,
     // Telemetry toggles: where the model name is surfaced, whether the
     // context reading renders as a visual meter, and whether an estimated
     // dollar cost is appended. status-bar.ts honours each and invents no
@@ -3860,6 +4052,11 @@ export function ChatScreen({
     modelDisplay: settings.modelDisplay,
     showContextMeter: settings.showContextMeter,
     showCost: settings.showCost,
+    // Per-model attributed total (each turn priced at the model that ran
+    // it). Falls back to single-model pricing inside buildStatusSegments
+    // only when this is undefined — which can't happen while session
+    // tokens are non-zero, since both accumulate together.
+    costUsdTotal: costTotal,
   });
   // The OMP-style pill row: the SAME segments, kept/dropped at the bar's real
   // width, each painted as its own coloured glyph+text with a subtle separator

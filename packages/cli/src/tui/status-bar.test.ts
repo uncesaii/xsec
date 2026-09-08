@@ -7,6 +7,7 @@ import {
   fitStatusPills,
   pillText,
   formatTokenCount,
+  priceUsageForModel,
   sidebarToggleIcons,
   sidebarIconsWidth,
   type StatusBarInput,
@@ -348,10 +349,30 @@ describe("cost", () => {
     ).toBe("<$0.01");
   });
 
-  it("shows $— for a model with no known rate rather than the fallback rate", () => {
+  it("omits cost for a model with no known rate rather than the fallback rate", () => {
     expect(
       textOf(buildStatusSegments({ model: "totally-made-up-model", showCost: true, inputTokens: 1_000_000, outputTokens: 0 }), "cost"),
-    ).toBe("$—");
+    ).toBeUndefined();
+  });
+
+  it("prefers a precomputed multi-model total over single-model pricing", () => {
+    // 1M in + 1M out on claude-sonnet-4-6 would price at $18.00 — the
+    // attributed total (each turn priced at the model that ran it) wins.
+    expect(
+      textOf(
+        buildStatusSegments({ model: "claude-sonnet-4-6", showCost: true, inputTokens: 1_000_000, outputTokens: 1_000_000, costUsdTotal: 0.05 }),
+        "cost",
+      ),
+    ).toBe("$0.05");
+  });
+
+  it("renders a zero attributed total as $0.00 (every priced turn ran free)", () => {
+    expect(
+      textOf(
+        buildStatusSegments({ model: "totally-made-up-model", showCost: true, inputTokens: 1000, outputTokens: 0, costUsdTotal: 0 }),
+        "cost",
+      ),
+    ).toBe("$0.00");
   });
 
   it("omits cost entirely without usage or when disabled", () => {
@@ -359,6 +380,20 @@ describe("cost", () => {
     expect(
       textOf(buildStatusSegments({ model: "claude-sonnet-4-6", inputTokens: 1_000_000, outputTokens: 0 }), "cost"),
     ).toBeUndefined();
+  });
+});
+
+describe("priceUsageForModel", () => {
+  it("prices one usage slice at its own model's rate", () => {
+    // claude-sonnet-4-6 is $3/M in, $15/M out.
+    expect(priceUsageForModel("claude-sonnet-4-6", { inputTokens: 1_000_000, outputTokens: 0 })).toBe(3);
+    expect(priceUsageForModel("anthropic/claude-sonnet-4-6", { inputTokens: 0, outputTokens: 1_000_000 })).toBe(15);
+  });
+
+  it("returns undefined when the model has no known rate", () => {
+    expect(priceUsageForModel("totally-made-up-model", { inputTokens: 1_000_000, outputTokens: 0 })).toBeUndefined();
+    expect(priceUsageForModel(undefined, { inputTokens: 1_000_000, outputTokens: 0 })).toBeUndefined();
+    expect(priceUsageForModel("", { inputTokens: 1_000_000, outputTokens: 0 })).toBeUndefined();
   });
 });
 

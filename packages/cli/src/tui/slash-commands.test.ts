@@ -103,6 +103,15 @@ describe("findCommand", () => {
     expect(result.command).toBe("clear");
   });
 
+  it("recognises /reset by canonical name and reset-engagement alias", () => {
+    for (const input of ["/reset", "/reset-engagement"]) {
+      const result = findCommand(input);
+      expect(result.isSlash).toBe(true);
+      expect(result.isKnown).toBe(true);
+      expect(result.command).toBe("reset");
+    }
+  });
+
   it("recognises /capabilities by alias caps", () => {
     const result = findCommand("/caps");
     expect(result.isSlash).toBe(true);

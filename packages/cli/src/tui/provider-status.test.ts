@@ -58,6 +58,7 @@ describe("PROVIDERS", () => {
         "google",
         "groq",
         "kimi",
+        "genspark",
         "meta",
         "mistral",
         "modal",

@@ -144,7 +144,13 @@ export function getRates(model?: string): ModelRates {
   const aliasKey = azureDeploymentPriceKey(key);
   const rates = MODEL_PRICING[key] ?? (aliasKey ? MODEL_PRICING[aliasKey] : undefined);
   if (!rates) {
-    if (model) console.warn(`[xsec] Unknown model for cost estimation: ${model}`);
+    // Gated, not removed: cost estimation must stay silent on hot paths
+    // (status bar, usage ledger, every turn) and only speak when an
+    // operator is actively debugging pricing. Shared cannot import core's
+    // diag channel (dependency direction), so a plain env gate it is.
+    if (model && process.env["XSEC_DEBUG"]) {
+      console.warn(`[xsec] Unknown model for cost estimation: ${model}`);
+    }
     return MODEL_PRICING.default;
   }
   return rates;

@@ -191,7 +191,12 @@ export function isCacheFresh(cache: CatalogCache | null, opts: CatalogSyncOption
  */
 export function loadCatalogModels(opts: CatalogSyncOptions = {}): CatalogCache {
   const cache = readCache(catalogCachePath(opts));
-  if (cache && cache.models.length > 0) return cache;
+  if (cache && cache.models.length > 0) {
+    const seen = new Set(cache.models.map((m) => `${m.id.toLowerCase()}:${m.provider.toLowerCase()}`));
+    const missing = OFFLINE_MODEL_CATALOG.filter((m) => !seen.has(`${m.id.toLowerCase()}:${m.provider.toLowerCase()}`));
+    if (missing.length > 0) return { ...cache, models: [...cache.models, ...missing] };
+    return cache;
+  }
   return { fetchedAt: 0, source: "offline", models: OFFLINE_MODEL_CATALOG };
 }
 

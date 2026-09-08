@@ -15,9 +15,12 @@
  * in-memory ledger for the lifetime of the scan and is discarded with it.
  *
  * This is a FIRST SLICE (xsec#771): the load/save APIs and the durable schema
- * exist and are unit-tested, but the native agent loop is only stubbed to call
- * them (see native-loop.ts TODO). The loop wiring is deliberately not rewritten
- * here.
+ * exist and are unit-tested, and the native agent loop now calls them via
+ * the trust-graph wiring (see native-loop.ts xsec#771 sites: session
+ * construction, fresh-start foothold injection, cross-target emit,
+ * harvest matching, and loop-completion persistence). What remains
+ * deliberately out of scope here is any change to the loop's own
+ * turn/auth flow — that lives in native-loop.ts, not in this store.
  */
 
 import { createHash } from "node:crypto";
