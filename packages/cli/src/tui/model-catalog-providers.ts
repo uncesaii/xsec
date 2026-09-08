@@ -89,6 +89,8 @@ function normalizeOpenRouterModels(raw: unknown): SyncedModel[] {
 // GET /v1/models
 // Response: { data: [{ id, owned_by? }] }
 // No pricing data — prices come from MODEL_PRICING or "—" fallback.
+// Google's OpenAI compat returns "models/gemini-2.5-flash" — we strip the
+// "models/" prefix so picker IDs match the bare IDs sent via chat/completions.
 
 function normalizeOpenAiCompatibleModels(raw: unknown, providerId: string): SyncedModel[] {
   if (typeof raw !== "object" || raw === null) return [];
@@ -98,8 +100,9 @@ function normalizeOpenAiCompatibleModels(raw: unknown, providerId: string): Sync
   const out: SyncedModel[] = [];
   for (const item of data) {
     if (typeof item !== "object" || item === null) continue;
-    const id = typeof item["id"] === "string" ? item["id"] : undefined;
+    let id = typeof item["id"] === "string" ? item["id"] : undefined;
     if (!id) continue;
+    if (id.toLowerCase().startsWith("models/")) id = id.slice("models/".length);
     // Skip non-chat models — only list chat/completion models.
     const lower = id.toLowerCase();
     if (
