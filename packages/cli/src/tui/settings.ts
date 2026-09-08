@@ -59,7 +59,7 @@ export interface TuiSettings {
   showLogo: boolean;
   /** Surface runtime stdout/stderr as transcript notices. */
   showRuntimeNotices: boolean;
-  /** Per-turn "N tool calls - in->out tok" summary line. */
+  /** Per-turn "N tool calls - in->out tokens" summary line. */
   showTurnSummary: boolean;
   /** Show the active subagent list while workers run. */
   showSubagents: boolean;
@@ -135,7 +135,7 @@ export interface TuiSettings {
    */
   autoPromoteFinderLenses: boolean;
   /**
-   * Per-turn "in→out tok" line under each answer. Consumed by chat-screen's
+   * Per-turn "in→out tokens" line under each answer. Consumed by chat-screen's
    * per-message footer (wired by the coordinator); this module only declares it.
    */
   showTokenUsage: boolean;
@@ -279,7 +279,7 @@ const DEFS: readonly TuiSettingDef[] = [
   {
     key: "showTurnSummary",
     label: "Turn summary",
-    description: 'Per-turn "N tool calls - in->out tok" line after each answer.',
+    description: 'Per-turn "N tool calls - in->out tokens" line after each answer.',
     kind: "boolean",
     default: false,
     group: "Transcript",
@@ -465,7 +465,7 @@ const DEFS: readonly TuiSettingDef[] = [
   {
     key: "showTokenUsage",
     label: "Token usage",
-    description: 'Per-turn "in→out tok" line under each answer.',
+    description: 'Per-turn "in→out tokens" line under each answer.',
     kind: "boolean",
     default: false,
     group: "Telemetry",

@@ -745,8 +745,10 @@ const VULTR_DEFAULT_BASE_URL = "https://api.vultrinference.com/v1";
 const VULTR_DEFAULT_MODEL = "meta-llama-3.1-70b-instruct";
 const DIGITALOCEAN_DEFAULT_BASE_URL = "https://inference.do-ai.run/v1";
 const DIGITALOCEAN_DEFAULT_MODEL = "meta-llama-3.1-70b-instruct";
+const GENSPARK_DEFAULT_BASE_URL = "https://www.genspark.ai/api/llm_proxy/v1";
+const GENSPARK_DEFAULT_MODEL = "claude-sonnet-4-6";
 
-type ApiProvider = "openrouter" | "anthropic" | "openai" | "azure" | "deepseek" | "chatgpt-codex" | "z-ai" | "kimi" | "qwen" | "xai" | "custom-openai" | "zen" | "google" | "mistral" | "meta" | "cohere" | "perplexity" | "nvidia" | "groq" | "together" | "fireworks" | "deepinfra" | "cerebras" | "siliconflow" | "novita" | "friendli" | "baseten" | "modal" | "scaleway" | "ovhcloud" | "vultr" | "digitalocean";
+type ApiProvider = "openrouter" | "anthropic" | "openai" | "azure" | "deepseek" | "chatgpt-codex" | "z-ai" | "kimi" | "qwen" | "xai" | "custom-openai" | "zen" | "google" | "mistral" | "meta" | "cohere" | "perplexity" | "nvidia" | "groq" | "together" | "fireworks" | "deepinfra" | "cerebras" | "siliconflow" | "novita" | "friendli" | "baseten" | "modal" | "scaleway" | "ovhcloud" | "vultr" | "digitalocean" | "genspark";
 type WireApi = "chat_completions" | "responses";
 /**
  * Azure Foundry deployment ids used by xcloud. The worker can inject both
@@ -799,7 +801,7 @@ const VALID_PROVIDERS: Record<string, true> = {
     google: true, mistral: true, meta: true, cohere: true, perplexity: true,
     nvidia: true, groq: true, together: true, fireworks: true, deepinfra: true,
     cerebras: true, siliconflow: true, novita: true, friendli: true,
-    baseten: true, modal: true, scaleway: true, ovhcloud: true,
+    baseten: true, modal: true, scaleway: true, ovhcloud: true, genspark: true,
     vultr: true, digitalocean: true,
   };
   for (const part of raw.split(",")) {
@@ -1008,6 +1010,11 @@ export function resolveFailoverProvider(
       const key = process.env.DIGITALOCEAN_ACCESS_TOKEN;
       if (!key) return undefined;
       return { apiKey: key, baseUrl: process.env.DIGITALOCEAN_BASE_URL ?? DIGITALOCEAN_DEFAULT_BASE_URL, wireApi: "chat_completions" };
+    }
+    case "genspark": {
+      const key = process.env.GENSPARK_API_KEY ?? process.env.GSK_API_KEY;
+      if (!key) return undefined;
+      return { apiKey: key, baseUrl: process.env.GENSPARK_BASE_URL ?? process.env.GSK_BASE_URL ?? GENSPARK_DEFAULT_BASE_URL, wireApi: "chat_completions" };
     }
   }
 }
@@ -1493,6 +1500,12 @@ function providerForModel(model: string | undefined): ApiProvider | undefined {
   if (m.endsWith(":free")) {
     if (process.env.OPENROUTER_API_KEY) return "openrouter";
     return providerForModel(model.slice(0, -":free".length));
+  }
+  // GenSpark proxy uses its own namespace (genspark/<bare-id>). Must win
+  // before the generic claude/gpt includes below, otherwise the bare
+  // suffix "claude-sonnet-4-6" would route to anthropic.
+  if (m.startsWith("genspark/") || m.startsWith("genspark-ai/")) {
+    return (process.env.GENSPARK_API_KEY ?? process.env.GSK_API_KEY) ? "genspark" : undefined;
   }
   // Direct DeepSeek uses the exact lower-case stable API id. Azure exposes
   // a separately cased deployment id for Flash, which is handled below.
@@ -2070,6 +2083,18 @@ function detectProvider(configApiKey?: string, preferredModel?: string): {
     };
   }
 
+  // GenSpark — OpenAI-compatible, explicit opt-in via GENSPARK_API_KEY.
+  const gensparkKey2 = process.env.GENSPARK_API_KEY ?? process.env.GSK_API_KEY;
+  if (gensparkKey2) {
+    return {
+      provider: "genspark",
+      apiKey: gensparkKey2,
+      baseUrl: process.env.GENSPARK_BASE_URL ?? process.env.GSK_BASE_URL ?? GENSPARK_DEFAULT_BASE_URL,
+      defaultModel: process.env.GENSPARK_MODEL ?? GENSPARK_DEFAULT_MODEL,
+      wireApi: "chat_completions",
+    };
+  }
+
   // xAI Grok — OpenAI-compatible wire, same explicit-opt-in treatment as
   // z-ai/kimi/qwen, still before the Anthropic final fallback.
   const xaiKey = process.env.XAI_API_KEY;
@@ -2183,8 +2208,26 @@ export function parseProviderError(input: {
   // human message ("spent") and would drop the machine code
   // ("insufficient_quota"), so match both.
   const signalText = `${input.body}\n${raw}`;
+  // Genspark LLM proxy: free-plan keys are rejected at call time even though
+  // /v1/models lists the models. The key is valid, just not entitled to the
+  // proxy — retrying or reconnecting the same key won't help.
+  if (/Free-plan credits can't be used with the Genspark API/i.test(signalText)) {
+    return {
+      message: cap(raw || "Free-plan credits can't be used with the Genspark LLM proxy."),
+      kind: "quota",
+      action: `Visit https://www.genspark.ai/pricing to subscribe or purchase credits, then reconnect via /connect. Free-plan keys only work in the web UI, not the API / LLM proxy.`,
+    };
+  }
+  // GenSpark model gate: 400 "Model 'gemini-3-pro' is not allowed. See GET /v1/models..."
+  if (/is not allowed\. See GET \/v1\/models/i.test(signalText)) {
+    return {
+      message: cap(raw || `Model${modelRef} is not served by ${vendor}.`),
+      kind: "model_unavailable",
+      action: `Reselect in /model — only the models listed by GET /v1/models on ${vendor}'s proxy are allowed (see provider's /v1/models).`,
+    };
+  }
   // Plan/subscription quota is spent for hours/days — retrying is pointless.
-  if (/insufficient_quota|quota_exceeded|quota exhausted|usage_limit|plan quota|billing/i.test(signalText)) {
+  if (/insufficient_quota|quota_exceeded|quota exhausted|usage_limit|plan quota|billing|pricing.*subscribe|purchase credits/i.test(signalText)) {
     return {
       message: cap(raw || "Plan quota exhausted."),
       kind: "quota",
@@ -2449,6 +2492,7 @@ export class LlmApiRuntime implements Runtime, NativeRuntime {
       this.provider === "ovhcloud" ||
       this.provider === "vultr" ||
       this.provider === "digitalocean" ||
+      this.provider === "genspark" ||
       // chatgpt-codex always speaks Responses API; treat it as
       // OpenAI-compat for body-shape branching purposes (the Responses
       // wire-API code paths below already key on `wireApi === "responses"`

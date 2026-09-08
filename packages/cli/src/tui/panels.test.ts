@@ -218,6 +218,22 @@ describe("buildToolsPanel", () => {
     expect(panel.rows).toHaveLength(1);
     expect(panel.rows[0]?.value).toMatch(/no tools are registered/i);
   });
+
+  it("marks the fallback list as session-less, not the session's set", () => {
+    const panel = buildToolsPanel(["read_file", "run_command"], { liveSession: false });
+    expect(panel.subtitle).toBe("2 tools");
+    expect(panel.rows.map((r) => r.value)).toEqual([
+      "read_file",
+      "run_command",
+      expect.stringMatching(/no live session/i),
+    ]);
+  });
+
+  it("says connect instead of registered-nothing when session-less and empty", () => {
+    const panel = buildToolsPanel([], { liveSession: false });
+    expect(panel.rows).toHaveLength(1);
+    expect(panel.rows[0]?.value).toMatch(/no live session/i);
+  });
 });
 
 describe("buildStatusPanel", () => {

@@ -156,13 +156,14 @@ function footerRates(model: string): ModelRates | undefined {
 }
 
 /**
- * A quiet per-turn cost string for the AI footer, or "$—" when the model's rate
- * is unknown (never a figure at a rate the model was not billed). Mirrors the
- * status-bar's arithmetic and formatting.
+ * A quiet per-turn cost string for the AI footer, or undefined when the
+ * model's rate is unknown — the footer omits the segment rather than
+ * printing "$—" (never a figure at a rate the model was not billed).
+ * Mirrors the status-bar's arithmetic and formatting.
  */
-function formatTurnCost(model: string, inputTokens: number, outputTokens: number): string {
+function formatTurnCost(model: string, inputTokens: number, outputTokens: number): string | undefined {
   const rates = model ? footerRates(model) : undefined;
-  if (!rates) return "$—";
+  if (!rates) return undefined;
   const usd =
     (Math.max(0, inputTokens) / 1_000_000) * rates.input +
     (Math.max(0, outputTokens) / 1_000_000) * rates.output;
@@ -286,10 +287,16 @@ export function renderEntry(
         const footerParts: string[] = [];
         if (display.modelInFooter && display.model) footerParts.push(display.model);
         if (display.showTokenUsage && entry.usageInput !== undefined) {
-          footerParts.push(`${entry.usageInput}→${entry.usageOutput ?? 0} tok`);
+          footerParts.push(`${entry.usageInput}→${entry.usageOutput ?? 0} tokens`);
         }
         if (display.showCost && entry.usageInput !== undefined) {
-          footerParts.push(formatTurnCost(display.model, entry.usageInput, entry.usageOutput ?? 0));
+          // Price at the model that RAN the turn (stamped as usageModel),
+          // not the currently-selected one — a later /model switch must not
+          // reprice old answers. Falls back to the current model for
+          // pre-change transcripts that carry usage without attribution.
+          const costModel = entry.usageModel ?? display.model;
+          const turnCost = formatTurnCost(costModel, entry.usageInput, entry.usageOutput ?? 0);
+          if (turnCost !== undefined) footerParts.push(turnCost);
         }
         const elapsed = entry.durationMs ? formatElapsed(entry.durationMs) : "";
         if (elapsed) footerParts.push(elapsed);

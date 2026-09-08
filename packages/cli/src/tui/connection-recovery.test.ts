@@ -82,6 +82,23 @@ describe("connectionRecoveryForError", () => {
     }
   });
 
+  it("never yanks transient network failures to the credential form", () => {
+    // The key is fine — the request never completed — so re-pasting it
+    // fixes nothing. The turn already reports these inline; just retry.
+    for (const error of [
+      "NVIDIA API request timed out",
+      "OpenRouter API request timed out",
+      "NVIDIA request cancelled by operator",
+      "Anthropic API error: connect ETIMEDOUT 160.202.166.18:443",
+      "DeepSeek API error: read ECONNRESET",
+      "OpenAI API error: socket hang up",
+      "xAI Grok API error: fetch failed",
+      "Google Gemini API error: Connection reset by peer",
+    ]) {
+      expect(connectionRecoveryForError(error), error).toBeNull();
+    }
+  });
+
   it("still routes billing failures to the credential form", () => {
     const recovery = connectionRecoveryForError(
       "OpenRouter insufficient_quota: plan quota exhausted (plan=free)",

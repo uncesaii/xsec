@@ -26,6 +26,14 @@ export type ChatEntry = {
   detail?: string;
   success?: boolean;
   turn: number;
+  /**
+   * Ambient runtime noise (diagnostics-channel replays, intercepted
+   * stdout/stderr) as opposed to conversation or command output. Ambient
+   * entries stay in the transcript but don't count as "the operator said
+   * something" — otherwise a startup warning alone would kick the TUI out
+   * of the hero screen into an empty-looking chat.
+   */
+  ambient?: boolean;
   subagentOutcome?: "completed" | "failed";
   subagentTurns?: number;
   subagentFindings?: number;
@@ -52,6 +60,14 @@ export type ChatEntry = {
    */
   usageInput?: number;
   usageOutput?: number;
+  /**
+   * The model id that ran the turn these usage figures belong to, stamped
+   * alongside them. The footer prices the turn at THIS rate — not the
+   * currently-selected model — so a later /model switch doesn't reprice
+   * old answers. Absent on pre-change transcripts; callers fall back to
+   * the current model exactly as before.
+   */
+  usageModel?: string;
   /**
    * How many consecutive identical entries this row stands for; see
    * `appendTranscriptEntry`. Rendered as a trailing "(xN)".
@@ -140,7 +156,7 @@ export interface EntryDisplay {
   model: string;
   /** Show the model name on the AI footer (settings.modelDisplay === "message"). */
   modelInFooter: boolean;
-  /** Show the per-turn "in→out tok" segment on the AI footer. */
+  /** Show the per-turn "in→out tokens" segment on the AI footer. */
   showTokenUsage: boolean;
   /** Show the estimated per-turn dollar cost on the AI footer. */
   showCost: boolean;

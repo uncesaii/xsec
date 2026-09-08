@@ -188,11 +188,14 @@ function buildProviderFetchers(env: Record<string, string | undefined>): Provide
     if (seen.has(runtimeId)) continue;
     seen.add(runtimeId);
 
-    // Allow env var override for base URL (e.g. DEEPSEEK_BASE_URL)
-    const baseURLOverride = md.envVars.length === 1
-      ? env[md.envVars[0]!.replace("_API_KEY", "_BASE_URL")]
-      : undefined;
-    const baseUrl = baseURLOverride?.trim() || md.baseUrl.replace(/\$\{[^}]+\}/g, "");
+    // Allow env var override for base URL (e.g. DEEPSEEK_BASE_URL, GENSPARK_BASE_URL / GSK_BASE_URL)
+    let baseURLOverride: string | undefined;
+    for (const v of md.envVars) {
+      const candidate = env[v.replace("_API_KEY", "_BASE_URL")];
+      if (candidate && candidate.trim().length > 0) { baseURLOverride = candidate.trim(); break; }
+    }
+    if (!baseURLOverride) baseURLOverride = env["GSK_BASE_URL"]?.trim() || env["GENSPARK_BASE_URL"]?.trim();
+    const baseUrl = baseURLOverride && baseURLOverride.length > 0 ? baseURLOverride : md.baseUrl.replace(/\$\{[^}]+\}/g, "");
 
     fetchers.push({
       providerId: runtimeId,

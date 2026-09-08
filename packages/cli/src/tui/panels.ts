@@ -254,21 +254,39 @@ export function buildCapabilityPanel(
 // Tools
 // ---------------------------------------------------------------------------
 
-export function buildToolsPanel(toolNames: readonly string[]): PanelData {
+export function buildToolsPanel(
+  toolNames: readonly string[],
+  opts: { liveSession?: boolean } = {},
+): PanelData {
+  const live = opts.liveSession ?? true;
   if (toolNames.length === 0) {
     return {
       title: "Tools",
       subtitle: "0 tools",
-      rows: [{ value: "No tools are registered for this session." }],
+      rows: [{
+        value: live
+          ? "No tools are registered for this session."
+          : "No live session — connect a provider and the session's tools appear here.",
+      }],
     };
   }
 
+  // Full-width rows: tool names are a single column, so a label column here
+  // would only shrink the text it is describing.
+  const rows = toolNames.map((name) => ({ value: name }));
+  if (!live) {
+    // A fallback list is the role's DEFAULT set (see getToolsForRole): it
+    // cannot include plugin, MCP-server or self-registered tools, which only
+    // exist on a live session. Say so, or the operator mistakes the default
+    // set for the session's actual tool set.
+    rows.push({
+      value: "No live session — default set for this role. Plugin, MCP and self-registered tools appear once connected.",
+    });
+  }
   return {
     title: "Tools",
     subtitle: plural(toolNames.length, "tool"),
-    // Full-width rows: tool names are a single column, so a label column here
-    // would only shrink the text it is describing.
-    rows: toolNames.map((name) => ({ value: name })),
+    rows,
   };
 }
 

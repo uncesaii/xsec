@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { MODEL_PRICING, modelProvider } from "@xsec/shared";
 
-import { buildModelCatalog, displayModelTitle, formatModelPrice, modelSelectorItems } from "./model-catalog.js";
+import { buildModelCatalog, displayModelTitle, formatModelPrice, modelContextWindow, modelSelectorItems, type CatalogModel } from "./model-catalog.js";
 
 const SOME_MODEL = "gpt-5.5";
 
@@ -144,5 +144,67 @@ describe("displayModelTitle", () => {
     expect(
       displayModelTitle({ id: "big-pickle", provider: "zen", price: "free", name: "Big Pickle", input: 0, output: 0 }),
     ).toBe("Big Pickle");
+  });
+});
+
+describe("modelContextWindow", () => {
+  const catalog: CatalogModel[] = [
+    { id: "a/model", provider: "a", price: "—", contextTokens: 200_000 },
+    { id: "b/other", provider: "b", price: "—" },
+    { id: "c/third", provider: "c", price: "—", contextTokens: 0 },
+  ];
+
+  it("returns the window for an exact id match", () => {
+    expect(modelContextWindow(catalog, "a/model")).toBe(200_000);
+  });
+
+  it("matches case-insensitively as a fallback", () => {
+    expect(modelContextWindow(catalog, "A/MODEL")).toBe(200_000);
+  });
+
+  it("returns undefined — never a guess — when unknown", () => {
+    expect(modelContextWindow(catalog, undefined)).toBeUndefined();
+    expect(modelContextWindow(catalog, "nope/unknown")).toBeUndefined();
+    // Known row, but no feed reported a window under any sibling shape.
+    expect(modelContextWindow(catalog, "b/other")).toBeUndefined();
+    // A zero/degenerate window is not a window, and no sibling id shape
+    // knows better.
+    expect(modelContextWindow(catalog, "c/third")).toBeUndefined();
+  });
+
+  it("prefers the exact row over a case-insensitive collision", () => {
+    const dupe: CatalogModel[] = [
+      ...catalog,
+      { id: "A/MODEL", provider: "a", price: "—", contextTokens: 1_000_000 },
+    ];
+    expect(modelContextWindow(dupe, "A/MODEL")).toBe(1_000_000);
+    expect(modelContextWindow(dupe, "a/model")).toBe(200_000);
+  });
+
+  it("resolves across vendor-prefix and :free id shapes when unanimous", () => {
+    // The provider /v1/models row carries the id but no window; the feed
+    // row knows the window under the bare id.
+    const mixed: CatalogModel[] = [
+      { id: "nvidia/nemotron-3-super-120b-a12b", provider: "nvidia", price: "—" },
+      { id: "nemotron-3-super-120b-a12b", provider: "nvidia", price: "—", contextTokens: 256_000 },
+    ];
+    expect(modelContextWindow(mixed, "nvidia/nemotron-3-super-120b-a12b")).toBe(256_000);
+    // Same weights via OpenRouter's :free billing shape.
+    const free: CatalogModel[] = [
+      { id: "qwen/qwen3-plus:free", provider: "openrouter", price: "free" },
+      { id: "qwen3-plus", provider: "qwen", price: "—", contextTokens: 128_000 },
+    ];
+    expect(modelContextWindow(free, "qwen/qwen3-plus:free")).toBe(128_000);
+  });
+
+  it("refuses to guess when sibling id shapes disagree", () => {
+    const clash: CatalogModel[] = [
+      { id: "a/foo", provider: "a", price: "—", contextTokens: 100_000 },
+      { id: "b/foo", provider: "b", price: "—", contextTokens: 200_000 },
+    ];
+    // Exact rows still answer for themselves…
+    expect(modelContextWindow(clash, "a/foo")).toBe(100_000);
+    // …but an unknown shape must not pick a side.
+    expect(modelContextWindow(clash, "c/foo")).toBeUndefined();
   });
 });

@@ -64,6 +64,8 @@ import {
   clipModelDetailLines,
   configuredProviderLabels,
   credentialSummary,
+  findModelRow,
+  indexModelRows,
   isFilterKey,
   modelDetailLines,
   modelFooterHint,
@@ -241,13 +243,12 @@ export function ModelScreen({
         })),
     [modelRows, hasFilterText],
   );
-  // id -> ModelRow, so the detail renderer can reach the full provider/credential
-  // facts the flat `DialogItem` does not carry.
-  const rowById = useMemo(() => {
-    const map = new Map<string, ModelRow>();
-    for (const row of modelRows) if (row.kind === "model") map.set(row.model.id, row);
-    return map;
-  }, [modelRows]);
+  // Provider-aware id -> ModelRow, so the detail renderer describes the
+  // row the operator is actually on. A bare-id map (last write wins) showed
+  // the WRONG provider's facts whenever two vendors served the same id —
+  // e.g. Kilo's `openai/gpt-5.2-chat` highlighted while the pane claimed
+  // OpenRouter with OpenRouter credentials.
+  const rowById = useMemo(() => indexModelRows(modelRows), [modelRows]);
 
   // --- Prepend "Recent" section: heading + last-5-models-used ---
   // Build an augmented items list that puts the 5 most recently selected model
@@ -394,10 +395,13 @@ export function ModelScreen({
   // The detail pane shows the highlighted model's full provider/credential
   // story, fitted to the exact box the shared body hands it.
   const renderDetail = (item: DialogItem, pane: { width: number; height: number }) => {
-    const row = rowById.get(item.id);
+    // The item carries the group it was rendered under (DialogItem.provider),
+    // so the lookup lands on the same vendor's row — never a duplicate id
+    // served by a different provider.
+    const row = findModelRow(rowById, item.id, item.provider);
     const compact = pane.height < 12;
     const lines = clipModelDetailLines(
-      modelDetailLines({ row, configured, compact }, pane.width),
+      modelDetailLines({ row, configured, compact, catalog }, pane.width),
       pane.height,
       pane.width,
     );

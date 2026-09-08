@@ -550,7 +550,7 @@ async function runTurn(
   }
 
   const usage = outcome.usage;
-  const footer = `${outcome.toolCalls.length} tool call${outcome.toolCalls.length === 1 ? "" : "s"} · ${usage.inputTokens}→${usage.outputTokens} tok`;
+  const footer = `${outcome.toolCalls.length} tool call${outcome.toolCalls.length === 1 ? "" : "s"} · ${usage.inputTokens}→${usage.outputTokens} tokens`;
   output.stdout("\n" + chalk.dim(`  [${footer}]`) + "\n", "console.turn.completed");
 
   if (outcome.stopReason === "error") {

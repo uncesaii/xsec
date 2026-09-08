@@ -31,6 +31,13 @@ export interface CatalogModel {
   output?: number;
   /** Lifecycle status; "deprecated" rows are filtered like upstream. */
   status?: string;
+  /**
+   * Context window in tokens, when the feed reports it (Models.dev
+   * `limit.context`, OpenRouter `context_length`, provider `/v1/models`
+   * when available). Drives the model-aware status-bar meter — absent
+   * means "unknown", never a guessed number.
+   */
+  contextTokens?: number;
 }
 
 /**
@@ -111,16 +118,21 @@ export function formatModelPrice(input: number, output: number): string {
 }
 
 export function buildModelCatalog(currentModel?: string): CatalogModel[] {
+  const offlineById = new Map(
+    loadCatalogModels().models.map((m) => [m.id.toLowerCase(), m]),
+  );
   const models = Object.keys(MODEL_PRICING)
     .filter((id) => !NON_MODEL_PRICING_KEYS.has(id))
     .map((id) => {
       const rates = getRates(id);
+      const offline = offlineById.get(id.toLowerCase());
       return {
         id,
         provider: modelProvider(id),
         price: formatModelPrice(rates.input, rates.output),
         input: rates.input,
         output: rates.output,
+        contextTokens: offline?.contextTokens,
       } satisfies CatalogModel;
     });
 
@@ -194,6 +206,7 @@ export function catalogExtras(opts: CatalogSyncOptions = {}): CatalogModel[] {
       input: m.input,
       output: m.output,
       status: m.status,
+      contextTokens: m.contextTokens,
     });
   }
   return out;
@@ -223,4 +236,63 @@ export function fullModelSelectorItems(
     meta: `${model.provider} · ${model.price}`,
     current: model.id === currentModel,
   }));
+}
+
+/**
+ * The model's real context window in tokens, or `undefined` when no feed
+ * reported one. Match strategy, in order:
+ * 1. exact id match;
+ * 2. case-insensitive id match (OpenRouter `:free` casing, vendor casing);
+ * 3. bare-id match — the `vendor/` prefix and any `:free` suffix are
+ *    billing/routing decorations on the same weights, so `nvidia/foo`,
+ *    `foo`, and `other-vendor/foo:free` all describe the same window
+ *    *provided every catalog row that knows a window for that bare id
+ *    agrees on the value*. Disagreement (two genuinely different models
+ *    sharing a bare name) degrades to `undefined`: callers fall back to
+ *    the turn budget, which is at least honest about what it measures.
+ * Never guesses a number.
+ */
+export function modelContextWindow(
+  catalog: readonly CatalogModel[],
+  modelId: string | undefined,
+): number | undefined {
+  if (!modelId) return undefined;
+  const exact = catalog.find((model) => model.id === modelId);
+  const row = exact ?? catalog.find((model) => model.id.toLowerCase() === modelId.toLowerCase());
+  const windowOf = (candidate: CatalogModel | undefined): number | undefined =>
+    candidate &&
+    typeof candidate.contextTokens === "number" &&
+    Number.isFinite(candidate.contextTokens) &&
+    candidate.contextTokens > 0
+      ? Math.trunc(candidate.contextTokens)
+      : undefined;
+  const direct = windowOf(row);
+  if (direct !== undefined) return direct;
+  // A known id shape without a reported window (e.g. a provider `/v1/models`
+  // row, which carries no context data) must not shadow a feed row that
+  // DOES know the window under a sibling id shape — fall through to the
+  // bare-id search rather than returning undefined here.
+  const bare = bareModelId(modelId);
+  if (!bare) return undefined;
+  const windows = new Set<number>();
+  for (const model of catalog) {
+    if (bareModelId(model.id) !== bare) continue;
+    const known = windowOf(model);
+    if (known !== undefined) windows.add(known);
+  }
+  // Unanimous (a single knower counts as unanimous) or nothing.
+  return windows.size === 1 ? [...windows][0] : undefined;
+}
+
+/**
+ * The routing/billing decorations stripped: `Nvidia/Foo:free` → `foo`.
+ * Both the vendor prefix and the OpenRouter `:free` suffix describe how
+ * the model is *served*, not which weights run — the context window is
+ * identical either way.
+ */
+function bareModelId(id: string): string | undefined {
+  const slash = id.indexOf("/");
+  const withoutVendor = slash >= 0 ? id.slice(slash + 1) : id;
+  const bare = withoutVendor.replace(/:free$/i, "").trim().toLowerCase();
+  return bare.length > 0 ? bare : undefined;
 }

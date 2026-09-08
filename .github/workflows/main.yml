@@ -49,3 +49,10 @@ jobs:
           DEEPSEEK_API_KEY: ""
           AZURE_OPENAI_API_KEY: ""
           KIMI_API_KEY: ""
+      # Advisory visibility without gating the pipeline: `pnpm audit`
+      # exits nonzero on findings, so a fresh advisory must never red-den
+      # an unrelated feature push. Promote to a hard gate once the tree
+      # is advisory-clean for a full quarter.
+      - name: Dependency audit (advisory, non-blocking)
+        continue-on-error: true
+        run: pnpm audit --prod --audit-level=high

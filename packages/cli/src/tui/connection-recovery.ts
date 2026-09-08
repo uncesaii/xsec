@@ -24,6 +24,7 @@ const PROVIDER_ALIASES: Array<{ pattern: RegExp; id: string }> = [
   { pattern: /alibaba|qwen/i, id: "qwen" },
   { pattern: /\bxai\b|x\.ai|grok/i, id: "xai" },
   { pattern: /\bzen\b/i, id: "zen" },
+  { pattern: /genspark/i, id: "genspark" },
   { pattern: /openai/i, id: "openai" },
 ];
 
@@ -41,6 +42,18 @@ const CREDENTIAL_SIGNAL =
  * 404 joins them — re-pasting a key has never fixed a not-found. */
 const MODEL_MISMATCH_SIGNAL =
   /\b404\b|model .*not (found|available|supported|served)|no such model|unknown model|not served by|reselect in \/model/i;
+
+/**
+ * Transient network failures: timeouts, drops, refusals, operator cancels.
+ * The key is fine — the request never completed (or the operator killed
+ * it) — so routing to the credential form actively misleads: re-pasting a
+ * working key fixes nothing, and yanking the operator to /connect
+ * mid-engagement is the confusion. The turn already reports the failure
+ * inline; the operator just retries. Checked FIRST so a transient always
+ * wins over any credential-looking substring sharing the same detail.
+ */
+const TRANSIENT_SIGNAL =
+  /timed?\s?out|timeout|aborted?\b|cancelled? by operator|cancelled\b|canceled\b|econnreset|econnrefused|etimedout|econnaborted|enotfound|eai_again|socket hang ?up|fetch failed|failed to fetch|connection (reset|refused|closed|aborted)|network error/i;
 
 function escapeRegExp(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -77,6 +90,10 @@ export function connectionRecoveryForError(error: string): ConnectionRecovery | 
     }
   }
   if (!providerId) return null;
+
+  // A timeout is a network problem, not a credential problem — never yank
+  // to the credential form for one (see TRANSIENT_SIGNAL).
+  if (TRANSIENT_SIGNAL.test(detail)) return null;
 
   // A wrong model on the right vendor is fixed in /model, not /connect.
   if (MODEL_MISMATCH_SIGNAL.test(detail) && !CREDENTIAL_SIGNAL.test(detail)) return null;

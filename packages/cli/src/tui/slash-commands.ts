@@ -111,7 +111,13 @@ export const SLASH_COMMANDS: readonly SlashCommand[] = [
     name: "clear",
     aliases: ["new"],
     category: "session",
-    description: "Clear the conversation history",
+    description: "Clear the conversation history (keeps target, scope and denials)",
+  },
+  {
+    name: "reset",
+    aliases: ["reset-engagement"],
+    category: "session",
+    description: "Clear the conversation AND the engagement (target, scope, denials)",
   },
   {
     name: "history",

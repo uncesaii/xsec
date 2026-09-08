@@ -116,6 +116,13 @@ interface ShellNav {
    * none re-enters chat with its defaults, which is what the palette does.
    */
   openChat: (options?: ChatScreenOptions) => void;
+  /**
+   * Drops target/scope from the persistent chat options (the `/reset`
+   * counterpart to picking them up). ChatScreen rebuilds its session
+   * without them first; this keeps later remounts and model switches
+   * from re-seeding the cleared engagement.
+   */
+  clearEngagement: () => void;
   openLauncher: () => void;
   openOps: () => void;
   openDoctor: () => void;
@@ -4191,6 +4198,19 @@ function ConsoleApp({
       }
       navigate({ type: "chat", options });
     },
+    clearEngagement: () => {
+      const strip = (
+        opts: ChatScreenOptions | undefined,
+      ): ChatScreenOptions | undefined => {
+        if (!opts) return opts;
+        const next = { ...opts };
+        delete next.target;
+        delete next.scope;
+        return next;
+      };
+      chatOptionsRef.current = strip(chatOptionsRef.current);
+      setChatOptions((prev) => strip(prev));
+    },
     openLauncher: () => navigate({ type: "launcher" }),
     openOps: () => navigate({ type: "ops", refreshMs: 4000 }),
     openDoctor: () => navigate({ type: "doctor" }),
@@ -4376,6 +4396,7 @@ function ConsoleApp({
         // Without this wire-up the failure only printed "turn failed" in chat and
         // the device-auth pane never surfaced.
         onConnectionFailure={(recovery) => navigate({ type: "connect", recovery })}
+        onResetEngagement={shell.clearEngagement}
         onExit={onExit}
       />
     </AppContext.Provider>
